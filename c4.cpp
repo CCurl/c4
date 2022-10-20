@@ -331,13 +331,13 @@ void X() { if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
 void N() {}
 
 void (*q[128])() = {
-    X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                           //   0:31
-    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,             //  32:47
-    fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,                         //  48:63
-    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,                          //  64:79
-    fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,                        //  80:95
-    fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,  //  96:111
-    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,X,fWhile,fLNot,X };        // 112:127
+    X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                //   0:31
+    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,  //  32:47
+    fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,              //  48:63
+    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,               //  64:79
+    fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,             //  80:95
+    fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,         //  96:111
+    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,X,fWhile,fLNot,X };      // 112:127
 
 void run(WORD start) {
     pc = CA(start);
