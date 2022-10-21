@@ -5,9 +5,9 @@
 // ----------------------------------
 // The Virtual Machine / OS
 // ----------------------------------
+union { float f[STK_SZ + 1]; CELL i[STK_SZ + 1]; } stk;
 CELL sp, rsp, lsp, lb, isError, sb, rb, fsp;
-CELL BASE, stks[STK_SZ], locals[LOCALS_SZ], lstk[LSTK_SZ+1], seed;
-float fstk[FLT_SZ];
+CELL BASE, locals[LOCALS_SZ], lstk[LSTK_SZ+1], seed;
 
 byte *code, *vars, mem[MEM_SZ], *y, *in;
 DICT_E *dict;
@@ -29,14 +29,12 @@ void vmReset() {
     systemWords();
 }
 
-void push(CELL v) { stks[++sp] = v; }
-CELL pop() { return stks[sp--]; }
+void push(CELL v) { stk.i[++sp] = v; }
+CELL pop() { return stk.i[sp--]; }
+float fpop() { return stk.f[sp--]; }
 
-void fpush(float v) { fstk[++fsp] = v; }
-float fpop() { return fstk[fsp--]; }
-
-void rpush(CELL v) { stks[--rsp] = v; }
-CELL rpop() { return stks[rsp++]; }
+void rpush(CELL v) { stk.i[--rsp] = v; }
+CELL rpop() { return stk.i[rsp++]; }
 
 #ifdef NEEDS_ALIGN
 WORD GET_WORD(byte* l) { return *l | (*(l + 1) << 8); }
@@ -125,7 +123,7 @@ void fDotS() {
     printString("(");
     for (int d = sb; d <= sp; d++) {
         if (sb < d) { printChar(' '); }
-        printBase(stks[d], BASE);
+        printBase(stk.i[d], BASE);
     }
     printString(")");
 }
@@ -241,25 +239,22 @@ void fDec() { --TOS; }
 void fExecute() { rpush(pc - code); pc = CA(pop()); }
 void fFloat() {
     ir = *(pc++); if (ir == '.') { printStringF("%g", fpop()); }         // FLOAT ops
-    else if (ir == '#') { fpush(FTOS); }
     else if (ir == '$') { float x = FTOS; FTOS = FNOS; FNOS = x; }
-    else if (ir == '%') { fpush(FNOS); }
-    else if (ir == '\\') { FDROP; }
-    else if (ir == 'i') { fpush((float)pop()); }
-    else if (ir == 'o') { push((CELL)fpop()); }
-    else if (ir == '+') { FNOS += FTOS; FDROP; }
-    else if (ir == '-') { FNOS -= FTOS; FDROP; }
-    else if (ir == '*') { FNOS *= FTOS; FDROP; }
-    else if (ir == '/') { FNOS /= FTOS; FDROP; }
-    else if (ir == '<') { push((FNOS < FTOS) ? 1 : 0); FDROP; FDROP; }
-    else if (ir == '>') { push((FNOS > FTOS) ? 1 : 0); FDROP; FDROP; }
+    else if (ir == 'i') { FTOS = (float)TOS; }
+    else if (ir == 'o') { TOS = (CELL)FTOS; }
+    else if (ir == '+') { FNOS += FTOS; DROP1; }
+    else if (ir == '-') { FNOS -= FTOS; DROP1; }
+    else if (ir == '*') { FNOS *= FTOS; DROP1; }
+    else if (ir == '/') { FNOS /= FTOS; DROP1; }
+    else if (ir == '<') { NOS = (FNOS < FTOS) ? 1 : 0; DROP1; }
+    else if (ir == '>') { NOS = (FNOS > FTOS) ? 1 : 0; DROP1; }
 }
 void fGoto() { pc = CA(GET_WORD(pc)); }
 void fRetOps() {
     ir = *(pc++);
-    if (ir == '<') { rpush(pop()); }     // <R
-    if (ir == '>') { push(rpop()); }     // R>
-    if (ir == '@') { push(stks[rsp]); }  // R@
+    if (ir == '<') { rpush(pop()); }      // <R
+    if (ir == '>') { push(rpop()); }      // R>
+    if (ir == '@') { push(stk.i[rsp]); }  // R@
 }
 void fKey() {
     ir = *(pc++); if (ir == '@') { push(getChar()); }  // K@
@@ -331,13 +326,13 @@ void X() { if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
 void N() {}
 
 void (*q[128])() = {
-    X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                           //   0:31
-    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,             //  32:47
-    fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,                         //  48:63
-    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,                          //  64:79
-    fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,                        //  80:95
-    fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,  //  96:111
-    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,X,fWhile,fLNot,X };        // 112:127
+    X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                //   0:31
+    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,  //  32:47
+    fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,              //  48:63
+    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,               //  64:79
+    fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,             //  80:95
+    fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,         //  96:111
+    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,X,fWhile,fLNot,X };      // 112:127
 
 void run(WORD start) {
     pc = CA(start);
@@ -458,10 +453,6 @@ PRIM_T prims[] = {
     , { "F<", "F<" }  // LT
     , { "F>", "F>" }  // GT
     , { "F.", "F." }  // PRINT
-    , { "FDUP", "F#" }
-    , { "FOVER", "F%" }
-    , { "FSWAP", "F$" }
-    , { "FDROP", "F\\" }
     // System
     , { "ALLOT", "xA" }
     , { "BL", "32" }
@@ -671,6 +662,7 @@ int isNum(const char *wd) {
     if (*wd == 0) { return 0; }
     while (*wd) {
         char c = *(wd++);
+        if ((Lower(c) == 'e') && (base == 10) && ((*wd) == 0)) { --wd; break; }
         int t = -1;
         if (BTW(c, '0', lastCh)) { t = c - '0'; }
         if ((base == 16) && (BTW(c, 'A', 'F'))) { t = c - 'A' + 10; }
@@ -678,8 +670,9 @@ int isNum(const char *wd) {
         if (t < 0) { return 0; }
         x = (x * base) + t;
     }
-    if (isNeg) { x = -x; }
     push(x);
+    if (isNeg) { TOS=-TOS; }
+    if (*wd=='e') { FTOS=(float)TOS; }
     return 1;
 }
 

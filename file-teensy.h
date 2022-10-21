@@ -27,35 +27,38 @@ int openSlot() {
 
 void fOpen() {               // (name mode--fh)
     CELL mode = pop();
-    char *fn = (char*)TOS;
-    TOS = 0;
+    char *fn = (char*)pop();
+    push(0);
     int i = openSlot();
     if (i) {
         files[i] = myFS.open(fn, (mode) ? FILE_WRITE : FILE_READ);
-        if (files[i]) { TOS = i; }
+        if (files[i]) {
+          pop();
+          push(i);
+        }
     }
 }
 
 void fGetC() {               // (fh--c n)
-    byte c;
-    CELL fh = TOS; 
-    push(0);
+    CELL c = 0, n = 0, fh = pop(); 
     if (VALIDF(fh)) {
-        TOS = files[fh].read(&c, 1);
-        NOS = (CELL)c;
+      n = files[fh].read(&c, 1);
     }
+    push(c);
+    push(n);
 }
 
 void fGetS() {               // (a sz fh--f)
     CELL fh = pop();
     CELL sz = pop();
-    char *a = (char *)TOS;
-    TOS = 0;
+    char *a = (char *)pop();
     *a = 0;
     if (VALIDF(fh) && (files[fh].available())) {
         files[fh].readBytesUntil('\n', a, sz);
-        TOS = 1;
+        push(1);
+        return;
     }
+    push(0);
 }
 
 void fWrite() {              // (c fh--)

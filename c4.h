@@ -105,17 +105,16 @@
 // #define __GAMEPAD__
 #endif
 
-#define TOS           stks[sp]
-#define NOS           stks[sp-1]
+#define TOS           stk.i[sp]
+#define NOS           stk.i[sp-1]
 #define AOS           (byte*)TOS
 #define CTOS          (char*)TOS
 #define CNOS          (char*)NOS
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
-#define FTOS          fstk[fsp]
-#define FNOS          fstk[fsp-1]
-#define FDROP         fsp-=(0<fsp)?1:0
+#define FTOS          stk.f[sp]
+#define FNOS          stk.f[sp-1]
 #define DROP1         sp--
 #define DROP2         sp-=2
 #define CA(l)         (code+l)
@@ -143,7 +142,7 @@ typedef struct {
 #define BIT_IMMEDIATE 0x80
 
 extern CELL BASE, STATE, tHERE, tVHERE, tempWords[10], sp;
-extern CELL stks[], &HERE, &VHERE, &LAST;
+extern CELL &HERE, &VHERE, &LAST;
 extern byte *code, *vars, mem[];
 extern DICT_E *dict;
 

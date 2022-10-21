@@ -14,7 +14,7 @@ The main goals for this project are as follows:
 
 To these ends, I have wandered off the beaten path in the following ways:
 
-- This is similar to a bare-bones, but it is NOT an ANSI-standard Forth.
+- This is similar to a bare-bones Forth, but it is NOT an ANSI-standard Forth.
 - This is a byte-coded implementation.
 - Many primitives (core words) are built into the compiler, and are not included in the dictionary.
 - These primitves ARE NOT case sensitive (DUP = dup = Dup).
