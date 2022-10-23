@@ -177,8 +177,10 @@ byte* doFile(CELL ir, byte* pc) {
     else if (ir == 'l') { fLoad(); pc = 0; }
     else if (TOS == 0) { printString("-nofp-"); return pc; }
     else if (ir == 'R') { fGetC(); }
+    else if (ir == 'r') { fRead(); }
     else if (ir == 'G') { fGetS(); }
-    else if (ir == 'W') { fWrite(); }
+    else if (ir == 'W') { fPutC(); }
+    else if (ir == 'w') { fWrite(); }
     else if (ir == 'C') { fClose(); }
     return pc;
 }
@@ -310,14 +312,15 @@ void fWLit() { push(GET_WORD(pc)); pc += 2; }
 void fLit() { push(GET_LONG(pc)); pc += 4; }
 void fVarAddr() { t1 = GET_LONG(pc); pc += 4; push((CELL)&vars[t1]); }
 void fUser() { pc = doUser(*pc, pc+1); }
+void fSystem() { y = (byte*)pop(); system((char*)y); }
 void fExt() {
     ir = *(pc++);
     if (ir == ']') { fPlusLoop(); }
-    else if (ir == 'S') { fDotS(); }                            // .S
+    else if (ir == 'S') { fDotS(); }                             // .S
     else if (ir == 'R') { push(doRand()); }                      // RAND
     else if (ir == 'A') { VHERE += pop(); tVHERE = VHERE; }      // ALLOT
     else if (ir == 'T') { push(doTimer()); }                     // TIMER
-    else if (ir == 'Y') { y = (byte*)pop(); system((char*)y); }  // SYSTEM
+    else if (ir == 'Y') { fSystem(); }                           // SYSTEM
     else if (ir == 'D') { doWords(); }                           // WORDS
     else if (ir == 'W') { doSleep(); }                           // MS
     else if (ir == 'Z') { vmReset(); }
@@ -347,7 +350,6 @@ void run(WORD start) {
 // ----------------------------------
 // The Assembler / Parser
 // ----------------------------------
-
 
 typedef struct {
     const char *name;
@@ -478,8 +480,10 @@ PRIM_T prims[] = {
     // Extension: FILE operations
     , { "FOPEN", "fO" }
     , { "FGETC", "fR" }
+    , { "FREAD", "fr" }
     , { "FGETS", "fG" }
     , { "FPUTC", "fW" }
+    , { "FWRITE", "fw" }
     , { "FCLOSE", "fC" }
     , { "FDELETE", "fD" }
     , { "FLIST", "fL" }

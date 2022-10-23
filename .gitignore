@@ -5,3 +5,6 @@
 /system.c4
 /history.txt
 /c4.vcxproj.user
+.depend
+c4
+.vscode/settings.json

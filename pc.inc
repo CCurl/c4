@@ -116,15 +116,48 @@ void fGetS() {
     }
 }
 
-void fWrite() {
+void fRead() {
+    FILE *fp = (FILE *)pop();
+    CELL sz = pop();
+    char *cp = (char *)pop();
+    CELL n = 0;
+    *cp = 0;
+    if (fp && !feof(fp)) {
+        n = fread(cp, 1, sz, fp);
+    }
+    push(n);
+}
+
+void fPutC() {
     FILE *fp = (FILE *)pop();
     CELL val = pop();
     if (fp) { fputc(val, fp); }
 }
 
-void fDelete() {}
+void fWrite() {
+    FILE *fp = (FILE *)pop();
+    CELL sz = pop();
+    char *cp = (char *)pop();
+    CELL n = 0;
+    *cp = 0;
+    if (fp && !feof(fp)) {
+        n = fwrite(cp, 1, sz, fp);
+    }
+    push(n);
+}
 
-void fList() {}
+void fDelete() {
+    char *cp = (char *)pop();
+    remove(cp);
+}
+
+void fList() {
+#if __TARGET__ == LINUX
+    system("ls -l");
+#else
+    system("dir");
+#endif
+}
 
 void fSave() {
     FILE *fp = myFopen("system.c4", "wb");

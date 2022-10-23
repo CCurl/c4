@@ -190,6 +190,8 @@ FGETS    (a n fh--f)       Read next line from file fh to address a, size n, f: 
 FPUTC    (c fh--)          c: char to write to file fh.
 FCLOSE   (fh--)            fh: file handle to close.
 FDELETE  (fn--)            fn: The name of the file to be deleted.
+FREAD    (a n fh--r)       Reads next n bytes from file fh to address a. r: number of bytes read.
+FWRITE   (a n fh--r)       Writes n bytes from address a to file fh. r: number of bytes written.
 FLIST    (--)              Print the list of files created on the dev board.
 
 *** LOGICAL ***
