@@ -44,3 +44,4 @@ variable ln cols allot
 40 (r) ! 150 (c) !
 : T1 begin gen key? until key drop ;
 : go 1 s7 clr-bak rand-pop CURSOR-OFF CLS T1 CURSOR-ON ;
+: reload " life.c4" sload ;

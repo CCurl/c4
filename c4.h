@@ -181,7 +181,6 @@ extern void fDelete();
 extern void fList();
 extern void fSaveSys();
 extern int fLoadSys();
-extern void fLoadBlk();
-extern int fLoadF();
+extern void fLoad(const char *fn);
 
 #endif // __C4_INCLUDED__

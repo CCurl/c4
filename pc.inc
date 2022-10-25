@@ -179,20 +179,7 @@ int fLoadSys() {
     return (fp) ? 1 : 0;
 }
 
-int fLoadF() {
-    if (getWord(word) == 0) { printString("-fn?-"); return 0; }
-    FILE *fp = myFopen(word, "rt");
-    if (fp) {
-        if (input_fp) { fpPush(input_fp); }
-        input_fp = fp;
-    }
-    return (fp) ? 1 : 0;
-}
-
-void fLoadBlk() {
-    CELL n = pop();
-    char fn[32];
-    sprintF(fn, "block-%3n.c4", n);
+void fLoad(const char *fn) {
     FILE *fp = myFopen(fn, "rt");
     if (fp) {
         if (input_fp) { fpPush(input_fp); }
