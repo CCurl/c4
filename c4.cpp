@@ -171,10 +171,11 @@ void fWord() {
 byte* doFile(CELL ir, byte* pc) {
     ir = *(pc++);
     if (ir == 'O') { fOpen(); }
+    else if (ir == 'B') { fLoadBlk(); }
     else if (ir == 'D') { fDelete(); }
-    else if (ir == 'L') { fList(); }
-    else if (ir == 's') { fSave(); }
-    else if (ir == 'l') { fLoad(); pc = 0; }
+    else if (ir == 'I') { fList(); }
+    else if (ir == 'S') { fSaveSys(); }
+    else if (ir == 's') { if (fLoadSys()) { pc = 0; } }
     else if (TOS == 0) { printString("-nofp-"); return pc; }
     else if (ir == 'R') { fGetC(); }
     else if (ir == 'r') { fRead(); }
@@ -486,9 +487,10 @@ PRIM_T prims[] = {
     , { "FWRITE", "fw" }
     , { "FCLOSE", "fC" }
     , { "FDELETE", "fD" }
-    , { "FLIST", "fL" }
-    , { "FSAVE", "fs" }
-    , { "FLOAD", "fl" }
+    , { "FLIST", "fI" }
+    , { "SAVE-SYS", "fS" }
+    , { "LOAD-SYS", "fs" }
+    , { "LOAD", "fB" }
 #endif
 #ifdef __PIN__
     // Extension: PIN operations ... for dev boards
@@ -736,14 +738,14 @@ int doWord() {
 }
 
 int doParseWord(char *wd) {
-    if (strEq(word, "//"))  { doExec(); return 0; }
-    if (strEq(word, "\\"))  { doExec(); return 0; }
-    if (isNum(wd))          { return doNumber(0); }
-    if (doPrim(wd))         { return 1; }
-    if (doFind(wd))         { return doWord(); }
-    if (strEq(wd, ".\""))   { return doDotQuote(); }
-    if (strEq(wd, "\""))    { return doQuote(); }
-    if (strEqI(wd, "load")) { return doLoad(); }
+    if (strEq(word, "//"))   { doExec(); return 0; }
+    if (strEq(word, "\\"))   { doExec(); return 0; }
+    if (isNum(wd))           { return doNumber(0); }
+    if (doPrim(wd))          { return 1; }
+    if (doFind(wd))          { return doWord(); }
+    if (strEq(wd, ".\""))    { return doDotQuote(); }
+    if (strEq(wd, "\""))     { return doQuote(); }
+    if (strEqI(wd, "loadf")) { return fLoadF(); }
 
     if (strEq(wd, ":")) {
         doExec();

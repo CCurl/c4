@@ -159,7 +159,7 @@ void fList() {
 #endif
 }
 
-void fSave() {
+void fSaveSys() {
     FILE *fp = myFopen("system.c4", "wb");
     if (fp) {
         fwrite(&mem[0], MEM_SZ, 1, fp);
@@ -168,7 +168,7 @@ void fSave() {
     } else { printString("-error-"); }
 }
 
-void fLoad() {
+int fLoadSys() {
     FILE *fp = myFopen("system.c4", "rb");
     if (fp) {
         vmReset();
@@ -176,22 +176,33 @@ void fLoad() {
         fclose(fp);
         printString("-loaded-");
     } else { printString("-error-"); }
+    return (fp) ? 1 : 0;
 }
 
-int doLoad() {
+int fLoadF() {
     if (getWord(word) == 0) { printString("-fn?-"); return 0; }
     FILE *fp = myFopen(word, "rt");
     if (fp) {
         if (input_fp) { fpPush(input_fp); }
         input_fp = fp;
     }
-    return fp ? 1 : 0;
+    return (fp) ? 1 : 0;
+}
+
+void fLoadBlk() {
+    CELL n = pop();
+    char fn[32];
+    sprintF(fn, "block-%3n.c4", n);
+    FILE *fp = myFopen(fn, "rt");
+    if (fp) {
+        if (input_fp) { fpPush(input_fp); }
+        input_fp = fp;
+    }
 }
 
 byte *doUser(CELL ir, byte *pc) {
     switch (ir) {
     case 'E': doEditor();                break;
-    case 'L': doLoad();                  break;
     case 'Q': isBye=1; pc=0;             break;
     default: printString("-unk ext-");
     }

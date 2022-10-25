@@ -179,8 +179,9 @@ extern void fWrite();
 extern void fClose();
 extern void fDelete();
 extern void fList();
-extern void fSave();
-extern void fLoad();
-extern int doLoad();
+extern void fSaveSys();
+extern int fLoadSys();
+extern void fLoadBlk();
+extern int fLoadF();
 
 #endif // __C4_INCLUDED__
