@@ -20,6 +20,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - These primitves ARE NOT case sensitive (DUP = dup = Dup).
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
+- There is no ELSE, only IF/THEN. This is consistent with ColorForth.
 - A dictionary entry looks like this: (xt,flags,word-len,word,null terminator).
 - The maximum length of a word is configurable. (#define NAME_LEN xx)
 - The number of available dictionary entries is configurable. (#define DICT_SZ xxx)
@@ -221,10 +222,9 @@ W!       (w a--)           Store WORD w at a
 - It is NULL-terminated, no count byte.
 
 *** FLOW CONTROL ***
-IF       (f--)             Standard IF
-ELSE     (--)              Standard ELSE
+IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE)
 THEN     (--)              Standard THEN
-.IF      (f--)             Simple IF, no ELSE allowed (shorter, more human-readable)
+.IF      (f--)             Simple IF (shorter, more human-readable)
 .THEN    (--)              Simple THEN
 DO       (T F--)           Begin DO/LOOP loop
 LOOP     (--)              Increment I, jump to DO if I < T
