@@ -1,6 +1,6 @@
 // Conway's game of life
 
-load init.c4
+load init
 
 variable (r) 100 (r) !
 variable (c) 300 (c) !

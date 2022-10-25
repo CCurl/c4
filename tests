@@ -14,8 +14,8 @@ cr 1 T1 0 T1
 T2 T3 T4 T5
 80 52 72 T6
 : prime? ( n--f ) 3 s2 s1 begin 
-		r1 r2 /mod 0= if 0= unloop exit then 
-		drop r2 dup * r1 > if unloop 1 exit then i2 i2 
+		r1 r2 /mod 0= IF 0= unloop exit THEN 
+		drop r2 dup * r1 > IF unloop 1 exit THEN i2 i2 
 	again ;
 : primes ( n1--n2 ) +tmps 4 s5 11 DO I prime? IF i5 THEN 1 +LOOP r5 -tmps ;
 : .primes ( n1-- )  1 . 2 . 3 DO I prime? IF I . THEN 1 +LOOP ;

@@ -746,10 +746,9 @@ int doParseWord(char *wd) {
     if (strEq(wd, ".\""))    { return doDotQuote(); }
     if (strEq(wd, "\""))     { return doQuote(); }
 
-    if (strEqI(wd, "load")) {
-        if (getWord(wd) == 0) { return 0; }
-        fLoad(wd);
-        return 1;
+    if (strEqI(wd, "LOAD")) {
+        if (getWord(wd)) { fLoad(wd); }
+        return 0;
     }
 
     if (strEq(wd, ":")) {
@@ -776,15 +775,6 @@ int doParseWord(char *wd) {
         CComma('?');
         push(tHERE);
         WComma(0);
-        return 1;
-    }
-
-    if (strEqI(wd, "ELSE")) {
-        CELL tgt = pop();
-        CComma('G');
-        push(tHERE);
-        WComma(0);
-        SET_WORD(CA(tgt), (WORD)tHERE);
         return 1;
     }
 
@@ -849,17 +839,8 @@ int doParseWord(char *wd) {
     return 0;
 }
 
-bool isASM(const char* ln) {
-    if ((ln[0]=='s') && (ln[1]==':') && (ln[2]==' ')) {
-        run((byte*)ln-code+3);
-        return 1;
-    }
-    return 0;
-}
-
 void doParse(const char *line) {
     in = (byte*)line;
-    if (isASM(line)) { return; }
     while (getWord(word)) {
         if (tHERE < HERE) { tHERE = HERE; }
         if (tVHERE < VHERE) { tVHERE = VHERE; }
