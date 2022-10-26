@@ -1,24 +1,27 @@
 #ifndef __FILES__
 
-void noFile() { printString("-noFile-"); }
 void fileInit() { }
-void fOpen() { noFile(); }
-void fGetC() { noFile(); }
-void fGetS() { noFile(); }
-void fWrite() { noFile(); }
-void fClose() { noFile(); }
-void fDelete() { noFile(); }
-void fList() { noFile(); }
-void fSave() { noFile(); }
-void fLoad() { noFile(); }
-int doLoad() { noFile(); return 0; }
+void fOpen() { DROP2; push(0); }
+void fClose() { DROP1; }
+void fRead() { DROP3; push(0); }
+void fWrite() { DROP3; push(0); }
+void fGetC() { push(0); }
+void fPutC() { DROP2; }
+void fGetS() { DROP3; push(0); }
+void fDelete() { DROP1; }
+void fList() { }
+void fSaveSys() { }
+int fLoadSys() { return 0; }
+void fLoad(const char *fn) { }
 
 #else
 
 #if __BOARD__ == TEENSY4
     #include "file-teensy.h"
+#elif __BOARD__ == PICO
+    #include "file-pico.h"
 #else
     #include "file-generic.h"
-#endif // TEENSY4
+#endif // __BOARD__
 
 #endif // __FILES__
