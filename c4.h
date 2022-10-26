@@ -50,7 +50,7 @@
 #include <time.h>
 
 #ifndef __BOARD__
-    #define __BOARD__    PICO
+    #define __BOARD__    TEENSY4
 #endif
 
 #if __BOARD__ == TEENSY4
@@ -180,7 +180,7 @@ extern void fGetS();     // (a sz fh--n)
 extern void fDelete();   // (fn--)
 extern void fList();     // (--)
 extern void fSaveSys();  // (--)
-extern int fLoadSys();   // (--)
+extern int  fLoadSys();  // (--)
 extern void fLoad(const char *fn);
 
 #endif // __C4_INCLUDED__
