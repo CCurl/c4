@@ -100,7 +100,8 @@ void fGetC() {
     push(0); push(0);
     if (fp && (!feof(fp))) {
         NOS = fgetc(fp);
-        TOS = 1;
+        if (NOS == EOF) { NOS = 0; }
+        else { TOS = 1; }
     }
 }
 
