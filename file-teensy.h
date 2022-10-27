@@ -20,12 +20,14 @@ void fileInit() {
 
 int openSlot() {
     if (!isInit) { fileInit(); }
-    for (int i = 1; i <= NF; i++)
-    if (files[i] == 0) { return i; }
+    for (int i = 1; i <= NF; i++) {
+        if (files[i] == 0) { return i; }
+    }
     return 0;
 }
 
-void fOpen() {               // (name mode--fh)
+// (name mode--fh)
+void fOpen() {
     CELL mode = pop();
     char *fn = (char*)pop();
     push(0);
@@ -39,16 +41,54 @@ void fOpen() {               // (name mode--fh)
     }
 }
 
-void fGetC() {               // (fh--c n)
+// (fh--)
+void fClose() {
+    CELL fh = pop();
+    if (VALIDF(fh)) { 
+        files[fh].close();
+        files[fh] = 0;
+    }
+}
+
+// (a sz fh--n)
+void fRead() {
+    CELL fh = pop();
+    CELL sz = pop();
+    char *a = (char*)pop();
+    CELL n = 0;
+    if (VALIDF(fh)) { n=files[fh].read(a, sz); }
+    push(n);
+}
+
+// (a sz fh--n)
+void fWrite() {
+    CELL fh = pop();
+    CELL sz = pop();
+    char *a = (char*)pop();
+    CELL n = 0;
+    if (VALIDF(fh)) { n = files[fh].write(a, sz); }
+    push(n);
+}
+
+// (fh--c n)
+void fGetC() {
     CELL c = 0, n = 0, fh = pop(); 
     if (VALIDF(fh)) {
-      n = files[fh].read(&c, 1);
+      n = files[fh].read((char*)&c, 1);
     }
     push(c);
     push(n);
 }
 
-void fGetS() {               // (a sz fh--f)
+// (c fh--)
+void fPutC() {
+    CELL fh = pop();
+    byte c = (byte)pop();
+    if (VALIDF(fh)) { files[fh].write(&c, 1); }
+}
+
+// (a sz fh--f)
+void fGetS() {
     CELL fh = pop();
     CELL sz = pop();
     char *a = (char *)pop();
@@ -61,51 +101,14 @@ void fGetS() {               // (a sz fh--f)
     push(0);
 }
 
-void fWrite() {              // (c fh--)
-    CELL fh = pop();
-    byte c = (byte)pop();
-    if (VALIDF(fh)) { files[fh].write(&c, 1); }
-}
-
-void fClose() {              // (fh--)
-    CELL fh = pop();
-    if (VALIDF(fh)) { 
-        files[fh].close();
-        files[fh] = 0;
-    }
-}
-
-void fSave() {
-    myFS.remove("/system.ccc");
-    File fp = myFS.open("/system.ccc", FILE_WRITE);
-    if (fp) {
-        fp.write(&mem[0], MEM_SZ);
-        fp.close();
-        printString("-saved-");
-    } else { printString("-error-"); }
-}
-
-void fLoad() {
-    File fp = myFS.open("/system.ccc", FILE_READ);
-    if (fp) {
-        vmReset();
-        fp.read(&mem[0], MEM_SZ);
-        fp.close();
-        printString("-loaded-");
-    } else { printString("-error-"); }
-}
-
-int doLoad() {
-      printString("-load-");
-      return 0;
-}
-
+// (fn--)
 void fDelete() {
     char* fn = (char*)pop();
     if (myFS.remove(fn)) { printString("-deleted-"); }
     else { printString("-noFile-"); }
 }
 
+// (--)
 void fList() {
     File dir = myFS.open("/");
     while(true) {
@@ -121,3 +124,32 @@ void fList() {
     }
     dir.close();
 }
+
+// (--)
+void fSaveSys() {
+    myFS.remove("/system.c4");
+    File fp = myFS.open("/system.c4", FILE_WRITE);
+    if (fp) {
+        fp.write(&mem[0], MEM_SZ);
+        fp.close();
+        printString("-saved-");
+    } else { printString("-error-"); }
+}
+
+// (--)
+int fLoadSys() {
+    File fp = myFS.open("/system.c4", FILE_READ);
+    if (fp) {
+        vmReset();
+        fp.read(&mem[0], MEM_SZ);
+        fp.close();
+        printString("-loaded-");
+    } else { printString("-error-"); }
+    return (fp) ? 1 : 0;
+}
+
+// (--)
+void fLoad(const char *fn) {
+      printString("-load-");
+}
+

@@ -172,9 +172,10 @@ byte* doFile(CELL ir, byte* pc) {
     ir = *(pc++);
     if (ir == 'O') { fOpen(); }
     else if (ir == 'D') { fDelete(); }
-    else if (ir == 'L') { fList(); }
-    else if (ir == 's') { fSave(); }
-    else if (ir == 'l') { fLoad(); pc = 0; }
+    else if (ir == 'I') { fList(); }
+    else if (ir == 'S') { fSaveSys(); }
+    else if (ir == 's') { if (fLoadSys()) { pc = 0; } }
+    else if (ir == 'L') { fLoad((char *)pop()); }
     else if (TOS == 0) { printString("-nofp-"); return pc; }
     else if (ir == 'R') { fGetC(); }
     else if (ir == 'r') { fRead(); }
@@ -486,9 +487,10 @@ PRIM_T prims[] = {
     , { "FWRITE", "fw" }
     , { "FCLOSE", "fC" }
     , { "FDELETE", "fD" }
-    , { "FLIST", "fL" }
-    , { "FSAVE", "fs" }
-    , { "FLOAD", "fl" }
+    , { "FLIST", "fI" }
+    , { "SAVE-SYS", "fS" }
+    , { "LOAD-SYS", "fs" }
+    , { "SLOAD", "fL" }
 #endif
 #ifdef __PIN__
     // Extension: PIN operations ... for dev boards
@@ -736,14 +738,18 @@ int doWord() {
 }
 
 int doParseWord(char *wd) {
-    if (strEq(word, "//"))  { doExec(); return 0; }
-    if (strEq(word, "\\"))  { doExec(); return 0; }
-    if (isNum(wd))          { return doNumber(0); }
-    if (doPrim(wd))         { return 1; }
-    if (doFind(wd))         { return doWord(); }
-    if (strEq(wd, ".\""))   { return doDotQuote(); }
-    if (strEq(wd, "\""))    { return doQuote(); }
-    if (strEqI(wd, "load")) { return doLoad(); }
+    if (strEq(word, "//"))   { doExec(); return 0; }
+    if (strEq(word, "\\"))   { doExec(); return 0; }
+    if (isNum(wd))           { return doNumber(0); }
+    if (doPrim(wd))          { return 1; }
+    if (doFind(wd))          { return doWord(); }
+    if (strEq(wd, ".\""))    { return doDotQuote(); }
+    if (strEq(wd, "\""))     { return doQuote(); }
+
+    if (strEqI(wd, "LOAD")) {
+        if (getWord(wd)) { fLoad(wd); }
+        return 0;
+    }
 
     if (strEq(wd, ":")) {
         doExec();
@@ -769,15 +775,6 @@ int doParseWord(char *wd) {
         CComma('?');
         push(tHERE);
         WComma(0);
-        return 1;
-    }
-
-    if (strEqI(wd, "ELSE")) {
-        CELL tgt = pop();
-        CComma('G');
-        push(tHERE);
-        WComma(0);
-        SET_WORD(CA(tgt), (WORD)tHERE);
         return 1;
     }
 
@@ -842,17 +839,8 @@ int doParseWord(char *wd) {
     return 0;
 }
 
-bool isASM(const char* ln) {
-    if ((ln[0]=='s') && (ln[1]==':') && (ln[2]==' ')) {
-        run((byte*)ln-code+3);
-        return 1;
-    }
-    return 0;
-}
-
 void doParse(const char *line) {
     in = (byte*)line;
-    if (isASM(line)) { return; }
     while (getWord(word)) {
         if (tHERE < HERE) { tHERE = HERE; }
         if (tVHERE < VHERE) { tVHERE = VHERE; }

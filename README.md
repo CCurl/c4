@@ -14,12 +14,13 @@ The main goals for this project are as follows:
 
 To these ends, I have wandered off the beaten path in the following ways:
 
-- This is similar to a bare-bones Forth, but it is NOT an ANSI-standard Forth.
+- This is NOT an ANSI-standard Forth system.
 - This is a byte-coded implementation.
 - Many primitives (core words) are built into the compiler, and are not included in the dictionary.
 - These primitves ARE NOT case sensitive (DUP = dup = Dup).
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
+- There is no ELSE, only IF/THEN. This is consistent with ColorForth.
 - A dictionary entry looks like this: (xt,flags,word-len,word,null terminator).
 - The maximum length of a word is configurable. (#define NAME_LEN xx)
 - The number of available dictionary entries is configurable. (#define DICT_SZ xxx)
@@ -188,11 +189,11 @@ FOPEN    (a n--fh)         a: file name, n: 0 => READ, else WRITE, fh: file hand
 FGETC    (fh--c f)         c: next char from file fh, f: 0 if EOF/error, else 1.
 FGETS    (a n fh--f)       Read next line from file fh to address a, size n, f: 0 if EOF/error, else 1.
 FPUTC    (c fh--)          c: char to write to file fh.
-FCLOSE   (fh--)            fh: file handle to close.
-FDELETE  (fn--)            fn: The name of the file to be deleted.
 FREAD    (a n fh--r)       Reads next n bytes from file fh to address a. r: number of bytes read.
 FWRITE   (a n fh--r)       Writes n bytes from address a to file fh. r: number of bytes written.
-FLIST    (--)              Print the list of files created on the dev board.
+FCLOSE   (fh--)            fh: file handle to close.
+FLIST    (--)              Print the list of files in the current directory (or on the dev board).
+FDELETE  (fn--)            fn: The name of the file to be deleted.
 
 *** LOGICAL ***
 FALSE    (--f)             f: 0 (FALSE)
@@ -203,8 +204,8 @@ TRUE     (--f)             f: -1 (TRUE)
 <=       (a b--f)          Less-than or equal-to
 >=       (a b--f)          Greater-than or equal-to
 <>       (a b--f)          Not equal-to
-0=       (a b--f)          Logical NOT
-NOT      (a--b)            Logical NOT
+0=       (n--f)            Logical NOT
+NOT      (n--f)            Logical NOT
 
 *** MEMORY ***
 @        (a--n)            n: CELL at a
@@ -221,10 +222,9 @@ W!       (w a--)           Store WORD w at a
 - It is NULL-terminated, no count byte.
 
 *** FLOW CONTROL ***
-IF       (f--)             Standard IF
-ELSE     (--)              Standard ELSE
+IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE)
 THEN     (--)              Standard THEN
-.IF      (f--)             Simple IF, no ELSE allowed (shorter, more human-readable)
+.IF      (f--)             Simple IF (shorter, more human-readable)
 .THEN    (--)              Simple THEN
 DO       (T F--)           Begin DO/LOOP loop
 LOOP     (--)              Increment I, jump to DO if I < T
@@ -269,10 +269,10 @@ CELL     (--n)             n: The size of a CELL
 CELLS    (n--x)            x: The number of bytes in n CELLs
 EDIT     (n--)             Edit block n
 EXECUTE  (a--)             Execute CODE at address a
-LOAD     (--)              Load a file from disk (usage: LOAD strings.c4)
-FLOAD    (--)              Loads the last saved "./system.c4" file, if it exists.
-FSAVE    (--)              Saves the system to file "./system.c4".
-' x      (--f | xt i f)    Lookup x. If found f=1, i: immediate and xt: offset. Else f=0, and i and xt are not pushed.
+LOAD FN  (--)              Load file FN. The rest of the line is ignored.
+LOAD-SYS (--)              Loads the last saved "./system.c4" file, if it exists.
+SAVE-SYS (--)              Saves the system to file "./system.c4".
+' W      (--f | xt i f)    Lookup W. If not found, f=0. Else f=1, i: immediate, and xt: offset.
 NOP      (--)              Do nothing
 RAND     (--n)             n: a RANDOM 31-bit number (0..$7FFFFFFF)
 RESET    (--)              Re-initialize c4
@@ -280,7 +280,7 @@ SYSTEM   (a--)             a: string to send to system() ... eg: " dir" system (
 TIMER    (--n)             n: Time in MS
 MS       (n--)             n: MS to sleep
 VARIABLE (--)              Define a variable
-WORDS    (--)              Output the dictionary
+WORDS    (--)              Output the dictionary and primitives
 ```
 
 ## Built-in words

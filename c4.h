@@ -74,7 +74,7 @@
   #define DICT_SZ     1000
   #define FLT_SZ        10
   #define __PIN__
-  #define __FILES__
+  // #define __FILES__
   // #define __EDITOR__
   #define NEEDS_ALIGN
 #elif __BOARD__ == XIAO
@@ -117,6 +117,7 @@
 #define FNOS          stk.f[sp-1]
 #define DROP1         sp--
 #define DROP2         sp-=2
+#define DROP3         sp-=3
 #define CA(l)         (code+l)
 #define DP_AT(l)      ((DICT_T *)(&code[l]))
 #define BTW(x, a, b)  ((a<=x)&&(x<=b))
@@ -167,20 +168,19 @@ extern int getChar();
 extern CELL doTimer();
 extern void doSleep();
 
-// FILEs
-extern byte *doFile(CELL, byte *);
+// FILEs - the c4 FILE API
 extern void fileInit();
-extern void fOpen();
-extern void fGetC();
-extern void fRead();
-extern void fGetS();
-extern void fPutC();
-extern void fWrite();
-extern void fClose();
-extern void fDelete();
-extern void fList();
-extern void fSave();
-extern void fLoad();
-extern int doLoad();
+extern void fOpen();     // (fn md--fh) -- md: 0=READ, else WRITE
+extern void fClose();    // (fh--)
+extern void fRead();     // (a sz fh--n)
+extern void fWrite();    // (a sz fh--n)
+extern void fGetC();     // (fh--c n)
+extern void fPutC();     // (c fh--)
+extern void fGetS();     // (a sz fh--n)
+extern void fDelete();   // (fn--)
+extern void fList();     // (--)
+extern void fSaveSys();  // (--)
+extern int  fLoadSys();  // (--)
+extern void fLoad(const char *fn);
 
 #endif // __C4_INCLUDED__

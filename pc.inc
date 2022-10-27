@@ -159,7 +159,7 @@ void fList() {
 #endif
 }
 
-void fSave() {
+void fSaveSys() {
     FILE *fp = myFopen("system.c4", "wb");
     if (fp) {
         fwrite(&mem[0], MEM_SZ, 1, fp);
@@ -168,7 +168,7 @@ void fSave() {
     } else { printString("-error-"); }
 }
 
-void fLoad() {
+int fLoadSys() {
     FILE *fp = myFopen("system.c4", "rb");
     if (fp) {
         vmReset();
@@ -176,22 +176,20 @@ void fLoad() {
         fclose(fp);
         printString("-loaded-");
     } else { printString("-error-"); }
+    return (fp) ? 1 : 0;
 }
 
-int doLoad() {
-    if (getWord(word) == 0) { printString("-fn?-"); return 0; }
-    FILE *fp = myFopen(word, "rt");
+void fLoad(const char *fn) {
+    FILE *fp = myFopen(fn, "rt");
     if (fp) {
         if (input_fp) { fpPush(input_fp); }
         input_fp = fp;
     }
-    return fp ? 1 : 0;
 }
 
 byte *doUser(CELL ir, byte *pc) {
     switch (ir) {
     case 'E': doEditor();                break;
-    case 'L': doLoad();                  break;
     case 'Q': isBye=1; pc=0;             break;
     default: printString("-unk ext-");
     }
@@ -234,7 +232,19 @@ int main(int argc, char *argv[]) {
     }
     vmReset();
     ttyMode(1);
-    if (argc > 1) { input_fp = myFopen(argv[1], "rt"); }
+    char buf[64];
+    doParse(sprintF(buf, "%d s0", argc-1));
+    if (1<argc) {
+        input_fp = myFopen(argv[1], "rt");
+        for (int i=1; i < argc; i++) {
+            int t = atoi(argv[i]);
+            if (t) {
+                doParse(sprintF(buf, "%d s%d", t, i));
+            } else {
+                doParse(sprintF(buf, "$%x s%d", argv[i], i));
+            }
+        }
+    }
     while (!isBye) { loop(); }
     ttyMode(0);
     return 0;
