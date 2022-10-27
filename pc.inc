@@ -232,7 +232,19 @@ int main(int argc, char *argv[]) {
     }
     vmReset();
     ttyMode(1);
-    if (argc > 1) { input_fp = myFopen(argv[1], "rt"); }
+    char buf[64];
+    doParse(sprintF(buf, "%d s0", argc-1));
+    if (1<argc) {
+        input_fp = myFopen(argv[1], "rt");
+        for (int i=1; i < argc; i++) {
+            int t = atoi(argv[i]);
+            if (t) {
+                doParse(sprintF(buf, "%d s%d", t, i));
+            } else {
+                doParse(sprintF(buf, "$%x s%d", argv[i], i));
+            }
+        }
+    }
     while (!isBye) { loop(); }
     ttyMode(0);
     return 0;
