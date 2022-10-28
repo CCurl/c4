@@ -185,19 +185,21 @@ SPACES   (n--)             Output n SPACEs
 example: : ascii '~' $20 DO I I I I ." %n%d: (%c) %x %b" LOOP ;
 
 *** FILE ***
-FOPEN    (a n--fh)         a: file name, n: 0 => READ, else WRITE, fh: file handle
-FGETC    (fh--c f)         c: next char from file fh, f: 0 if EOF/error, else 1.
-FGETS    (a n fh--f)       Read next line from file fh to address a, size n, f: 0 if EOF/error, else 1.
-FPUTC    (c fh--)          c: char to write to file fh.
+FOPEN    (a n--fh)         a: file name, n: 0 => READ, else WRITE, fh: file-handle.
+FCLOSE   (fh--)            fh: file handle to close.
 FREAD    (a n fh--r)       Reads next n bytes from file fh to address a. r: number of bytes read.
 FWRITE   (a n fh--r)       Writes n bytes from address a to file fh. r: number of bytes written.
-FCLOSE   (fh--)            fh: file handle to close.
-FLIST    (--)              Print the list of files in the current directory (or on the dev board).
+FGETC    (fh--c f)         c: next char from file fh, f: 0 if EOF/error, else 1.
+FPUTC    (c fh--)          c: char to write to file fh.
+FGETS    (a n fh--f)       Read next line from file fh to address a, size n, f: 0 if EOF/error, else 1.
+FSEEK    (o w fh--)        Set file fh position - o: offset, w: (0:SEEK_SET, 1: SEEK_CUR, 2:SEEK_END).
+FTELL    (fh--n)           n: current file fh position.
 FDELETE  (fn--)            fn: The name of the file to be deleted.
+FLIST    (--)              Print the list of files in the current directory (or on the dev board).
 
 *** LOGICAL ***
-FALSE    (--f)             f: 0 (FALSE)
 TRUE     (--f)             f: -1 (TRUE)
+FALSE    (--f)             f: 0 (FALSE)
 =        (a b--f)          Equality
 <        (a b--f)          Less-than
 >        (a b--f)          Greater-than
@@ -269,10 +271,10 @@ CELL     (--n)             n: The size of a CELL
 CELLS    (n--x)            x: The number of bytes in n CELLs
 EDIT     (n--)             Edit block n
 EXECUTE  (a--)             Execute CODE at address a
-LOAD FN  (--)              Load file FN. The rest of the line is ignored.
+LOAD fn  (--)              Load file FN. The rest of the line is ignored.
 LOAD-SYS (--)              Loads the last saved "./system.c4" file, if it exists.
 SAVE-SYS (--)              Saves the system to file "./system.c4".
-' W      (--f | xt i f)    Lookup W. If not found, f=0. Else f=1, i: immediate, and xt: offset.
+' wd      (--f | xt i f)   Lookup wd. If not found, f=0. Else f=1, i: immediate, and xt: offset.
 NOP      (--)              Do nothing
 RAND     (--n)             n: a RANDOM 31-bit number (0..$7FFFFFFF)
 RESET    (--)              Re-initialize c4

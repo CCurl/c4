@@ -183,6 +183,8 @@ byte* doFile(CELL ir, byte* pc) {
     else if (ir == 'W') { fPutC(); }
     else if (ir == 'w') { fWrite(); }
     else if (ir == 'C') { fClose(); }
+    else if (ir == 'E') { fSeek(); }
+    else if (ir == 'T') { fTell(); }
     return pc;
 }
 
@@ -486,6 +488,8 @@ PRIM_T prims[] = {
     , { "FPUTC", "fW" }
     , { "FWRITE", "fw" }
     , { "FCLOSE", "fC" }
+    , { "FSEEK", "fE" }
+    , { "FTELL", "fT" }
     , { "FDELETE", "fD" }
     , { "FLIST", "fI" }
     , { "SAVE-SYS", "fS" }
