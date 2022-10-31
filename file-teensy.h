@@ -106,18 +106,15 @@ void fSeek() {
     CELL fh = pop();
     CELL whence = pop();
     CELL offset = pop();
-    // TODO: Fill this in
-    printString("-todo:fSeek-");
-    if (VALIDF(fh)) { /* files[fh].write(&c, 1); */ }
+    if (VALIDF(fh)) { files[fh].seek(offset, whence+1); }
 }
 
 // (fh--n)
 void fTell() {
     CELL fh = pop();
-    // TODO: Fill this in
-    printString("-todo:fTell-");
-    if (VALIDF(fh)) { /* files[fh].write(&c, 1); */ }
-    push(0);
+    CELL n = 0;
+    if (VALIDF(fh)) { n = files[fh].position(); }
+    push(n);
 }
 
 // (fn--)

@@ -79,6 +79,22 @@ void fClose() {              // (fh--)
     }
 }
 
+// ( offset whence fh-- )
+void fSeek() {
+    CELL fh = pop();
+    CELL whence = pop();
+    CELL offset = pop();
+    if (VALIDF(fh)) { files[fh].seek(offset, whence+1); }
+}
+
+// (fh--n)
+void fTell() {
+    CELL fh = pop();
+    CELL n = 0;
+    if (VALIDF(fh)) { n = files[fh].position(); }
+    push(n);
+}
+
 void fSave() {
     File fp = myFS.open("system.ccc", "w");
     if (fp) {
