@@ -12,12 +12,11 @@ CELL doTimer() { return clock(); }
 
 void ttyMode(int mode)
 {
-    static struct termios oldt;
-    static struct termios rawt;
+    static struct termios origt, rawt;
     static int curMode = -1;
     if (curMode == -1) {
         curMode = 0;
-        tcgetattr( STDIN_FILENO, &oldt);
+        tcgetattr( STDIN_FILENO, &origt);
         cfmakeraw(&rawt);
     }
 
@@ -25,7 +24,7 @@ void ttyMode(int mode)
         if (mode) {
             tcsetattr( STDIN_FILENO, TCSANOW, &rawt);
         } else {
-            tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
+            tcsetattr( STDIN_FILENO, TCSANOW, &origt);
         }
         curMode = mode;
     }
@@ -95,28 +94,6 @@ void fClose() {
     if (fp) { fclose((FILE *)fp); }
 }
 
-void fGetC() {
-    FILE *fp = (FILE *)pop();
-    push(0); push(0);
-    if (fp && (!feof(fp))) {
-        NOS = fgetc(fp);
-        if (NOS == EOF) { NOS = 0; }
-        else { TOS = 1; }
-    }
-}
-
-void fGetS() {
-    FILE *fp = (FILE *)pop();
-    CELL sz = pop();
-    char *cp = (char *)TOS;
-    TOS = 0;
-    *cp = 0;
-    if (fp && !feof(fp)) {
-        fgets(cp, sz, fp);
-        TOS = 1;
-    }
-}
-
 void fRead() {
     FILE *fp = (FILE *)pop();
     CELL sz = pop();
@@ -127,12 +104,6 @@ void fRead() {
         n = fread(cp, 1, sz, fp);
     }
     push(n);
-}
-
-void fPutC() {
-    FILE *fp = (FILE *)pop();
-    CELL val = pop();
-    if (fp) { fputc(val, fp); }
 }
 
 void fWrite() {
@@ -147,9 +118,51 @@ void fWrite() {
     push(n);
 }
 
+void fGetC() {
+    FILE *fp = (FILE *)pop();
+    push(0); push(0);
+    if (fp && (!feof(fp))) {
+        NOS = fgetc(fp);
+        if (NOS == EOF) { NOS = 0; }
+        else { TOS = 1; }
+    }
+}
+
+void fPutC() {
+    FILE *fp = (FILE *)pop();
+    CELL val = pop();
+    if (fp) { fputc(val, fp); }
+}
+
+void fGetS() {
+    FILE *fp = (FILE *)pop();
+    CELL sz = pop();
+    char *cp = (char *)TOS;
+    TOS = 0;
+    *cp = 0;
+    if (fp && !feof(fp)) {
+        fgets(cp, sz, fp);
+        TOS = 1;
+    }
+}
+
 void fDelete() {
     char *cp = (char *)pop();
     remove(cp);
+}
+
+// ( offset whence fh-- )
+void fSeek() {
+    FILE *fh = (FILE *)pop();
+    CELL whence = pop();
+    CELL offset = pop();
+    fseek(fh, offset, whence);
+}
+
+// ( fh-- )
+void fTell() {
+    FILE *fh = (FILE *)TOS;
+    TOS = ftell(fh);
 }
 
 void fList() {

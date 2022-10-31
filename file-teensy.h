@@ -101,6 +101,25 @@ void fGetS() {
     push(0);
 }
 
+// ( offset whence fh-- )
+void fSeek() {
+    CELL fh = pop();
+    CELL whence = pop();
+    CELL offset = pop();
+    // TODO: Fill this in
+    printString("-todo:fSeek-");
+    if (VALIDF(fh)) { /* files[fh].write(&c, 1); */ }
+}
+
+// (fh--n)
+void fTell() {
+    CELL fh = pop();
+    // TODO: Fill this in
+    printString("-todo:fTell-");
+    if (VALIDF(fh)) { /* files[fh].write(&c, 1); */ }
+    push(0);
+}
+
 // (fn--)
 void fDelete() {
     char* fn = (char*)pop();
@@ -118,9 +137,7 @@ void fList() {
          // files have sizes, directories do not
          if (entry.isDirectory()) { printStringF(" (dir)\r\n"); }
          else { printStringF(" (%llu)\r\n", entry.size()); }
-         //char *x = entry.size();
-         // fprintStringF("%d", (int)x);
-      entry.close();
+        entry.close();
     }
     dir.close();
 }
@@ -150,6 +167,6 @@ int fLoadSys() {
 
 // (--)
 void fLoad(const char *fn) {
-      printString("-load-");
+    // TODO: Fill this in
+    printString("-todo:load-");
 }
-
