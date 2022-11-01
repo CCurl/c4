@@ -5,36 +5,29 @@
 // ----------------------------------
 // The Virtual Machine / OS
 // ----------------------------------
-union { float f[STK_SZ + 1]; CELL i[STK_SZ + 1]; } stk;
-CELL sp, rsp, lsp, lb, isError, sb, rb, fsp;
-CELL BASE, locals[LOCALS_SZ], lstk[LSTK_SZ+1], seed;
+ST_T st;
+STK_T stk;
+CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
+CELL sp, rsp, lsp, lb, isError, sb, rb;
+CELL BASE, STATE, tHERE, tVHERE, seed;
+char word[32];
 
-byte *code, *vars, mem[MEM_SZ], *y, *in;
+byte *code, *vars, *y, *in;
 DICT_E *dict;
-CELL &HERE  = (CELL&)mem[0];
-CELL &VHERE = (CELL&)mem[CELL_SZ];
-CELL &LAST  = (CELL&)mem[CELL_SZ*2];
 
 void vmReset() {
-    lsp = lb = 0, fsp = 0;
+    lsp = lb = 0;
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
     LAST = 0;
     HERE = tHERE = 2;
     VHERE = tVHERE = 0;
-    for (int i = 0; i < MEM_SZ; i++) { mem[i] = 0; }
-    code = &mem[CELL_SZ*3];
-    vars = &mem[(CELL_SZ*3)+CODE_SZ+4];
-    dict = (DICT_E*)&mem[(CELL_SZ*3)+CODE_SZ+4+VARS_SZ+4];
+    for (int i = 0; i < MEM_SZ; i++) { MEM[i] = 0; }
+    code = &st.bytes[3*CELL_SZ];
+    vars = (code+CODE_SZ+4);
+    dict = (DICT_E*)(vars+VARS_SZ+4);
     systemWords();
 }
-
-void push(CELL v) { stk.i[++sp] = v; }
-CELL pop() { return stk.i[sp--]; }
-float fpop() { return stk.f[sp--]; }
-
-void rpush(CELL v) { stk.i[--rsp] = v; }
-CELL rpop() { return stk.i[rsp++]; }
 
 #ifdef NEEDS_ALIGN
 WORD GET_WORD(byte* l) { return *l | (*(l + 1) << 8); }
@@ -50,18 +43,18 @@ void SET_LONG(byte* l, long v) { *(long *)l = v; }
 
 char Lower(char c) { return BTW(c,'A','Z') ? c|0x20 : c; }
 
-int strLen(const char* str) {
-    int l = 0;;
+int strLen(const char *str) {
+    int l = 0;
     while (*(str++)) { ++l; }
     return l;
 }
 
-int strEq(const char* x, const char* y) {
+int strEq(const char *x, const char *y) {
     while (*x && *y && (*x == *y)) { ++x; ++y; }
     return (*x || *y) ? 0 : 1;
 }
 
-int strEqI(const char* x, const char* y) {
+int strEqI(const char *x, const char *y) {
     while (*x && *y) {
         if (Lower(*x) != Lower(*y)) { return 0; }
         ++x; ++y;
@@ -69,34 +62,34 @@ int strEqI(const char* x, const char* y) {
     return (*x || *y) ? 0 : 1;
 }
 
-char* strCpy(char* d, const char* s) {
-    char* x = d;
+char *strCpy(char *d, const char *s) {
+    char *x = d;
     while (*s) { *(x++) = *(s++); }
     *x = 0;
     return d;
 }
 
-char* strCat(char* d, const char* s) {
-    char* x = d + strLen(d);
+char *strCat(char *d, const char *s) {
+    char *x = d + strLen(d);
     strCpy(x, s);
     return d;
 }
 
-char* strCatC(char* d, char c) {
-    char* x = d + strLen(d);
-    *x = c;
-    *(x + 1) = 0;
+char *strCatC(char *d, char c) {
+    char *x = d + strLen(d);
+    *(x++) = c;
+    *(x) = 0;
     return d;
 }
 
-char* rTrim(char* d) {
-    char* x = d + strLen(d);
+char *rTrim(char *d) {
+    char *x = d + strLen(d);
     while ((d <= x) && (*x <= ' ')) { *(x--) = 0; }
     return d;
 }
 
-void printStringF(const char* fmt, ...) {
-    char* buf = (char*)&vars[VARS_SZ - 100];
+void printStringF(const char *fmt, ...) {
+    char *buf = (char*)&vars[VARS_SZ - 100];
     va_list args;
     va_start(args, fmt);
     vsnprintf(buf, 100, fmt, args);
@@ -107,7 +100,7 @@ void printStringF(const char* fmt, ...) {
 void printBase(CELL num, CELL base) {
     UCELL n = (UCELL) num, isNeg = 0;
     if ((base == 10) && (num < 0)) { isNeg = 1; n = -num; }
-    char* cp = (char *)&vars[VARS_SZ];
+    char *cp = (char *)&vars[VARS_SZ];
     *(cp--) = 0;
     do {
         int x = (n % base) + '0';
@@ -213,9 +206,9 @@ void fType() { t1 = pop(); y = (byte*)pop(); while (t1--) printChar(*(y++)); }
 void fTypeQ() { printString((char*)pop()); }
 void fTypeF1() { pc = doType(pc, -1, '"'); }
 void fTypeF2() { doType((byte*)pop(), -1, 0); }
-void fDup() { push(TOS); }
+void fDup() { t1 = TOS; push(t1); }
 void fSwap() { t1 = TOS; TOS = NOS; NOS = t1; }
-void fOver() { push(NOS); }
+void fOver() { t1 = NOS; push(t1); }
 void fDrop() { DROP1; }
 void fSlashMod() { t1 = NOS; t2 = TOS; NOS = t1 / t2; TOS = t1 % t2; }
 void fAdd()  { t1 = pop(); TOS += t1; }
@@ -345,8 +338,6 @@ void run(WORD start) {
     lsp = isError = 0;
     if (sp < sb) { sp = sb - 1; }
     if (rsp > rb) { rsp = rb + 1; }
-    if (fsp < 0) { fsp = 0; }
-    if (FLT_SZ <= fsp) { fsp = (FLT_SZ-1); }
     while (pc) { ir = *(pc++); q[ir](); }
 }
 
@@ -517,9 +508,6 @@ PRIM_T prims[] = {
     , {0,0}
 };
 
-char word[32];
-CELL STATE, tHERE, tVHERE, tempWords[10];
-
 void CComma(CELL v) { code[tHERE++] = (byte)v; }
 void Comma(CELL v) { SET_LONG(&code[tHERE], v); tHERE += CELL_SZ; }
 void WComma(WORD v) { SET_WORD(&code[tHERE], v); tHERE += 2; }
@@ -558,7 +546,7 @@ void doCreate(const char *name, byte f) {
     ++LAST;
 }
 
-int doFindInternal(const char* name) {
+int doFindInternal(const char *name) {
     // Regular lookup
     int len = strLen(name);
     for (int i = LAST - 1; i >= 0; i--) {
@@ -588,7 +576,7 @@ int doFind(const char *name) {
     return 0;
 }
 
-int doSee(const char* wd) {
+int doSee(const char *wd) {
     int i = doFindInternal(wd);
     if (i<0) { printString("-nf-"); return 1; }
     CELL start = dict[i].xt;
@@ -867,7 +855,7 @@ void systemWords() {
     sprintF(cp, ": dict-sz %d ;",   DICT_SZ);        doParse(cp);
     sprintF(cp, ": mem-sz %d ;",    MEM_SZ);         doParse(cp);
     sprintF(cp, ": vars-sz %d ;",   VARS_SZ);        doParse(cp);
-    sprintF(cp, ": mem %lu ;",      (UCELL)&mem[0]); doParse(cp);
+    sprintF(cp, ": mem %lu ;",      (UCELL)&MEM[0]); doParse(cp);
     sprintF(cp, ": cb %lu ;",       (UCELL)code);    doParse(cp);
     sprintF(cp, ": db %lu ;",       (UCELL)dict);    doParse(cp);
     sprintF(cp, ": vb %lu ;",       (UCELL)vars);    doParse(cp);
