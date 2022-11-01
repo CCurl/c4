@@ -150,7 +150,7 @@ byte *doType(byte *a, int l, int delim) {
 }
 
 void fWord() {
-    byte *wd = AOS;
+    byte *wd = BTOS;
     while (*in && (*in < 33)) { ++in; }
     int l = 0;
     while (*in && (32 < *in)) {
@@ -192,15 +192,15 @@ CELL doRand() {
 CELL t1, t2;
 byte *pc, ir;
 
-void fStore() { SET_LONG(AOS, NOS); DROP2; }
-void fFetch() { TOS = GET_LONG(AOS); }
+void fStore() { SET_LONG(BTOS, NOS); DROP2; }
+void fFetch() { TOS = GET_LONG(BTOS); }
 void fCharOp() {
-    ir = *(pc++); if (ir == '@') { TOS = *AOS; }
-    else if (ir == '!') { *AOS = (byte)NOS; DROP2; }
+    ir = *(pc++); if (ir == '@') { TOS = *BTOS; }
+    else if (ir == '!') { *BTOS = (byte)NOS; DROP2; }
 }
 void fWordOp() {
-    ir = *(pc++); if (ir == '@') { TOS = GET_WORD(AOS); }
-    else if (ir == '!') { SET_WORD(AOS, (WORD)TOS); DROP2; }
+    ir = *(pc++); if (ir == '@') { TOS = GET_WORD(BTOS); }
+    else if (ir == '!') { SET_WORD(BTOS, (WORD)TOS); DROP2; }
 }
 void fType() { t1 = pop(); y = (byte*)pop(); while (t1--) printChar(*(y++)); }
 void fTypeQ() { printString((char*)pop()); }

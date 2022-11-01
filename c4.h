@@ -107,7 +107,7 @@
 
 #define TOS           stk.i[sp]
 #define NOS           stk.i[sp-1]
-#define AOS           (byte*)TOS
+#define BTOS          (byte*)TOS
 #define CTOS          (char*)TOS
 #define CNOS          (char*)NOS
 #define L0            lstk[lsp]
