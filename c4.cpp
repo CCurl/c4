@@ -19,11 +19,11 @@ void vmReset() {
     lsp = lb = 0;
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
-    LAST = 0;
     HERE = tHERE = 2;
     VHERE = tVHERE = 0;
-    for (int i = 0; i < MEM_SZ; i++) { MEM[i] = 0; }
-    code = &st.bytes[3*CELL_SZ];
+    LAST = 0;
+    for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
+    code = &st.bytes[CELL_SZ*3];
     vars = (code+CODE_SZ+4);
     dict = (DICT_E*)(vars+VARS_SZ+4);
     systemWords();
