@@ -125,11 +125,6 @@
 #define VHERE         st.cells[1]
 #define LAST          st.cells[2]
 #define MEM           st.bytes
-#define push(v)       stk.i[++sp]=(CELL)(v)
-#define pop()         stk.i[sp--]
-#define rpush(v)      stk.i[--rsp]=(CELL)(v)
-#define rpop()        stk.i[rsp++]
-#define fpop()        stk.f[sp--]
 #define BIT_IMMEDIATE 0x80
 
 typedef unsigned char byte;
@@ -159,6 +154,8 @@ extern ST_T st;
 extern STK_T stk;
 
 extern void vmReset();
+extern void push(CELL v);
+extern CELL pop();
 extern void systemWords();
 extern void printString(const char*);
 extern void printStringF(const char*, ...);

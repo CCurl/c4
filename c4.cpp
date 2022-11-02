@@ -29,6 +29,12 @@ void vmReset() {
     systemWords();
 }
 
+void push(CELL v) { stk.i[++sp] = v; }
+CELL pop() { return stk.i[sp--]; }
+void rpush(CELL v) { stk.i[--rsp] = v; }
+CELL rpop() { return stk.i[rsp++]; }
+float fpop() { return stk.f[sp--]; }
+
 #ifdef NEEDS_ALIGN
 WORD GET_WORD(byte* l) { return *l | (*(l + 1) << 8); }
 long GET_LONG(byte* l) { return GET_WORD(l) | GET_WORD(l + 2) << 16; }
