@@ -186,7 +186,9 @@ SPACES   (n--)             Output n SPACEs.
 example: : ascii '~' $20 DO I I I I ." %n%d: (%c) %x %b" LOOP ;
 
 *** FILE ***
-FOPEN    (a n--fh)         a: file name, n: 0 => READ, else WRITE, fh: file-handle.
+FOPEN-R  (NM--fh)          Open file NM in read-only mode (rb).
+FOPEN-W  (NM--fh)          Open file NM in write-only mode (wb). Truncates the file if it exists.
+FOPEN-RW (NM--fh)          Open file NM in read-write mode (rb+).
 FCLOSE   (fh--)            fh: file handle to close.
 FREAD    (a n fh--r)       Reads next n bytes from file fh to address a. r: number of bytes read.
 FWRITE   (a n fh--r)       Writes n bytes from address a to file fh. r: number of bytes written.

@@ -479,7 +479,9 @@ PRIM_T prims[] = {
     , { "WORDS", "xD" }
 #ifdef __FILES__
     // Extension: FILE operations
-    , { "FOPEN", "fO" }
+    , { "FOPEN-R", "1fO" }
+    , { "FOPEN-W", "2fO" }
+    , { "FOPEN-RW", "3fO" }
     , { "FGETC", "fR" }
     , { "FREAD", "fr" }
     , { "FGETS", "fG" }

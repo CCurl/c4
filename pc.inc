@@ -83,9 +83,10 @@ FILE *myFopen(const char *fn, const char *md) {
 }
 
 void fOpen() {
-    CELL mode = pop();
+    CELL md = pop();
     char *fn = (char *)pop();
-    FILE *fp = myFopen(fn, mode ? "wb" : "rb");
+    const char *mode = (md==1) ? "rb": (md==2 ? "wb" : "r+b");
+    FILE *fp = myFopen(fn, mode);
     push((CELL)fp);
 }
 
