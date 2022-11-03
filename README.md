@@ -95,8 +95,9 @@ To these ends, I have wandered off the beaten path in the following ways:
 ```
 ## c4 Primitives
 ```
-NOTEs: (1) These are built into c4.
+NOTES: (1) These primitives are built into c4.
        (2) They are NOT case-sensitive.
+       (3) They cannot be overridden.
 
 *** MATH ***
 +        (a b--c)          Addition
@@ -153,19 +154,19 @@ FSWAP    (a b--b a)        Float SWAP
 FDROP    (a--)             Float DROP
 
 *** INPUT/OUTPUT ***
-(.)      (n--)             Output n in the current BASE (no SPACE)
-.        (n--)             Output n in the current BASE (trailing SPACE)
+(.)      (n--)             Output n in the current BASE (no SPACE).
+.        (n--)             Output n in the current BASE (trailing SPACE).
 ."       (?--?)            Output a (possibly formatted) string. See (1).
 QTYPE    (A--)             Quick string output, no formatting, A is NULL-terminated.
-TYPE     (A N--)           Output string at A (standard Forth TYPE)
+TYPE     (A N--)           Output string at A (standard Forth TYPE).
 ZTYPE    (A--)             Output the (possibly formatted) string at A. See (1).
-CR       (--)              Output a newline (#10,#13)
-EMIT     (c--)             Output c as a character
-COUNT    (s--s n)          n: length of string at s (s must be NULL-terminated)
-KEY      (--c)             c: Next keyboard char, wait if no char available
-KEY?     (--f)             f: FALSE if no char available, else TRUE
-SPACE    (--)              Output a single SPACE (32 EMIT)
-SPACES   (n--)             Output n SPACEs
+CR       (--)              Output a newline (#10,#13).
+EMIT     (c--)             Output c as a character.
+COUNT    (s--s n)          n: length of string at s (s must be NULL-terminated).
+KEY      (--c)             c: Next keyboard char, wait if no char available.
+KEY?     (--f)             f: FALSE if no char available, else TRUE.
+SPACE    (--)              Output a single SPACE (32 EMIT).
+SPACES   (n--)             Output n SPACEs.
 
 (1) Notes on ." and ZTYPE:
 - ." is NOT ansi-standard
@@ -198,30 +199,25 @@ FDELETE  (fn--)            fn: The name of the file to be deleted.
 FLIST    (--)              Print the list of files in the current directory (or on the dev board).
 
 *** LOGICAL ***
-TRUE     (--f)             f: -1 (TRUE)
-FALSE    (--f)             f: 0 (FALSE)
-=        (a b--f)          Equality
-<        (a b--f)          Less-than
->        (a b--f)          Greater-than
-<=       (a b--f)          Less-than or equal-to
->=       (a b--f)          Greater-than or equal-to
-<>       (a b--f)          Not equal-to
-0=       (n--f)            Logical NOT
-NOT      (n--f)            Logical NOT
+TRUE     (--f)             f: -1
+FALSE    (--f)             f: 0
+=        (a b--f)          Equality.
+<        (a b--f)          Less-than.
+>        (a b--f)          Greater-than.
+<=       (a b--f)          Less-than or equal-to.
+>=       (a b--f)          Greater-than or equal-to.
+<>       (a b--f)          Not equal-to.
+0=       (n--f)            Logical NOT.
+NOT      (n--f)            Logical NOT.
 
 *** MEMORY ***
-@        (a--n)            n: CELL at a
-C@       (a--b)            b: BYTE at a
-W@       (a--w)            w: WORD at a
-!        (n a--)           Store CELL n at a
-C!       (b a--)           Store BYTE b at a
-W!       (w a--)           Store WORD w at a
-+!       (n a--)           Add n to CELL at a
-"        (--a)             a: 32-bit address of a string. See (2).
-
-(2) Notes on " (--a):
-- This does not generate a standard FORTH counted string.
-- It is NULL-terminated, no count byte.
+@        (a--n)            n: CELL at a.
+C@       (a--b)            b: BYTE at a.
+W@       (a--w)            w: WORD at a.
+!        (n a--)           Store CELL n at a.
+C!       (b a--)           Store BYTE b at a.
+W!       (w a--)           Store WORD w at a.
++!       (n a--)           Add n to CELL at a.
 
 *** FLOW CONTROL ***
 IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE)
@@ -242,62 +238,64 @@ AGAIN    (--)              Jump to BEGIN. Use <condition> IF UNLOOP EXIT THEN to
 EXIT     (--)              Exit the word immediately (don't forget to UNLOOP first if in a loop)
 
 *** STRINGS ***
-STR-CAT    ( src dst-- )   Concatenate src to dst
-STR-CATC   ( c dst-- )     Concatenate char c to dst
-STR-CPY    ( src dst-- )   Copy src to dst
-STR-END    ( a1--a2 )      a2: the end of string a1
-STR-EQ     ( s1 s2--f )    f: 1 if s1 and s2 are equivalent, else 0 (case-sensitive)
-STR-EQI    ( s1 s2--f )    f: 1 if s1 and s2 are equivalent, else 0 (case-insensitive)
-STR-LEN    ( str--n )      n: length of string str
-STR-RTRIM  ( str--str )    Trim rightmost chars from str whose ASCII value <= 32
-STR-TRUNC  ( str--str )    Truncate str to 0 length
+"          (--a)           a: address of a null-terminated string.
+S"         (--a n)         a: address of a string, n: length of string.
+STR-CAT    ( src dst-- )   Concatenate src to dst.
+STR-CATC   ( c dst-- )     Concatenate char c to dst.
+STR-CPY    ( src dst-- )   Copy src to dst.
+STR-END    ( s1--s2 )      s2: the end of string s1.
+STR-EQ     ( s1 s2--f )    f: 1 if s1 and s2 are equivalent, else 0 (case-sensitive).
+STR-EQI    ( s1 s2--f )    f: 1 if s1 and s2 are equivalent, else 0 (case-insensitive).
+STR-LEN    ( str--n )      n: length of null-terminated string str.
+STR-RTRIM  ( str--str )    Trim rightmost chars from str whose ASCII value <= 32.
+STR-TRUNC  ( str--str )    Truncate str to 0 length.
 
 NOTE: Strings in c4 are NULL-TERMINATED, not COUNTED
 
 *** TEMPORARY VARIABLES ***
-+TMPS    (--)              Allocate 10 temp variables, r0 .. r9
-rX       (--n)             n: read value of temp var X (X:[0..9])
-sX       (n--)             Set value of temp var X to n
-iX       (--n)             Increment temp var X
-dX       (--n)             Decrement temp var X
--TMPS    (--)              Destroy current temp variables
++TMPS    (--)              Allocate 10 temp variables, r0 .. r9.
+rX       (--n)             n: read value of temp var X (X:[0..9]).
+sX       (n--)             Set value of temp var X to n.
+iX       (--n)             Increment temp var X.
+dX       (--n)             Decrement temp var X.
+-TMPS    (--)              Destroy current temp variables.
 
 **** SYSTEM/OTHER ***
-.S       (--)              Output the stack
-BL       (--c)             c: 32
-BYE      (--)              Exit c4 (PC)
-CONSTANT (--)              Define a constant
-CELL     (--n)             n: The size of a CELL
-CELLS    (n--x)            x: The number of bytes in n CELLs
-EDIT     (n--)             Edit block n
-EXECUTE  (a--)             Execute CODE at address a
+.S       (--)              Output the stack.
+BL       (--c)             c: 32.
+BYE      (--)              Exit c4 (PC).
+CONSTANT (--)              Define a constant.
+CELL     (--n)             n: The size of a CELL.
+CELLS    (n--x)            x: The number of bytes in n CELLs.
+EDIT     (n--)             Edit block n.
+EXECUTE  (a--)             Execute CODE at address a.
 LOAD fn  (--)              Load file FN. The rest of the line is ignored.
 LOAD-SYS (--)              Loads the last saved "./system.c4" file, if it exists.
 SAVE-SYS (--)              Saves the system to file "./system.c4".
 ' wd      (--f | xt i f)   Lookup wd. If not found, f=0. Else f=1, i: immediate, and xt: offset.
-NOP      (--)              Do nothing
-RAND     (--n)             n: a RANDOM 31-bit number (0..$7FFFFFFF)
-RESET    (--)              Re-initialize c4
-SYSTEM   (a--)             a: string to send to system() ... eg: " dir" system (PC)
-TIMER    (--n)             n: Time in MS
-MS       (n--)             n: MS to sleep
-VARIABLE (--)              Define a variable
-WORDS    (--)              Output the dictionary and primitives
+NOP      (--)              Do nothing.
+RAND     (--n)             n: a RANDOM 31-bit number (0..$7FFFFFFF).
+RESET    (--)              Re-initialize c4.
+SYSTEM   (a--)             a: string to send to system() ... eg: " dir" system (PC).
+TIMER    (--n)             n: Time in MS.
+MS       (n--)             n: MS to sleep.
+VARIABLE (--)              Define a variable.
+WORDS    (--)              Output the dictionary and primitives.
 ```
 
 ## Built-in words
 ```
-mem      (--a)   a: Start address for MEMORY area
-cb       (--a)   a: Start address for CODE area
-vb       (--a)   a: Start address for VARS area
-mem-sz   (--n)   n: Size of system to be persisted on FSAVE
-code-sz  (--n)   n: Size of CODE area
-vars-sz  (--n)   n: Size of VARS area
-(here)   (--a)   a: Address of HERE
-(last)   (--a)   a: Address of LAST
-(vars)   (--a)   a: Address of VHERE
-base     (--a)   a: Address of BASE
-CELL     (--n)   n: size in bytes of a CELL
+mem      (--a)   a: Start address for MEMORY area.
+cb       (--a)   a: Start address for CODE area.
+vb       (--a)   a: Start address for VARS area.
+mem-sz   (--n)   n: Size of system to be persisted on FSAVE.
+code-sz  (--n)   n: Size of CODE area.
+vars-sz  (--n)   n: Size of VARS area.
+(here)   (--a)   a: Address of HERE.
+(last)   (--a)   a: Address of LAST.
+(vars)   (--a)   a: Address of VHERE.
+base     (--a)   a: Address of BASE.
+CELL     (--n)   n: size in bytes of a CELL.
 ```
 
 ## Extending c4

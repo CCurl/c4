@@ -308,7 +308,8 @@ void fBitOp() {
 void fFileOp() { pc = doFile(ir, pc); }
 void fNegate() { TOS = -TOS; }
 void fAbs() { if (TOS < 0) fNegate(); }
-void fZQuote() { push((CELL)pc); while (*(pc++)) {} }
+void fSQuote() { t1 = 0; push((CELL)pc); while (*(pc++)) { ++t1; } push(t1); }
+void fZQuote() { fSQuote(); DROP1; }
 void fBLit() { push(*(pc++)); }
 void fWLit() { push(GET_WORD(pc)); pc += 2; }
 void fLit() { push(GET_LONG(pc)); pc += 4; }
@@ -337,7 +338,7 @@ void (*q[128])() = {
     fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,               //  64:79
     fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,             //  80:95
     fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,         //  96:111
-    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,X,fWhile,fLNot,X };      // 112:127
+    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,fSQuote,fWhile,fLNot,X };      // 112:127
 
 void run(WORD start) {
     pc = CA(start);
@@ -704,9 +705,9 @@ int doPrim(const char *wd) {
     return 1;
 }
 
-int doQuote() {
+int doQuote(char op) {
     in++;
-    CComma('`');
+    CComma(op);
     while (*in && (*in != '"')) { CComma(*(in++)); }
     CComma(0);
     if (*in) { ++in; }
@@ -742,7 +743,8 @@ int doParseWord(char *wd) {
     if (doPrim(wd))          { return 1; }
     if (doFind(wd))          { return doWord(); }
     if (strEq(wd, ".\""))    { return doDotQuote(); }
-    if (strEq(wd, "\""))     { return doQuote(); }
+    if (strEq(wd, "\""))     { return doQuote('`'); }
+    if (strEqI(wd, "S\""))   { return doQuote('|'); }
 
     if (strEqI(wd, "LOAD")) {
         if (getWord(wd)) { fLoad(wd); }
