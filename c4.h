@@ -107,7 +107,7 @@
 
 #define TOS           stk.i[sp]
 #define NOS           stk.i[sp-1]
-#define AOS           (byte*)TOS
+#define BTOS          (byte*)TOS
 #define CTOS          (char*)TOS
 #define CNOS          (char*)NOS
 #define L0            lstk[lsp]
@@ -119,9 +119,13 @@
 #define DROP2         sp-=2
 #define DROP3         sp-=3
 #define CA(l)         (code+l)
-#define DP_AT(l)      ((DICT_T *)(&code[l]))
 #define BTW(x, a, b)  ((a<=x)&&(x<=b))
 #define BA(a)         ((byte *)a)
+#define HERE          st.cells[0]
+#define VHERE         st.cells[1]
+#define LAST          st.cells[2]
+#define MEM           st.bytes
+#define BIT_IMMEDIATE 0x80
 
 typedef unsigned char byte;
 typedef unsigned short WORD;
@@ -131,7 +135,7 @@ typedef unsigned short USHORT;
 
 #define CELL_SZ   sizeof(CELL)
 #define CSZ       CELL_SZ
-#define MEM_SZ    (CELL_SZ*3) + CODE_SZ + VARS_SZ + (DICT_SZ*sizeof(DICT_E)) + 8
+#define MEM_SZ    CODE_SZ + VARS_SZ + (DICT_SZ*sizeof(DICT_E)) + 16
 
 typedef struct {
     USHORT xt;
@@ -140,31 +144,33 @@ typedef struct {
     char name[NAME_LEN];
 } DICT_E;
 
-#define BIT_IMMEDIATE 0x80
+typedef union { CELL cells[MEM_SZ / CELL_SZ]; byte bytes[MEM_SZ]; } ST_T;
+typedef union { float f[STK_SZ + 1]; CELL i[STK_SZ + 1]; } STK_T;
 
 extern CELL BASE, STATE, tHERE, tVHERE, tempWords[10], sp;
-extern CELL &HERE, &VHERE, &LAST;
-extern byte *code, *vars, mem[];
+extern byte *code, *vars;
 extern DICT_E *dict;
+extern ST_T st;
+extern STK_T stk;
 
 extern void vmReset();
-extern void systemWords();
-extern void push(CELL);
+extern void push(CELL v);
 extern CELL pop();
+extern void systemWords();
 extern void printString(const char*);
 extern void printStringF(const char*, ...);
 extern void printChar(char);
 extern void printBase(CELL, CELL);
 extern void run(WORD);
-extern int doFind(const char *);
+extern int  doFind(const char *);
 extern void doParse(const char *);
 extern void doWords();
 extern void doOK();
 extern byte *doUser(CELL, byte *);
 extern char *rTrim(char *);
 extern void doEditor();
-extern int charAvailable();
-extern int getChar();
+extern int  charAvailable();
+extern int  getChar();
 extern CELL doTimer();
 extern void doSleep();
 

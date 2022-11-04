@@ -83,9 +83,10 @@ FILE *myFopen(const char *fn, const char *md) {
 }
 
 void fOpen() {
-    CELL mode = pop();
+    CELL md = pop();
     char *fn = (char *)pop();
-    FILE *fp = myFopen(fn, mode ? "wb" : "rb");
+    const char *mode = (md==1) ? "rb": (md==2 ? "wb" : "r+b");
+    FILE *fp = myFopen(fn, mode);
     push((CELL)fp);
 }
 
@@ -176,7 +177,7 @@ void fList() {
 void fSaveSys() {
     FILE *fp = myFopen("system.c4", "wb");
     if (fp) {
-        fwrite(&mem[0], MEM_SZ, 1, fp);
+        fwrite(&MEM[0], MEM_SZ, 1, fp);
         fclose(fp);
         printString("-saved-");
     } else { printString("-error-"); }
@@ -186,7 +187,7 @@ int fLoadSys() {
     FILE *fp = myFopen("system.c4", "rb");
     if (fp) {
         vmReset();
-        fread(&mem[0], MEM_SZ, 1, fp);
+        fread(&MEM[0], MEM_SZ, 1, fp);
         fclose(fp);
         printString("-loaded-");
     } else { printString("-error-"); }

@@ -5,36 +5,35 @@
 // ----------------------------------
 // The Virtual Machine / OS
 // ----------------------------------
-union { float f[STK_SZ + 1]; CELL i[STK_SZ + 1]; } stk;
-CELL sp, rsp, lsp, lb, isError, sb, rb, fsp;
-CELL BASE, locals[LOCALS_SZ], lstk[LSTK_SZ+1], seed;
+ST_T st;
+STK_T stk;
+CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
+CELL sp, rsp, lsp, lb, isError, sb, rb;
+CELL BASE, STATE, tHERE, tVHERE, seed;
+char word[32];
 
-byte *code, *vars, mem[MEM_SZ], *y, *in;
+byte *code, *vars, *y, *in;
 DICT_E *dict;
-CELL &HERE  = (CELL&)mem[0];
-CELL &VHERE = (CELL&)mem[CELL_SZ];
-CELL &LAST  = (CELL&)mem[CELL_SZ*2];
 
 void vmReset() {
-    lsp = lb = 0, fsp = 0;
+    lsp = lb = 0;
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
-    LAST = 0;
     HERE = tHERE = 2;
     VHERE = tVHERE = 0;
-    for (int i = 0; i < MEM_SZ; i++) { mem[i] = 0; }
-    code = &mem[CELL_SZ*3];
-    vars = &mem[(CELL_SZ*3)+CODE_SZ+4];
-    dict = (DICT_E*)&mem[(CELL_SZ*3)+CODE_SZ+4+VARS_SZ+4];
+    LAST = 0;
+    for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
+    code = &st.bytes[CELL_SZ*3];
+    vars = (code+CODE_SZ+4);
+    dict = (DICT_E*)(vars+VARS_SZ+4);
     systemWords();
 }
 
 void push(CELL v) { stk.i[++sp] = v; }
 CELL pop() { return stk.i[sp--]; }
-float fpop() { return stk.f[sp--]; }
-
 void rpush(CELL v) { stk.i[--rsp] = v; }
 CELL rpop() { return stk.i[rsp++]; }
+float fpop() { return stk.f[sp--]; }
 
 #ifdef NEEDS_ALIGN
 WORD GET_WORD(byte* l) { return *l | (*(l + 1) << 8); }
@@ -50,18 +49,18 @@ void SET_LONG(byte* l, long v) { *(long *)l = v; }
 
 char Lower(char c) { return BTW(c,'A','Z') ? c|0x20 : c; }
 
-int strLen(const char* str) {
-    int l = 0;;
+int strLen(const char *str) {
+    int l = 0;
     while (*(str++)) { ++l; }
     return l;
 }
 
-int strEq(const char* x, const char* y) {
+int strEq(const char *x, const char *y) {
     while (*x && *y && (*x == *y)) { ++x; ++y; }
     return (*x || *y) ? 0 : 1;
 }
 
-int strEqI(const char* x, const char* y) {
+int strEqI(const char *x, const char *y) {
     while (*x && *y) {
         if (Lower(*x) != Lower(*y)) { return 0; }
         ++x; ++y;
@@ -69,34 +68,34 @@ int strEqI(const char* x, const char* y) {
     return (*x || *y) ? 0 : 1;
 }
 
-char* strCpy(char* d, const char* s) {
-    char* x = d;
+char *strCpy(char *d, const char *s) {
+    char *x = d;
     while (*s) { *(x++) = *(s++); }
     *x = 0;
     return d;
 }
 
-char* strCat(char* d, const char* s) {
-    char* x = d + strLen(d);
+char *strCat(char *d, const char *s) {
+    char *x = d + strLen(d);
     strCpy(x, s);
     return d;
 }
 
-char* strCatC(char* d, char c) {
-    char* x = d + strLen(d);
-    *x = c;
-    *(x + 1) = 0;
+char *strCatC(char *d, char c) {
+    char *x = d + strLen(d);
+    *(x++) = c;
+    *(x) = 0;
     return d;
 }
 
-char* rTrim(char* d) {
-    char* x = d + strLen(d);
+char *rTrim(char *d) {
+    char *x = d + strLen(d);
     while ((d <= x) && (*x <= ' ')) { *(x--) = 0; }
     return d;
 }
 
-void printStringF(const char* fmt, ...) {
-    char* buf = (char*)&vars[VARS_SZ - 100];
+void printStringF(const char *fmt, ...) {
+    char *buf = (char*)&vars[VARS_SZ - 100];
     va_list args;
     va_start(args, fmt);
     vsnprintf(buf, 100, fmt, args);
@@ -107,7 +106,7 @@ void printStringF(const char* fmt, ...) {
 void printBase(CELL num, CELL base) {
     UCELL n = (UCELL) num, isNeg = 0;
     if ((base == 10) && (num < 0)) { isNeg = 1; n = -num; }
-    char* cp = (char *)&vars[VARS_SZ];
+    char *cp = (char *)&vars[VARS_SZ];
     *(cp--) = 0;
     do {
         int x = (n % base) + '0';
@@ -157,7 +156,7 @@ byte *doType(byte *a, int l, int delim) {
 }
 
 void fWord() {
-    byte *wd = AOS;
+    byte *wd = BTOS;
     while (*in && (*in < 33)) { ++in; }
     int l = 0;
     while (*in && (32 < *in)) {
@@ -199,23 +198,23 @@ CELL doRand() {
 CELL t1, t2;
 byte *pc, ir;
 
-void fStore() { SET_LONG(AOS, NOS); DROP2; }
-void fFetch() { TOS = GET_LONG(AOS); }
+void fStore() { SET_LONG(BTOS, NOS); DROP2; }
+void fFetch() { TOS = GET_LONG(BTOS); }
 void fCharOp() {
-    ir = *(pc++); if (ir == '@') { TOS = *AOS; }
-    else if (ir == '!') { *AOS = (byte)NOS; DROP2; }
+    ir = *(pc++); if (ir == '@') { TOS = *BTOS; }
+    else if (ir == '!') { *BTOS = (byte)NOS; DROP2; }
 }
 void fWordOp() {
-    ir = *(pc++); if (ir == '@') { TOS = GET_WORD(AOS); }
-    else if (ir == '!') { SET_WORD(AOS, (WORD)TOS); DROP2; }
+    ir = *(pc++); if (ir == '@') { TOS = GET_WORD(BTOS); }
+    else if (ir == '!') { SET_WORD(BTOS, (WORD)TOS); DROP2; }
 }
 void fType() { t1 = pop(); y = (byte*)pop(); while (t1--) printChar(*(y++)); }
 void fTypeQ() { printString((char*)pop()); }
 void fTypeF1() { pc = doType(pc, -1, '"'); }
 void fTypeF2() { doType((byte*)pop(), -1, 0); }
-void fDup() { push(TOS); }
+void fDup() { t1 = TOS; push(t1); }
 void fSwap() { t1 = TOS; TOS = NOS; NOS = t1; }
-void fOver() { push(NOS); }
+void fOver() { t1 = NOS; push(t1); }
 void fDrop() { DROP1; }
 void fSlashMod() { t1 = NOS; t2 = TOS; NOS = t1 / t2; TOS = t1 % t2; }
 void fAdd()  { t1 = pop(); TOS += t1; }
@@ -309,7 +308,8 @@ void fBitOp() {
 void fFileOp() { pc = doFile(ir, pc); }
 void fNegate() { TOS = -TOS; }
 void fAbs() { if (TOS < 0) fNegate(); }
-void fZQuote() { push((CELL)pc); while (*(pc++)) {} }
+void fSQuote() { t1 = 0; push((CELL)pc); while (*(pc++)) { ++t1; } push(t1); }
+void fZQuote() { fSQuote(); DROP1; }
 void fBLit() { push(*(pc++)); }
 void fWLit() { push(GET_WORD(pc)); pc += 2; }
 void fLit() { push(GET_LONG(pc)); pc += 4; }
@@ -338,15 +338,13 @@ void (*q[128])() = {
     fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,               //  64:79
     fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,             //  80:95
     fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,         //  96:111
-    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,X,fWhile,fLNot,X };      // 112:127
+    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,fSQuote,fWhile,fLNot,X };      // 112:127
 
 void run(WORD start) {
     pc = CA(start);
     lsp = isError = 0;
     if (sp < sb) { sp = sb - 1; }
     if (rsp > rb) { rsp = rb + 1; }
-    if (fsp < 0) { fsp = 0; }
-    if (FLT_SZ <= fsp) { fsp = (FLT_SZ-1); }
     while (pc) { ir = *(pc++); q[ir](); }
 }
 
@@ -481,7 +479,9 @@ PRIM_T prims[] = {
     , { "WORDS", "xD" }
 #ifdef __FILES__
     // Extension: FILE operations
-    , { "FOPEN", "fO" }
+    , { "FOPEN-R", "1fO" }
+    , { "FOPEN-W", "2fO" }
+    , { "FOPEN-RW", "3fO" }
     , { "FGETC", "fR" }
     , { "FREAD", "fr" }
     , { "FGETS", "fG" }
@@ -516,9 +516,6 @@ PRIM_T prims[] = {
 #endif
     , {0,0}
 };
-
-char word[32];
-CELL STATE, tHERE, tVHERE, tempWords[10];
 
 void CComma(CELL v) { code[tHERE++] = (byte)v; }
 void Comma(CELL v) { SET_LONG(&code[tHERE], v); tHERE += CELL_SZ; }
@@ -558,7 +555,7 @@ void doCreate(const char *name, byte f) {
     ++LAST;
 }
 
-int doFindInternal(const char* name) {
+int doFindInternal(const char *name) {
     // Regular lookup
     int len = strLen(name);
     for (int i = LAST - 1; i >= 0; i--) {
@@ -588,7 +585,7 @@ int doFind(const char *name) {
     return 0;
 }
 
-int doSee(const char* wd) {
+int doSee(const char *wd) {
     int i = doFindInternal(wd);
     if (i<0) { printString("-nf-"); return 1; }
     CELL start = dict[i].xt;
@@ -710,9 +707,9 @@ int doPrim(const char *wd) {
     return 1;
 }
 
-int doQuote() {
+int doQuote(char op) {
     in++;
-    CComma('`');
+    CComma(op);
     while (*in && (*in != '"')) { CComma(*(in++)); }
     CComma(0);
     if (*in) { ++in; }
@@ -748,7 +745,8 @@ int doParseWord(char *wd) {
     if (doPrim(wd))          { return 1; }
     if (doFind(wd))          { return doWord(); }
     if (strEq(wd, ".\""))    { return doDotQuote(); }
-    if (strEq(wd, "\""))     { return doQuote(); }
+    if (strEq(wd, "\""))     { return doQuote('`'); }
+    if (strEqI(wd, "S\""))   { return doQuote('|'); }
 
     if (strEqI(wd, "LOAD")) {
         if (getWord(wd)) { fLoad(wd); }
@@ -867,7 +865,7 @@ void systemWords() {
     sprintF(cp, ": dict-sz %d ;",   DICT_SZ);        doParse(cp);
     sprintF(cp, ": mem-sz %d ;",    MEM_SZ);         doParse(cp);
     sprintF(cp, ": vars-sz %d ;",   VARS_SZ);        doParse(cp);
-    sprintF(cp, ": mem %lu ;",      (UCELL)&mem[0]); doParse(cp);
+    sprintF(cp, ": mem %lu ;",      (UCELL)&MEM[0]); doParse(cp);
     sprintF(cp, ": cb %lu ;",       (UCELL)code);    doParse(cp);
     sprintF(cp, ": db %lu ;",       (UCELL)dict);    doParse(cp);
     sprintF(cp, ": vb %lu ;",       (UCELL)vars);    doParse(cp);
