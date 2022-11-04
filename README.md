@@ -81,7 +81,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 
 - Development Boards:
   - I use the Arduino IDE.
-  - Edit the "shared.h" file. Set the __BOARD__  appropriately.
+  - Edit the "c4.h" file. Set the __BOARD__  appropriately.
   - If the board is not defined yet, create a new section for it. 
     - CODE_SZ is the size of the code area (64K max).
     - VARS_SZ is the size of the variables area (any size).
