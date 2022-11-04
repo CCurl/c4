@@ -1,4 +1,4 @@
-# c4 - a minimal and extensible Forth-like VM / OS
+# c4 - a minimal and extendable Forth-like VM / OS
 
 c4 is intended to be a starting point for a programming environment that can grow to fit the user's needs.
 
