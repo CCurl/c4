@@ -242,15 +242,15 @@ EXIT     (--)              Exit the word immediately (don't forget to UNLOOP fir
 *** STRINGS ***
 "          (--a)           a: address of a null-terminated string.
 S"         (--a n)         a: address of a string, n: length of string.
-STR-CAT    ( src dst-- )   Concatenate src to dst.
-STR-CATC   ( c dst-- )     Concatenate char c to dst.
-STR-CPY    ( src dst-- )   Copy src to dst.
-STR-END    ( s1--s2 )      s2: the end of string s1.
-STR-EQ     ( s1 s2--f )    f: 1 if s1 and s2 are equivalent, else 0 (case-sensitive).
-STR-EQI    ( s1 s2--f )    f: 1 if s1 and s2 are equivalent, else 0 (case-insensitive).
-STR-LEN    ( str--n )      n: length of null-terminated string str.
-STR-RTRIM  ( str--str )    Trim rightmost chars from str whose ASCII value <= 32.
-STR-TRUNC  ( str--str )    Truncate str to 0 length.
+STR-CAT    (src dst--)     Concatenate src to dst.
+STR-CATC   (c dst--)       Concatenate char c to dst.
+STR-CPY    (src dst--)     Copy src to dst.
+STR-END    (s1--s2)        s2: the end of string s1.
+STR-EQ     (s1 s2--f)      f: 1 if s1 and s2 are equivalent, else 0 (case-sensitive).
+STR-EQI    (s1 s2--f)      f: 1 if s1 and s2 are equivalent, else 0 (case-insensitive).
+STR-LEN    (str--n)        n: length of null-terminated string str.
+STR-RTRIM  (str--str)      Trim rightmost chars from str whose ASCII value <= 32.
+STR-TRUNC  (str--str)      Truncate str to 0 length.
 
 NOTE: Strings in c4 are NULL-TERMINATED, not COUNTED
 
@@ -274,7 +274,7 @@ EXECUTE  (a--)             Execute CODE at address a.
 LOAD fn  (--)              Load file FN. The rest of the line is ignored.
 LOAD-SYS (--)              Loads the last saved "./system.c4" file, if it exists.
 SAVE-SYS (--)              Saves the system to file "./system.c4".
-' wd      (--f | xt i f)   Lookup wd. If not found, f=0. Else f=1, i: immediate, and xt: offset.
+' wd     (--f | xt i f)    Lookup wd. If not found, f=0. Else f=1, i: immediate, and xt: offset.
 NOP      (--)              Do nothing.
 RAND     (--n)             n: a RANDOM 31-bit number (0..$7FFFFFFF).
 RESET    (--)              Re-initialize c4.
