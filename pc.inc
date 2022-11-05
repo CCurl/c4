@@ -112,8 +112,7 @@ void fWrite() {
     CELL sz = pop();
     char *cp = (char *)pop();
     CELL n = 0;
-    *cp = 0;
-    if (fp && !feof(fp)) {
+    if (fp) {
         n = fwrite(cp, 1, sz, fp);
     }
     push(n);
