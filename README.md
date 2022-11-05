@@ -4,7 +4,7 @@ c4 is intended to be a starting point for a programming environment that can gro
 
 The main goals for this project are as follows:
 
-- To be easy to modify and add/extend the primitives.
+- To be easy to modify and add new primitives.
 - To be able to run on any system that has a C compiler.
 - To have an implementation that is minimal and "intuitively obvious upon casual inspection".
 - To be be frugal with its usage of memory.
@@ -28,7 +28,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - All CODE addresses are offsets into the CODE space, not absolute addresses.
 - HERE is also an offset into the CODE space, not an absolute address.
 - The VARIABLE space is separated from the CODE space, and can be larger than 64kb.
-- VHERE is a 32-bit offset to the first available byte in he VARIABLE space.
+- VHERE is a 32-bit offset to the first available byte in the VARIABLE space.
 - There are 10 temporary words (T0..T9) that can be re-defined without any dictionary overhead.
 - There are 10 temporary variables (r0..r9) that can be allocated/destroyed.
 
@@ -76,7 +76,7 @@ To these ends, I have wandered off the beaten path in the following ways:
   - It detects the _WIN32 #define and builds c4 appropriately.
 
 - Linux:
-  - I use clang on Mint. GCC works as well.
+  - Use gcc or clang.
   - There is a makefile to build c4.
 
 - Development Boards:
@@ -226,6 +226,7 @@ IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE)
 THEN     (--)              Standard THEN
 .IF      (f--)             Simple IF (shorter, more human-readable)
 .THEN    (--)              Simple THEN
+EXECUTE  (a--)             Execute CODE at address a.
 DO       (T F--)           Begin DO/LOOP loop
 LOOP     (--)              Increment I, jump to DO if I < T
 +LOOP    (N--)             Add N to I, break out if I reaches or crosses T
@@ -240,8 +241,8 @@ AGAIN    (--)              Jump to BEGIN. Use <condition> IF UNLOOP EXIT THEN to
 EXIT     (--)              Exit the word immediately (don't forget to UNLOOP first if in a loop)
 
 *** STRINGS ***
-"          (--a)           a: address of a null-terminated string.
-S"         (--a n)         a: address of a string, n: length of string.
+" xxx"     (--a)           a: address of a null-terminated string (xxx).
+S" xxx"    (--a n)         a: address of a string (xxx), n: length of string.
 STR-CAT    (src dst--)     Concatenate src to dst.
 STR-CATC   (c dst--)       Concatenate char c to dst.
 STR-CPY    (src dst--)     Copy src to dst.
@@ -270,11 +271,10 @@ CONSTANT (--)              Define a constant.
 CELL     (--n)             n: The size of a CELL.
 CELLS    (n--x)            x: The number of bytes in n CELLs.
 EDIT     (n--)             Edit block n.
-EXECUTE  (a--)             Execute CODE at address a.
 LOAD fn  (--)              Load file FN. The rest of the line is ignored.
 LOAD-SYS (--)              Loads the last saved "./system.c4" file, if it exists.
 SAVE-SYS (--)              Saves the system to file "./system.c4".
-' wd     (--f | xt i f)    Lookup wd. If not found, f=0. Else f=1, i: immediate, and xt: offset.
+' Wd     (--f | xt i f)    Lookup Wd. If not found, f=0. Else f=1, i: immediate, and xt: offset.
 NOP      (--)              Do nothing.
 RAND     (--n)             n: a RANDOM 31-bit number (0..$7FFFFFFF).
 RESET    (--)              Re-initialize c4.

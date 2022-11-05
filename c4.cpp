@@ -9,19 +9,16 @@ ST_T st;
 STK_T stk;
 CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
 CELL sp, rsp, lsp, lb, isError, sb, rb;
-CELL BASE, STATE, tHERE, tVHERE, seed;
+CELL BASE, STATE, tHERE, tVHERE, seed, t1, t2;
+byte *code, *vars, *y, *in, *pc, ir;
+DICT_E *dict;
 char word[32];
 
-byte *code, *vars, *y, *in;
-DICT_E *dict;
-
 void vmReset() {
-    lsp = lb = 0;
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
     HERE = tHERE = 2;
-    VHERE = tVHERE = 0;
-    LAST = 0;
+    lsp = lb = VHERE = tVHERE = LAST = 0;
     for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
     code = &st.bytes[CELL_SZ*3];
     vars = (code+CODE_SZ+4);
@@ -36,15 +33,15 @@ CELL rpop() { return stk.i[rsp++]; }
 float fpop() { return stk.f[sp--]; }
 
 #ifdef NEEDS_ALIGN
-WORD GET_WORD(byte* l) { return *l | (*(l + 1) << 8); }
-long GET_LONG(byte* l) { return GET_WORD(l) | GET_WORD(l + 2) << 16; }
-void SET_WORD(byte* l, WORD v) { *l = (v & 0xff); *(l + 1) = (byte)(v >> 8); }
-void SET_LONG(byte* l, long v) { SET_WORD(l, v & 0xFFFF); SET_WORD(l + 2, (WORD)(v >> 16)); }
+WORD GET_WORD(byte *l) { return *l | (*(l + 1) << 8); }
+long GET_LONG(byte *l) { return GET_WORD(l) | GET_WORD(l + 2) << 16; }
+void SET_WORD(byte *l, WORD v) { *l = (v & 0xff); *(l + 1) = (byte)(v >> 8); }
+void SET_LONG(byte *l, long v) { SET_WORD(l, v & 0xFFFF); SET_WORD(l + 2, (WORD)(v >> 16)); }
 #else
-WORD GET_WORD(byte* l) { return *(WORD *)l; }
-long GET_LONG(byte* l) { return *(long *)l; }
-void SET_WORD(byte* l, WORD v) { *(WORD *)l = v; }
-void SET_LONG(byte* l, long v) { *(long *)l = v; }
+WORD GET_WORD(byte *l) { return *(WORD*)l; }
+long GET_LONG(byte *l) { return *(long*)l; }
+void SET_WORD(byte *l, WORD v) { *(WORD*)l = v; }
+void SET_LONG(byte *l, long v) { *(long*)l = v; }
 #endif // NEEDS_ALIGN
 
 char Lower(char c) { return BTW(c,'A','Z') ? c|0x20 : c; }
@@ -129,7 +126,7 @@ void fDotS() {
 
 byte *doType(byte *a, int l, int delim) {
     if (l < 0) { l = 0; while (a[l]!=delim) { ++l; } }
-    byte* e = a+l;
+    byte *e = a+l;
     while (a < e) {
         char c = (char)*(a++);
         if (c == '%') {
@@ -167,7 +164,7 @@ void fWord() {
     push(l);
 }
 
-byte* doFile(CELL ir, byte* pc) {
+byte *doFile(CELL ir, byte *pc) {
     ir = *(pc++);
     if (ir == 'O') { fOpen(); }
     else if (ir == 'D') { fDelete(); }
@@ -194,9 +191,6 @@ CELL doRand() {
     seed ^= (seed << 5);
     return seed & 0x7FFFFFFF;
 }
-
-CELL t1, t2;
-byte *pc, ir;
 
 void fStore() { SET_LONG(BTOS, NOS); DROP2; }
 void fFetch() { TOS = GET_LONG(BTOS); }
@@ -277,7 +271,7 @@ void fStrOps() {
 }
 void fDo() { lsp += 3; L2 = (CELL)pc; L0 = pop(); L1 = pop(); }
 void fIndex() { push(L0); }
-void fIndex2() { t1 = (2 < lsp) ? lsp-3 : 0; push(lstk[t1]); }
+void fIndex2() { t1 = (2 < lsp) ? lstk[lsp-3] : 0; push(t1); }
 void fLeave() { if (3 <= lsp) { lsp -= 3; } }
 void fLoop() { ++L0; if (L0 < L1) { pc = (byte*)L2; return; } lsp -= 3; }
 void fPlusLoop() {
@@ -332,13 +326,13 @@ void X() { if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
 void N() {}
 
 void (*q[128])() = {
-    X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                //   0:31
-    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,  //  32:47
-    fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,              //  48:63
-    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,               //  64:79
-    fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,             //  80:95
-    fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,         //  96:111
-    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,fSQuote,fWhile,fLNot,X };      // 112:127
+    X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                   //   0:31
+    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,     //  32:47
+    fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,                 //  48:63
+    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,                  //  64:79
+    fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,                //  80:95
+    fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,            //  96:111
+    X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,fSQuote,fWhile,fLNot,X };   // 112:127
 
 void run(WORD start) {
     pc = CA(start);
@@ -559,7 +553,7 @@ int doFindInternal(const char *name) {
     // Regular lookup
     int len = strLen(name);
     for (int i = LAST - 1; i >= 0; i--) {
-        DICT_E* dp = &dict[i];
+        DICT_E *dp = &dict[i];
         if ((len == dp->len) && strEq(dp->name, name)) {
             return i;
         }
@@ -604,7 +598,7 @@ int doSee(const char *wd) {
 void doWords() {
     int n = 0;
     for (int i = LAST-1; i >= 0; i--) {
-        DICT_E* dp = &dict[i];
+        DICT_E *dp = &dict[i];
         printString(dp->name);
         if ((++n) % 10 == 0) { printString("\r\n"); }
         else { printChar(9); }
