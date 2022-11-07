@@ -10,6 +10,7 @@ reset
 
 : num-words (last) @ ;
 : used here cb - ;
+: forget last w@ (here) ! (last) @ 1- (last) ! ;
 
 : T1 ( a-- ) DUP 4 + SWAP W@ ." %n%i: %s" ;
 : words-l db num-words 0 DO DUP T1 20 + LOOP DROP ;
