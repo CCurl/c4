@@ -587,22 +587,6 @@ int doFind(const char *name) {
     return 0;
 }
 
-int doSee(const char *wd) {
-    int i = doFindInternal(wd);
-    if (i<0) { printString("-nf-"); return 1; }
-    CELL start = dict[i].xt;
-    CELL end = HERE;
-    if ((i+1) < LAST) { end = dict[i + 1].xt; }
-
-    printStringF("%s (%d): ", wd, start);
-    for (int i = start; i < end; i++) {
-        byte c = code[i];
-        if (BTW(c, 32, 126)) { printChar(c); }
-        else { printStringF("(%d)",c); }
-    }
-    return 1;
-}
-
 void doWords() {
     int n = 0;
     for (int i = LAST-1; i >= 0; i--) {
@@ -822,20 +806,6 @@ int doParseWord() {
         if (getWord(wd) == 0) { return 0; }
         push(doFind(wd));
         return 1;
-    }
-
-    if (strEqI(wd, "FORGET")) {
-        // Forget the last word
-        HERE = tHERE = dict[LAST].xt;
-        --LAST;
-        return 1;
-    }
-
-    if (strEqI(wd, "SEE")) {
-        if (QState(0)) { return 0; }
-        doExec(STATE);
-        if (getWord(wd) == 0) { return 0; }
-        return doSee(wd);
     }
 
     printStringF("[%s]??", wd);

@@ -22,8 +22,7 @@ T2 T3 T4 T5
 : elapsed timer swap - ;
 : bm timer SWAP primes . elapsed ." primes. (%d ms)" ;
 : mil 1000 DUP * * ;
-cr see prime? cr
-71 prime? ."  71 prime? (%d)%n"
+cr 71 prime? ."  71 prime? (%d)%n"
 cr cr 1 mil 4 / bm cr
 cr 100 .primes ." (primes in 100)%n"
 
