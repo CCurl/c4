@@ -515,8 +515,8 @@ void CComma(CELL v) { code[tHERE++] = (byte)v; }
 void Comma(CELL v) { SET_LONG(&code[tHERE], v); tHERE += CELL_SZ; }
 void WComma(WORD v) { SET_WORD(&code[tHERE], v); tHERE += 2; }
 
-void doExec() {
-    if (STATE) {
+void doExec(int op) {
+    if (op) {
         HERE = tHERE;
         VHERE = tVHERE;
     }
@@ -532,20 +532,27 @@ int isTempWord(const char *nm) {
     return ((nm[0] == 'T') && BTW(nm[1], '0', '9') && (nm[2] == 0));
 }
 
-void doCreate(const char *name, byte f) {
-    doExec();
-    if (isTempWord(name)) {
-        tempWords[name[1]-'0'] = tHERE;
-        STATE = 1;
+int getWord(char* wd) {
+    push((CELL)wd);
+    fWord();
+    int l = pop();
+    DROP1;
+    return l;
+}
+
+void fCreate() {
+    t2 = getWord(word);
+    if (!t2) { return; }
+    if (isTempWord(word)) {
+        tempWords[word[1]-'0'] = tHERE;
         return;
     }
     DICT_E *dp = &dict[LAST];
     dp->xt = (USHORT)HERE;
-    dp->flags = f;
-    strCpy(dp->name, name);
+    dp->flags = 0;
+    strCpy(dp->name, word);
     dp->name[NAME_LEN-1] = 0;
     dp->len = strLen(dp->name);
-    STATE = 1;
     ++LAST;
 }
 
@@ -609,14 +616,6 @@ void doWords() {
         ++x;
         if ((++n) % 10 == 0) { printString("\r\n"); }
     }
-}
-
-int getWord(char *wd) {
-    push((CELL)wd);
-    fWord();
-    int l = pop();
-    DROP1;
-    return l;
 }
 
 int doNumber(int t) {
@@ -723,7 +722,7 @@ int doWord() {
     CELL flg = pop();
     CELL xt = pop();
     if (flg & BIT_IMMEDIATE) {
-        doExec();
+        doExec(STATE);
         run((WORD)xt);
     } else {
         CComma(':');
@@ -732,9 +731,17 @@ int doWord() {
     return 1;
 }
 
+int QState(int sb) {
+    if (STATE != sb) {
+        if (STATE) { printString("-comp-"); }
+        else { printString("-noComp-"); }
+    }
+    return (STATE == sb) ? 0 : 1;
+}
+
 int doParseWord(char *wd) {
-    if (strEq(word, "//"))   { doExec(); return 0; }
-    if (strEq(word, "\\"))   { doExec(); return 0; }
+    if (strEq(word, "//"))   { doExec(STATE); return 0; }
+    if (strEq(word, "\\"))   { doExec(STATE); return 0; }
     if (isNum(wd))           { return doNumber(0); }
     if (doPrim(wd))          { return 1; }
     if (doFind(wd))          { return doWord(); }
@@ -748,15 +755,17 @@ int doParseWord(char *wd) {
     }
 
     if (strEq(wd, ":")) {
-        doExec();
-        if (getWord(wd) == 0) { return 0; }
-        doCreate(wd, 0);
-        return 1;
+        if (QState(0)) { return 0; }
+        doExec(STATE);
+        fCreate();
+        STATE = 1;
+        return t2;
     }
 
     if (strEq(wd, ";")) {
+        if (QState(1)) { return 0; }
         CComma(';');
-        doExec();
+        doExec(STATE);
         STATE = 0;
         return 1;
     }
@@ -781,34 +790,32 @@ int doParseWord(char *wd) {
     }
 
     if (strEqI(wd, "VARIABLE")) {
-        if (getWord(wd)) {
-            push((CELL)VHERE);
-            VHERE += CELL_SZ;
-            tVHERE = VHERE;
-            doCreate(wd, 0);
-            doNumber('v');
-            CComma(';');
-            doExec();
-            STATE = 0;
-            return 1;
-        }
-        else { return 0; }
+        if (QState(0)) { return 0; }
+        doExec(STATE);
+        fCreate();
+        if (t2 == 0) { return 0; }
+        push((CELL)VHERE);
+        doNumber('v');
+        CComma(';');
+        doExec(1);
+        VHERE += CELL_SZ;
+        tVHERE = VHERE;
+        return 1;
     }
 
     if (strEqI(wd, "CONSTANT")) {
-        if (getWord(wd)) {
-            doCreate(wd, 0);
-            doNumber(4);
-            CComma(';');
-            doExec();
-            STATE = 0;
-            return 1;
-        }
-        else { return 0; }
+        if (QState(0)) { return 0; }
+        doExec(STATE);
+        fCreate();
+        if (t2 == 0) { return 0; }
+        doNumber(4);
+        CComma(';');
+        doExec(1);
+        return 1;
     }
 
     if (strEqI(wd, "'")) {
-        doExec();
+        doExec(STATE);
         if (getWord(wd) == 0) { return 0; }
         push(doFind(wd));
         return 1;
@@ -822,7 +829,8 @@ int doParseWord(char *wd) {
     }
 
     if (strEqI(wd, "SEE")) {
-        doExec();
+        if (QState(0)) { return 0; }
+        doExec(STATE);
         if (getWord(wd) == 0) { return 0; }
         return doSee(wd);
     }
@@ -842,7 +850,7 @@ void doParse(const char *line) {
         if (tVHERE < VHERE) { tVHERE = VHERE; }
         if (doParseWord(word) == 0) { return; }
     }
-    doExec();
+    doExec(STATE);
 }
 
 void doOK() {
