@@ -264,9 +264,12 @@ dX       (--n)             Decrement temp var X.
 -TMPS    (--)              Destroy current temp variables.
 
 **** SYSTEM/OTHER ***
+C,       (n--)             Append byte N to HERE, increment HERE by 1.
+W,       (n--)             Append word N to HERE, increment HERE by 2.
+,        (n--)             Append cell N to HERE, increment HERE by the size of a CELL.
 .S       (--)              Output the stack.
 BL       (--c)             c: 32.
-BYE      (--)              Exit c4 (PC).
+BYE      (--)              Exit c4 (PC only).
 CONSTANT (--)              Define a constant.
 CELL     (--n)             n: The size of a CELL.
 CELLS    (n--x)            x: The number of bytes in n CELLs.
@@ -275,7 +278,6 @@ LOAD fn  (--)              Load file FN. The rest of the line is ignored.
 LOAD-SYS (--)              Loads the last saved "./system.c4" file, if it exists.
 SAVE-SYS (--)              Saves the system to file "./system.c4".
 ' Wd     (--f | xt i f)    Lookup Wd. If not found, f=0. Else f=1, i: immediate, and xt: offset.
-NOP      (--)              Do nothing.
 RAND     (--n)             n: a RANDOM 31-bit number (0..$7FFFFFFF).
 RESET    (--)              Re-initialize c4.
 SYSTEM   (a--)             a: string to send to system() ... eg: " dir" system (PC).
