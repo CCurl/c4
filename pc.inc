@@ -222,7 +222,7 @@ void doHistory(const char *txt) {
 }
 
 void loop() {
-    char *tib = (char *)CA(tHERE+32);
+    char *tib = (char *)CA(HERE+32);
     FILE* fp = (input_fp) ? input_fp : stdin;
     if (input_fp) {
         if (fgets(tib, 128, fp) == tib) {

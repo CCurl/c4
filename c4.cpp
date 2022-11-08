@@ -9,7 +9,7 @@ ST_T st;
 STK_T stk;
 CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
 CELL sp, rsp, lsp, lb, isError, sb, rb;
-CELL BASE, STATE, tHERE, tVHERE, seed, t1, t2;
+CELL BASE, STATE, oHERE, oVHERE, seed, t1, t2;
 byte *code, *vars, *y, *in, *pc, ir;
 DICT_E *dict;
 char word[32];
@@ -17,8 +17,8 @@ char word[32];
 void vmReset() {
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
-    HERE = tHERE = 2;
-    lsp = lb = VHERE = tVHERE = LAST = 0;
+    HERE = oHERE = 2;
+    lsp = lb = VHERE = oVHERE = LAST = 0;
     for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
     code = &st.bytes[CELL_SZ*3];
     vars = (code+CODE_SZ+4);
@@ -152,6 +152,17 @@ byte *doType(byte *a, int l, int delim) {
     return e;
 }
 
+void CComma(CELL v) { code[HERE++] = (byte)v; }
+void WComma(CELL v) { SET_WORD(&code[HERE], (WORD)v); HERE += 2; }
+void Comma(CELL v) { SET_LONG(&code[HERE], v); HERE += CELL_SZ; }
+void fCommaOp() {
+    ir = *(pc++);
+    if (ir == '1') { CComma(pop()); }
+    else if (ir == '2') { WComma(pop()); }
+    else if (ir == '4') { Comma(pop()); }
+    // if (oHERE < HERE) { oHERE = HERE; }
+}
+
 void fWord() {
     byte *wd = BTOS;
     while (*in && (*in < 33)) { ++in; }
@@ -180,7 +191,7 @@ void fCreate() {
     push(getWord(word));
     if (TOS == 0) { return; }
     if (isTempWord(word)) {
-        tempWords[word[1] - '0'] = tHERE;
+        tempWords[word[1] - '0'] = oHERE;
         return;
     }
     DICT_E* dp = &dict[LAST];
@@ -343,11 +354,12 @@ void fExt() {
     if (ir == ']') { fPlusLoop(); }
     else if (ir == 'S') { fDotS(); }                             // .S
     else if (ir == 'R') { push(doRand()); }                      // RAND
-    else if (ir == 'A') { VHERE += pop(); tVHERE = VHERE; }      // ALLOT
+    else if (ir == 'A') { VHERE += pop(); oVHERE = VHERE; }      // ALLOT
     else if (ir == 'T') { push(doTimer()); }                     // TIMER
     else if (ir == 'Y') { fSystem(); }                           // SYSTEM
     else if (ir == 'D') { doWords(); }                           // WORDS
     else if (ir == 'W') { doSleep(); }                           // MS
+    else if (ir == 'C') { fCreate(); }                           // CREATE
     else if (ir == 'Z') { vmReset(); }
 }
 void X() { if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
@@ -357,7 +369,7 @@ void (*q[128])() = {
     X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                   //   0:31
     N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,     //  32:47
     fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,                 //  48:63
-    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,X,                  //  64:79
+    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,fCommaOp,           //  64:79
     fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,                //  80:95
     fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,            //  96:111
     X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,fSQuote,fWhile,fLNot,X };   // 112:127
@@ -483,6 +495,9 @@ PRIM_T prims[] = {
     , { "BL", "32" }
     , { "BYE", "uQ" }
     , { "CREATE", "xC" }
+    , { "C,", "O1" }
+    , { "W,", "O2" }
+    , { ",", "O4" }
     , { "EXECUTE", "E" }
     , { "MAX", "%%<($)\\" }
     , { "MIN", "%%>($)\\" }
@@ -540,20 +555,16 @@ PRIM_T prims[] = {
     , {0,0}
 };
 
-void CComma(CELL v) { code[tHERE++] = (byte)v; }
-void Comma(CELL v) { SET_LONG(&code[tHERE], v); tHERE += CELL_SZ; }
-void WComma(WORD v) { SET_WORD(&code[tHERE], v); tHERE += 2; }
-
-void doExec(int op) {
-    if (op) {
-        HERE = tHERE;
-        VHERE = tVHERE;
+void doExec(int isComp) {
+    if (isComp) {
+        oHERE = HERE;
+        oVHERE = VHERE;
     }
     else {
         CComma(0);
-        run((WORD)HERE);
-        tHERE = HERE;
-        tVHERE = VHERE;
+        run((WORD)oHERE);
+        HERE = oHERE;
+        VHERE = oVHERE;
     }
 }
 
@@ -680,7 +691,7 @@ int doPrim(const char *wd) {
 
     if (!vml) { return 0; } // Not found
 
-    if (BTW(vml[0],'0','9') && BTW(code[tHERE-1],'0','9')) { CComma(' '); }
+    if (BTW(vml[0],'0','9') && BTW(code[oHERE-1],'0','9')) { CComma(' '); }
     for (int j = 0; vml[j]; j++) { CComma(vml[j]); }
     return 1;
 }
@@ -765,14 +776,14 @@ int doParseWord() {
 
     if (strEqI(wd, "IF")) {
         CComma('?');
-        push(tHERE);
+        push(oHERE);
         WComma(0);
         return 1;
     }
 
     if (strEqI(wd, "THEN")) {
         CELL tgt = pop();
-        SET_WORD(CA(tgt), (WORD)tHERE);
+        SET_WORD(CA(tgt), (WORD)oHERE);
         return 1;
     }
 
@@ -786,7 +797,7 @@ int doParseWord() {
         CComma(';');
         doExec(1);
         VHERE += CELL_SZ;
-        tVHERE = VHERE;
+        oVHERE = VHERE;
         return 1;
     }
 
@@ -810,17 +821,15 @@ int doParseWord() {
 
     printStringF("[%s]??", wd);
     if (STATE == 1) { STATE = 0; --LAST; }
-    tHERE = HERE;
-    tVHERE = VHERE;
-    code[tHERE] = 0;
+    HERE = oHERE;
+    VHERE = oVHERE;
+    code[HERE] = 0;
     return 0;
 }
 
 void doParse(const char *line) {
     in = (byte*)line;
     while (getWord(word)) {
-        if (tHERE < HERE) { tHERE = HERE; }
-        if (tVHERE < VHERE) { tVHERE = VHERE; }
         push((CELL)word);
         if (doParseWord() == 0) { return; }
     }
