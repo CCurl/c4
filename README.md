@@ -93,9 +93,9 @@ To these ends, I have wandered off the beaten path in the following ways:
     - The _PIN__ define indicates that the board supports digitalWrite(), et al.
     - The __FILES__ define indicates that the board supports LittleFS.
 ```
-## c4 Primitives
+## c4 Reference
 ```
-NOTES: (1) These primitives are built into c4.
+NOTES: (1) The primitives are built into c4.
        (2) They are NOT case-sensitive.
        (3) They cannot be overridden.
 
@@ -221,11 +221,14 @@ C!       (b a--)           Store BYTE b at a.
 W!       (w a--)           Store WORD w at a.
 +!       (n a--)           Add n to CELL at a.
 
-*** FLOW CONTROL ***
-IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE)
-THEN     (--)              Standard THEN
-.IF      (f--)             Simple IF (shorter, more human-readable)
-.THEN    (--)              Simple THEN
+*** WORDS and FLOW CONTROL ***
+: Name   (--)              Begin definition of word "Name". "Name" is added to the dictionary.
+: T[0-9] (--)              Begin definition of a temporary word. Word is NOT added to the dictionary.
+;        (--)              End current definition.
+IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE).
+THEN     (--)              Standard THEN.
+.IF      (f--)             Simple IF (shorter, more human-readable).
+.THEN    (--)              Simple THEN.
 EXECUTE  (a--)             Execute CODE at address a.
 DO       (T F--)           Begin DO/LOOP loop
 LOOP     (--)              Increment I, jump to DO if I < T
@@ -233,7 +236,7 @@ LOOP     (--)              Increment I, jump to DO if I < T
 I        (--n)             n: Current DO/LOOP index
 J        (--n)             n: Index of next-most outer loop
 UNLOOP   (--)              Drop top 3 entries from the loop stack (unwind loop).
-                     NOTE: Use IF UNLOOP EXIT THEN to break out a loop (DO or BEGIN) prematurely.
+                     NOTE: Use IF UNLOOP EXIT THEN to break out a loop prematurely and exit the word.
 BEGIN    (f--)             Start BEGIN/WHILE/UNTIL/AGAIN loop.
 WHILE    (f--)             If f==0, jump to BEGIN, else DROP f and continue.
 UNTIL    (f--)             If f<>0, jump to BEGIN, else DROP f and continue.
