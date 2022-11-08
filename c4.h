@@ -27,6 +27,7 @@
   #define DICT_SZ     2000
   #define FLT_SZ        10
   #define __FILES__
+  // #define USE_ACCEPT
 #endif
 
 #ifdef _LINUX
@@ -170,6 +171,7 @@ extern byte *doUser(CELL, byte *);
 extern char *rTrim(char *);
 extern void doEditor();
 extern int  charAvailable();
+extern int  isBackSpace(int c);
 extern int  getChar();
 extern CELL doTimer();
 extern void doSleep();

@@ -10,9 +10,9 @@ STK_T stk;
 CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
 CELL sp, rsp, lsp, lb, isError, sb, rb;
 CELL BASE, STATE, oHERE, oVHERE, seed, t1, t2;
-byte *code, *vars, *y, *in, *pc, ir;
+byte *code, *vars, *y, *pc, ir;
 DICT_E *dict;
-char word[32];
+char word[32], tib[256], *in;
 
 void vmReset() {
     sb = 2, rb = (STK_SZ-2);
@@ -44,6 +44,9 @@ void SET_WORD(byte *l, WORD v) { *(WORD*)l = v; }
 void SET_LONG(byte *l, long v) { *(long*)l = v; }
 #endif // NEEDS_ALIGN
 
+void CComma(CELL v) { code[HERE++] = (byte)v; }
+void WComma(CELL v) { SET_WORD(&code[HERE], (WORD)v); HERE += 2; }
+void Comma(CELL v) { SET_LONG(&code[HERE], v); HERE += CELL_SZ; }
 char Lower(char c) { return BTW(c,'A','Z') ? c|0x20 : c; }
 
 int strLen(const char *str) {
@@ -152,9 +155,6 @@ byte *doType(byte *a, int l, int delim) {
     return e;
 }
 
-void CComma(CELL v) { code[HERE++] = (byte)v; }
-void WComma(CELL v) { SET_WORD(&code[HERE], (WORD)v); HERE += 2; }
-void Comma(CELL v) { SET_LONG(&code[HERE], v); HERE += CELL_SZ; }
 void fCommaOp() {
     ir = *(pc++);
     if (ir == '1') { CComma(pop()); }
@@ -201,6 +201,45 @@ void fCreate() {
     dp->name[NAME_LEN - 1] = 0;
     dp->len = strLen(dp->name);
     ++LAST;
+}
+
+int doFindInternal(const char *name) {
+    int len = strLen(name);
+    for (int i = LAST - 1; i >= 0; i--) {
+        DICT_E *dp = &dict[i];
+        if ((len == dp->len) && strEq(dp->name, name)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int handleInput(int c, int echo) {
+    if (c == 13) {
+        *in = 0;
+        if (echo) { printChar(' '); }
+        return 1;
+    }
+    if (isBackSpace(c) && (tib < in)) {
+        in--;
+        if (echo) { char b[] = { 8, 32, 8, 0 }; printString(b); }
+        return 0;
+    }
+    if (c == 9) { c = 32; }
+    if (BTW(c, 32, 126)) { *(in++) = c; if (echo) { printChar(c); } }
+    return 0;
+}
+
+void fAccept() {
+    int idle = doFindInternal("idle");
+    in = tib;
+    while (1) {
+        if (!charAvailable()) {
+            if (0 <= idle) { run(dict[idle].xt); }
+            continue;
+        }
+        if (handleInput(getChar(), 1)) { return; }
+    }
 }
 
 byte *doFile(CELL ir, byte *pc) {
@@ -568,18 +607,6 @@ void doExec(int isComp) {
     }
 }
 
-int doFindInternal(const char *name) {
-    // Regular lookup
-    int len = strLen(name);
-    for (int i = LAST - 1; i >= 0; i--) {
-        DICT_E *dp = &dict[i];
-        if ((len == dp->len) && strEq(dp->name, name)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 int doFind(const char *name) {
     // Temporary word?
     if (isTempWord(name) && (tempWords[name[1]-'0'])) {
@@ -745,11 +772,7 @@ int doParseWord() {
     if (strEq(wd, ".\""))    { return doDotQuote(); }
     if (strEq(wd, "\""))     { return doQuote('`'); }
     if (strEqI(wd, "S\""))   { return doQuote('|'); }
-
-    if (strEqI(wd, "LOAD")) {
-        if (getWord(wd)) { fLoad(wd); }
-        return 0;
-    }
+    if (strEqI(wd, "LOAD"))  { if (getWord(wd)) { fLoad(wd); } return 0; }
 
     if (strEq(wd, ":")) {
         if (QState(0)) { return 0; }
@@ -776,14 +799,14 @@ int doParseWord() {
 
     if (strEqI(wd, "IF")) {
         CComma('?');
-        push(oHERE);
+        push(HERE);
         WComma(0);
         return 1;
     }
 
     if (strEqI(wd, "THEN")) {
         CELL tgt = pop();
-        SET_WORD(CA(tgt), (WORD)oHERE);
+        SET_WORD(CA(tgt), (WORD)HERE);
         return 1;
     }
 
@@ -828,7 +851,7 @@ int doParseWord() {
 }
 
 void doParse(const char *line) {
-    in = (byte*)line;
+    in = (char*)line;
     while (getWord(word)) {
         push((CELL)word);
         if (doParseWord() == 0) { return; }
