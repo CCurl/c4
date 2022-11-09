@@ -191,7 +191,7 @@ void fCreate() {
     push(getWord(word));
     if (TOS == 0) { return; }
     if (isTempWord(word)) {
-        tempWords[word[1] - '0'] = oHERE;
+        tempWords[word[1] - '0'] = HERE;
         return;
     }
     DICT_E* dp = &dict[LAST];
@@ -410,7 +410,7 @@ void (*q[128])() = {
     fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,                 //  48:63
     fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,fCommaOp,           //  64:79
     fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,                //  80:95
-    fZQuote,fAbs,fBitOp,fCharOp,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,            //  96:111
+    fZQuote,fAbs,fBitOp,fLocIncCell,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,        //  96:111
     X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,fSQuote,fWhile,fLNot,X };   // 112:127
 
 void run(WORD start) {
@@ -717,7 +717,7 @@ int doPrim(const char *wd) {
 
     if (!vml) { return 0; } // Not found
 
-    if (BTW(vml[0],'0','9') && BTW(code[oHERE-1],'0','9')) { CComma(' '); }
+    if (BTW(vml[0],'0','9') && BTW(code[HERE-1],'0','9')) { CComma(' '); }
     for (int j = 0; vml[j]; j++) { CComma(vml[j]); }
     return 1;
 }

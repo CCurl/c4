@@ -56,9 +56,9 @@ To these ends, I have wandered off the beaten path in the following ways:
   - +tmps: allocate 10 new temps
   - rX: push the value of temp #X onto the stack (read)
   - sX: pop the new value for temp #X off the stack (set)
-  - cX: add CELL-SZ to temp #X
   - iX: increment temp #X
   - dX: decrement temp #X
+  - cX: add CELL-SZ to temp #X
   - -tmps: destroy the most recently allocated temps
 - Here are some simple examples:
 ```
