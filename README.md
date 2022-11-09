@@ -236,7 +236,7 @@ LOOP     (--)              Increment I, jump to DO if I < T
 I        (--n)             n: Current DO/LOOP index
 J        (--n)             n: Index of next-most outer loop
 UNLOOP   (--)              Drop top 3 entries from the loop stack (unwind loop).
-                     NOTE: Use IF UNLOOP EXIT THEN to break out a loop prematurely and exit the word.
+                     NOTE: Use IF UNLOOP EXIT THEN to break out of a loop prematurely and exit the word.
 BEGIN    (f--)             Start BEGIN/WHILE/UNTIL/AGAIN loop.
 WHILE    (f--)             If f==0, jump to BEGIN, else DROP f and continue.
 UNTIL    (f--)             If f<>0, jump to BEGIN, else DROP f and continue.

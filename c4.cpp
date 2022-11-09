@@ -593,8 +593,9 @@ PRIM_T prims[] = {
     , {0,0}
 };
 
-void doExec(int isComp) {
-    if (isComp) {
+void doExec(int isCompiling) {
+    if (isCompiling) {
+
         oHERE = HERE;
         oVHERE = VHERE;
     }
