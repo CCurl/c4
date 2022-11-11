@@ -598,11 +598,10 @@ int isNum(const char *wd) {
 }
 
 char *isRegOp(const char *wd) {
-    if ((wd[0] == 'r') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 's') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 'i') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 'd') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 'c') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
+    if (!BTW(wd[1], '0', '9') || (wd[2])) { return 0; }
+    if (BTW(wd[0], 'r', 's')) { return (char*)wd; }
+    if (BTW(wd[0], 'c', 'd')) { return (char*)wd; }
+    if (wd[0] == 'i') { return (char*)wd; }
     return 0;
 }
 
