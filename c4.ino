@@ -5,6 +5,9 @@
 #define DR(x) digitalRead(x)
 #define mySerial Serial
 
+extern char tib[];
+extern void handleInput(char c, int echo);
+
 CELL doTimer() { return millis(); }
 void doSleep() { delay(pop()); }
 CELL getSeed() { return millis(); }
@@ -85,46 +88,14 @@ byte *doUser(CELL ir, byte *pc) {
 // * HERE is where you load your default code *
 // ********************************************
 void loadCode() {
-    doParse(": T0 dup 32 >= .if dup '~' <= .if emit exit .then .\" (%d)\" ;");
-    doParse(": .code (here) @ cb + cb do i c@ T0 loop ;");
-    // doParse("cr words");
+    doParse(".\" c4 v 0.0.1\"");
 }
 
 // NB: tweak this depending on what your terminal window sends for [Backspace]
 // E.G. - PuTTY sends a 127 for Backspace
-int isBackSpace(char c) { 
+int isBackSpace(int c) { 
   // printStringF("(%d)",c);
   return (c == 127) ? 1 : 0; 
-}
-
-char tib[128];
-
-void handleInput(char c) {
-    static char *e = NULL;
-
-    if (e == NULL) { e = tib; }
-    if (c == 13) {
-        *e = 0;
-        printString(" ");
-        doParse(rTrim(tib));
-        e = NULL;
-        doOK();
-        return;
-    }
-
-    if (isBackSpace(c) && (tib < e)) {
-        e--;
-        if (!isOTA) {
-          char b[] = {8, 32, 8, 0};
-          printString(b);
-        }
-        return;
-    }
-    if (c == 9) { c = 32; }
-    if (BTW(c, 32, 126)) {
-        *(e++) = c;
-        if (!isOTA) { printChar(c); }
-    }
 }
 
 void setup() {
@@ -143,8 +114,8 @@ void setup() {
     fileInit();
 }
 
-void doAutoRun() {
-    if (doFind("AUTORUN")) {
+void boardIdle() {
+    if (doFind("idle")) {
       pop();
       run((WORD) pop());
     }
@@ -158,6 +129,7 @@ void loop() {
 
     if (iLed == 0) {
         doOK();
+        in = tib;
         iLed = LED_BUILTIN;
         pinMode(iLed, OUTPUT);
     }
@@ -169,14 +141,15 @@ void loop() {
     }
 
     while (charAvailable()) { 
-        int c = getChar();
-        // printStringF("-char:%d-", (int)c);
-        isOTA = 0;
-        handleInput(c); 
+        if (handleInput(getChar(), 1)) {
+            doParse(rTrim(tib));
+            doOK();
+            in = tib;
+        }
+
     }
     //while (wifiCharAvailable()) { 
-    //    isOTA = 1;
-    //    handleInput(wifiGetChar()); 
+    //    handleInput(wifiGetChar(), 0); 
     //}
-    doAutoRun();
+    boardIdle();
 }

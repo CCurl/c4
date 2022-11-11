@@ -1,18 +1,13 @@
 // Tests
 
-12345 constant xxx
-xxx .
+12345 constant xxx xxx .
 
-: T1 IF 'Y' EMIT EXIT THEN 'N' EMIT ;
-: T2 cr 1 2 3 + + . cr 42 19 do i . loop cr 19 42 do i . -1 +loop ;
-: T3 cr 20 s1 begin r1 . d1 r1 while ;
-: T4 cr +tmps 123 445 s2 s1 r1 . r2 . -tmps ;
-: T5 cr +tmps 666 777 s2 s1 r1 . r2 . T4 r1 . r2 . -tmps ;
-: T6 s6 DO I . i r6 = .IF ." -out6" UNLOOP EXIT .THEN LOOP ." error!" ;
-
-cr 1 T1 0 T1 
-T2 T3 T4 T5
-80 52 72 T6
+: T1 IF 'Y' EMIT EXIT THEN 'N' EMIT ; cr 1 T1 0 T1 
+: T2 cr 1 2 3 + + . cr 42 19 do i . loop cr 19 42 do i . -1 +loop ; T2 
+: T3 cr 20 s1 begin r1 . d1 r1 while ; T3 
+: T4 cr +tmps 123 445 s2 s1 r1 . r2 . -tmps ; T4 
+: T5 cr +tmps 666 777 s2 s1 r1 . r2 . T4 r1 . r2 . -tmps ; T5
+: T6 s6 DO I . i r6 = .IF ." -out6" UNLOOP EXIT .THEN LOOP ." error!" ; 80 52 72 T6
 : prime? ( n--f ) 3 s2 s1 begin 
 		r1 r2 /mod 0= IF 0= unloop exit THEN 
 		drop r2 dup * r1 > IF unloop 1 exit THEN i2 i2 
@@ -22,8 +17,7 @@ T2 T3 T4 T5
 : elapsed timer swap - ;
 : bm timer SWAP primes . elapsed ." primes. (%d ms)" ;
 : mil 1000 DUP * * ;
-cr see prime? cr
-71 prime? ."  71 prime? (%d)%n"
+cr 71 prime? ."  71 prime? (%d)%n"
 cr cr 1 mil 4 / bm cr
 cr 100 .primes ." (primes in 100)%n"
 

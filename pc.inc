@@ -214,18 +214,19 @@ void printString(const char *cp) { fputs(cp, stdout); }
 void printChar(char c) { putc(c, stdout); }
 
 void doHistory(const char *txt) {
-    FILE* fp = myFopen("history.txt", "at");
+    FILE *fp = myFopen("history.txt", "at");
     if (fp) {
         fputs(txt, fp);
         fclose(fp);
     }
 }
 
+int isBackSpace(int c) { return c == 8; }
+
 void loop() {
-    char *tib = (char *)CA(tHERE+32);
-    FILE* fp = (input_fp) ? input_fp : stdin;
+    FILE *fp = (input_fp) ? input_fp : stdin;
     if (input_fp) {
-        if (fgets(tib, 128, fp) == tib) {
+        if (fgets(tib, 256, fp) == tib) {
             doParse(rTrim(tib));
         } else {
             fclose(input_fp);
@@ -233,7 +234,11 @@ void loop() {
         }
     } else {
         doOK();
-        readLine(tib, 128);
+#ifdef USE_ACCEPT
+        fAccept();
+#else
+        readLine(tib, 256);
+#endif
         doHistory(tib);
         doParse(rTrim(tib));
     }
