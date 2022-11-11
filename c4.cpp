@@ -641,7 +641,7 @@ void doWords() {
     }
 }
 
-int doNumber(int t) {
+int doLiteral(int t) {
     CELL num = pop();
     if (t == 'v') {
         CComma('v');
@@ -766,7 +766,7 @@ int doParseWord() {
     char *wd = (char*)pop();
     if (strEq(word, "//"))   { doExec(STATE); return 0; }
     if (strEq(word, "\\"))   { doExec(STATE); return 0; }
-    if (isNum(wd))           { return doNumber(0); }
+    if (isNum(wd))           { return doLiteral(0); }
     if (doPrim(wd))          { return 1; }
     if (doFind(wd))          { return doWord(); }
     if (strEq(wd, ".\""))    { return doDotQuote(); }
@@ -816,7 +816,7 @@ int doParseWord() {
         fCreate();
         if (pop() == 0) { return 0; }
         push((CELL)VHERE);
-        doNumber('v');
+        doLiteral('v');
         CComma(';');
         doExec(1);
         VHERE += CELL_SZ;
@@ -829,7 +829,7 @@ int doParseWord() {
         doExec(STATE);
         fCreate();
         if (pop() == 0) { return 0; }
-        doNumber(4);
+        doLiteral(4);
         CComma(';');
         doExec(1);
         return 1;
