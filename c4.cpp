@@ -433,169 +433,82 @@ typedef struct {
 // Words that directly map to VM operations
 PRIM_T prims[] = {
     // Stack
-    { "DROP", "\\" }
-    , { "DUP", "#" }
-    , { "OVER", "%" }
-    , { "SWAP", "$" }
-    , { "NIP", "$\\" }
-    , { "1+", "P" }
-    , { "1-", "D" }
-    , { "2+", "PP" }
-    , { "2*", "#+" }
-    , { "2/", "2/" }
-    , { "2DUP", "%%" }
-    , { "2DROP", "\\\\" }
-    , { "ROT", "R<$R>$" }
-    , { "-ROT", "$R<$R>" }
-    , { "TUCK", "$%" }
+    { "DROP", "\\" },       { "DUP", "#" },         { "OVER", "%" },
+    { "SWAP", "$" },        { "NIP", "$\\" },       { "1+", "P" },
+    { "1-", "D" },          { "2+", "PP" },         { "2*", "#+" },
+    { "2/", "2/" },         { "2DUP", "%%" },       { "2DROP", "\\\\" },
+    { "ROT", "R<$R>$" },    { "-ROT", "$R<$R>" },   { "TUCK", "$%" },
     // Memory
-    , { "@", "@" }
-    , { "C@", "C@" }
-    , { "W@", "w@" }
-    , { "!", "!" }
-    , { "C!", "C!" }
-    , { "W!", "w!" }
-    , { "+!", "$%@+$!" }
+    { "@", "@"},            { "C@", "C@"},          { "W@", "w@"},
+    { "!", "!"},            { "C!", "C!"},          { "W!", "w!"},
+    { "+!", "$%@+$!"},
     // Math
-    , { "+", "+" }
-    , { "-", "-" }
-    , { "/", "/" }
-    , { "*", "*" }
-    , { "ABS", "a" }
-    , { "/MOD", "&" }
-    , { "MOD", "b%" }
-    , { "NEGATE", "_" }
+    { "+", "+"},            { "-", "-"},            { "/", "/"},
+    { "*", "*"},            { "ABS", "a"},          { "/MOD", "&"},
+    { "MOD", "b%"},         { "NEGATE", "_"},
     // Input/output
-    , { "(.)", "." }
-    , { ".", ".32," }
-    , { "CR", "13,10," }
-    , { "EMIT", "," }
-    , { "KEY", "K@" }
-    , { "KEY?", "K?" }
-    , { "QTYPE", "t" }
-    , { "ZTYPE", "Z" }
-    , { "COUNT", "#Sl" }
-    , { "TYPE", "T" }
-    , { "SPACE", "32," }
-    , { "SPACES", "0[32,]" }
+    { "(.)", "."},          { ".", ".32,"},         { "CR", "13,10,"},
+    { "EMIT", ","},         { "KEY", "K@"},         { "KEY?", "K?"},
+    { "QTYPE", "t"},        { "ZTYPE", "Z"},        { "COUNT", "#Sl"},
+    { "TYPE", "T"},         { "SPACE", "32,"},      { "SPACES", "0[32,]"},
     // Logical / flow control
-    , { ".IF", "(" }
-    , { ".THEN", ")" }
-    , { "DO", "[" }
-    , { "LOOP", "]" }
-    , { "+LOOP", "x]" }
-    , { "I", "I" }
-    , { "J", "J" }
-    , { "UNLOOP", "^" }
-    , { "BEGIN", "{" }
-    , { "WHILE", "}" }
-    , { "UNTIL", "~}" }
-    , { "AGAIN", "1}" }
-    , { "TRUE", "1" }
-    , { "FALSE", "0" }
-    , { "=", "=" }
-    , { "<", "<" }
-    , { ">", ">" }
-    , { "<=", ">~" }
-    , { ">=", "<~" }
-    , { "<>", "=~" }
-    , { "!=", "=~" }
-    , { "0=", "~" }
-    , { "EXIT", ";" }
+    { ".IF", "("},          { ".THEN", ")"},        { "EXIT", ";"},
+    { "DO", "["},           { "LOOP", "]"},         { "+LOOP", "x]"},
+    { "I", "I"},            { "J", "J"},            { "UNLOOP", "^"},
+    { "BEGIN", "{"},        { "WHILE", "}"},        { "UNTIL", "~}"},
+    { "AGAIN", "1}"},       { "TRUE", "1"},         { "FALSE", "0"},
+    { "=", "="},            { "<", "<"},            { ">", ">"},
+    { "<=", ">~"},          { ">=", "<~"},          { "<>", "=~"},
+    { "!=", "=~"},          { "0=", "~"},
+    { "NOT", "~"},
     // String
-    , { "STR-LEN", "Sl" }
-    , { "STR-END", "Se" }
-    , { "STR-CAT", "Sa" }
-    , { "STR-CATC", "Sc" }
-    , { "STR-CPY", "Sy" }
-    , { "STR-EQ", "S=" }
-    , { "STR-EQI", "Si" }
-    , { "STR-TRUNC", "St" }
-    , { "STR-RTRIM", "Sr" }
+    { "STR-LEN", "Sl"},     { "STR-END", "Se"},     { "STR-CAT", "Sa"},
+    { "STR-CATC", "Sc"},    { "STR-CPY", "Sy"},     { "STR-EQ", "S="},
+    { "STR-EQI", "Si"},     { "STR-TRUNC", "St"},   { "STR-RTRIM", "Sr"},
     // Binary/bitwise
-    , { "AND", "b&" }
-    , { "OR", "b|" }
-    , { "XOR", "b^" }
-    , { "INVERT", "b~" }
-    , { "LSHIFT", "bL" }
-    , { "RSHIFT", "bR" }
+    { "AND", "b&"},         { "OR", "b|"},          { "XOR", "b^"},
+    { "INVERT", "b~"},      { "LSHIFT", "bL"},      { "RSHIFT", "bR"},
     // Float
-    , { "I>F", "Fi" }  // In
-    , { "F>I", "Fo" }  // Out
-    , { "F+", "F+" }  // Add
-    , { "F-", "F-" }  // Sub
-    , { "F*", "F*" }  // Mult
-    , { "F/", "F/" }  // Div
-    , { "F<", "F<" }  // LT
-    , { "F>", "F>" }  // GT
-    , { "F.", "F." }  // PRINT
+    { "I>F", "Fi"},         { "F>I", "Fo"},         { "F+", "F+"},
+    { "F-", "F-"},          { "F*", "F*"},          { "F/", "F/"},
+    { "F<", "F<"},          { "F>", "F>"},          { "F.", "F."},
     // System
-    , { "ALLOT", "xA" }
-    , { "BL", "32" }
-    , { "BYE", "uQ" }
-    , { "CREATE", "xC" }
-    , { "C,", "O1" }
-    , { "W,", "O2" }
-    , { ",", "O4" }
-    , { "EXECUTE", "E" }
-    , { "MAX", "%%<($)\\" }
-    , { "MIN", "%%>($)\\" }
-    , { "MS", "xW" }
-    , { "NOT", "~" }
-    , { ">R", "R<" }
-    , { "R>", "R>" }
-    , { "R@", "R@" }
-    , { "RAND", "xR" }
-    , { "RESET", "xZ" }
-    , { ".S", "xS" }
-    , { "SYSTEM", "xY" }
-    , { "TIMER", "xT" }
-    , { "+TMPS", "l" }
-    , { "-TMPS", "m" }
-    , { "WORDS", "xD" }
+    { "ALLOT", "xA"},       { "BL", "32"},          { "BYE", "uQ"},
+    { "C,", "O1"},          { "W,", "O2"},          { ",", "O4"},           
+    { "MAX", "%%<($)\\"},   { "MIN", "%%>($)\\"},   { "EXECUTE", "E"},
+    { ">R", "R<"},          { "R>", "R>"},          { "R@", "R@"},
+    { "RAND", "xR"},        { "RESET", "xZ"},       { ".S", "xS"},
+    { "TIMER", "xT"},       { "MS", "xW"},          { "CREATE", "xC"},
+    { "+TMPS", "l"},        { "-TMPS", "m"},
+    { "SYSTEM", "xY"},      { "WORDS", "xD"},
 #ifdef __FILES__
     // Extension: FILE operations
-    , { "FOPEN-R", "1fO" }
-    , { "FOPEN-W", "2fO" }
-    , { "FOPEN-RW", "3fO" }
-    , { "FGETC", "fR" }
-    , { "FREAD", "fr" }
-    , { "FGETS", "fG" }
-    , { "FPUTC", "fW" }
-    , { "FWRITE", "fw" }
-    , { "FCLOSE", "fC" }
-    , { "FSEEK", "fE" }
-    , { "FTELL", "fT" }
-    , { "FDELETE", "fD" }
-    , { "FLIST", "fI" }
-    , { "SAVE-SYS", "fS" }
-    , { "LOAD-SYS", "fs" }
-    , { "SLOAD", "fL" }
+    { "FOPEN-R", "1fO"},    { "FOPEN-W", "2fO"},    { "FOPEN-RW", "3fO"},
+    { "FGETC", "fR"},       { "FREAD", "fr"},       { "FGETS", "fG"},
+    { "FPUTC", "fW"},       { "FWRITE", "fw"},      { "FCLOSE", "fC"},
+    { "FSEEK", "fE"},       { "FTELL", "fT"},       { "FDELETE", "fD"},
+    { "FLIST", "fI"},       { "SAVE-SYS", "fS"},
+    { "LOAD-SYS", "fs"},    { "SLOAD", "fL"},
 #endif
 #ifdef __PIN__
     // Extension: PIN operations ... for dev boards
-    , { "pin-in","uPI" }          // open input
-    , { "pin-out","uPO" }         // open output
-    , { "pin-up","uPU" }          // open input-pullup
-    , { "pin!","uPWD" }           // Pin write: digital
-    , { "pin@","uPRD" }           // Pin read: digital
-    , { "pina!","uPWA" }          // Pin write: analog
-    , { "pina@","uPRA" }          // Pin read: analog
+    { "pin-in","uPI"},      { "pin-out","uPO"},     { "pin-up","uPU"},
+    { "pin!","uPWD"},       { "pin@","uPRD"},
+    { "pina!","uPWA"},      { "pina@","uPRA"},
 #endif
 #ifdef __EDITOR__
     // Extension: A simple block editor
-    , { "EDIT","uE" }         // |EDIT|zE|(n--)|Edit block n|
+    { "EDIT","uE"},         // |EDIT|zE|(n--)|Edit block n|
 #endif
 #ifdef __GAMEPAD__
     // Extension: GAMEPAD operations
-    , { "gp-button","xGB" }
+    { "gp-button","xGB"},
 #endif
-    , {0,0}
+    {0,0}
 };
 
 void doExec(int isCompiling) {
     if (isCompiling) {
-
         oHERE = HERE;
         oVHERE = VHERE;
     }
@@ -643,25 +556,10 @@ void doWords() {
 
 int doLiteral(int t) {
     CELL num = pop();
-    if (t == 'v') {
-        CComma('v');
-        Comma(num);
-    } else if (t == 4) {
-        CComma(4);
-        Comma(num);
-    } else if (BTW(num,33,127)) {
-        CComma('\'');
-        CComma(num);
-    } else if ((num & 0xFF) == num) {
-        CComma(1);
-        CComma(num);
-    } else if ((num & 0xFFFF) == num) {
-        CComma(2);
-        WComma((WORD)num);
-    } else {
-        CComma(4);
-        Comma(num);
-    }
+    if (t == 'v')                 { CComma('v'); Comma(num);  }
+    else if (BTW(num, 0, 0xFF))   { CComma(1);   CComma(num); }
+    else if (BTW(num, 0, 0xFFFF)) { CComma(2);   WComma(num); }
+    else                          { CComma(4);   Comma(num);  }
     return 1;
 }
 
@@ -829,7 +727,7 @@ int doParseWord() {
         doExec(STATE);
         fCreate();
         if (pop() == 0) { return 0; }
-        doLiteral(4);
+        doLiteral(0);
         CComma(';');
         doExec(1);
         return 1;
