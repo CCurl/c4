@@ -12,7 +12,7 @@
 #define LINUX      100
 #define WINDOWS    101
 
-#define NAME_LEN 16
+#define NAME_LEN    15
 
 #ifdef _WIN32
   #define __BOARD__     PC
@@ -142,6 +142,7 @@ typedef struct {
     USHORT xt;
     byte flags;
     byte len;
+    byte lexicon;
     char name[NAME_LEN];
 } DICT_E;
 

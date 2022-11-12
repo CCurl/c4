@@ -8,7 +8,7 @@
 ST_T st;
 STK_T stk;
 CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
-CELL sp, rsp, lsp, lb, isError, sb, rb;
+CELL sp, rsp, lsp, lb, isError, sb, rb, lexicon;
 CELL BASE, STATE, oHERE, oVHERE, seed, t1, t2;
 byte *code, *vars, *y, *pc, ir;
 DICT_E *dict;
@@ -18,7 +18,7 @@ void vmReset() {
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
     HERE = oHERE = 2;
-    lsp = lb = VHERE = oVHERE = LAST = 0;
+    lsp = lb = VHERE = oVHERE = LAST = lexicon = 0;
     for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
     code = &st.bytes[CELL_SZ*3];
     vars = (code+CODE_SZ+4);
@@ -187,6 +187,22 @@ int isTempWord(const char* nm) {
     return ((nm[0] == 'T') && BTW(nm[1], '0', '9') && (nm[2] == 0));
 }
 
+int doFindInLex(const char *name, int lex) {
+    int len = strLen(name);
+    for (int i = LAST - 1; i >= 0; i--) {
+        DICT_E *dp = &dict[i];
+        if ((len != dp->len) || (dp->lexicon != lex)) { continue; }
+        if (strEq(dp->name, name)) { return i; }
+    }
+    return -1;
+}
+
+int doFindInternal(const char *name) {
+    int ret = doFindInLex(name, lexicon);
+    if (ret < 0) { ret = doFindInLex(name, 0); }
+    return ret;
+}
+
 void fCreate() {
     push(getWord(word));
     if (TOS == 0) { return; }
@@ -194,24 +210,18 @@ void fCreate() {
         tempWords[word[1] - '0'] = HERE;
         return;
     }
+    if (0 <= doFindInternal(word)) { printStringF("-redef:[%s]-", word); }
     DICT_E* dp = &dict[LAST];
     dp->xt = (USHORT)HERE;
     dp->flags = 0;
+    dp->lexicon = (byte)lexicon;
+    if (NAME_LEN <= strLen(word)) {
+        printStringF("-[%s] truncated-", word);
+        word[NAME_LEN - 1] = 0;
+    }
     strCpy(dp->name, word);
-    dp->name[NAME_LEN - 1] = 0;
     dp->len = strLen(dp->name);
     ++LAST;
-}
-
-int doFindInternal(const char *name) {
-    int len = strLen(name);
-    for (int i = LAST - 1; i >= 0; i--) {
-        DICT_E *dp = &dict[i];
-        if ((len == dp->len) && strEq(dp->name, name)) {
-            return i;
-        }
-    }
-    return -1;
 }
 
 int handleInput(int c, int echo) {
@@ -542,10 +552,12 @@ void doWords() {
     int n = 0;
     for (int i = LAST-1; i >= 0; i--) {
         DICT_E *dp = &dict[i];
+        if (dp->lexicon != lexicon) { continue; }
         printString(dp->name);
         if ((++n) % 10 == 0) { printString("\r\n"); }
         else { printChar(9); }
     }
+    if (lexicon) { return; }
     PRIM_T *x = prims;
     while (x->name) {
         printStringF("%s\t", x->name);
@@ -766,20 +778,23 @@ void doOK() {
 void systemWords() {
     BASE = 10;
     char *cp = (char*)(&vars[VARS_SZ-32]);
-    sprintF(cp, ": code-sz %d ;",   CODE_SZ);        doParse(cp);
-    sprintF(cp, ": dict-sz %d ;",   DICT_SZ);        doParse(cp);
-    sprintF(cp, ": mem-sz %d ;",    MEM_SZ);         doParse(cp);
-    sprintF(cp, ": vars-sz %d ;",   VARS_SZ);        doParse(cp);
-    sprintF(cp, ": mem %lu ;",      (UCELL)&MEM[0]); doParse(cp);
-    sprintF(cp, ": cb %lu ;",       (UCELL)code);    doParse(cp);
-    sprintF(cp, ": db %lu ;",       (UCELL)dict);    doParse(cp);
-    sprintF(cp, ": vb %lu ;",       (UCELL)vars);    doParse(cp);
-    sprintF(cp, ": (here) %lu ;",   (UCELL)&HERE);   doParse(cp);
-    sprintF(cp, ": (last) %lu ;",   (UCELL)&LAST);   doParse(cp);
-    sprintF(cp, ": (vhere) %lu ;",  (UCELL)&VHERE);  doParse(cp);
-    sprintF(cp, ": base %lu ;",     (UCELL)&BASE);   doParse(cp);
-    sprintF(cp, ": >in %lu ;",      (UCELL)&in);     doParse(cp);
-    sprintF(cp, ": CELL %lu ;",     (UCELL)CELL_SZ); doParse(cp);
+    sprintF(cp, ": code-sz %d ;",  CODE_SZ);         doParse(cp);
+    sprintF(cp, ": dict-sz %d ;",  DICT_SZ);         doParse(cp);
+    sprintF(cp, ": mem-sz %d ;",   MEM_SZ);          doParse(cp);
+    sprintF(cp, ": vars-sz %d ;",  VARS_SZ);         doParse(cp);
+    sprintF(cp, ": mem %lu ;",     (UCELL)&MEM[0]);  doParse(cp);
+    sprintF(cp, ": cb %lu ;",      (UCELL)code);     doParse(cp);
+    sprintF(cp, ": db %lu ;",      (UCELL)dict);     doParse(cp);
+    sprintF(cp, ": vb %lu ;",      (UCELL)vars);     doParse(cp);
+    sprintF(cp, ": (here) %lu ;",  (UCELL)&HERE);    doParse(cp);
+    sprintF(cp, ": (last) %lu ;",  (UCELL)&LAST);    doParse(cp);
+    sprintF(cp, ": (vhere) %lu ;", (UCELL)&VHERE);   doParse(cp);
+    sprintF(cp, ": base %lu ;",    (UCELL)&BASE);    doParse(cp);
+    sprintF(cp, ": >in %lu ;",     (UCELL)&in);      doParse(cp);
+    sprintF(cp, ": CELL %lu ;",    (UCELL)CELL_SZ);  doParse(cp);
+    sprintF(cp, ": (lex) %lu ;",   (UCELL)&lexicon); doParse(cp);
+    sprintF(cp, ": DEFINITIONS (lex) ! ;");          doParse(cp);
+    sprintF(cp, ": SYS 0 ;");                        doParse(cp);
 }
 
 #if __BOARD__ == PC
