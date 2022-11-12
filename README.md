@@ -69,17 +69,21 @@ To these ends, I have wandered off the beaten path in the following ways:
 ```
 
 ## Lexicons:
-- A lexicon is a set of related words.
-- A dictionary will search the current lexicon, then the C4 lexicon.
-- It does not find words defined in other lexicons.
+- A lexicon can be used to group a set of related words if desired.
+- Lexicon usage is completely optional.
+- Any or all words can be defined in lexicon 0.
+- C4 searches the current lexicon first, then lexicon 0.
+- It will not find words defined in other lexicons.
 ```
 17 constant LIFE
-LIFE (lex) !
+LIFE (lex) ! ( switch to the LIFE lexicon )
 : init ."  (define init here)" ;
 : gen ."  (define gen here)" ;
 : life init begin gen key? until key@ drop ;
+WORDS
 ( only prints the words in the LIFE lexicon: "life gen init" )
-C4 LEXICON WORDS
+0 (lex) ! ( switch back to the C4 lexicon )
+WORDS
 ( the words in the LIFE lexicon are not included )
 ```
 
