@@ -141,8 +141,8 @@ typedef unsigned short USHORT;
 typedef struct {
     USHORT xt;
     byte flags;
-    byte len;
     byte lexicon;
+    byte len;
     char name[NAME_LEN];
 } DICT_E;
 

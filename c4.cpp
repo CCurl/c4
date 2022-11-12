@@ -789,12 +789,10 @@ void systemWords() {
     sprintF(cp, ": (here) %lu ;",  (UCELL)&HERE);    doParse(cp);
     sprintF(cp, ": (last) %lu ;",  (UCELL)&LAST);    doParse(cp);
     sprintF(cp, ": (vhere) %lu ;", (UCELL)&VHERE);   doParse(cp);
+    sprintF(cp, ": (lex) %lu ;",   (UCELL)&lexicon); doParse(cp);
     sprintF(cp, ": base %lu ;",    (UCELL)&BASE);    doParse(cp);
     sprintF(cp, ": >in %lu ;",     (UCELL)&in);      doParse(cp);
     sprintF(cp, ": CELL %lu ;",    (UCELL)CELL_SZ);  doParse(cp);
-    sprintF(cp, ": (lex) %lu ;",   (UCELL)&lexicon); doParse(cp);
-    sprintF(cp, ": DEFINITIONS (lex) ! ;");          doParse(cp);
-    sprintF(cp, ": SYS 0 ;");                        doParse(cp);
 }
 
 #if __BOARD__ == PC
