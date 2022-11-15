@@ -260,6 +260,8 @@ byte *doFile(CELL ir, byte *pc) {
     else if (ir == 'S') { fSaveSys(); }
     else if (ir == 's') { if (fLoadSys()) { pc = 0; } }
     else if (ir == 'L') { fLoad((char *)pop()); }
+    else if (ir == 'i') { push((CELL)stdin); }
+    else if (ir == 'o') { push((CELL)stdout); }
     else if (TOS == 0) { printString("-nofp-"); return pc; }
     else if (ir == 'R') { fGetC(); }
     else if (ir == 'r') { fRead(); }
@@ -497,8 +499,8 @@ PRIM_T prims[] = {
     { "FGETC", "fR"},       { "FREAD", "fr"},       { "FGETS", "fG"},
     { "FPUTC", "fW"},       { "FWRITE", "fw"},      { "FCLOSE", "fC"},
     { "FSEEK", "fE"},       { "FTELL", "fT"},       { "FDELETE", "fD"},
-    { "FLIST", "fI"},       { "SAVE-SYS", "fS"},
-    { "LOAD-SYS", "fs"},    { "SLOAD", "fL"},
+    { "FLIST", "fI"},       { "STDIN", "fi"},       { "STDOUT", "fo"},
+    { "SAVE-SYS", "fS"},    { "LOAD-SYS", "fs"},    { "SLOAD", "fL"},
 #endif
 #ifdef __PIN__
     // Extension: PIN operations ... for dev boards

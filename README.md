@@ -206,6 +206,8 @@ SPACES   (n--)             Output n SPACEs.
 example: : ascii '~' $20 DO I I I I ." %n%d: (%c) %x %b" LOOP ;
 
 *** FILE ***
+STDIN    (--fh)            fh: file-handle for STDIN (PC-only).
+STDOUT   (--fh)            fh: file-handle for STDOUT (PC-only).
 FOPEN-R  (NM--fh)          Open file NM in read-only mode (rb).
 FOPEN-W  (NM--fh)          Open file NM in write-only mode (wb). Truncates the file if it exists.
 FOPEN-RW (NM--fh)          Open file NM in read-write mode (rb+).
