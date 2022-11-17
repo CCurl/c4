@@ -8,7 +8,7 @@
 ST_T st;
 STK_T stk;
 CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
-CELL sp, rsp, lsp, lb, isError, sb, rb;
+CELL sp, rsp, lsp, lb, isError, sb, rb, lexicon;
 CELL BASE, STATE, oHERE, oVHERE, seed, t1, t2;
 byte *code, *vars, *y, *pc, ir;
 DICT_E *dict;
@@ -18,7 +18,7 @@ void vmReset() {
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
     HERE = oHERE = 2;
-    lsp = lb = VHERE = oVHERE = LAST = 0;
+    lsp = lb = VHERE = oVHERE = LAST = lexicon = 0;
     for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
     code = &st.bytes[CELL_SZ*3];
     vars = (code+CODE_SZ+4);
@@ -187,6 +187,22 @@ int isTempWord(const char* nm) {
     return ((nm[0] == 'T') && BTW(nm[1], '0', '9') && (nm[2] == 0));
 }
 
+int doFindInLex(const char *name, int lex) {
+    int len = strLen(name);
+    for (int i = LAST - 1; i >= 0; i--) {
+        DICT_E *dp = &dict[i];
+        if ((len != dp->len) || (dp->lexicon != lex)) { continue; }
+        if (strEq(dp->name, name)) { return i; }
+    }
+    return -1;
+}
+
+int doFindInternal(const char *name) {
+    int ret = doFindInLex(name, lexicon);
+    if (ret < 0) { ret = doFindInLex(name, 0); }
+    return ret;
+}
+
 void fCreate() {
     push(getWord(word));
     if (TOS == 0) { return; }
@@ -194,24 +210,18 @@ void fCreate() {
         tempWords[word[1] - '0'] = HERE;
         return;
     }
+    if (0 <= doFindInternal(word)) { printStringF("-redef:[%s]-", word); }
     DICT_E* dp = &dict[LAST];
     dp->xt = (USHORT)HERE;
     dp->flags = 0;
+    dp->lexicon = (byte)lexicon;
+    if (NAME_LEN <= strLen(word)) {
+        printStringF("-[%s] truncated-", word);
+        word[NAME_LEN - 1] = 0;
+    }
     strCpy(dp->name, word);
-    dp->name[NAME_LEN - 1] = 0;
     dp->len = strLen(dp->name);
     ++LAST;
-}
-
-int doFindInternal(const char *name) {
-    int len = strLen(name);
-    for (int i = LAST - 1; i >= 0; i--) {
-        DICT_E *dp = &dict[i];
-        if ((len == dp->len) && strEq(dp->name, name)) {
-            return i;
-        }
-    }
-    return -1;
 }
 
 int handleInput(int c, int echo) {
@@ -250,6 +260,8 @@ byte *doFile(CELL ir, byte *pc) {
     else if (ir == 'S') { fSaveSys(); }
     else if (ir == 's') { if (fLoadSys()) { pc = 0; } }
     else if (ir == 'L') { fLoad((char *)pop()); }
+    else if (ir == 'i') { push((CELL)stdin); }
+    else if (ir == 'o') { push((CELL)stdout); }
     else if (TOS == 0) { printString("-nofp-"); return pc; }
     else if (ir == 'R') { fGetC(); }
     else if (ir == 'r') { fRead(); }
@@ -433,169 +445,82 @@ typedef struct {
 // Words that directly map to VM operations
 PRIM_T prims[] = {
     // Stack
-    { "DROP", "\\" }
-    , { "DUP", "#" }
-    , { "OVER", "%" }
-    , { "SWAP", "$" }
-    , { "NIP", "$\\" }
-    , { "1+", "P" }
-    , { "1-", "D" }
-    , { "2+", "PP" }
-    , { "2*", "#+" }
-    , { "2/", "2/" }
-    , { "2DUP", "%%" }
-    , { "2DROP", "\\\\" }
-    , { "ROT", "R<$R>$" }
-    , { "-ROT", "$R<$R>" }
-    , { "TUCK", "$%" }
+    { "DROP", "\\" },       { "DUP", "#" },         { "OVER", "%" },
+    { "SWAP", "$" },        { "NIP", "$\\" },       { "1+", "P" },
+    { "1-", "D" },          { "2+", "PP" },         { "2*", "#+" },
+    { "2/", "2/" },         { "2DUP", "%%" },       { "2DROP", "\\\\" },
+    { "ROT", "R<$R>$" },    { "-ROT", "$R<$R>" },   { "TUCK", "$%" },
     // Memory
-    , { "@", "@" }
-    , { "C@", "C@" }
-    , { "W@", "w@" }
-    , { "!", "!" }
-    , { "C!", "C!" }
-    , { "W!", "w!" }
-    , { "+!", "$%@+$!" }
+    { "@", "@"},            { "C@", "C@"},          { "W@", "w@"},
+    { "!", "!"},            { "C!", "C!"},          { "W!", "w!"},
+    { "+!", "$%@+$!"},
     // Math
-    , { "+", "+" }
-    , { "-", "-" }
-    , { "/", "/" }
-    , { "*", "*" }
-    , { "ABS", "a" }
-    , { "/MOD", "&" }
-    , { "MOD", "b%" }
-    , { "NEGATE", "_" }
+    { "+", "+"},            { "-", "-"},            { "/", "/"},
+    { "*", "*"},            { "ABS", "a"},          { "/MOD", "&"},
+    { "MOD", "b%"},         { "NEGATE", "_"},
     // Input/output
-    , { "(.)", "." }
-    , { ".", ".32," }
-    , { "CR", "13,10," }
-    , { "EMIT", "," }
-    , { "KEY", "K@" }
-    , { "KEY?", "K?" }
-    , { "QTYPE", "t" }
-    , { "ZTYPE", "Z" }
-    , { "COUNT", "#Sl" }
-    , { "TYPE", "T" }
-    , { "SPACE", "32," }
-    , { "SPACES", "0[32,]" }
+    { "(.)", "."},          { ".", ".32,"},         { "CR", "13,10,"},
+    { "EMIT", ","},         { "KEY", "K@"},         { "KEY?", "K?"},
+    { "QTYPE", "t"},        { "ZTYPE", "Z"},        { "COUNT", "#Sl"},
+    { "TYPE", "T"},         { "SPACE", "32,"},      { "SPACES", "0[32,]"},
     // Logical / flow control
-    , { ".IF", "(" }
-    , { ".THEN", ")" }
-    , { "DO", "[" }
-    , { "LOOP", "]" }
-    , { "+LOOP", "x]" }
-    , { "I", "I" }
-    , { "J", "J" }
-    , { "UNLOOP", "^" }
-    , { "BEGIN", "{" }
-    , { "WHILE", "}" }
-    , { "UNTIL", "~}" }
-    , { "AGAIN", "1}" }
-    , { "TRUE", "1" }
-    , { "FALSE", "0" }
-    , { "=", "=" }
-    , { "<", "<" }
-    , { ">", ">" }
-    , { "<=", ">~" }
-    , { ">=", "<~" }
-    , { "<>", "=~" }
-    , { "!=", "=~" }
-    , { "0=", "~" }
-    , { "EXIT", ";" }
+    { ".IF", "("},          { ".THEN", ")"},        { "EXIT", ";"},
+    { "DO", "["},           { "LOOP", "]"},         { "+LOOP", "x]"},
+    { "I", "I"},            { "J", "J"},            { "UNLOOP", "^"},
+    { "BEGIN", "{"},        { "WHILE", "}"},        { "UNTIL", "~}"},
+    { "AGAIN", "1}"},       { "TRUE", "1"},         { "FALSE", "0"},
+    { "=", "="},            { "<", "<"},            { ">", ">"},
+    { "<=", ">~"},          { ">=", "<~"},          { "<>", "=~"},
+    { "!=", "=~"},          { "0=", "~"},
+    { "NOT", "~"},
     // String
-    , { "STR-LEN", "Sl" }
-    , { "STR-END", "Se" }
-    , { "STR-CAT", "Sa" }
-    , { "STR-CATC", "Sc" }
-    , { "STR-CPY", "Sy" }
-    , { "STR-EQ", "S=" }
-    , { "STR-EQI", "Si" }
-    , { "STR-TRUNC", "St" }
-    , { "STR-RTRIM", "Sr" }
+    { "STR-LEN", "Sl"},     { "STR-END", "Se"},     { "STR-CAT", "Sa"},
+    { "STR-CATC", "Sc"},    { "STR-CPY", "Sy"},     { "STR-EQ", "S="},
+    { "STR-EQI", "Si"},     { "STR-TRUNC", "St"},   { "STR-RTRIM", "Sr"},
     // Binary/bitwise
-    , { "AND", "b&" }
-    , { "OR", "b|" }
-    , { "XOR", "b^" }
-    , { "INVERT", "b~" }
-    , { "LSHIFT", "bL" }
-    , { "RSHIFT", "bR" }
+    { "AND", "b&"},         { "OR", "b|"},          { "XOR", "b^"},
+    { "INVERT", "b~"},      { "LSHIFT", "bL"},      { "RSHIFT", "bR"},
     // Float
-    , { "I>F", "Fi" }  // In
-    , { "F>I", "Fo" }  // Out
-    , { "F+", "F+" }  // Add
-    , { "F-", "F-" }  // Sub
-    , { "F*", "F*" }  // Mult
-    , { "F/", "F/" }  // Div
-    , { "F<", "F<" }  // LT
-    , { "F>", "F>" }  // GT
-    , { "F.", "F." }  // PRINT
+    { "I>F", "Fi"},         { "F>I", "Fo"},         { "F+", "F+"},
+    { "F-", "F-"},          { "F*", "F*"},          { "F/", "F/"},
+    { "F<", "F<"},          { "F>", "F>"},          { "F.", "F."},
     // System
-    , { "ALLOT", "xA" }
-    , { "BL", "32" }
-    , { "BYE", "uQ" }
-    , { "CREATE", "xC" }
-    , { "C,", "O1" }
-    , { "W,", "O2" }
-    , { ",", "O4" }
-    , { "EXECUTE", "E" }
-    , { "MAX", "%%<($)\\" }
-    , { "MIN", "%%>($)\\" }
-    , { "MS", "xW" }
-    , { "NOT", "~" }
-    , { ">R", "R<" }
-    , { "R>", "R>" }
-    , { "R@", "R@" }
-    , { "RAND", "xR" }
-    , { "RESET", "xZ" }
-    , { ".S", "xS" }
-    , { "SYSTEM", "xY" }
-    , { "TIMER", "xT" }
-    , { "+TMPS", "l" }
-    , { "-TMPS", "m" }
-    , { "WORDS", "xD" }
+    { "ALLOT", "xA"},       { "BL", "32"},          { "BYE", "uQ"},
+    { "C,", "O1"},          { "W,", "O2"},          { ",", "O4"},           
+    { "MAX", "%%<($)\\"},   { "MIN", "%%>($)\\"},   { "EXECUTE", "E"},
+    { ">R", "R<"},          { "R>", "R>"},          { "R@", "R@"},
+    { "RAND", "xR"},        { "RESET", "xZ"},       { ".S", "xS"},
+    { "TIMER", "xT"},       { "MS", "xW"},          { "CREATE", "xC"},
+    { "+TMPS", "l"},        { "-TMPS", "m"},
+    { "SYSTEM", "xY"},      { "WORDS", "xD"},
 #ifdef __FILES__
     // Extension: FILE operations
-    , { "FOPEN-R", "1fO" }
-    , { "FOPEN-W", "2fO" }
-    , { "FOPEN-RW", "3fO" }
-    , { "FGETC", "fR" }
-    , { "FREAD", "fr" }
-    , { "FGETS", "fG" }
-    , { "FPUTC", "fW" }
-    , { "FWRITE", "fw" }
-    , { "FCLOSE", "fC" }
-    , { "FSEEK", "fE" }
-    , { "FTELL", "fT" }
-    , { "FDELETE", "fD" }
-    , { "FLIST", "fI" }
-    , { "SAVE-SYS", "fS" }
-    , { "LOAD-SYS", "fs" }
-    , { "SLOAD", "fL" }
+    { "FOPEN-R", "1fO"},    { "FOPEN-W", "2fO"},    { "FOPEN-RW", "3fO"},
+    { "FGETC", "fR"},       { "FREAD", "fr"},       { "FGETS", "fG"},
+    { "FPUTC", "fW"},       { "FWRITE", "fw"},      { "FCLOSE", "fC"},
+    { "FSEEK", "fE"},       { "FTELL", "fT"},       { "FDELETE", "fD"},
+    { "FLIST", "fI"},       { "STDIN", "fi"},       { "STDOUT", "fo"},
+    { "SAVE-SYS", "fS"},    { "LOAD-SYS", "fs"},    { "SLOAD", "fL"},
 #endif
 #ifdef __PIN__
     // Extension: PIN operations ... for dev boards
-    , { "pin-in","uPI" }          // open input
-    , { "pin-out","uPO" }         // open output
-    , { "pin-up","uPU" }          // open input-pullup
-    , { "pin!","uPWD" }           // Pin write: digital
-    , { "pin@","uPRD" }           // Pin read: digital
-    , { "pina!","uPWA" }          // Pin write: analog
-    , { "pina@","uPRA" }          // Pin read: analog
+    { "pin-in","uPI"},      { "pin-out","uPO"},     { "pin-up","uPU"},
+    { "pin!","uPWD"},       { "pin@","uPRD"},
+    { "pina!","uPWA"},      { "pina@","uPRA"},
 #endif
 #ifdef __EDITOR__
     // Extension: A simple block editor
-    , { "EDIT","uE" }         // |EDIT|zE|(n--)|Edit block n|
+    { "EDIT","uE"},         // |EDIT|zE|(n--)|Edit block n|
 #endif
 #ifdef __GAMEPAD__
     // Extension: GAMEPAD operations
-    , { "gp-button","xGB" }
+    { "gp-button","xGB"},
 #endif
-    , {0,0}
+    {0,0}
 };
 
 void doExec(int isCompiling) {
     if (isCompiling) {
-
         oHERE = HERE;
         oVHERE = VHERE;
     }
@@ -629,10 +554,12 @@ void doWords() {
     int n = 0;
     for (int i = LAST-1; i >= 0; i--) {
         DICT_E *dp = &dict[i];
+        if (dp->lexicon != lexicon) { continue; }
         printString(dp->name);
         if ((++n) % 10 == 0) { printString("\r\n"); }
         else { printChar(9); }
     }
+    if (lexicon) { return; }
     PRIM_T *x = prims;
     while (x->name) {
         printStringF("%s\t", x->name);
@@ -643,25 +570,10 @@ void doWords() {
 
 int doLiteral(int t) {
     CELL num = pop();
-    if (t == 'v') {
-        CComma('v');
-        Comma(num);
-    } else if (t == 4) {
-        CComma(4);
-        Comma(num);
-    } else if (BTW(num,33,127)) {
-        CComma('\'');
-        CComma(num);
-    } else if ((num & 0xFF) == num) {
-        CComma(1);
-        CComma(num);
-    } else if ((num & 0xFFFF) == num) {
-        CComma(2);
-        WComma((WORD)num);
-    } else {
-        CComma(4);
-        Comma(num);
-    }
+    if (t == 'v')                 { CComma('v'); Comma(num);  }
+    else if (BTW(num, 0, 0xFF))   { CComma(1);   CComma(num); }
+    else if (BTW(num, 0, 0xFFFF)) { CComma(2);   WComma(num); }
+    else                          { CComma(4);   Comma(num);  }
     return 1;
 }
 
@@ -700,11 +612,10 @@ int isNum(const char *wd) {
 }
 
 char *isRegOp(const char *wd) {
-    if ((wd[0] == 'r') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 's') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 'i') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 'd') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
-    if ((wd[0] == 'c') && BTW(wd[1], '0', '9') && (!wd[2])) { return (char*)wd; }
+    if (!BTW(wd[1], '0', '9') || (wd[2])) { return 0; }
+    if (BTW(wd[0], 'r', 's')) { return (char*)wd; }
+    if (BTW(wd[0], 'c', 'd')) { return (char*)wd; }
+    if (wd[0] == 'i') { return (char*)wd; }
     return 0;
 }
 
@@ -829,7 +740,7 @@ int doParseWord() {
         doExec(STATE);
         fCreate();
         if (pop() == 0) { return 0; }
-        doLiteral(4);
+        doLiteral(0);
         CComma(';');
         doExec(1);
         return 1;
@@ -869,20 +780,21 @@ void doOK() {
 void systemWords() {
     BASE = 10;
     char *cp = (char*)(&vars[VARS_SZ-32]);
-    sprintF(cp, ": code-sz %d ;",   CODE_SZ);        doParse(cp);
-    sprintF(cp, ": dict-sz %d ;",   DICT_SZ);        doParse(cp);
-    sprintF(cp, ": mem-sz %d ;",    MEM_SZ);         doParse(cp);
-    sprintF(cp, ": vars-sz %d ;",   VARS_SZ);        doParse(cp);
-    sprintF(cp, ": mem %lu ;",      (UCELL)&MEM[0]); doParse(cp);
-    sprintF(cp, ": cb %lu ;",       (UCELL)code);    doParse(cp);
-    sprintF(cp, ": db %lu ;",       (UCELL)dict);    doParse(cp);
-    sprintF(cp, ": vb %lu ;",       (UCELL)vars);    doParse(cp);
-    sprintF(cp, ": (here) %lu ;",   (UCELL)&HERE);   doParse(cp);
-    sprintF(cp, ": (last) %lu ;",   (UCELL)&LAST);   doParse(cp);
-    sprintF(cp, ": (vhere) %lu ;",  (UCELL)&VHERE);  doParse(cp);
-    sprintF(cp, ": base %lu ;",     (UCELL)&BASE);   doParse(cp);
-    sprintF(cp, ": >in %lu ;",      (UCELL)&in);     doParse(cp);
-    sprintF(cp, ": CELL %lu ;",     (UCELL)CELL_SZ); doParse(cp);
+    sprintF(cp, ": code-sz %d ;",  CODE_SZ);         doParse(cp);
+    sprintF(cp, ": dict-sz %d ;",  DICT_SZ);         doParse(cp);
+    sprintF(cp, ": mem-sz %d ;",   MEM_SZ);          doParse(cp);
+    sprintF(cp, ": vars-sz %d ;",  VARS_SZ);         doParse(cp);
+    sprintF(cp, ": mem %lu ;",     (UCELL)&MEM[0]);  doParse(cp);
+    sprintF(cp, ": cb %lu ;",      (UCELL)code);     doParse(cp);
+    sprintF(cp, ": db %lu ;",      (UCELL)dict);     doParse(cp);
+    sprintF(cp, ": vb %lu ;",      (UCELL)vars);     doParse(cp);
+    sprintF(cp, ": (here) %lu ;",  (UCELL)&HERE);    doParse(cp);
+    sprintF(cp, ": (last) %lu ;",  (UCELL)&LAST);    doParse(cp);
+    sprintF(cp, ": (vhere) %lu ;", (UCELL)&VHERE);   doParse(cp);
+    sprintF(cp, ": (lex) %lu ;",   (UCELL)&lexicon); doParse(cp);
+    sprintF(cp, ": base %lu ;",    (UCELL)&BASE);    doParse(cp);
+    sprintF(cp, ": >in %lu ;",     (UCELL)&in);      doParse(cp);
+    sprintF(cp, ": CELL %lu ;",    (UCELL)CELL_SZ);  doParse(cp);
 }
 
 #if __BOARD__ == PC

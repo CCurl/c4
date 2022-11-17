@@ -21,7 +21,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
 - There is no ELSE, only IF/THEN. This is consistent with ColorForth.
-- A dictionary entry looks like this: (xt,flags,word-len,word,null terminator).
+- A dictionary entry looks like this: (xt,flags,lexicon,word-len,word,null terminator).
 - The maximum length of a word is configurable. (#define NAME_LEN xx)
 - The number of available dictionary entries is configurable. (#define DICT_SZ xxx)
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
@@ -31,6 +31,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - VHERE is a 32-bit offset to the first available byte in the VARIABLE space.
 - There are 10 temporary words (T0..T9) that can be re-defined without any dictionary overhead.
 - There are 10 temporary variables (r0..r9) that can be allocated/destroyed.
+- There is support for up to 255 lexicons. C4 core words are in lexicon 0.
 
 ## Temporary words:
 - A temporary word is named T0 .. T9. (e.g. - ": T4 ... ;" will define word T4, but T4 is not added to the dictionary)
@@ -65,6 +66,25 @@ To these ends, I have wandered off the beaten path in the following ways:
 : betw ( n min max--f ) +tmps s3 s2 s1  r1 r2 >=  r1 r3 <=  and -tmps ;
 : .c ( n-- ) s9  r9 #32 $7e betw if r9 emit else r9 ." (%d)" then ;
 : dumpX ( a n-- ) over + for I c@ .c next ;
+```
+
+## Lexicons:
+- A lexicon can be used to group a set of related words if desired.
+- Lexicon usage is completely optional.
+- Any or all words can be defined in lexicon 0.
+- C4 searches the current lexicon first, then lexicon 0.
+- It will not find words defined in other lexicons.
+```
+17 constant LIFE
+LIFE (lex) ! ( switch to the LIFE lexicon )
+: init ."  (define init here)" ;
+: gen ."  (define gen here)" ;
+: life init begin gen key? until key@ drop ;
+WORDS
+( only prints the words in the LIFE lexicon: "life gen init" )
+0 (lex) ! ( switch back to the C4 lexicon )
+WORDS
+( the words in the LIFE lexicon are not included )
 ```
 
 ## Building c4
@@ -186,6 +206,8 @@ SPACES   (n--)             Output n SPACEs.
 example: : ascii '~' $20 DO I I I I ." %n%d: (%c) %x %b" LOOP ;
 
 *** FILE ***
+STDIN    (--fh)            fh: file-handle for STDIN (PC-only).
+STDOUT   (--fh)            fh: file-handle for STDOUT (PC-only).
 FOPEN-R  (NM--fh)          Open file NM in read-only mode (rb).
 FOPEN-W  (NM--fh)          Open file NM in write-only mode (wb). Truncates the file if it exists.
 FOPEN-RW (NM--fh)          Open file NM in read-write mode (rb+).
@@ -292,16 +314,20 @@ WORDS    (--)              Output the dictionary and primitives.
 
 ## Built-in words
 ```
+code-sz  (--n)   n: Size of CODE area.
+dict-sz  (--n)   n: Max number of DICTIONARY entries.
+mem-sz   (--n)   n: Size of system to be persisted on FSAVE.
+vars-sz  (--n)   n: Size of VARS area.
 mem      (--a)   a: Start address for MEMORY area.
 cb       (--a)   a: Start address for CODE area.
+db       (--a)   a: Start address for DICTIONARY area.
 vb       (--a)   a: Start address for VARS area.
-mem-sz   (--n)   n: Size of system to be persisted on FSAVE.
-code-sz  (--n)   n: Size of CODE area.
-vars-sz  (--n)   n: Size of VARS area.
 (here)   (--a)   a: Address of HERE.
 (last)   (--a)   a: Address of LAST.
-(vars)   (--a)   a: Address of VHERE.
+(vhere)  (--a)   a: Address of VHERE.
+(lex)    (--a)   a: address of LEXICON.
 base     (--a)   a: Address of BASE.
+>in      (--a)   a: Address of TOIN.
 CELL     (--n)   n: size in bytes of a CELL.
 ```
 
