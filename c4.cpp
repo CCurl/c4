@@ -9,20 +9,21 @@ ST_T st;
 STK_T stk;
 CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
 CELL sp, rsp, lsp, lb, isError, sb, rb, lexicon;
-CELL BASE, STATE, oHERE, oVHERE, seed, t1, t2;
-byte *code, *vars, *y, *pc, ir;
-DICT_E *dict;
+CELL BASE, STATE, oHERE, oVHERE, seed, t1, t2, ir;
+byte *code, *vars, *y, *pc;
+DICT_E *dictEnd;
 char word[32], tib[256], *in;
 
 void vmReset() {
     sb = 2, rb = (STK_SZ-2);
     sp = sb - 1, rsp = rb + 1;
     HERE = oHERE = 2;
-    lsp = lb = VHERE = oVHERE = LAST = lexicon = 0;
+    lsp = lb = VHERE = oVHERE = lexicon = 0;
     for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
     code = &st.bytes[CELL_SZ*3];
     vars = (code+CODE_SZ+4);
-    dict = (DICT_E*)(vars+VARS_SZ+4);
+    dictEnd = (DICT_E*)(&st.bytes[MEM_SZ]);
+    LAST = MEM_SZ;
     systemWords();
 }
 
@@ -187,19 +188,21 @@ int isTempWord(const char* nm) {
     return ((nm[0] == 'T') && BTW(nm[1], '0', '9') && (nm[2] == 0));
 }
 
-int doFindInLex(const char *name, int lex) {
+DICT_E *doFindInLex(const char *name, int lex) {
     int len = strLen(name);
-    for (int i = LAST - 1; i >= 0; i--) {
-        DICT_E *dp = &dict[i];
-        if ((len != dp->len) || (dp->lexicon != lex)) { continue; }
-        if (strEq(dp->name, name)) { return i; }
+    DICT_E *dp = (DICT_E*)&st.bytes[LAST];
+    while (dp < dictEnd) {
+        if ((len == dp->len) && (dp->lexicon == lex) && strEq(dp->name, name)) {
+            return dp;
+        }
+        dp++;
     }
-    return -1;
+    return 0;
 }
 
-int doFindInternal(const char *name) {
-    int ret = doFindInLex(name, lexicon);
-    if (ret < 0) { ret = doFindInLex(name, 0); }
+DICT_E *doFindInternal(const char *name) {
+    DICT_E *ret = doFindInLex(name, lexicon);
+    if (ret == NULL) { ret = doFindInLex(name, 0); }
     return ret;
 }
 
@@ -210,8 +213,9 @@ void fCreate() {
         tempWords[word[1] - '0'] = HERE;
         return;
     }
-    if (0 <= doFindInternal(word)) { printStringF("-redef:[%s]-", word); }
-    DICT_E* dp = &dict[LAST];
+    if (doFindInternal(word)) { printStringF("-redef:[%s]-", word); }
+    LAST -= sizeof(DICT_E);
+    DICT_E *dp = (DICT_E*)&st.bytes[LAST];
     dp->xt = (USHORT)HERE;
     dp->flags = 0;
     dp->lexicon = (byte)lexicon;
@@ -221,7 +225,6 @@ void fCreate() {
     }
     strCpy(dp->name, word);
     dp->len = strLen(dp->name);
-    ++LAST;
 }
 
 int handleInput(int c, int echo) {
@@ -241,11 +244,11 @@ int handleInput(int c, int echo) {
 }
 
 void fAccept() {
-    int idle = doFindInternal("idle");
+    DICT_E *idle = doFindInternal("idle");
     in = tib;
     while (1) {
         if (!charAvailable()) {
-            if (0 <= idle) { run(dict[idle].xt); }
+            if (0 <= idle) { run(idle->xt); }
             continue;
         }
         if (handleInput(getChar(), 1)) { return; }
@@ -308,7 +311,7 @@ void fDiv()  { t1 = pop(); TOS /= t1; }
 void fEmit()  { printChar((char)pop()); }
 void fDot()  { printBase(pop(), BASE); }
 void fNum() {
-    push(ir - '0');
+    push(*(pc-1) - '0');
     while (BTW(*pc, '0', '9')) { TOS = (TOS * 10) + *(pc++) - '0'; }
 }
 void fCall() {
@@ -363,7 +366,7 @@ void fDo() { lsp += 3; L2 = (CELL)pc; L0 = pop(); L1 = pop(); }
 void fIndex() { push(L0); }
 void fIndex2() { t1 = (2 < lsp) ? lstk[lsp-3] : 0; push(t1); }
 void fLeave() { if (3 <= lsp) { lsp -= 3; } }
-void fLoop() { ++L0; if (L0 < L1) { pc = (byte*)L2; return; } lsp -= 3; }
+void fLoop() { if (++L0 < L1) { pc = (byte*)L2; return; } lsp -= 3; }
 void fPlusLoop() {
     t1 = L0; L0 += pop();
     if ((t1 < L1) && (L0 < L1)) { pc = (byte*)L2; }
@@ -413,7 +416,7 @@ void fExt() {
     else if (ir == 'C') { fCreate(); }                           // CREATE
     else if (ir == 'Z') { vmReset(); }
 }
-void X() { if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
+void X() { ir = *(pc-1);  if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
 void N() {}
 
 void (*q[128])() = {
@@ -430,7 +433,7 @@ void run(WORD start) {
     lsp = isError = 0;
     if (sp < sb) { sp = sb - 1; }
     if (rsp > rb) { rsp = rb + 1; }
-    while (pc) { ir = *(pc++); q[ir](); }
+    while (pc) { q[*(pc++)](); }
 }
 
 // ----------------------------------
@@ -541,10 +544,10 @@ int doFind(const char *name) {
     }
 
     // Regular lookup
-    int i = doFindInternal(name);
-    if (0 <= i) {
-        push(dict[i].xt);
-        push(dict[i].flags);
+    DICT_E *dp = doFindInternal(name);
+    if (dp) {
+        push(dp->xt);
+        push(dp->flags);
         return 1;
     }
     return 0;
@@ -552,17 +555,20 @@ int doFind(const char *name) {
 
 void doWords() {
     int n = 0;
-    for (int i = LAST-1; i >= 0; i--) {
-        DICT_E *dp = &dict[i];
-        if (dp->lexicon != lexicon) { continue; }
-        printString(dp->name);
-        if ((++n) % 10 == 0) { printString("\r\n"); }
-        else { printChar(9); }
+    DICT_E *dp = (DICT_E*)&st.bytes[LAST];
+    while (dp < dictEnd) {
+        if (dp->lexicon == lexicon) {
+            printString(dp->name);
+            if ((++n) % 10 == 0) { printString("\r\n"); }
+            else { printChar(9); }
+        }
+        dp++;
     }
     if (lexicon) { return; }
     PRIM_T *x = prims;
     while (x->name) {
-        printStringF("%s\t", x->name);
+        printString(x->name);
+        printChar(9);
         ++x;
         if ((++n) % 10 == 0) { printString("\r\n"); }
     }
@@ -781,12 +787,11 @@ void systemWords() {
     BASE = 10;
     char *cp = (char*)(&vars[VARS_SZ-32]);
     sprintF(cp, ": code-sz %d ;",  CODE_SZ);         doParse(cp);
-    sprintF(cp, ": dict-sz %d ;",  DICT_SZ);         doParse(cp);
+    sprintF(cp, ": dict-sz %d ;",  sizeof(DICT_E));  doParse(cp);
     sprintF(cp, ": mem-sz %d ;",   MEM_SZ);          doParse(cp);
     sprintF(cp, ": vars-sz %d ;",  VARS_SZ);         doParse(cp);
     sprintF(cp, ": mem %lu ;",     (UCELL)&MEM[0]);  doParse(cp);
     sprintF(cp, ": cb %lu ;",      (UCELL)code);     doParse(cp);
-    sprintF(cp, ": db %lu ;",      (UCELL)dict);     doParse(cp);
     sprintF(cp, ": vb %lu ;",      (UCELL)vars);     doParse(cp);
     sprintF(cp, ": (here) %lu ;",  (UCELL)&HERE);    doParse(cp);
     sprintF(cp, ": (last) %lu ;",  (UCELL)&LAST);    doParse(cp);

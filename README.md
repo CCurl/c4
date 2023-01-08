@@ -21,12 +21,13 @@ To these ends, I have wandered off the beaten path in the following ways:
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
 - There is no ELSE, only IF/THEN. This is consistent with ColorForth.
-- A dictionary entry looks like this: (xt,flags,lexicon,word-len,word,null terminator).
+- A dictionary entry looks like this: (xt,flags,lexicon,word-len,word(15),null terminator).
 - The maximum length of a word is configurable. (#define NAME_LEN xx)
 - The number of available dictionary entries is configurable. (#define DICT_SZ xxx)
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
 - All CODE addresses are offsets into the CODE space, not absolute addresses.
 - HERE is also an offset into the CODE space, not an absolute address.
+- LAST is also an offset into the CODE space, not an absolute address.
 - The VARIABLE space is separated from the CODE space, and can be larger than 64kb.
 - VHERE is a 32-bit offset to the first available byte in the VARIABLE space.
 - There are 10 temporary words (T0..T9) that can be re-defined without any dictionary overhead.
@@ -108,7 +109,6 @@ WORDS
     - STK_SZ is the size of the combined DATA and RETURN stacks.
     - LSTK_SZ is the size of the loop stack.
     - LOCALS_SZ is the size of the locals buffer.
-    - DICT_SZ is the size (number of entries) of the dictionary.
     - FLT_SZ is the size of the float stack.
     - The _PIN__ define indicates that the board supports digitalWrite(), et al.
     - The __FILES__ define indicates that the board supports LittleFS.
@@ -315,7 +315,7 @@ WORDS    (--)              Output the dictionary and primitives.
 ## Built-in words
 ```
 code-sz  (--n)   n: Size of CODE area.
-dict-sz  (--n)   n: Max number of DICTIONARY entries.
+dict-sz  (--n)   n: Size in bytes of a dictionary entry.
 mem-sz   (--n)   n: Size of system to be persisted on FSAVE.
 vars-sz  (--n)   n: Size of VARS area.
 mem      (--a)   a: Start address for MEMORY area.

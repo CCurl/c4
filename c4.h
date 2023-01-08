@@ -24,7 +24,6 @@
   #define STK_SZ        64
   #define LSTK_SZ       32
   #define LOCALS_SZ    160
-  #define DICT_SZ     2000
   #define FLT_SZ        10
   #define __FILES__
   // #define USE_ACCEPT
@@ -40,7 +39,6 @@
   #define STK_SZ        64
   #define LSTK_SZ       32
   #define LOCALS_SZ    160
-  #define DICT_SZ     2000
   #define FLT_SZ        10
   #define __FILES__
 #endif
@@ -60,7 +58,6 @@
   #define STK_SZ        64
   #define LSTK_SZ       32
   #define LOCALS_SZ    160
-  #define DICT_SZ     1000
   #define FLT_SZ        10
   #define __PIN__
   #define __FILES__
@@ -72,7 +69,6 @@
   #define STK_SZ        64
   #define LSTK_SZ       32
   #define LOCALS_SZ    160
-  #define DICT_SZ     1000
   #define FLT_SZ        10
   #define __PIN__
   // #define __FILES__
@@ -86,7 +82,6 @@
   #define STK_SZ        32
   #define LSTK_SZ       16
   #define LOCALS_SZ     80
-  #define DICT_SZ      200
   #define FLT_SZ         8
   #define __PIN__
   #define NEEDS_ALIGN
@@ -99,7 +94,6 @@
   #define STK_SZ        32
   #define LSTK_SZ       16
   #define LOCALS_SZ     80
-  #define DICT_SZ      100
   #define FLT_SZ         8
   #define __PIN__
   #define NEEDS_ALIGN
@@ -136,7 +130,7 @@ typedef unsigned short USHORT;
 
 #define CELL_SZ   sizeof(CELL)
 #define CSZ       CELL_SZ
-#define MEM_SZ    CODE_SZ + VARS_SZ + (DICT_SZ*sizeof(DICT_E)) + 16
+#define MEM_SZ    CODE_SZ + VARS_SZ
 
 typedef struct {
     USHORT xt;
@@ -146,7 +140,7 @@ typedef struct {
     char name[NAME_LEN];
 } DICT_E;
 
-typedef union { CELL cells[MEM_SZ / CELL_SZ]; byte bytes[MEM_SZ]; } ST_T;
+typedef union { CELL cells[MEM_SZ / CELL_SZ]; byte bytes[MEM_SZ+8]; } ST_T;
 typedef union { float f[STK_SZ + 1]; CELL i[STK_SZ + 1]; } STK_T;
 
 extern CELL BASE, STATE, tHERE, tVHERE, tempWords[10], sp;

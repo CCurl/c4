@@ -6,14 +6,12 @@ reset
 
 : vhere (vhere) @ vb + ;
 : here (here) @ cb + ;
-: last (last) @ 1- 20 * db + ;
+: last (last) @ mem + ;
 
-: num-words (last) @ ;
 : used here cb - ;
-: forget last w@ (here) ! (last) @ 1- (last) ! ;
+: forget last w@ (here) ! last dict-sz + (last) ! ;
 
 : T1 ( a-- ) DUP 4 + SWAP W@ ." %n%i: %s" ;
-: words-l db num-words 0 DO DUP T1 20 + LOOP DROP ;
 
 ( n a b -betw- f )
 : betw +tmps s3 s2 s1  r2 r1 <=  r1 r3 <=  and -tmps ;
