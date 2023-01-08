@@ -248,7 +248,7 @@ void fAccept() {
     in = tib;
     while (1) {
         if (!charAvailable()) {
-            if (0 <= idle) { run(idle->xt); }
+            if (idle) { run(idle->xt); }
             continue;
         }
         if (handleInput(getChar(), 1)) { return; }
