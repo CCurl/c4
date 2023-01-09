@@ -26,26 +26,28 @@ To these ends, I have wandered off the beaten path in the following ways:
 - The number of available dictionary entries is configurable. (#define DICT_SZ xxx)
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
 - All CODE addresses are offsets into the CODE space, not absolute addresses.
-- HERE is also an offset into the CODE space, not an absolute address.
-- LAST is also an offset into the CODE space, not an absolute address.
+- Memory is organized as follows: (mem-start) [CODE] .. [VARIABLES] .. [DICTIONAY]
+- HERE ("(here) @") is a byte offset into the memory, not an absolute address.
+- LAST ("(last) @") is a byte offset into the memory space, not an absolute address.
+- VHERE ("(vhere) @") is a byte offset to the first available byte in the VARIABLE space.
 - The VARIABLE space is separated from the CODE space, and can be larger than 64kb.
-- VHERE is a 32-bit offset to the first available byte in the VARIABLE space.
 - There are 10 temporary words (T0..T9) that can be re-defined without any dictionary overhead.
-- There are 10 temporary variables (r0..r9) that can be allocated/destroyed.
+- There are 10 temporary/local variables (r0..r9) that can be allocated/destroyed.
 - There is support for up to 255 lexicons. C4 core words are in lexicon 0.
 
 ## Temporary words:
-- A temporary word is named T0 .. T9. (e.g. - ": T4 ... ;" will define word T4, but T4 is not added to the dictionary)
+- A temporary word is named T0 .. T9. 
 - I think of temporary words as named transient words that don't incur any dictionary overhead.
+- For example, ": T4 ... ;" will define word T4, but T4 is not added to the dictionary.
 - Their purpose is to support code reuse and factoring without the overhead of a dictionary entriy.
 - You cannot create an IMMEDIATE temporary word.
 - When defined, they refer to the current value of HERE.
 - All previous references to T4 still refer to the previous definition. New references to T4 refer to the new definition.
 - Here is a simple example:
 ```
-: T1 dup $20 < .if drop '.' .then ;
-: dumpC for i c@ T1 emit next ;
-: .code cb dup here + 1- for i c@ T1 emit next ;
+: T1 dup $20 < .if drop '.' .then emit ;
+: dumpC ( t f-- ) do i c@ T1 loop ;
+: .code cb dup here + 1- do i c@ T1 loop ;
 ```
 
 ## Temporary variables (registers):
