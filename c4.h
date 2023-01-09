@@ -140,6 +140,8 @@ typedef struct {
     char name[NAME_LEN];
 } DICT_E;
 
+#define DICT_SZ    sizeof(DICT_E)
+
 typedef union { CELL cells[MEM_SZ / CELL_SZ]; byte bytes[MEM_SZ+8]; } ST_T;
 typedef union { float f[STK_SZ + 1]; CELL i[STK_SZ + 1]; } STK_T;
 

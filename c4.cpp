@@ -760,7 +760,7 @@ int doParseWord() {
     }
 
     printStringF("[%s]??", wd);
-    if (STATE == 1) { STATE = 0; --LAST; }
+    if (STATE == 1) { STATE = 0; LAST += DICT_SZ; }
     HERE = oHERE;
     VHERE = oVHERE;
     code[HERE] = 0;
@@ -787,7 +787,7 @@ void systemWords() {
     BASE = 10;
     char *cp = (char*)(&vars[VARS_SZ-32]);
     sprintF(cp, ": code-sz %d ;",  CODE_SZ);         doParse(cp);
-    sprintF(cp, ": dict-sz %d ;",  sizeof(DICT_E));  doParse(cp);
+    sprintF(cp, ": dict-sz %d ;",  DICT_SZ);         doParse(cp);
     sprintF(cp, ": mem-sz %d ;",   MEM_SZ);          doParse(cp);
     sprintF(cp, ": vars-sz %d ;",  VARS_SZ);         doParse(cp);
     sprintF(cp, ": mem %lu ;",     (UCELL)&MEM[0]);  doParse(cp);
