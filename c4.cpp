@@ -794,6 +794,7 @@ void systemWords() {
     sprintF(cp, ": cb %lu ;",      (UCELL)code);     doParse(cp);
     sprintF(cp, ": vb %lu ;",      (UCELL)vars);     doParse(cp);
     sprintF(cp, ": (here) %lu ;",  (UCELL)&HERE);    doParse(cp);
+    sprintF(cp, ": (ohere) %lu ;", (UCELL)&oHERE);   doParse(cp);
     sprintF(cp, ": (last) %lu ;",  (UCELL)&LAST);    doParse(cp);
     sprintF(cp, ": (vhere) %lu ;", (UCELL)&VHERE);   doParse(cp);
     sprintF(cp, ": (lex) %lu ;",   (UCELL)&lexicon); doParse(cp);

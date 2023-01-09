@@ -286,8 +286,9 @@ NOTE: Strings in c4 are NULL-TERMINATED, not COUNTED
 +TMPS    (--)              Allocate 10 temp variables, r0 .. r9.
 rX       (--n)             n: read value of temp var X (X:[0..9]).
 sX       (n--)             Set value of temp var X to n.
-iX       (--n)             Increment temp var X.
-dX       (--n)             Decrement temp var X.
+iX       (--)              Increment temp var X.
+dX       (--)              Decrement temp var X.
+cX       (--)              Increment temp var X by the size of a CELL.
 -TMPS    (--)              Destroy current temp variables.
 
 **** SYSTEM/OTHER ***
@@ -325,6 +326,7 @@ cb       (--a)   a: Start address for CODE area.
 db       (--a)   a: Start address for DICTIONARY area.
 vb       (--a)   a: Start address for VARS area.
 (here)   (--a)   a: Address of HERE.
+(ohere)  (--a)   a: Address of oHERE.
 (last)   (--a)   a: Address of LAST.
 (vhere)  (--a)   a: Address of VHERE.
 (lex)    (--a)   a: address of LEXICON.
