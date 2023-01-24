@@ -377,20 +377,22 @@ void fBegin() { lsp += 3; L0 = (CELL)pc; }
 void fWhile() { if (pop()) { pc = (byte*)L0; } else { lsp -= 3; } }
 void fLocAdd() { if ((lb + 10) < LOCALS_SZ) { lb += 10; } }
 void fLocRem() { if (lb > 9) { lb -= 10; } }
-void fLocIncCell() { t1 = *(pc++) - '0'; if (BTW(t1, 0, 9)) { locals[lb + t1] += CELL_SZ; } }
-void fLocInc() { t1 = *(pc++) - '0'; if (BTW(t1, 0, 9)) { ++locals[lb + t1]; } }
-void fLocDec() { t1 = *(pc++) - '0'; if (BTW(t1, 0, 9)) { --locals[lb + t1]; } }
-void fLocGet() { t1 = *(pc++) - '0'; if (BTW(t1, 0, 9)) { push(locals[lb + t1]); } }
-void fLocSet() { t1 = *(pc++) - '0'; if (BTW(t1, 0, 9)) { locals[lb + t1] = pop(); } }
+void fLocIncCell() { locals[lb + *(pc++)-'0'] += CELL_SZ; }
+void fLocInc() { ++locals[lb + *(pc++)-'0']; }
+void fLocDec() { --locals[lb + *(pc++)-'0']; }
+void fLocGet() { push(locals[lb + *(pc++)-'0']); }
+void fLocSet() { locals[lb + *(pc++)-'0'] = pop(); }
 void fBitOp() {
-    ir = *(pc++); if (ir == '~') { TOS = ~TOS; }
-    else if (ir == '%') { NOS %= TOS; DROP1; }
-    else if (ir == '&') { NOS &= TOS; DROP1; }
-    else if (ir == '^') { NOS ^= TOS; DROP1; }
-    else if (ir == '|') { NOS |= TOS; DROP1; }
-    else if (ir == 'L') { NOS = (NOS << TOS); DROP1; }
-    else if (ir == 'R') { NOS = (NOS >> TOS); DROP1; }
-    else { --pc; printChar(32); }
+    switch (*(pc++)) {
+    case '~': TOS = ~TOS; return;
+    case '%': NOS %= TOS; DROP1; return;
+    case '&': NOS &= TOS; DROP1; return;
+    case '^': NOS ^= TOS; DROP1; return;
+    case '|': NOS |= TOS; DROP1; return;
+    case 'L': NOS = (NOS << TOS); DROP1; return;
+    case 'R': NOS = (NOS >> TOS); DROP1; return;
+    default: --pc; printChar(32);
+    }
 }
 void fFileOp() { pc = doFile(ir, pc); }
 void fNegate() { TOS = -TOS; }

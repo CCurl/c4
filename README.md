@@ -26,7 +26,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - The number of available dictionary entries is configurable. (#define DICT_SZ xxx)
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
 - All CODE addresses are offsets into the CODE space, not absolute addresses.
-- Memory is organized as follows: (mem-start) [CODE] .. [VARIABLES] .. [DICTIONAY]
+- Memory is organized as follows: (mem-start) [CODE] .. [VARIABLES] .. [DICTIONARY]
 - HERE ("(here) @") is a byte offset into the memory, not an absolute address.
 - LAST ("(last) @") is a byte offset into the memory space, not an absolute address.
 - VHERE ("(vhere) @") is a byte offset to the first available byte in the VARIABLE space.
