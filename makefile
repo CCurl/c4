@@ -1,7 +1,7 @@
 appname := c4
 
 CXX := clang
-CXXFLAGS := -Os -m32 -D_LINUX
+CXXFLAGS := -O3 -m32 -D_LINUX
 
 srcfiles := $(shell find . -name "*.cpp")
 objects  := $(patsubst %.cpp, %.o, $(srcfiles))
