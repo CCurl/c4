@@ -16,14 +16,13 @@ To these ends, I have wandered off the beaten path in the following ways:
 
 - This is NOT an ANSI-standard Forth system.
 - This is a byte-coded implementation.
-- Many primitives (core words) are built into the compiler, and are not included in the dictionary.
+- Many primitives (core words) are built into the base system, and are not included in the dictionary.
 - These primitves ARE NOT case sensitive (DUP = dup = Dup).
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
 - There is no ELSE, only IF/THEN. This is consistent with ColorForth.
 - A dictionary entry looks like this: (xt,flags,lexicon,word-len,word(15),null terminator).
 - The maximum length of a word is configurable. (#define NAME_LEN xx)
-- The number of available dictionary entries is configurable. (#define DICT_SZ xxx)
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
 - All CODE addresses are offsets into the CODE space, not absolute addresses.
 - Memory is organized as follows: (mem-start) [CODE] .. [VARIABLES] .. [DICTIONARY]
@@ -358,24 +357,24 @@ You will notice that the VML code for these operations all begin with 'u'. The b
 byte *doUser(CELL ir, byte *pc) {
     CELL pin;
     switch (ir) {
-    case 'G': pc = doGamePad(ir, pc);           break;  // zG<x>
-    case 'N': push(micros());                   break;  // zN (--n)
+    case 'G': pc = doGamePad(ir, pc);           break;  // uG<x>
+    case 'N': push(micros());                   break;  // uN (--n)
     case 'P': pin = pop(); ir = *(pc++);                // Pin operations
         switch (ir) {
-        case 'I': pinMode(pin, INPUT);                           break;  // zPI (p--)
-        case 'O': pinMode(pin, OUTPUT);                          break;  // zPO (p--)
-        case 'U': pinMode(pin, INPUT_PULLUP);                    break;  // zPU (p--)
+        case 'I': pinMode(pin, INPUT);                           break;  // uPI (p--)
+        case 'O': pinMode(pin, OUTPUT);                          break;  // uPO (p--)
+        case 'U': pinMode(pin, INPUT_PULLUP);                    break;  // uPU (p--)
         case 'R': ir = *(pc++);
-            if (ir == 'A') { push(analogRead(pin));  }                   // zPRA (p--n)
-            if (ir == 'D') { push(digitalRead(pin)); }           break;  // zPRD (p--n)
+            if (ir == 'A') { push(analogRead(pin));  }                   // uPRA (p--n)
+            if (ir == 'D') { push(digitalRead(pin)); }           break;  // uPRD (p--n)
         case 'W': ir = *(pc++);
-            if (ir == 'A') { analogWrite(pin,  (int)pop()); }            // zPWA (n p--)
-            if (ir == 'D') { digitalWrite(pin, (int)pop()); }    break;  // zPWD (n p--)
+            if (ir == 'A') { analogWrite(pin,  (int)pop()); }            // uPWA (n p--)
+            if (ir == 'D') { digitalWrite(pin, (int)pop()); }    break;  // uPWD (n p--)
         default:
             isError = 1;
             printString("-notPin-");
         }                                       break;
-    case 'W': delay(pop());                     break;  // zW (n--)
+    case 'W': delay(pop());                     break;  // uW (n--)
     default:
         isError = 1;
         printString("-notExt-");
@@ -383,6 +382,6 @@ byte *doUser(CELL ir, byte *pc) {
     return pc;
 }
 ```
-In this context, 'pc' points to the next byte in the command stream, so "ir = *(pc++);" sets ir to the next byte and moves pc to point to the next byte after that. A VML command "zN" will execute the 'N' case in doExt(), which in this case, executes "push(micros())", pushing the return value from the Arduino library function "micros()" onto the stack. 
+In this context, 'pc' points to the next byte in the command stream, so "ir = *(pc++);" sets ir to the next byte and moves pc to point to the next byte after that. A VML command "uN" will execute the 'N' case in doUser(), which in this case, executes "push(micros())", pushing the return value from the Arduino library function "micros()" onto the stack. 
 
-So, to add a primitive, add the Forth word to the prims[] array (either behind a #define or not), make sure it starts with 'z', then add a handler for that new case in doUser() that does whatever you want.
+So, to add a new primitive, add the Forth word to the prims[] array (either inside an #ifdef or not), make sure its VML starts with 'u', then add a handler for that new case in doUser() that does whatever you want.
