@@ -256,24 +256,24 @@ void fAccept() {
 }
 
 byte *doFile(CELL ir, byte *pc) {
-    ir = *(pc++);
-    if (ir == 'O') { fOpen(); }
-    else if (ir == 'D') { fDelete(); }
-    else if (ir == 'I') { fList(); }
-    else if (ir == 'S') { fSaveSys(); }
-    else if (ir == 's') { if (fLoadSys()) { pc = 0; } }
-    else if (ir == 'L') { fLoad((char *)pop()); }
-    else if (ir == 'i') { push((CELL)stdin); }
-    else if (ir == 'o') { push((CELL)stdout); }
-    else if (TOS == 0) { printString("-nofp-"); return pc; }
-    else if (ir == 'R') { fGetC(); }
-    else if (ir == 'r') { fRead(); }
-    else if (ir == 'G') { fGetS(); }
-    else if (ir == 'W') { fPutC(); }
-    else if (ir == 'w') { fWrite(); }
-    else if (ir == 'C') { fClose(); }
-    else if (ir == 'E') { fSeek(); }
-    else if (ir == 'T') { fTell(); }
+    switch (*(pc++)) {
+    case 'O': fOpen(); break;
+    case 'D': fDelete(); break;
+    case 'I': fList(); break;
+    case 'S': fSaveSys(); break;
+    case 's': if (fLoadSys()) { pc = 0; } break;
+    case 'L': fLoad((char*)pop()); break;
+    case 'i': push((CELL)stdin); break;
+    case 'o': push((CELL)stdout); break;
+    case 'R': fGetC(); break;
+    case 'r': fRead(); break;
+    case 'G': fGetS(); break;
+    case 'W': fPutC(); break;
+    case 'w': fWrite(); break;
+    case 'C': fClose(); break;
+    case 'E': fSeek(); break;
+    case 'T': fTell(); break;
+    }
     return pc;
 }
 
@@ -329,16 +329,18 @@ void fInc() { ++TOS; }
 void fDec() { --TOS; }
 void fExecute() { rpush(pc - code); pc = CA(pop()); }
 void fFloat() {
-    ir = *(pc++); if (ir == '.') { printStringF("%g", fpop()); }         // FLOAT ops
-    else if (ir == '$') { float x = FTOS; FTOS = FNOS; FNOS = x; }
-    else if (ir == 'i') { FTOS = (float)TOS; }
-    else if (ir == 'o') { TOS = (CELL)FTOS; }
-    else if (ir == '+') { FNOS += FTOS; DROP1; }
-    else if (ir == '-') { FNOS -= FTOS; DROP1; }
-    else if (ir == '*') { FNOS *= FTOS; DROP1; }
-    else if (ir == '/') { FNOS /= FTOS; DROP1; }
-    else if (ir == '<') { NOS = (FNOS < FTOS) ? 1 : 0; DROP1; }
-    else if (ir == '>') { NOS = (FNOS > FTOS) ? 1 : 0; DROP1; }
+    switch (*(pc++)) {
+    case '.': printStringF("%g", fpop()); break;
+    case '$': { float x = FTOS; FTOS = FNOS; FNOS = x; } break;
+    case 'i': FTOS = (float)TOS; break;
+    case 'o': TOS = (CELL)FTOS; break;
+    case '+': FNOS += FTOS; DROP1; break;
+    case '-': FNOS -= FTOS; DROP1; break;
+    case '*': FNOS *= FTOS; DROP1; break;
+    case '/': FNOS /= FTOS; DROP1; break;
+    case '<': NOS = (FNOS < FTOS) ? 1 : 0; DROP1; break;
+    case '>': NOS = (FNOS > FTOS) ? 1 : 0; DROP1; break;
+    }
 }
 void fGoto() { pc = CA(GET_WORD(pc)); }
 void fRetOps() {
@@ -352,15 +354,17 @@ void fKey() {
     else if (ir == '?') { push(charAvailable()); }     // K?
 }
 void fStrOps() {
-    ir = *(pc++); if (ir == 'e') { TOS += strLen(CTOS); }     // STR-END
-    else if (ir == 'a') { strCat(CTOS, CNOS); DROP2; }        // STR-CAT
-    else if (ir == 'c') { strCatC(CTOS, (char)NOS); DROP2; }  // STR-CATC
-    else if (ir == '=') { NOS = strEq(CTOS, CNOS); DROP1; }   // STR-EQ
-    else if (ir == 'i') { NOS = strEqI(CTOS, CNOS); DROP1; }  // STR-EQI
-    else if (ir == 'l') { TOS = (CELL)strLen(CTOS); }         // STR-LEN
-    else if (ir == 'r') { TOS = (CELL)rTrim(CTOS); }          // STR-RTRIM
-    else if (ir == 't') { *CTOS = 0; }                        // STR-TRUNC
-    else if (ir == 'y') { strCpy(CTOS, CNOS); DROP2; }        // STR-CPY
+    switch (*(pc++)) {
+    case 'e': TOS += strLen(CTOS);             break;  // STR-END
+    case 'a': strCat(CTOS, CNOS); DROP2;       break;  // STR-CAT
+    case 'c': strCatC(CTOS, (char)NOS); DROP2; break;  // STR-CATC
+    case '=': NOS = strEq(CTOS, CNOS); DROP1;  break;  // STR-EQ
+    case 'i': NOS = strEqI(CTOS, CNOS); DROP1; break;  // STR-EQI
+    case 'l': TOS = (CELL)strLen(CTOS);        break;  // STR-LEN
+    case 'r': TOS = (CELL)rTrim(CTOS);         break;  // STR-RTRIM
+    case 't': *CTOS = 0;                       break;  // STR-TRUNC
+    case 'y': strCpy(CTOS, CNOS); DROP2;       break;  // STR-CPY
+    }
 }
 void fDo() { lsp += 3; L2 = (CELL)pc; L0 = pop(); L1 = pop(); }
 void fIndex() { push(L0); }
@@ -406,17 +410,18 @@ void fVarAddr() { t1 = GET_LONG(pc); pc += 4; push((CELL)&vars[t1]); }
 void fUser() { pc = doUser(*pc, pc+1); }
 void fSystem() { y = (byte*)pop(); system((char*)y); }
 void fExt() {
-    ir = *(pc++);
-    if (ir == ']') { fPlusLoop(); }
-    else if (ir == 'S') { fDotS(); }                             // .S
-    else if (ir == 'R') { push(doRand()); }                      // RAND
-    else if (ir == 'A') { VHERE += pop(); oVHERE = VHERE; }      // ALLOT
-    else if (ir == 'T') { push(doTimer()); }                     // TIMER
-    else if (ir == 'Y') { fSystem(); }                           // SYSTEM
-    else if (ir == 'D') { doWords(); }                           // WORDS
-    else if (ir == 'W') { doSleep(); }                           // MS
-    else if (ir == 'C') { fCreate(); }                           // CREATE
-    else if (ir == 'Z') { vmReset(); }
+    switch (*(pc++)) {
+    case ']': fPlusLoop();                    break;
+    case 'S': fDotS();                        break;
+    case 'R': push(doRand());                 break;
+    case 'A': VHERE += pop(); oVHERE = VHERE; break;
+    case 'T': push(doTimer());                break;
+    case 'Y': fSystem();                      break;
+    case 'D': doWords();                      break;
+    case 'W': doSleep();                      break;
+    case 'C': fCreate();                      break;
+    case 'Z': vmReset();                      break;
+    }
 }
 void X() { ir = *(pc-1);  if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
 void N() {}
