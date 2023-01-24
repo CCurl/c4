@@ -792,7 +792,7 @@ void doOK() {
 
 void systemWords() {
     BASE = 10;
-    char *cp = (char*)(&vars[VARS_SZ-32]);
+    char *cp = (char*)(&vars[10]);
     sprintF(cp, ": code-sz %d ;",  CODE_SZ);         doParse(cp);
     sprintF(cp, ": dict-sz %d ;",  DICT_SZ);         doParse(cp);
     sprintF(cp, ": mem-sz %d ;",   MEM_SZ);          doParse(cp);
