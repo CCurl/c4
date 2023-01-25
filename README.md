@@ -169,10 +169,6 @@ F/       (a b--c)          Float Div
 F<       (a b--c)          Float LT
 F>       (a b--c)          Float GT
 F.       (--)              Float PRINT
-FDUP     (a--a a)          Float DUP
-FOVER    (a b--a b a)      Float OVER
-FSWAP    (a b--b a)        Float SWAP
-FDROP    (a--)             Float DROP
 
 *** INPUT/OUTPUT ***
 (.)      (n--)             Output n in the current BASE (no SPACE).
