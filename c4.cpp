@@ -27,11 +27,11 @@ void vmReset() {
     systemWords();
 }
 
-void push(CELL v) { stk.i[++sp] = v; }
-CELL pop() { return stk.i[sp--]; }
-void rpush(CELL v) { stk.i[--rsp] = v; }
-CELL rpop() { return stk.i[rsp++]; }
-float fpop() { return stk.f[sp--]; }
+inline void push(CELL v) { stk.i[++sp] = v; }
+inline CELL pop() { return stk.i[sp--]; }
+inline void rpush(CELL v) { stk.i[--rsp] = v; }
+inline CELL rpop() { return stk.i[rsp++]; }
+inline float fpop() { return stk.f[sp--]; }
 
 #ifdef NEEDS_ALIGN
 WORD GET_WORD(byte *l) { return *l | (*(l + 1) << 8); }
@@ -39,10 +39,10 @@ long GET_LONG(byte *l) { return GET_WORD(l) | GET_WORD(l + 2) << 16; }
 void SET_WORD(byte *l, WORD v) { *l = (v & 0xff); *(l + 1) = (byte)(v >> 8); }
 void SET_LONG(byte *l, long v) { SET_WORD(l, v & 0xFFFF); SET_WORD(l + 2, (WORD)(v >> 16)); }
 #else
-WORD GET_WORD(byte *l) { return *(WORD*)l; }
-long GET_LONG(byte *l) { return *(long*)l; }
-void SET_WORD(byte *l, WORD v) { *(WORD*)l = v; }
-void SET_LONG(byte *l, long v) { *(long*)l = v; }
+inline WORD GET_WORD(byte *l) { return *(WORD*)l; }
+inline long GET_LONG(byte *l) { return *(long*)l; }
+inline void SET_WORD(byte *l, WORD v) { *(WORD*)l = v; }
+inline void SET_LONG(byte *l, long v) { *(long*)l = v; }
 #endif // NEEDS_ALIGN
 
 void CComma(CELL v) { code[HERE++] = (byte)v; }
