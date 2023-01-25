@@ -39,10 +39,10 @@ long GET_LONG(byte *l) { return GET_WORD(l) | GET_WORD(l + 2) << 16; }
 void SET_WORD(byte *l, WORD v) { *l = (v & 0xff); *(l + 1) = (byte)(v >> 8); }
 void SET_LONG(byte *l, long v) { SET_WORD(l, v & 0xFFFF); SET_WORD(l + 2, (WORD)(v >> 16)); }
 #else
-inline WORD GET_WORD(byte *l) { return *(WORD*)l; }
-inline long GET_LONG(byte *l) { return *(long*)l; }
-inline void SET_WORD(byte *l, WORD v) { *(WORD*)l = v; }
-inline void SET_LONG(byte *l, long v) { *(long*)l = v; }
+inline WORD GET_WORD(byte *a) { return *(WORD*)a; }
+inline long GET_LONG(byte *a) { return *(long*)a; }
+inline void SET_WORD(byte *a, WORD v) { *(WORD*)a = v; }
+inline void SET_LONG(byte *a, long v) { *(long*)a = v; }
 #endif // NEEDS_ALIGN
 
 void CComma(CELL v) { code[HERE++] = (byte)v; }
@@ -304,11 +304,12 @@ void fSwap() { t1 = TOS; TOS = NOS; NOS = t1; }
 void fOver() { t1 = NOS; push(t1); }
 void fDrop() { DROP1; }
 void fSlashMod() { t1 = NOS; t2 = TOS; NOS = t1 / t2; TOS = t1 % t2; }
-void fAdd()  { t1 = pop(); TOS += t1; }
-void fSub()  { t1 = pop(); TOS -= t1; }
-void fMult() { t1 = pop(); TOS *= t1; }
-void fDiv()  { t1 = pop(); TOS /= t1; }
-void fEmit()  { printChar((char)pop()); }
+void fMod()  { NOS %= TOS; DROP1; }
+void fAdd()  { NOS += TOS; DROP1; }
+void fSub()  { NOS -= TOS; DROP1; }
+void fMult() { NOS *= TOS; DROP1; }
+void fDiv()  { NOS /= TOS; DROP1; }
+void fEmit() { printChar((char)pop()); }
 void fDot()  { printBase(pop(), BASE); }
 void fNum() {
     push(*(pc-1) - '0');
@@ -389,7 +390,6 @@ void fLocSet() { locals[lb + *(pc++)-'0'] = pop(); }
 void fBitOp() {
     switch (*(pc++)) {
     case '~': TOS = ~TOS; return;
-    case '%': NOS %= TOS; DROP1; return;
     case '&': NOS &= TOS; DROP1; return;
     case '^': NOS ^= TOS; DROP1; return;
     case '|': NOS |= TOS; DROP1; return;
@@ -430,7 +430,7 @@ void (*q[128])() = {
     X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                   //   0:31
     N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf2,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,     //  32:47
     fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,                 //  48:63
-    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,X,X,fCommaOp,           //  64:79
+    fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,fMod,X,fCommaOp,        //  64:79
     fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,                //  80:95
     fZQuote,fAbs,fBitOp,fLocIncCell,fLocDec,X,fFileOp,X,X,fLocInc,X,X,fLocAdd,fLocRem,X,X,        //  96:111
     X,X,fLocGet,fLocSet,fTypeQ,fUser,fVarAddr,fWordOp,fExt,X,X,fBegin,fSQuote,fWhile,fLNot,X };   // 112:127
@@ -467,7 +467,7 @@ PRIM_T prims[] = {
     // Math
     { "+", "+"},            { "-", "-"},            { "/", "/"},
     { "*", "*"},            { "ABS", "a"},          { "/MOD", "&"},
-    { "MOD", "b%"},         { "NEGATE", "_"},
+    { "MOD", "M"},         { "NEGATE", "_"},
     // Input/output
     { "(.)", "."},          { ".", ".32,"},         { "CR", "13,10,"},
     { "EMIT", ","},         { "KEY", "K@"},         { "KEY?", "K?"},
@@ -481,8 +481,7 @@ PRIM_T prims[] = {
     { "AGAIN", "1}"},       { "TRUE", "1"},         { "FALSE", "0"},
     { "=", "="},            { "<", "<"},            { ">", ">"},
     { "<=", ">~"},          { ">=", "<~"},          { "<>", "=~"},
-    { "!=", "=~"},          { "0=", "~"},
-    { "NOT", "~"},
+    { "!=", "=~"},          { "0=", "~"},           { "NOT", "~"},
     // String
     { "STR-LEN", "Sl"},     { "STR-END", "Se"},     { "STR-CAT", "Sa"},
     { "STR-CATC", "Sc"},    { "STR-CPY", "Sy"},     { "STR-EQ", "S="},
