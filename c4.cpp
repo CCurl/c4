@@ -354,7 +354,7 @@ void fRetOps() {
     ir = *(pc++);
     if (ir == '<') { rpush(pop()); }      // <R
     if (ir == '>') { push(rpop()); }      // R>
-    if (ir == '@') { push(stk.i[rsp]); }  // R@
+    if (ir == '@') { push(rstk[rsp]); }   // R@
 }
 void fKey() {
     ir = *(pc++); if (ir == '@') { push(getChar()); }  // K@
