@@ -6,10 +6,11 @@ reset
 
 : T1 IF 'Y' EMIT EXIT THEN 'N' EMIT ; cr 1 T1 0 T1 
 : T2 cr 1 2 3 + + . cr 42 19 do i . loop cr 19 42 do i . -1 +loop ; T2 
-: T3 cr 20 s1 begin r1 . d1 r1 while ; T3 
+: T3 cr 20 s1 begin r1 . d1 r1 while ; T3
 : T4 cr +tmps 123 445 s2 s1 r1 . r2 . -tmps ; T4 
-: T5 cr +tmps 666 777 s2 s1 r1 . r2 . T4 r1 . r2 . -tmps ; T5
+: T5 cr +tmps 666 777 s2 s1 r1 . r2 . T4 r1 . r2 . ; T5
 : T6 s6 DO I . i r6 = IF ." -out6" UNLOOP EXIT THEN LOOP ." error!" ; 80 52 72 T6
+: no-tmps +tmps 2553 s1 r1 ." , now %d" ; r1 ." %nr1=%d" no-tmps r1 ." , back r1=%d"
 : prime? ( n--f ) 1 s2 s1 begin 
 		i2 i2 r1 r2 /mod 0= IF 0= unloop exit THEN 
 		r2 >

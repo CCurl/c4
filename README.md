@@ -285,6 +285,7 @@ iX       (--)              Increment temp var X.
 dX       (--)              Decrement temp var X.
 cX       (--)              Increment temp var X by the size of a CELL.
 -TMPS    (--)              Destroy current temp variables.
+        NOTE: If you do +TMPS in a word, c4 will automatically -TMPS when the word exits.
 
 **** SYSTEM/OTHER ***
 C,       (n--)             Append byte N to HERE, increment HERE by 1.

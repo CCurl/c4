@@ -323,9 +323,7 @@ void fRet() {
     if (rsp < 2) { pc = 0; rsp = 0; }
     else {
         pc = CA(rpop()); t1 = rpop();
-        while ((0 < t1) && (9 < lb)) {
-            lb -= 10; --t1;
-        }
+        while ((0 < t1) && (9 < lb)) { lb -= 10; --t1; }
     }
 }
 void fGt() { NOS = (NOS >  TOS) ? 1 : 0; DROP1; }
