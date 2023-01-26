@@ -8,15 +8,15 @@
 ST_T st;
 STK_T stk;
 CELL locals[LOCALS_SZ], lstk[LSTK_SZ+1], tempWords[10];
-CELL sp, rsp, lsp, lb, isError, sb, rb, lexicon;
+CELL rstk[STK_SZ], rsp;
+CELL sp, lsp, lb, isError, lexicon;
 CELL BASE, STATE, oHERE, oVHERE, seed, t1, t2, ir;
 byte *code, *vars, *y, *pc;
 DICT_E *dictEnd;
 char word[32], tib[256], *in;
 
 void vmReset() {
-    sb = 2, rb = (STK_SZ-2);
-    sp = sb - 1, rsp = rb + 1;
+    sp = rsp = 0;
     HERE = oHERE = 2;
     lsp = lb = VHERE = oVHERE = lexicon = 0;
     for (int i = 0; i < MEM_SZ; i++) { st.bytes[i] = 0; }
@@ -29,8 +29,8 @@ void vmReset() {
 
 inline void push(CELL v) { stk.i[++sp] = v; }
 inline CELL pop() { return stk.i[sp--]; }
-inline void rpush(CELL v) { stk.i[--rsp] = v; }
-inline CELL rpop() { return stk.i[rsp++]; }
+inline void rpush(CELL v) { rstk[++rsp] = v; }
+inline CELL rpop() { return rstk[rsp--]; }
 inline float fpop() { return stk.f[sp--]; }
 
 #ifdef NEEDS_ALIGN
@@ -119,10 +119,9 @@ void printBase(CELL num, CELL base) {
 }
 
 void fDotS() {
-    if (sp<sb) { sp=sb-1; }
     printString("(");
-    for (int d = sb; d <= sp; d++) {
-        if (sb < d) { printChar(' '); }
+    for (int d = 1; d <= sp; d++) {
+        if (1 < d) { printChar(' '); }
         printBase(stk.i[d], BASE);
     }
     printString(")");
@@ -316,10 +315,17 @@ void fNum() {
     while (BTW(*pc, '0', '9')) { TOS = (TOS * 10) + *(pc++) - '0'; }
 }
 void fCall() {
-    if (*(pc + 2) != ';') { rpush(pc - code + 2); }
-    pc = CA(GET_WORD(pc));
+    t1 = GET_WORD(pc); pc += 2;
+    if (*(pc) == ';') { pc = CA(t1); return; }
+    rpush(0); rpush(pc - code); pc = CA(t1);
 }
-void fRet() { if (rsp > rb) { pc = 0; rsp = rb + 1; } else { pc = CA(rpop()); } }
+void fRet() {
+    if (rsp < 2) { pc = 0; rsp = 0; }
+    else {
+        pc = CA(rpop());
+        while (0 < rstk[rsp] && (10 <= lb)) { lb -= 10; --rstk[rsp]; }
+    }
+}
 void fGt() { NOS = (NOS >  TOS) ? 1 : 0; DROP1; }
 void fLt() { NOS = (NOS <  TOS) ? 1 : 0; DROP1; }
 void fEq() { NOS = (NOS == TOS) ? 1 : 0; DROP1; }
@@ -380,8 +386,8 @@ void fPlusLoop() {
 }
 void fBegin() { lsp += 3; L0 = (CELL)pc; }
 void fWhile() { if (pop()) { pc = (byte*)L0; } else { lsp -= 3; } }
-void fLocAdd() { if ((lb + 10) < LOCALS_SZ) { lb += 10; } }
-void fLocRem() { if (lb > 9) { lb -= 10; } }
+void fLocAdd() { if ((lb + 10) < LOCALS_SZ) { lb += 10; if (1 < rsp) { ++rstk[rsp-1]; } } }
+void fLocRem() { if (9 < lb) { lb -= 10; if (1 < rsp) { --rstk[rsp-1]; } } }
 void fLocIncCell() { locals[lb + *(pc++)-'0'] += CELL_SZ; }
 void fLocInc() { ++locals[lb + *(pc++)-'0']; }
 void fLocDec() { --locals[lb + *(pc++)-'0']; }
@@ -438,8 +444,8 @@ void (*q[128])() = {
 void run(WORD start) {
     pc = CA(start);
     lsp = isError = 0;
-    if (sp < sb) { sp = sb - 1; }
-    if (rsp > rb) { rsp = rb + 1; }
+    if (sp < 1) { sp = 0; }
+    if (rsp < 1) { rsp = 0; }
     while (pc) { q[*(pc++)](); }
 }
 

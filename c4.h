@@ -12,8 +12,6 @@
 #define LINUX      100
 #define WINDOWS    101
 
-#define NAME_LEN    15
-
 #ifdef _WIN32
   #define __BOARD__     PC
   #define __TARGET__    WINDOWS
@@ -21,7 +19,7 @@
   #include <conio.h>
   #define CODE_SZ      ( 64*1024)
   #define VARS_SZ      (256*1024)
-  #define STK_SZ        64
+  #define STK_SZ        32
   #define LSTK_SZ       32
   #define LOCALS_SZ    160
   #define FLT_SZ        10
@@ -131,6 +129,11 @@ typedef unsigned short USHORT;
 #define CELL_SZ   sizeof(CELL)
 #define CSZ       CELL_SZ
 #define MEM_SZ    CODE_SZ + VARS_SZ
+
+// NB: we want sizeof(DICT_E) to be a mutiple of 4
+// If not, it can be a problem on AVR dev-boards
+// PCs don't care.
+#define NAME_LEN    15
 
 typedef struct {
     USHORT xt;
