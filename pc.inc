@@ -140,7 +140,7 @@ void fGetS() {
     char *cp = (char *)TOS;
     TOS = 0;
     *cp = 0;
-    if (fp && (fgets(cp, sz, fp) == cp)) { TOS = 1; }
+    if (fp && (fgets(cp, sz, fp) == cp)) { TOS = strLen(cp); }
 }
 
 void fDelete() {
