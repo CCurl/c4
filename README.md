@@ -44,7 +44,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - All previous references to T4 still refer to the previous definition. New references to T4 refer to the new definition.
 - Here is a simple example:
 ```
-: T1 dup $20 < .if drop '.' .then emit ;
+: T1 dup $20 < if drop '.' then emit ;
 : dumpC ( t f-- ) do i c@ T1 loop ;
 : .code cb dup here + 1- do i c@ T1 loop ;
 ```
@@ -246,8 +246,6 @@ W!       (w a--)           Store WORD w at a.
 ;        (--)              End current definition.
 IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE).
 THEN     (--)              Standard THEN.
-.IF      (f--)             Simple IF (shorter, more human-readable).
-.THEN    (--)              Simple THEN.
 EXECUTE  (a--)             Execute CODE at address a.
 DO       (T F--)           Begin DO/LOOP loop
 LOOP     (--)              Increment I, jump to DO if I < T

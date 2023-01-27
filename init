@@ -15,10 +15,10 @@ reset
 
 ( n a b -betw- f )
 : betw +tmps s3 s2 s1  r2 r1 <=  r1 r3 <=  and -tmps ;
-: min ( a b--x ) OVER OVER > .if SWAP .then DROP ;
-: max ( a b--x ) OVER OVER < .if SWAP .then DROP ;
+: min ( a b--x ) OVER OVER > if SWAP then DROP ;
+: max ( a b--x ) OVER OVER < if SWAP then DROP ;
 
-: T0 ( c-- ) dup BL $7E betw .if emit exit .then ." (%d)" ;
+: T0 ( c-- ) dup BL $7E betw if emit exit then ." (%d)" ;
 : code here cb  DO I C@ T0 LOOP ;
 : vars vhere cb DO I C@ T0 LOOP ;
 : fill ( c f t-- ) SWAP DO dup i c! LOOP drop ;
