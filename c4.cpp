@@ -336,7 +336,7 @@ void fDec() { --TOS; }
 void fExecute() { rpush(pc - code); pc = CA(pop()); }
 void fFloat() {
     switch (*(pc++)) {
-    case '.': printStringF("%g", fpop()); break;
+    case '.': printStringF("%f", fpop()); break;
     case '$': { float x = FTOS; FTOS = FNOS; FNOS = x; } break;
     case 'i': FTOS = (float)TOS; break;
     case 'o': TOS = (CELL)FTOS; break;
@@ -607,15 +607,14 @@ int isDecimal(const char *wd) {
     if (!BTW(*wd,'0','9')) { return 0; }
     while (BTW(*wd, '0', '9')) { x=(x*10)+(*(wd++)-'0'); }
     if (*wd && (*wd != '.')) { return 0; }
-    x = isNeg ? -x : x;
-    if (*wd == 0) { push(x); return 1; }
+    if (*wd == 0) { push(isNeg ? -x : x); return 1; }
     // Must be a '.', make it a float
     ++wd;
     float fx = (float)x, d = 10;
     while (BTW(*wd, '0', '9')) { fx += (*(wd++) - '0') / d; d *= 10; }
     if (*wd) { return 0; }
     push(0);
-    FTOS = fx;
+    FTOS = isNeg ? -fx : fx;
     return 1;
 }
 
