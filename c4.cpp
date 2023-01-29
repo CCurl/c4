@@ -425,6 +425,7 @@ void fExt() {
     case 'D': doWords();                      break;
     case 'W': doSleep();                      break;
     case 'C': fCreate();                      break;
+    case 'E': doParse((char*)pop());          break;
     case 'Z': vmReset();                      break;
     }
 }
@@ -505,7 +506,7 @@ PRIM_T prims[] = {
     { ">R", "R<"},          { "R>", "R>"},          { "R@", "R@"},
     { "RAND", "xR"},        { "RESET", "xZ"},       { ".S", "xS"},
     { "TIMER", "xT"},       { "MS", "xW"},          { "CREATE", "xC"},
-    { "SYSTEM", "xY"},      { "WORDS", "xD"},
+    { "SYSTEM", "xY"},      { "WORDS", "xD"},       { "PARSE", "xE"},
 #ifdef __FILES__
     // Extension: FILE operations
     { "FOPEN-R", "1fO"},    { "FOPEN-W", "2fO"},    { "FOPEN-RW", "3fO"},
@@ -793,12 +794,14 @@ int doParseWord() {
 }
 
 void doParse(const char *line) {
+    char *saveIn = in;
     in = (char*)line;
     while (getWord(word)) {
         push((CELL)word);
         if (doParseWord() == 0) { return; }
     }
     doExec(STATE);
+    in = saveIn;
 }
 
 void doOK() {
