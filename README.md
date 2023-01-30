@@ -24,7 +24,13 @@ To these ends, I have wandered off the beaten path in the following ways:
 - The maximum length of a word is configurable. (#define NAME_LEN xx)
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
 - All CODE addresses are offsets into the CODE space, not absolute addresses.
-- Memory is organized as follows: (mem-start) [CODE] .. [VARIABLES] .. [DICTIONARY]
+- Memory is organized as follows: 
+    - HERE:  cell_t (4 or 8 bytes)
+    - VHERE: cell_t (4 or 8 bytes)
+    - LAST:  cell_t (4 or 8 bytes)
+    - CODE:  byte[CODE_SZ]
+    - VARS:  byte [VARS_SZ]
+    - DICT:  starts at the top of memory and grows down into VARS
 - HERE ("(here) @") is a byte offset into the memory, not an absolute address.
 - LAST ("(last) @") is a byte offset into the memory space, not an absolute address.
 - VHERE ("(vhere) @") is a byte offset to the first available byte in the VARIABLE space.
@@ -254,7 +260,7 @@ I        (--n)             n: Current DO/LOOP index
 J        (--n)             n: Index of next-most outer loop
 UNLOOP   (--)              Drop top 3 entries from the loop stack (unwind loop).
                      NOTE: Use IF UNLOOP EXIT THEN to break out of a loop prematurely and exit the word.
-BEGIN    (f--)             Start BEGIN/WHILE/UNTIL/AGAIN loop.
+BEGIN    (--)              Start BEGIN/WHILE/UNTIL/AGAIN loop.
 WHILE    (f--)             If f==0, jump to BEGIN, else DROP f and continue.
 UNTIL    (f--)             If f<>0, jump to BEGIN, else DROP f and continue.
 AGAIN    (--)              Jump to BEGIN. Use <condition> IF UNLOOP EXIT THEN to break out.
