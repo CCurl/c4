@@ -20,8 +20,13 @@ To these ends, I have wandered off the beaten path in the following ways:
 - These primitves ARE NOT case sensitive (DUP = dup = Dup).
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
-- A dictionary entry looks like this: (xt,flags,lexicon,word-len,word(15),null terminator).
-- The maximum length of a word is configurable. (#define NAME_LEN xx)
+- The maximum length of a word-name is configurable. (#define NAME_LEN 15)
+- A dictionary entry looks like this:
+    - xt:      unsigned short
+    - flags:   byte
+    - lexicon: byte
+    - length:  byte
+    - name:    char[NAME_LEN]
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
 - All CODE addresses are offsets into the CODE space, not absolute addresses.
 - Memory is organized as follows: 
