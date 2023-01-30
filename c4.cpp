@@ -746,6 +746,15 @@ int doParseWord() {
         return 1;
     }
 
+    if (strEqI(wd, "ELSE")) {
+        CELL tgt = pop();
+        CComma('G');
+        push(HERE);
+        WComma(0);
+        SET_WORD(CA(tgt), (WORD)HERE);
+        return 1;
+    }
+
     if (strEqI(wd, "THEN")) {
         CELL tgt = pop();
         SET_WORD(CA(tgt), (WORD)HERE);

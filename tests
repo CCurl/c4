@@ -4,7 +4,7 @@ reset
 
 12345 constant xxx xxx .
 
-: T1 IF 'Y' EMIT EXIT THEN 'N' EMIT ; cr 1 T1 0 T1 
+: T1 IF 'Y' ELSE 'N' THEN EMIT ; cr 1 T1 0 T1 
 : T2 cr 1 2 3 + + . cr 42 19 do i . loop cr 19 42 do i . -1 +loop ; T2 
 : T3 cr 20 s1 begin r1 . d1 r1 while ; T3
 : T4 cr +tmps 123 445 s2 s1 r1 . r2 . -tmps ; T4 

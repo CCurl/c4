@@ -20,7 +20,6 @@ To these ends, I have wandered off the beaten path in the following ways:
 - These primitves ARE NOT case sensitive (DUP = dup = Dup).
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
-- There is no ELSE, only IF/THEN. This is consistent with ColorForth.
 - A dictionary entry looks like this: (xt,flags,lexicon,word-len,word(15),null terminator).
 - The maximum length of a word is configurable. (#define NAME_LEN xx)
 - To save space, code addresses are 2 bytes, so code space is limited to 16 bits (64kb).
@@ -244,8 +243,9 @@ W!       (w a--)           Store WORD w at a.
 : Name   (--)              Begin definition of word "Name". "Name" is added to the dictionary.
 : T[0-9] (--)              Begin definition of a temporary word. Word is NOT added to the dictionary.
 ;        (--)              End current definition.
-IF       (f--)             Standard IF (NOTE: in c4, there is no ELSE).
-THEN     (--)              Standard THEN.
+IF       (f--)             Standard Forth IF.
+ELSE     (--)              Standard Forth ELSE.
+THEN     (--)              Standard Forth THEN.
 EXECUTE  (a--)             Execute CODE at address a.
 DO       (T F--)           Begin DO/LOOP loop
 LOOP     (--)              Increment I, jump to DO if I < T
