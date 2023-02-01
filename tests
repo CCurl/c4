@@ -3,27 +3,29 @@
 reset
 
 ." Running tests ..."
+
 variable test# 
 variable passed 
 variable failed
 0 passed ! 0 failed !
+
 : su dup test# ! ." %ntest #%d ... " ;
 : .res if ." -pass" passed else ." -fail" failed then 1 swap +! ;
 
-10 su 12345 constant xxx xxx 12345 = .res
+12345 constant xxx
+10 su xxx 12345 = .res
 11 su 1 2 3 + + 6 = .res
 
 : T1 IF 'Y' ELSE 'N' THEN ; 
 20 su 0 T1 'N' = .res
-33 su 0 T1 'N' = .res
+21 su 1 T1 'Y' = .res
 
 : T1 0 s1 42 19 do i r1 + s1 loop ;
 : T2 0 s1 42 19 do i r1 + s1 loop ;
+: T3 0 s2 20 s1 begin r1 r2 + s2 d1 r1 while ;
 40 su T1 r1 690 = .res
 41 su T2 r1 690 = .res
-
-: T1 0 s2 20 s1 begin r1 r2 + s2 d1 r1 while ;
-42 su T1 r2 210 = .res
+42 su T3 r2 210 = .res
 
 : T4 +tmps 123 s1 445 s2 -tmps ;
 50 su 27 s1 92 s2 T4 27 r1 = 92 r2 = and .res
@@ -60,4 +62,4 @@ cr cr 1 mil 4 / bm cr
 cr 100 .primes ." (primes in 100)%n"
 
 : nc " tests" fopen-r s1 0 s2 begin r1 fgetc nip dup if i2 then while r2 r1 fclose ;
-nc ." %n%d chars in 'tests'."
+nc ." %n%d chars in file 'tests'."
