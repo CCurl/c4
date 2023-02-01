@@ -60,7 +60,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 ```
 
 ## Temporary variables (registers):
-- Trmporary variables/registers are named r0..r9 (case-sensitive).
+- Temporary variables/registers are named r0..r9 (case-sensitive).
 - They are allocated in sets of 10.
 - They are completely under the control of the programmer.
 - They are not built into the call sequence, so they can be accessed across words.

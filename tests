@@ -2,15 +2,50 @@
 
 reset
 
-12345 constant xxx xxx .
+." Running tests ..."
+variable test# 
+variable passed 
+variable failed
+0 passed ! 0 failed !
+: su dup test# ! ." %ntest #%d ... " ;
+: .res if ." -pass" passed else ." -fail" failed then 1 swap +! ;
 
-: T1 IF 'Y' ELSE 'N' THEN EMIT ; cr 1 T1 0 T1 
-: T2 cr 1 2 3 + + . cr 42 19 do i . loop cr 19 42 do i . -1 +loop ; T2 
-: T3 cr 20 s1 begin r1 . d1 r1 while ; T3
-: T4 cr +tmps 123 445 s2 s1 r1 . r2 . -tmps ; T4 
-: T5 cr +tmps 666 777 s2 s1 r1 . r2 . T4 r1 . r2 . ; T5
-: T6 s6 DO I . i r6 = IF ." -out6" UNLOOP EXIT THEN LOOP ." error!" ; 80 52 72 T6
-: no-tmps +tmps 2553 s1 r1 ." , now %d" ; r1 ." %nr1=%d" no-tmps r1 ." , back r1=%d"
+10 su 12345 constant xxx xxx 12345 = .res
+11 su 1 2 3 + + 6 = .res
+
+: T1 IF 'Y' ELSE 'N' THEN ; 
+20 su 0 T1 'N' = .res
+33 su 0 T1 'N' = .res
+
+: T1 0 s1 42 19 do i r1 + s1 loop ;
+: T2 0 s1 42 19 do i r1 + s1 loop ;
+40 su T1 r1 690 = .res
+41 su T2 r1 690 = .res
+
+: T1 0 s2 20 s1 begin r1 r2 + s2 d1 r1 while ;
+42 su T1 r2 210 = .res
+
+: T4 +tmps 123 s1 445 s2 -tmps ;
+50 su 27 s1 92 s2 T4 27 r1 = 92 r2 = and .res
+
+: T4 +tmps 123 s1 445 s2 ; ( no "-tmps" )
+51 su 27 s1 92 s2 T4 27 r1 = 92 r2 = and .res
+
+: T6 s6 0 s7 DO I r6 = IF I s7 EXIT THEN LOOP ;
+55 su 80 52 72 T6 r6 r7 = .res
+
+: T1 9 BEGIN 1+ DUP 34 < WHILE ;
+60 su T1 34 = .res
+
+: T2 8 BEGIN 1+ DUP 27 = UNTIL ;
+61 su T2 27 = .res
+
+: T3 8 s1 BEGIN i1 r1 30 > IF UNLOOP EXIT THEN AGAIN ;
+62 su T3 r1 31 = .res
+
+failed @ passed @ ." %n %d passed, %d failed%n%n"
+
+
 : prime? ( n--f ) 1 s2 s1 begin 
 		i2 i2 r1 r2 /mod 0= IF 0= unloop exit THEN 
 		r2 >
@@ -18,18 +53,11 @@ reset
 : primes ( n1--n2 ) +tmps 4 s5 11 DO I prime? IF i5 THEN 2 +LOOP r5 -tmps ;
 : .primes ( n1-- )  1 . 2 . 3 DO I prime? IF I . THEN 2 +LOOP ;
 : elapsed timer swap - ;
-: bm timer SWAP primes . elapsed ." primes. (%d ms)" ;
+: bm DUP s1 timer SWAP primes . elapsed r1 ." primes in %d. (%d ms)" ;
 : mil 1000 DUP * * ;
 cr 71 prime? ."  71 prime? (%d)%n"
 cr cr 1 mil 4 / bm cr
 cr 100 .primes ." (primes in 100)%n"
 
-: T1 ." %nx1-" 9 BEGIN DUP . 1+ DUP 34 < WHILE ." -out1" DROP ;
-: T2 ." %nx2-" 8 BEGIN DUP . 1+ DUP 27 = UNTIL ." -out2" DROP ;
-: T3 ." %nx3-" 8 s1 BEGIN r1 . i1 r1 30 > IF ." -out3" UNLOOP EXIT THEN AGAIN ." -error!" ;
-T1 T2 T3
-
 : nc " tests" fopen-r s1 0 s2 begin r1 fgetc nip dup if i2 then while r2 r1 fclose ;
 nc ." %n%d chars in 'tests'."
-
-CR words
