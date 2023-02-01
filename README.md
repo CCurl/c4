@@ -17,7 +17,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - This is NOT an ANSI-standard Forth system.
 - This is a byte-coded implementation.
 - Many primitives (core words) are built into the base system, and are not included in the dictionary.
-- These primitves ARE NOT case sensitive (DUP = dup = Dup).
+- These primitives ARE NOT case sensitive (DUP = dup = Dup).
 - User-defined words ARE case sensitive.
 - The dictionary is separated from the CODE.
 - The maximum length of a word-name is configurable. (#define NAME_LEN 15)
@@ -42,10 +42,10 @@ To these ends, I have wandered off the beaten path in the following ways:
 - The VARIABLE space is separated from the CODE space, and can be larger than 64kb.
 - There are 10 temporary words (T0..T9) that can be re-defined without any dictionary overhead.
 - There are 10 temporary/local variables (r0..r9) that can be allocated/destroyed.
-- There is support for up to 255 lexicons. C4 core words are in lexicon 0.
+- There is support for up to 255 lexicons. The c4 core words are in lexicon 0.
 
 ## Temporary words:
-- A temporary word is named T0 .. T9. 
+- A temporary word is named T0 .. T9 (case-sensitive).
 - I think of temporary words as named transient words that don't incur any dictionary overhead.
 - For example, ": T4 ... ;" will define word T4, but T4 is not added to the dictionary.
 - Their purpose is to support code reuse and factoring without the overhead of a dictionary entriy.
@@ -60,13 +60,14 @@ To these ends, I have wandered off the beaten path in the following ways:
 ```
 
 ## Temporary variables (registers):
-- Temporary variables are allocated in sets of 10.
+- Trmporary variables/registers are named r0..r9 (case-sensitive).
+- They are allocated in sets of 10.
 - They are completely under the control of the programmer.
 - They are not built into the call sequence, so they can be accessed across words.
 - They are not set or retrieved using @ and !.
 - There are 5 special operations for temp variables: read, set, increment, decrement, and increment-cell
-- The words to manage temps are: +tmps, r0..r9, s0..s9, c0..c9, i0..i9, d0..d9 and -tmps
-  - +tmps: allocate 10 new temps
+- The words to manage temps are: +tmps, rX, sX, cX, iX, dX and -tmps, where x is [0..9].
+  - +tmps: allocate 10 new temps, r0 .. r9
   - rX: push the value of temp #X onto the stack (read)
   - sX: pop the new value for temp #X off the stack (set)
   - iX: increment temp #X
@@ -76,7 +77,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - Here are some simple examples:
 ```
 : betw ( n min max--f ) +tmps s3 s2 s1  r1 r2 >=  r1 r3 <=  and -tmps ;
-: .c ( n-- ) s9  r9 #32 $7e betw if r9 emit else r9 ." (%d)" then ;
+: .c ( n-- ) s9 r9 #32 $7e betw if r9 emit else r9 ." (%d)" then ;
 : dumpX ( a n-- ) over + for I c@ .c next ;
 ```
 
@@ -84,7 +85,7 @@ To these ends, I have wandered off the beaten path in the following ways:
 - A lexicon can be used to group a set of related words if desired.
 - Lexicon usage is completely optional.
 - Any or all words can be defined in lexicon 0.
-- C4 searches the current lexicon first, then lexicon 0.
+- c4 searches the current lexicon first, then lexicon 0.
 - It will not find words defined in other lexicons.
 ```
 17 constant LIFE
@@ -297,9 +298,9 @@ cX       (--)              Increment temp var X by the size of a CELL.
         NOTE: If you do +TMPS in a word, c4 will automatically -TMPS when the word exits.
 
 **** SYSTEM/OTHER ***
-C,       (n--)             Append byte N to HERE, increment HERE by 1.
-W,       (n--)             Append word N to HERE, increment HERE by 2.
-,        (n--)             Append cell N to HERE, increment HERE by the size of a CELL.
+C,       (B--)             Append byte B to HERE, increment HERE by 1.
+W,       (W--)             Append word W to HERE, increment HERE by 2.
+,        (C--)             Append cell C to HERE, increment HERE by the size of a CELL.
 .S       (--)              Output the stack.
 BL       (--c)             c: 32.
 BYE      (--)              Exit c4 (PC only).
