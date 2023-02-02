@@ -22,14 +22,14 @@ test-init
 20 T{ 0 T1 'N' = }T
 21 T{ 1 T1 'Y' = }T
 
-: T1 s6 0 s7 DO I r6 = IF I s7 EXIT THEN LOOP ;
+: T1 s6 0 s7 DO I r6 = IF I s7 UNLOOP EXIT THEN LOOP ;
 30 T{ 80 52 72 T1 r6 r7 = }T
 
 : T1 0 s1 42 19 do i r1 + s1 loop ;
-: T2 0 s1 42 19 do i r1 + s1 loop ;
+: T2 0 s1 19 42 do i r1 + s1 -1 +loop ;
 : T3 0 s2 20 s1 begin r1 r2 + s2 d1 r1 while ;
 40 T{ T1 r1 690 = }T
-41 T{ T2 r1 690 = }T
+41 T{ T2 r1 713 = }T
 42 T{ T3 r2 210 = }T
 
 : T1 +tmps 123 s1 445 s2 -tmps ;
