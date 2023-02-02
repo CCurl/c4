@@ -2,51 +2,49 @@
 
 reset
 
-." Running tests ..."
-
 variable test# 
 variable passed 
 variable failed
-0 passed ! 0 failed !
 
-: su dup test# ! ." %ntest #%d ... " ;
-: .res if ." -pass" passed else ." -fail" failed then 1 swap +! ;
+: test-init ." Running tests ... " 0 passed ! 0 failed ! ;
+: T{ test# ! ;
+: T0 test# @ ." Test %d failed%n" ;
+: }T if passed else T0 failed then 1 swap +! ;
+: .results failed @ passed @ ." %d tests passed, %d failed%n%n" ;
+
+test-init
 
 12345 constant xxx
-10 su xxx 12345 = .res
-11 su 1 2 3 + + 6 = .res
+10 T{ xxx 12345 = }T
+11 T{ 1 2 3 + + 6 = }T
 
 : T1 IF 'Y' ELSE 'N' THEN ; 
-20 su 0 T1 'N' = .res
-21 su 1 T1 'Y' = .res
+20 T{ 0 T1 'N' = }T
+21 T{ 1 T1 'Y' = }T
+
+: T1 s6 0 s7 DO I r6 = IF I s7 EXIT THEN LOOP ;
+30 T{ 80 52 72 T1 r6 r7 = }T
 
 : T1 0 s1 42 19 do i r1 + s1 loop ;
 : T2 0 s1 42 19 do i r1 + s1 loop ;
 : T3 0 s2 20 s1 begin r1 r2 + s2 d1 r1 while ;
-40 su T1 r1 690 = .res
-41 su T2 r1 690 = .res
-42 su T3 r2 210 = .res
+40 T{ T1 r1 690 = }T
+41 T{ T2 r1 690 = }T
+42 T{ T3 r2 210 = }T
 
-: T4 +tmps 123 s1 445 s2 -tmps ;
-50 su 27 s1 92 s2 T4 27 r1 = 92 r2 = and .res
-
-: T4 +tmps 123 s1 445 s2 ; ( no "-tmps" )
-51 su 27 s1 92 s2 T4 27 r1 = 92 r2 = and .res
-
-: T6 s6 0 s7 DO I r6 = IF I s7 EXIT THEN LOOP ;
-55 su 80 52 72 T6 r6 r7 = .res
+: T1 +tmps 123 s1 445 s2 -tmps ;
+: T2 +tmps 123 s1 445 s2 ; ( no "-tmps" )
+50 T{ 27 s1 92 s2 T1 27 r1 = 92 r2 = and }T
+51 T{ 27 s1 92 s2 T2 27 r1 = 92 r2 = and }T
 
 : T1 9 BEGIN 1+ DUP 34 < WHILE ;
-60 su T1 34 = .res
-
 : T2 8 BEGIN 1+ DUP 27 = UNTIL ;
-61 su T2 27 = .res
-
 : T3 8 s1 BEGIN i1 r1 30 > IF UNLOOP EXIT THEN AGAIN ;
-62 su T3 r1 31 = .res
+60 T{ T1 34 = }T
+61 T{ T2 27 = }T
+62 T{ T3 r1 31 = }T
 
-failed @ passed @ ." %n %d passed, %d failed%n%n"
-
+.results
 
 : prime? ( n--f ) 1 s2 s1 begin 
 		i2 i2 r1 r2 /mod 0= IF 0= unloop exit THEN 
