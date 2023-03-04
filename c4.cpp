@@ -191,7 +191,7 @@ DICT_E *doFindInLex(const char *name, int lex) {
     int len = strLen(name);
     DICT_E *dp = (DICT_E*)&st.bytes[LAST];
     while (dp < dictEnd) {
-        if ((len == dp->len) && (dp->lexicon == lex) && strEq(dp->name, name)) {
+        if ((len == dp->len) && (dp->lexicon == lex) && strEqI(dp->name, name)) {
             return dp;
         }
         dp++;
@@ -364,7 +364,7 @@ void fStrOps() {
     case 'e': TOS += strLen(CTOS);             break;  // STR-END
     case 'a': strCat(CTOS, CNOS); DROP2;       break;  // STR-CAT
     case 'c': strCatC(CTOS, (char)NOS); DROP2; break;  // STR-CATC
-    case '=': NOS = strEq(CTOS, CNOS); DROP1;  break;  // STR-EQ
+    case '=': NOS = strEq(CTOS, CNOS);  DROP1; break;  // STR-EQ
     case 'i': NOS = strEqI(CTOS, CNOS); DROP1; break;  // STR-EQI
     case 'l': TOS = (CELL)strLen(CTOS);        break;  // STR-LEN
     case 'r': TOS = (CELL)rTrim(CTOS);         break;  // STR-RTRIM
@@ -706,17 +706,17 @@ int QState(int sb) {
 
 int doParseWord() {
     char *wd = (char*)pop();
-    if (strEq(word, "//"))   { doExec(STATE); return 0; }
-    if (strEq(word, "\\"))   { doExec(STATE); return 0; }
+    if (strEqI(word, "//"))  { doExec(STATE); return 0; }
+    if (strEqI(word, "\\"))  { doExec(STATE); return 0; }
     if (isNum(wd))           { return doLiteral(0); }
     if (doPrim(wd))          { return 1; }
     if (doFind(wd))          { return doWord(); }
-    if (strEq(wd, ".\""))    { return doDotQuote(); }
-    if (strEq(wd, "\""))     { return doQuote('`'); }
+    if (strEqI(wd, ".\""))   { return doDotQuote(); }
+    if (strEqI(wd, "\""))    { return doQuote('`'); }
     if (strEqI(wd, "S\""))   { return doQuote('|'); }
     if (strEqI(wd, "LOAD"))  { if (getWord(wd)) { fLoad(wd); } return 0; }
 
-    if (strEq(wd, ":")) {
+    if (strEqI(wd, ":")) {
         if (QState(0)) { return 0; }
         doExec(STATE);
         fCreate();
@@ -725,7 +725,7 @@ int doParseWord() {
         return 1;
     }
 
-    if (strEq(wd, ";")) {
+    if (strEqI(wd, ";")) {
         if (QState(1)) { return 0; }
         CComma(';');
         doExec(STATE);
@@ -733,7 +733,7 @@ int doParseWord() {
         return 1;
     }
 
-    if (strEq(wd, "(")) {
+    if (strEqI(wd, "(")) {
         while (*in && (*in != ')')) { ++in; }
         if (*in == ')') { ++in; }
         return 1;
