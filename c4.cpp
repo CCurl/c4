@@ -166,10 +166,7 @@ void fWord() {
     byte *wd = BTOS;
     while (*in && (*in < 33)) { ++in; }
     int l = 0;
-    while (*in && (32 < *in)) {
-        *(wd++) = *(in++);
-        ++l;
-    }
+    while (*in && (32 < *in)) { *(wd++) = *(in++); ++l; }
     *wd = 0;
     push(l);
 }
@@ -335,8 +332,7 @@ void fDec() { --TOS; }
 void fExecute() { rpush(pc - code); pc = CA(pop()); }
 void fFloat() {
     switch (*(pc++)) {
-    case '.': printStringF("%f", fpop()); break;
-    case '$': { FLT_T x = FTOS; FTOS = FNOS; FNOS = x; } break;
+    case '.': printStringF("%g", fpop()); break;
     case 'i': FTOS = (FLT_T)TOS; break;
     case 'o': TOS = (CELL)FTOS; break;
     case '+': FNOS += FTOS; DROP1; break;
@@ -350,13 +346,13 @@ void fFloat() {
 void fGoto() { pc = CA(GET_WORD(pc)); }
 void fRetOps() {
     ir = *(pc++);
-    if (ir == '<') { rpush(pop()); }      // <R
+    if (ir == '<') { rpush(pop()); }      // >R
     if (ir == '>') { push(rpop()); }      // R>
     if (ir == '@') { push(rstk[rsp]); }   // R@
 }
 void fKey() {
-    ir = *(pc++); if (ir == '@') { push(getChar()); }  // K@
-    else if (ir == '?') { push(charAvailable()); }     // K?
+    ir = *(pc++); if (ir == '@') { push(getChar()); }  // KEY
+    else if (ir == '?') { push(charAvailable()); }     // KEY?
 }
 void fStrOps() {
     switch (*(pc++)) {
@@ -415,16 +411,16 @@ void fUser() { pc = doUser(*pc, pc+1); }
 void fSystem() { y = (byte*)pop(); system((char*)y); }
 void fExt() {
     switch (*(pc++)) {
-    case ']': fPlusLoop();                    break;
-    case 'S': fDotS();                        break;
-    case 'R': push(doRand());                 break;
-    case 'A': VHERE += pop(); oVHERE = VHERE; break;
-    case 'T': push(doTimer());                break;
-    case 'Y': fSystem();                      break;
-    case 'D': doWords();                      break;
-    case 'W': doSleep();                      break;
-    case 'C': fCreate();                      break;
-    case 'Z': vmReset();                      break;
+    case ']': fPlusLoop();                    break;  // +LOOP
+    case 'S': fDotS();                        break;  // .S
+    case 'R': push(doRand());                 break;  // RAND
+    case 'A': VHERE += pop(); oVHERE = VHERE; break;  // ALLOT
+    case 'T': push(doTimer());                break;  // TIMER
+    case 'Y': fSystem();                      break;  // SYSTEM
+    case 'D': doWords();                      break;  // WORDS
+    case 'W': doSleep();                      break;  // MS
+    case 'C': fCreate();                      break;  // CREATE
+    case 'Z': vmReset();                      break;  // RESET
     }
 }
 void X() { ir = *(pc-1);  if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
@@ -451,10 +447,7 @@ void run(WORD start) {
 // The Assembler / Parser
 // ----------------------------------
 
-typedef struct {
-    const char *name;
-    const char *op;
-} PRIM_T;
+typedef struct { const char *name; const char *op; } PRIM_T;
 
 // Words that directly map to VM operations
 PRIM_T prims[] = {
@@ -616,7 +609,6 @@ int isDecimal(const char *wd) {
     FTOS = isNeg ? -fx : fx;
     return 1;
 }
-
 
 int isNum(const char *wd) {
     if ((wd[0]=='\'') && (wd[2]=='\'') && (wd[3] == 0)) { push(wd[1]); return 1; }
