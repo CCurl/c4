@@ -31,18 +31,18 @@ inline void push(CELL v) { stk.i[++sp] = v; }
 inline CELL pop() { return stk.i[sp--]; }
 inline void rpush(CELL v) { rstk[++rsp] = v; }
 inline CELL rpop() { return rstk[rsp--]; }
-inline float fpop() { return stk.f[sp--]; }
+inline FLT_T fpop() { return stk.f[sp--]; }
 
 #ifdef NEEDS_ALIGN
-WORD GET_WORD(byte *l) { return *l | (*(l + 1) << 8); }
-long GET_LONG(byte *l) { return GET_WORD(l) | GET_WORD(l + 2) << 16; }
-void SET_WORD(byte *l, WORD v) { *l = (v & 0xff); *(l + 1) = (byte)(v >> 8); }
-void SET_LONG(byte *l, long v) { SET_WORD(l, v & 0xFFFF); SET_WORD(l + 2, (WORD)(v >> 16)); }
+    WORD GET_WORD(byte *l) { return *l | (*(l + 1) << 8); }
+    long GET_LONG(byte *l) { return GET_WORD(l) | GET_WORD(l + 2) << 16; }
+    void SET_WORD(byte *l, WORD v) { *l = (v & 0xff); *(l + 1) = (byte)(v >> 8); }
+    void SET_LONG(byte *l, long v) { SET_WORD(l, v & 0xFFFF); SET_WORD(l + 2, (WORD)(v >> 16)); }
 #else
-inline WORD GET_WORD(byte *a) { return *(WORD*)a; }
-inline long GET_LONG(byte *a) { return *(long*)a; }
-inline void SET_WORD(byte *a, WORD v) { *(WORD*)a = v; }
-inline void SET_LONG(byte *a, long v) { *(long*)a = v; }
+    inline WORD GET_WORD(byte *a) { return *(WORD*)a; }
+    inline long GET_LONG(byte *a) { return *(long*)a; }
+    inline void SET_WORD(byte *a, WORD v) { *(WORD*)a = v; }
+    inline void SET_LONG(byte *a, long v) { *(long*)a = v; }
 #endif // NEEDS_ALIGN
 
 void CComma(CELL v) { code[HERE++] = (byte)v; }
@@ -160,17 +160,13 @@ void fCommaOp() {
     if (ir == '1') { CComma(pop()); }
     else if (ir == '2') { WComma(pop()); }
     else if (ir == '4') { Comma(pop()); }
-    // if (oHERE < HERE) { oHERE = HERE; }
 }
 
 void fWord() {
     byte *wd = BTOS;
     while (*in && (*in < 33)) { ++in; }
     int l = 0;
-    while (*in && (32 < *in)) {
-        *(wd++) = *(in++);
-        ++l;
-    }
+    while (*in && (32 < *in)) { *(wd++) = *(in++); ++l; }
     *wd = 0;
     push(l);
 }
@@ -336,9 +332,8 @@ void fDec() { --TOS; }
 void fExecute() { rpush(pc - code); pc = CA(pop()); }
 void fFloat() {
     switch (*(pc++)) {
-    case '.': printStringF("%f", fpop()); break;
-    case '$': { float x = FTOS; FTOS = FNOS; FNOS = x; } break;
-    case 'i': FTOS = (float)TOS; break;
+    case '.': printStringF("%g", fpop()); break;
+    case 'i': FTOS = (FLT_T)TOS; break;
     case 'o': TOS = (CELL)FTOS; break;
     case '+': FNOS += FTOS; DROP1; break;
     case '-': FNOS -= FTOS; DROP1; break;
@@ -351,13 +346,13 @@ void fFloat() {
 void fGoto() { pc = CA(GET_WORD(pc)); }
 void fRetOps() {
     ir = *(pc++);
-    if (ir == '<') { rpush(pop()); }      // <R
+    if (ir == '<') { rpush(pop()); }      // >R
     if (ir == '>') { push(rpop()); }      // R>
     if (ir == '@') { push(rstk[rsp]); }   // R@
 }
 void fKey() {
-    ir = *(pc++); if (ir == '@') { push(getChar()); }  // K@
-    else if (ir == '?') { push(charAvailable()); }     // K?
+    ir = *(pc++); if (ir == '@') { push(getChar()); }  // KEY
+    else if (ir == '?') { push(charAvailable()); }     // KEY?
 }
 void fStrOps() {
     switch (*(pc++)) {
@@ -410,22 +405,22 @@ void fSQuote() { t1 = 0; push((CELL)pc); while (*(pc++)) { ++t1; } push(t1); }
 void fZQuote() { fSQuote(); DROP1; }
 void fBLit() { push(*(pc++)); }
 void fWLit() { push(GET_WORD(pc)); pc += 2; }
-void fLit() { push(GET_LONG(pc)); pc += 4; }
-void fVarAddr() { t1 = GET_LONG(pc); pc += 4; push((CELL)&vars[t1]); }
+void fLit() { push(GET_LONG(pc)); pc += CELL_SZ; }
+void fVarAddr() { t1 = GET_LONG(pc); pc += CELL_SZ; push((CELL)&vars[t1]); }
 void fUser() { pc = doUser(*pc, pc+1); }
 void fSystem() { y = (byte*)pop(); system((char*)y); }
 void fExt() {
     switch (*(pc++)) {
-    case ']': fPlusLoop();                    break;
-    case 'S': fDotS();                        break;
-    case 'R': push(doRand());                 break;
-    case 'A': VHERE += pop(); oVHERE = VHERE; break;
-    case 'T': push(doTimer());                break;
-    case 'Y': fSystem();                      break;
-    case 'D': doWords();                      break;
-    case 'W': doSleep();                      break;
-    case 'C': fCreate();                      break;
-    case 'Z': vmReset();                      break;
+    case ']': fPlusLoop();                    break;  // +LOOP
+    case 'S': fDotS();                        break;  // .S
+    case 'R': push(doRand());                 break;  // RAND
+    case 'A': VHERE += pop(); oVHERE = VHERE; break;  // ALLOT
+    case 'T': push(doTimer());                break;  // TIMER
+    case 'Y': fSystem();                      break;  // SYSTEM
+    case 'D': doWords();                      break;  // WORDS
+    case 'W': doSleep();                      break;  // MS
+    case 'C': fCreate();                      break;  // CREATE
+    case 'Z': vmReset();                      break;  // RESET
     }
 }
 void X() { ir = *(pc-1);  if (ir) { printStringF("-invIr:%d-", ir); } pc = 0; }
@@ -452,10 +447,7 @@ void run(WORD start) {
 // The Assembler / Parser
 // ----------------------------------
 
-typedef struct {
-    const char *name;
-    const char *op;
-} PRIM_T;
+typedef struct { const char *name; const char *op; } PRIM_T;
 
 // Words that directly map to VM operations
 PRIM_T prims[] = {
@@ -494,7 +486,7 @@ PRIM_T prims[] = {
     // Binary/bitwise
     { "AND", "b&"},         { "OR", "b|"},          { "XOR", "b^"},
     { "INVERT", "b~"},      { "LSHIFT", "bL"},      { "RSHIFT", "bR"},
-    // Float
+    // Float/double
     { "I>F", "Fi"},         { "F>I", "Fo"},         { "F+", "F+"},
     { "F-", "F-"},          { "F*", "F*"},          { "F/", "F/"},
     { "F<", "F<"},          { "F>", "F>"},          { "F.", "F."},
@@ -526,8 +518,7 @@ PRIM_T prims[] = {
     { "EDIT","uE"},         // |EDIT|zE|(n--)|Edit block n|
 #endif
 #ifdef __GAMEPAD__
-    // Extension: GAMEPAD operations
-    { "gp-button","xGB"},
+    { "gp-button","xGB"},   // Extension: GAMEPAD operations
 #endif
     {0,0}
 };
@@ -608,16 +599,15 @@ int isDecimal(const char *wd) {
     while (BTW(*wd, '0', '9')) { x=(x*10)+(*(wd++)-'0'); }
     if (*wd && (*wd != '.')) { return 0; }
     if (*wd == 0) { push(isNeg ? -x : x); return 1; }
-    // Must be a '.', make it a float
+    // Must be a '.', make it a float/double
     ++wd;
-    float fx = (float)x, d = 10;
+    FLT_T fx = (FLT_T)x, d = 10;
     while (BTW(*wd, '0', '9')) { fx += (*(wd++) - '0') / d; d *= 10; }
     if (*wd) { return 0; }
     push(0);
     FTOS = isNeg ? -fx : fx;
     return 1;
 }
-
 
 int isNum(const char *wd) {
     if ((wd[0]=='\'') && (wd[2]=='\'') && (wd[3] == 0)) { push(wd[1]); return 1; }
