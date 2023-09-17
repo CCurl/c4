@@ -15,36 +15,36 @@
 #define _FLT_       float
 
 #ifdef _WIN32
-#define __BOARD__     PC
-#define __TARGET__    WINDOWS
-#include <Windows.h>
-#include <conio.h>
-#define CODE_SZ      ( 64*1024)
-#define VARS_SZ      (256*1024)
-#define STK_SZ        32
-#define LSTK_SZ       32
-#define LOCALS_SZ    160
-#define FLT_SZ        10
-#define __FILES__
-// #define USE_ACCEPT
+    #define __BOARD__     PC
+    #define __TARGET__    WINDOWS
+    #include <Windows.h>
+    #include <conio.h>
+    #define CODE_SZ      ( 64*1024)
+    #define VARS_SZ      (256*1024)
+    #define STK_SZ        32
+    #define LSTK_SZ       32
+    #define LOCALS_SZ    160
+    #define FLT_SZ        10
+    #define __FILES__
+    // #define USE_ACCEPT
 #endif
 
 #ifdef _LINUX
-#define __BOARD__     PC
-#define __TARGET__    LINUX
-#include <unistd.h>
-#include <termios.h>
-#define CODE_SZ      ( 64*1024)
-#define VARS_SZ      (256*1024)
-#define STK_SZ        64
-#define LSTK_SZ       32
-#define LOCALS_SZ    160
-#define FLT_SZ        10
-#define __FILES__
-#if __LONG_MAX__ > __INT32_MAX__
-#undef  _FLT_
-#define _FLT_       double
-#endif
+    #define __BOARD__     PC
+    #define __TARGET__    LINUX
+    #include <unistd.h>
+    #include <termios.h>
+    #define CODE_SZ      ( 64*1024)
+    #define VARS_SZ      (256*1024)
+    #define STK_SZ        64
+    #define LSTK_SZ       32
+    #define LOCALS_SZ    160
+    #define FLT_SZ        10
+    #define __FILES__
+    #if __LONG_MAX__ > __INT32_MAX__
+        #undef  _FLT_
+        #define _FLT_       double
+    #endif
 #endif
 
 #include <stdlib.h>
@@ -53,55 +53,55 @@
 #include <time.h>
 
 #ifndef __BOARD__
-#define __BOARD__    TEENSY4
+    #define __BOARD__    TEENSY4
 #endif
 
 #if __BOARD__ == TEENSY4
-#define CODE_SZ      (48*1024)
-#define VARS_SZ      (96*1024)
-#define STK_SZ        64
-#define LSTK_SZ       32
-#define LOCALS_SZ    160
-#define FLT_SZ        10
-#define __PIN__
-#define __FILES__
-// #define __EDITOR__
-#define NEEDS_ALIGN
+    #define CODE_SZ      (48*1024)
+    #define VARS_SZ      (96*1024)
+    #define STK_SZ        64
+    #define LSTK_SZ       32
+    #define LOCALS_SZ    160
+    #define FLT_SZ        10
+    #define __PIN__
+    #define __FILES__
+    // #define __EDITOR__
+    #define NEEDS_ALIGN
 #elif __BOARD__ == PICO
-#define CODE_SZ      (48*1024)
-#define VARS_SZ      (96*1024)
-#define STK_SZ        64
-#define LSTK_SZ       32
-#define LOCALS_SZ    160
-#define FLT_SZ        10
-#define __PIN__
-// #define __FILES__
-// #define __EDITOR__
-#define NEEDS_ALIGN
+    #define CODE_SZ      (48*1024)
+    #define VARS_SZ      (96*1024)
+    #define STK_SZ        64
+    #define LSTK_SZ       32
+    #define LOCALS_SZ    160
+    #define FLT_SZ        10
+    #define __PIN__
+    // #define __FILES__
+    // #define __EDITOR__
+    #define NEEDS_ALIGN
 #elif __BOARD__ == XIAO
-#undef NAME_LEN
-#define NAME_LEN      12
-#define CODE_SZ      (10*1024)
-#define VARS_SZ      (10*1024)
-#define STK_SZ        32
-#define LSTK_SZ       16
-#define LOCALS_SZ     80
-#define FLT_SZ         8
-#define __PIN__
-#define NEEDS_ALIGN
-// #define __GAMEPAD__
+    #undef NAME_LEN
+    #define NAME_LEN      12
+    #define CODE_SZ      (10*1024)
+    #define VARS_SZ      (10*1024)
+    #define STK_SZ        32
+    #define LSTK_SZ       16
+    #define LOCALS_SZ     80
+    #define FLT_SZ         8
+    #define __PIN__
+    #define NEEDS_ALIGN
+    // #define __GAMEPAD__
 #elif __BOARD__ == ESP8266
-#undef NAME_LEN
-#define NAME_LEN      12
-#define CODE_SZ      (14*1024)
-#define VARS_SZ      (12*1024)
-#define STK_SZ        32
-#define LSTK_SZ       16
-#define LOCALS_SZ     80
-#define FLT_SZ         8
-#define __PIN__
-#define NEEDS_ALIGN
-// #define __GAMEPAD__
+    #undef NAME_LEN
+    #define NAME_LEN      12
+    #define CODE_SZ      (14*1024)
+    #define VARS_SZ      (12*1024)
+    #define STK_SZ        32
+    #define LSTK_SZ       16
+    #define LOCALS_SZ     80
+    #define FLT_SZ         8
+    #define __PIN__
+    #define NEEDS_ALIGN
+    // #define __GAMEPAD__
 #endif
 
 #define TOS           stk.i[sp]
