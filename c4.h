@@ -41,7 +41,7 @@
 #define LOCALS_SZ    160
 #define FLT_SZ        10
 #define __FILES__
-#if __LONG__ > __INT32__
+#if __LONG_MAX__ > __INT32_MAX__
 #undef  _FLT_
 #define _FLT_       double
 #endif
