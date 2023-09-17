@@ -518,8 +518,7 @@ PRIM_T prims[] = {
     { "EDIT","uE"},         // |EDIT|zE|(n--)|Edit block n|
 #endif
 #ifdef __GAMEPAD__
-                            // Extension: GAMEPAD operations
-    { "gp-button","xGB"},
+    { "gp-button","xGB"},   // Extension: GAMEPAD operations
 #endif
     {0,0}
 };
