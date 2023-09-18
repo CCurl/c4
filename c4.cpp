@@ -327,6 +327,7 @@ void fLt() { NOS = (NOS <  TOS) ? 1 : 0; DROP1; }
 void fEq() { NOS = (NOS == TOS) ? 1 : 0; DROP1; }
 void fLNot() { TOS = (TOS) ? 0 : 1; }
 void fIf() { if (pop() == 0) { pc = CA(GET_WORD(pc)); } else { pc += 2; } }
+void fIf1() { if (pop() == 0) { while (*(pc++)) { if (*(pc-1)==')') return; } } }
 void fInc() { ++TOS; }
 void fDec() { --TOS; }
 void fExecute() { rpush(pc - code); pc = CA(pop()); }
@@ -428,7 +429,7 @@ void N() {}
 
 void (*q[128])() = {
     X,fBLit,fWLit,X,fLit,X,X,X,X,X,N,X,X,N,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,                   //   0:31
-    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,N,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,        //  32:47
+    N,fStore,fTypeF1,fDup,fSwap,fOver,fSlashMod,fBLit,fIf1,N,fMult,fAdd,fEmit,fSub,fDot,fDiv,     //  32:47
     fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fNum,fCall,fRet,fLt,fEq,fGt,fIf,                 //  48:63
     fFetch,X,X,fCharOp,fDec,fExecute,fFloat,fGoto,X,fIndex,fIndex2,fKey,X,fMod,X,fCommaOp,        //  64:79
     fInc,X,fRetOps,fStrOps,fType,X,X,X,X,X,fTypeF2,fDo,fDrop,fLoop,fLeave,fNegate,                //  80:95
