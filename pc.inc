@@ -200,7 +200,9 @@ void fLoad(const char *fn) {
 
 byte *doUser(CELL ir, byte *pc) {
     switch (ir) {
+#ifdef __EDITOR__
     case 'E': doEditor();                break;
+#endif
     case 'Q': isBye=1; pc=0;             break;
     default: printString("-unk ext-");
     }

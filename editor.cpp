@@ -13,20 +13,24 @@ void doEditor() {}
 
 #include <stdio.h>
 
-#define LLEN       100
-#define NUM_LINES   20
+#define LLEN        96
+#define NUM_LINES   32
 #define BLOCK_SZ    (NUM_LINES)*(LLEN)
 #define MAX_CUR     (BLOCK_SZ-1)
 #define SETC(c)     edLines[line][off]=c
-#define NL_CHAR     190
+#define FAKE_NL     190
 int line, off, blkNum;
 int cur, isDirty = 0;
 char theBlock[BLOCK_SZ];
 const char* msg = NULL;
-byte edLines[NUM_LINES][LLEN];
+char edLines[NUM_LINES][LLEN];
+
+extern char *sprintF(char *dst, const char *fmt, ...);
+extern int strLen(const char *cp);
 
 void GotoXY(int x, int y) { printStringF("\x1B[%d;%dH", y, x); }
 void CLS() { printString("\x1B[2J"); GotoXY(1, 1); }
+void ClearEOL() { printString("\x1B[K"); }
 void CursorOn() { printString("\x1B[?25h"); }
 void CursorOff() { printString("\x1B[?25l"); }
 void Color(int c, int bg) {
@@ -37,7 +41,8 @@ void NormLO() {
     if (line < 0) { line = 0; }
     if (NUM_LINES <= line) { line = NUM_LINES - 1; }
     if (off < 0) { off = 0; }
-    if (LLEN <= off) { off = LLEN - 1; }
+    int len = strLen(edLines[line]);
+    if (len < off) { off = len; }
 }
 
 char edChar(int l, int o) {
@@ -45,14 +50,11 @@ char edChar(int l, int o) {
     return c ? c : ' ';
 }
 
-void showLine(int l) {
+void showLine(int ln) {
     // CursorOff();
-    GotoXY(1, l + 1);
-    for (int o = 0; o < LLEN; o++) {
-        char c = edChar(l, o);
-        printChar(c);
-    }
-    printString("   ");
+    GotoXY(1, ln + 1);
+    printString(edLines[ln]);
+    ClearEOL();
     // CursorOn();
 }
 
@@ -89,14 +91,14 @@ int edGetChar() {
         c = getChar();
         if (c == '[') {
             c = getChar();
-            if (c == 'A') { return 'w'; } // up
-            if (c == 'B') { return 's'; } // down
-            if (c == 'C') { return 'd'; } // right
-            if (c == 'D') { return 'a'; } // left
-            if (c == '1') { if (getChar() == '~') { return 'q'; } } // home
-            if (c == '4') { if (getChar() == '~') { return 'e'; } } // end
-            if (c == '5') { if (getChar() == '~') { return 't'; } } // top (pgup)
-            if (c == '6') { if (getChar() == '~') { return 'l'; } } // last (pgdn)
+            if (c == 'D') { return 'h'; } // left
+            if (c == 'B') { return 'j'; } // down
+            if (c == 'A') { return 'k'; } // up
+            if (c == 'C') { return 'l'; } // right
+            if (c == '1') { if (getChar() == '~') { return '_'; } } // home
+            if (c == '4') { if (getChar() == '~') { return '$'; } } // end
+            if (c == '5') { if (getChar() == '~') { return 'g'; } } // top (pgup)
+            if (c == '6') { if (getChar() == '~') { return 'G'; } } // last (pgdn)
             if (c == '3') { if (getChar() == '~') { return 'x'; } } // del
         }
         return c;
@@ -106,14 +108,14 @@ int edGetChar() {
         // other keys are 224, [GOIQS]
         if (c == 224) {
             c = getChar();
-            if (c == 'H') { return 'w'; } // up
-            if (c == 'P') { return 's'; } // down
-            if (c == 'M') { return 'd'; } // right
-            if (c == 'K') { return 'a'; } // left
-            if (c == 'G') { return 'q'; } // home
-            if (c == 'O') { return 'e'; } // end
-            if (c == 'I') { return 't'; } // top pgup (pgup)
-            if (c == 'Q') { return 'l'; } // last (pgdn)
+            if (c == 'K') { return 'h'; } // left
+            if (c == 'P') { return 'j'; } // down
+            if (c == 'H') { return 'k'; } // up
+            if (c == 'M') { return 'l'; } // right
+            if (c == 'G') { return '_'; } // home
+            if (c == 'O') { return '$'; } // end
+            if (c == 'I') { return 'g'; } // top pgup (pgup)
+            if (c == 'Q') { return 'G'; } // last (pgdn)
             if (c == 'S') { return 'x'; } // del
             return c;
         }
@@ -123,42 +125,41 @@ int edGetChar() {
 
 void clearBlock() {
     for (int i = 0; i < BLOCK_SZ; i++) {
-        theBlock[i] = 32;
+        theBlock[i] = 0;
         // if ((i % 50) == 0) { theBlock[i] = 10; }
     }
 }
 
 int toBlock() {
+    clearBlock();
     int o = 0;
-    for (int y = 0; y < NUM_LINES; y++) {
+    for (int ln = 0; ln < NUM_LINES; ln++) {
         for (int x = 0; x < LLEN; x++) {
-            byte c = edLines[y][x];
-            if (c == NL_CHAR) {
-                if (o && (theBlock[o - 1] == ' ')) { theBlock[o - 1] = 13; }
-                c = 10;
-            }
-            theBlock[o++] = c;
+            byte c = edLines[ln][x];
+            if (c) { theBlock[o++] = c; }
+            else { break; }
         }
-        while (o && (theBlock[o - 1] == ' ')) { --o; }
+        theBlock[o++] = 10;
     }
-    o = BLOCK_SZ - 1;
-    while (o && (theBlock[o] == ' ')) { o--; }
-    return o + 1;
+    return o;
 }
 
 void toLines() {
     int o = 0, x = 0, ln = 0;
-    while (o < BLOCK_SZ) {
+    while ((o < BLOCK_SZ) && theBlock[o]) {
         byte c = theBlock[o++];
-        if (c == 10) { c = NL_CHAR; }
-        edLines[ln][x++] = (c < 32) ? ' ' : c;
-        if (LLEN <= x) {
-            // while (x < LLEN) { edLines[y][x++] = ' '; }
-            // ++y;
-            if (NUM_LINES <= (++ln)) { return; }
+        if ((c == 10) || (c == FAKE_NL)) {
+            edLines[ln++][x] = 0;
+            if (NUM_LINES <= ln) { return; }
             x = 0;
+            continue;
+        }
+        if (x < LLEN) {
+            edLines[ln][x++] = (c < 32) ? ' ' : c;
         }
     }
+    edLines[ln++][x] = 0;
+    while (ln < NUM_LINES) { edLines[ln++][0] = 0; }
 }
 
 void edRdBlk() {
@@ -166,17 +167,16 @@ void edRdBlk() {
     char buf[24];
     sprintF(buf, "./block-%03d.4th", blkNum);
     push((CELL)buf);
-    push(0);
+    push(1);
     fOpen();
     msg = "-noFile-";
     CELL fh = pop();
     if (fh) {
-        for (int i = 0; i < BLOCK_SZ; i++) {
-            push(fh);
-            fRead();
-            if (pop()) { theBlock[i] = (byte)pop(); }
-            else { pop(); break; }
-        }
+        push((CELL) theBlock);
+        push(BLOCK_SZ);
+        push(fh);
+        fRead();
+        pop();
         msg = "-loaded-";
         push(fh);
         fClose();
@@ -190,21 +190,23 @@ void edSvBlk() {
     char buf[24];
     sprintF(buf, "./block-%03d.4th", blkNum);
     push((CELL)buf);
-    push(1);
+    push(2);
     fOpen();
-    msg = "-err-";
+    msg = "-err:open-";
     CELL fh = pop();
     if (fh) {
-        for (int i = 0; i < BLOCK_SZ; i++) {
-            push(theBlock[i]);
-            push(fh);
-            fWrite();
+        push((CELL)theBlock);
+        push(sz);
+        push(fh);
+        fWrite();
+        if (pop() != sz) { msg = "-err:sz-"; }
+        else {
+            msg = "-saved-";
+            cur = isDirty = 0;
         }
         push(fh);
         fClose();
-        msg = "-saved-";
     }
-    cur = isDirty = 0;
 }
 
 void showFooter() {
@@ -216,7 +218,8 @@ void showFooter() {
     printString("\r\n  (x)del char (r)eplace (i)nsert");
     printString("\r\n  (W)rite (L)reLoad (+)next (-)prev (Q)uit");
     printString("\r\n  (D)efine (C)ompile (I)nterp (A)sm (M)Comment");
-    printString("\r\n-> \x8");
+    printString("\r\n->");
+    ClearEOL();
 }
 
 void showEditor() {
@@ -247,6 +250,7 @@ void insertChar(char c, int refresh) {
         edLines[line][o] = edLines[line][o - 1];
     }
     SETC(c);
+    mv(0, 1);
     isDirty = 1;
     if (refresh) {
         showLine(line);
@@ -256,6 +260,8 @@ void insertChar(char c, int refresh) {
 
 void edType(int isInsert) {
     CursorOff();
+    if (isInsert) { printString(" -insert-"); }
+    else { printString(" -replace-"); }
     while (1) {
         byte c = getChar();
         if (c == 27) { return; }
@@ -266,13 +272,22 @@ void edType(int isInsert) {
                 if (isInsert) { deleteChar(); }
                 else { SETC(' '); }
             }
+        } else {
+            char ch = (c < ' ') ? ' ' : c;
+            if (c == 13) { ch = FAKE_NL; }
+            if (isInsert) { 
+                insertChar(ch, 0);
+                if (c == 13) {
+                    toBlock();
+                    toLines();
+                    mv(1, -99);
+                    showEditor();
+                }
+            } else {
+                edSetCh(ch);
+                showLine(line);
+            }
         }
-        else {
-            if (c == 13) { c = NL_CHAR; }
-            if (c < 32) { c = ' '; }
-            edSetCh(c);
-        }
-        showLine(line);
         showCursor();
         isDirty = 1;
     }
@@ -282,27 +297,27 @@ int processEditorChar(char c) {
     printChar(c);
     cur = (line * LLEN) + off;
     switch (c) {
-    case 'Q': toBlock();  CursorOn();           return 0;
-    case 9: mv(0, 8);                           break;
-    case 'a': mv(0, -1);                        break;
-    case 'd': mv(0, 1);                         break;
-    case 'w': mv(-1, 0);                        break;
-    case 's': mv(1, 0);                         break;
-    case 'q': mv(0, -off);                      break;
-    case 'e': mv(0, 99);                        break;
-    case 't': mv(-99, -99);                     break;
-    case 'l': mv(99, 99);                       break;
-    case 'i': edType(1);                        break;
-    case 'r': edType(0);                        break;
-    case 'x': deleteChar();                     break;
-    case 'L': edRdBlk();                        break;
-    case 'W': edSvBlk();                        break;
-    case 'n': edSetCh(NL_CHAR);                 break;
-    case '+': if (isDirty) { edSvBlk(); }
+    case 'Q': toBlock();  CursorOn();           return 0; // Quit
+    case 9: mv(0, 8);                           break;    // simple <TAB>
+    case 'h': mv(0, -1);                        break;    // left
+    case 'j': mv(1, 0);                         break;    // up
+    case 'k': mv(-1, 0);                        break;    // down
+    case 'l': mv(0, 1);                         break;    // right
+    case '_': mv(0, -99);                       break;    // home
+    case '$': mv(0, 99);                        break;    // end
+    case 'g': mv(-99, -99);                     break;    // top
+    case 'G': mv(99, -99);                      break;    // bottom
+    case 'i': edType(1);                        break;    // insert mode
+    case 'r': edType(0);                        break;    // replace mode
+    case 'x': deleteChar();                     break;    // delete char
+    case 'L': edRdBlk(); showEditor();          break;    // ReLoad block
+    case 'W': edSvBlk();                        break;    // Write block
+    case 'n': edSetCh(0); mv(1, -99);           break;    // insert Newline
+    case '+': if (isDirty) { edSvBlk(); }                 // Next block
             ++blkNum;
             edRdBlk();
             break;
-    case '-': if (isDirty) { edSvBlk(); }
+    case '-': if (isDirty) { edSvBlk(); }                 // Previous block
             blkNum -= (blkNum) ? 1 : 0;
             edRdBlk();
             break;

@@ -26,6 +26,7 @@
     #define LOCALS_SZ    160
     #define FLT_SZ        10
     #define __FILES__
+    #define __EDITOR__
     // #define USE_ACCEPT
 #endif
 
