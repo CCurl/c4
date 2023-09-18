@@ -211,7 +211,7 @@ void printString(const char *cp) { fputs(cp, stdout); }
 void printChar(char c) { putc(c, stdout); }
 
 void doHistory(const char *txt) {
-    FILE *fp = myFopen("history.txt", "at");
+    FILE *fp = myFopen("history.c4", "at");
     if (fp) {
         fputs(txt, fp);
         fclose(fp);
