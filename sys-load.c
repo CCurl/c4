@@ -2,7 +2,6 @@ extern int parseLine(const char *ln);
 
 void sys_load() {
     parseLine("\
-: 0= 0 = ; \
 : @C DUP + >CODE W@ ; \
 : !C DUP + >CODE W! ; \
 : (HERE)  0 ; : HERE  (HERE)  @C ; \
@@ -31,6 +30,9 @@ void sys_load() {
 : NIP SWAP DROP ; \
 : TUCK SWAP OVER ; \
 : ?DUP DUP IF DUP THEN ; \
+: NEGATE COM 1+ ; \
+: ABS DUP 0 < IF NEGATE THEN ; \
+: MOD /MOD DROP ; \
 : +! TUCK @ + SWAP ! ; \
 : SPACE 32 EMIT ; : . (.) SPACE ; \
 : CR 13 EMIT 10 EMIT ; : TAB 9 EMIT ; \
@@ -40,8 +42,6 @@ void sys_load() {
 : >LEX    4 + C@ ; \
 : >NAME   5 + ; \
 : lex-match? ( a--f ) >LEX LEX = LEX 0= OR ; \
-: .name ( a-- ) \
-     ; \
 : WORDS 0 DUP >R +A LAST >DICT BEGIN \
     DUP lex-match? IF \
       DUP >NAME COUNT TYPE TAB  R> 1+ >R \

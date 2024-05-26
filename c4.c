@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <stdarg.h>
 #include <time.h>
 
@@ -46,7 +45,7 @@ SE_T stk[STK_SZ];
 byte dict[DICT_SZ+1];
 byte vars[VARS_SZ];
 cell aStk[STK_SZ];
-int sp, rsp, lsp, aSp;
+short sp, rsp, lsp, aSp;
 cell lstk[60], rstk[STK_SZ];
 char tib[128], wd[32], * toIn;
 ushort code[CODE_SZ+1];
@@ -69,14 +68,17 @@ typedef struct { const char *name; short op; byte imm; } PRIM_T;
     X(SUB,    "-",       0) \
     X(MUL,    "*",       0) \
     X(DIV,    "/",       0) \
+    X(SLMOD,  "/MOD",    0) \
     X(INC,    "1+",      0) \
     X(DEC,    "1-",      0) \
     X(LT,     "<",       0) \
     X(EQ,     "=",       0) \
     X(GT,     ">",       0) \
+    X(EQ0,    "0=",      0) \
     X(AND,    "AND",     0) \
     X(OR,     "OR",      0) \
     X(XOR,    "XOR",     0) \
+    X(COM,    "COM",     0) \
     X(DO,     "DO",      0) \
     X(INDEX,  "I",       0) \
     X(LOOP,   "LOOP",    0) \
@@ -123,7 +125,6 @@ PRIM_T prims[] = {
 };
 
 void sys_load();
-#define comma(x)      code[here++]=(x)
 void push(cell x) { stk[++sp].i = x; }
 cell pop() { return (0<sp) ? stk[sp--].i : 0; }
 void rpush(cell x) { rstk[++rsp] = x; }
@@ -145,6 +146,7 @@ void strCpy(char *d, const char *s) {
     *(d) = 0;
 }
 
+void comma(x) { code[here++] = x; }
 void commaCell(cell n) {
     storeCell((cell)&code[here], n);
     here += sizeof(cell) / 2;
@@ -178,7 +180,6 @@ DE_T *addWord(const char *w) {
 
 DE_T *findWord(const char *w) {
     if (!w) { nextWord(); w = wd; }
-    // printf("\n-fw:(%s)-", w);
     int len = strLen(w);
     int cw = last;
     while (cw < DICT_SZ) {
@@ -223,7 +224,7 @@ void doSee() {
     printf("\n%04lX: %s (%04hX to %04X)", x, dp->nm, dp->xt, stop);
     while (i <= stop) {
         int op = code[i++];
-        cell x = code[i];
+        x = code[i];
         printf("\n%04X: %04X\t", i-1, op);
         switch (op) {
             case  LIT1: printf("LIT1 %ld (%lX)", x, x); i++;
@@ -303,15 +304,18 @@ void Exec(int start) {
         NCASE AND:    t = pop(); TOS &= t;
         NCASE OR:     t = pop(); TOS |= t;
         NCASE XOR:    t = pop(); TOS ^= t;
+        NCASE COM:    TOS = ~TOS;
         NCASE ADD:    t = pop(); TOS += t;
         NCASE SUB:    t = pop(); TOS -= t;
         NCASE MUL:    t = pop(); TOS *= t;
         NCASE DIV:    t = pop(); TOS /= t;
+        NCASE SLMOD:  t = TOS; n = NOS; TOS = n/t; NOS = n%t;
         NCASE INC:    ++TOS;
         NCASE DEC:    --TOS;
         NCASE LT:     t = pop(); TOS = (TOS < t);
         NCASE EQ:     t = pop(); TOS = (TOS == t);
         NCASE GT:     t = pop(); TOS = (TOS > t);
+        NCASE EQ0:    TOS = (TOS == 0) ? 1 : 0;
         NCASE CLK:    push(clock());
         NCASE JMP:    pc=code[pc];
         NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
