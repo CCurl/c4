@@ -46,7 +46,7 @@ SE_T stk[STK_SZ];
 byte dict[DICT_SZ+1];
 byte vars[VARS_SZ];
 cell aStk[STK_SZ];
-ushort sp, rsp, lsp, aSp;
+int sp, rsp, lsp, aSp;
 cell lstk[60], rstk[STK_SZ];
 char tib[128], wd[32], * toIn;
 ushort code[CODE_SZ+1];
@@ -103,6 +103,7 @@ typedef struct { const char *name; short op; byte imm; } PRIM_T;
     X(TOCODE, ">CODE",   0) \
     X(TOVARS, ">VARS",   0) \
     X(TODICT, ">DICT",   0) \
+    X(RAND,   "RAND",    0) \
     X(BYE,    "BYE",     0)
 
 #define X(op, name, imm) op,
@@ -273,6 +274,15 @@ void dotQuote() {
     quote(); comma(COUNT); comma(TYPE);
 }
 
+void doRand() {
+    static cell sd = 0;
+    if (!sd) { sd = (cell)code * clock(); }
+    sd = (sd << 13) ^ sd;
+    sd = (sd >> 17) ^ sd;
+    sd = (sd <<  5) ^ sd;
+    push(sd);
+}
+
 void Exec(int start) {
     cell t, n;
     ushort pc = start, wc;
@@ -289,7 +299,7 @@ void Exec(int start) {
         NCASE OVER:   t = NOS; push(t);
         NCASE DO:     lsp+=3; L2=pc; L0=pop(); L1=pop();
         NCASE INDEX:  push(L0);
-        NCASE LOOP:   if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? lsp-3 : 0; }
+        NCASE LOOP:   if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; }
         NCASE AND:    t = pop(); TOS &= t;
         NCASE OR:     t = pop(); TOS |= t;
         NCASE XOR:    t = pop(); TOS ^= t;
@@ -334,6 +344,7 @@ void Exec(int start) {
         NCASE TOCODE:  TOS += (cell)code;
         NCASE TOVARS:  TOS += (cell)vars;
         NCASE TODICT:  TOS += (cell)dict;
+        NCASE RAND:    doRand();
         NCASE BYE:     exit(0);
         default:      if (code[pc] != EXIT) { rpush(pc); } pc = wc;
             goto next;
