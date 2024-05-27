@@ -50,7 +50,7 @@ cell lstk[60], rstk[STK_SZ];
 char tib[128], wd[32], * toIn;
 ushort code[CODE_SZ+1];
 
-typedef struct { const char *name; short op; byte imm; } PRIM_T;
+typedef struct { short op; const char *name; byte imm; } PRIM_T;
 
 #define PRIMS \
     X(EXIT,   "EXIT",    0) \
@@ -117,7 +117,7 @@ enum _PRIM  {
 };
 
 #undef X
-#define X(op, name, imm) { name, op, imm },
+#define X(op, name, imm) { op, name, imm },
 
 PRIM_T prims[] = {
     PRIMS
