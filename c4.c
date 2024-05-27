@@ -111,7 +111,8 @@ typedef struct { short op; const char *name; byte imm; } PRIM_T;
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-    STOP, LIT1, LIT2, JMP, JMPZ, JMPNZ, PRIMS
+    STOP, LIT1, LIT2, JMP, JMPZ, JMPNZ,
+    PRIMS
 };
 
 #undef X
