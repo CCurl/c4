@@ -53,71 +53,69 @@ ushort code[CODE_SZ+1];
 typedef struct { short op; const char *name; byte imm; } PRIM_T;
 
 #define PRIMS \
-    X(EXIT,   "EXIT",    0) \
-    X(DUP,    "DUP",     0) \
-    X(SWAP,   "SWAP",    0) \
-    X(DROP,   "DROP",    0) \
-    X(OVER,   "OVER",    0) \
-    X(FET,    "@",       0) \
-    X(CFET,   "C@",      0) \
-    X(WFET,   "W@",      0) \
-    X(STO,    "!",       0) \
-    X(CSTO,   "C!",      0) \
-    X(WSTO,   "W!",      0) \
-    X(ADD,    "+",       0) \
-    X(SUB,    "-",       0) \
-    X(MUL,    "*",       0) \
-    X(DIV,    "/",       0) \
-    X(SLMOD,  "/MOD",    0) \
-    X(INC,    "1+",      0) \
-    X(DEC,    "1-",      0) \
-    X(LT,     "<",       0) \
-    X(EQ,     "=",       0) \
-    X(GT,     ">",       0) \
-    X(EQ0,    "0=",      0) \
-    X(AND,    "AND",     0) \
-    X(OR,     "OR",      0) \
-    X(XOR,    "XOR",     0) \
-    X(COM,    "COM",     0) \
-    X(DO,     "DO",      0) \
-    X(INDEX,  "I",       0) \
-    X(LOOP,   "LOOP",    0) \
-    X(ANEW,   "+A",      0) \
-    X(AGET,   "A",       0) \
-    X(ASET,   ">A",      0) \
-    X(AFREE,  "-A",      0) \
-    X(TOR,    ">R",      0) \
-    X(RAT,    "R@",      0) \
-    X(RFROM,  "R>",      0) \
-    X(EMIT,   "EMIT",    0) \
-    X(DOT,    "(.)",     0) \
-    X(COLON,  ":",       1) \
-    X(SEMI,   ";",       1) \
-    X(IMM,  "IMMEDIATE", 1) \
-    X(CREATE, "CREATE",  1) \
-    X(COMMA,  ",",       0) \
-    X(CLK,    "TIMER",   0) \
-    X(SEE,    "SEE",     1) \
-    X(COUNT,  "COUNT",   0) \
-    X(TYPE,   "TYPE",    0) \
-    X(QUOTE,  "\"",      1) \
-    X(DOTQT,  ".\"",     1) \
-    X(TOCODE, ">CODE",   0) \
-    X(TOVARS, ">VARS",   0) \
-    X(TODICT, ">DICT",   0) \
-    X(RAND,   "RAND",    0) \
-    X(BYE,    "BYE",     0)
+    X(EXIT,   "EXIT",    0, { if (0<rsp) { pc = (ushort)rpop(); } else { return; } } ) \
+    X(DUP,    "DUP",     0, { t=TOS; push(t); } ) \
+    X(SWAP,   "SWAP",    0, { t=TOS; TOS=NOS; NOS=t; } ) \
+    X(DROP,   "DROP",    0, { pop(); } ) \
+    X(OVER,   "OVER",    0, { t = NOS; push(t); } ) \
+    X(FET,    "@",       0, { TOS = fetchCell(TOS); } ) \
+    X(CFET,   "C@",      0, { TOS = *(byte *)TOS; } ) \
+    X(WFET,   "W@",      0, { TOS = fetchWord(TOS); } ) \
+    X(STO,    "!",       0, { t=pop(); n=pop(); storeCell(t, n); } ) \
+    X(CSTO,   "C!",      0, { t=pop(); n=pop(); *(byte*)t=(byte)n; } ) \
+    X(WSTO,   "W!",      0, { t=pop(); n=pop(); storeWord(t, n); } ) \
+    X(ADD,    "+",       0, { t = pop(); TOS += t; } ) \
+    X(SUB,    "-",       0, { t = pop(); TOS -= t; } ) \
+    X(MUL,    "*",       0, { t = pop(); TOS *= t; } ) \
+    X(DIV,    "/",       0, { t = pop(); TOS /= t; } ) \
+    X(SLMOD,  "/MOD",    0, { t = TOS; n = NOS; TOS = n/t; NOS = n%t; } ) \
+    X(INC,    "1+",      0, { ++TOS; } ) \
+    X(DEC,    "1-",      0, { --TOS; } ) \
+    X(LT,     "<",       0, { t = pop(); TOS = (TOS < t); } ) \
+    X(EQ,     "=",       0, { t = pop(); TOS = (TOS == t); } ) \
+    X(GT,     ">",       0, { t = pop(); TOS = (TOS > t); } ) \
+    X(EQ0,    "0=",      0, { TOS = (TOS == 0) ? 1 : 0; } ) \
+    X(AND,    "AND",     0, { t = pop(); TOS &= t; } ) \
+    X(OR,     "OR",      0, { t = pop(); TOS |= t; } ) \
+    X(XOR,    "XOR",     0, { t = pop(); TOS ^= t; } ) \
+    X(COM,    "COM",     0, { TOS = ~TOS; } ) \
+    X(DO,     "DO",      0, { lsp+=3; L2=pc; L0=pop(); L1=pop(); } ) \
+    X(INDEX,  "I",       0, { push(L0); } ) \
+    X(LOOP,   "LOOP",    0, { if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } } ) \
+    X(ANEW,   "+A",      0, { aStk[++aSp] = pop(); } ) \
+    X(ASET,   "A",       0, { push(aStk[aSp]); } ) \
+    X(AGET,   ">A",      0, { aStk[aSp] = pop(); } ) \
+    X(AFREE,  "-A",      0, { if (0 < aSp) --aSp; } ) \
+    X(TOR,    ">R",      0, { rpush(pop()); } ) \
+    X(RAT,    "R@",      0, { push(rstk[rsp]); } ) \
+    X(RFROM,  "R>",      0, { push(rpop()); } ) \
+    X(EMIT,   "EMIT",    0, { t=pop(); emit((char)t); } ) \
+    X(DOT,    "(.)",     0, { t=pop(); printf("%s", iToA(t, base)); } ) \
+    X(COLON,  ":",       1, { addWord(0); state = 1; } ) \
+    X(SEMI,   ";",       1, { comma(EXIT); state = 0; } ) \
+    X(IMM,  "IMMEDIATE", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
+    X(CREATE, "CREATE",  1, { addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); } ) \
+    X(COMMA,  ",",       0, { comma((ushort)pop()); } ) \
+    X(CLK,    "TIMER",   0, { push(clock()); } ) \
+    X(SEE,    "SEE",     1, { doSee(); } ) \
+    X(COUNT,  "COUNT",   0, { t=pop(); push(t+1); push(*(byte *)t); } ) \
+    X(TYPE,   "TYPE",    0, { t=pop(); char *y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); } ) \
+    X(QUOTE,  "\"",      1, { quote(); } ) \
+    X(DOTQT,  ".\"",     1, { quote(); comma(COUNT); comma(TYPE); } ) \
+    X(TOCODE, ">CODE",   0, { TOS += (cell)code; } ) \
+    X(TOVARS, ">VARS",   0, { TOS += (cell)vars; } ) \
+    X(TODICT, ">DICT",   0, { TOS += (cell)dict; } ) \
+    X(RAND,   "RAND",    0, { doRand(); } ) \
+    X(BYE,    "BYE",     0, { exit(0); } )
 
-#define X(op, name, imm) op,
+#define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-    STOP, LIT1, LIT2,
-    JMP, JMPZ, JMPNZ,
-    PRIMS
+    STOP, LIT1, LIT2, JMP, JMPZ, JMPNZ, PRIMS
 };
 
 #undef X
-#define X(op, name, imm) { op, name, imm },
+#define X(op, name, imm, cod) { op, name, imm },
 
 PRIM_T prims[] = {
     PRIMS
@@ -135,6 +133,7 @@ cell fetchCell(cell a) { return *(cell*)(a); }
 cell fetchWord(cell a) { return *(ushort*)(a); }
 int lower(char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
+void emit(char c) { printf("%c", c); }
 
 int strEqI(const char *s, const char *d) {
     while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -284,74 +283,25 @@ void doRand() {
     push(sd);
 }
 
+#undef X
+#define X(op, name, imm, code) NCASE op: code
+
 void Exec(int start) {
     cell t, n;
     ushort pc = start, wc;
     next:
     wc = code[pc++];
     switch(wc) {
-        case  STOP:   return;
-        NCASE LIT1:   push(code[pc++]);
-        NCASE LIT2:   push(fetchCell((cell)&code[pc])); pc += CELL_SZ/2;
-        NCASE EXIT:   if (0<rsp) { pc = (ushort)rpop(); } else { return; }
-        NCASE DUP:    t=TOS; push(t);
-        NCASE SWAP:   t=TOS; TOS=NOS; NOS=t;
-        NCASE DROP:   pop();
-        NCASE OVER:   t = NOS; push(t);
-        NCASE DO:     lsp+=3; L2=pc; L0=pop(); L1=pop();
-        NCASE INDEX:  push(L0);
-        NCASE LOOP:   if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; }
-        NCASE AND:    t = pop(); TOS &= t;
-        NCASE OR:     t = pop(); TOS |= t;
-        NCASE XOR:    t = pop(); TOS ^= t;
-        NCASE COM:    TOS = ~TOS;
-        NCASE ADD:    t = pop(); TOS += t;
-        NCASE SUB:    t = pop(); TOS -= t;
-        NCASE MUL:    t = pop(); TOS *= t;
-        NCASE DIV:    t = pop(); TOS /= t;
-        NCASE SLMOD:  t = TOS; n = NOS; TOS = n/t; NOS = n%t;
-        NCASE INC:    ++TOS;
-        NCASE DEC:    --TOS;
-        NCASE LT:     t = pop(); TOS = (TOS < t);
-        NCASE EQ:     t = pop(); TOS = (TOS == t);
-        NCASE GT:     t = pop(); TOS = (TOS > t);
-        NCASE EQ0:    TOS = (TOS == 0) ? 1 : 0;
-        NCASE CLK:    push(clock());
-        NCASE JMP:    pc=code[pc];
-        NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
-        NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
-        NCASE EMIT:   printf("%c", (char)pop());
-        NCASE DOT:    t=pop(); printf("%s", iToA(t, base));
-        NCASE FET:    TOS = fetchCell(TOS);
-        NCASE CFET:   TOS = *(byte *)TOS;
-        NCASE WFET:   TOS = fetchWord(TOS);
-        NCASE STO:    t=pop(); n=pop(); storeCell(t, n);
-        NCASE CSTO:   t=pop(); n=pop(); *(byte*)t=(byte)n;
-        NCASE WSTO:   t=pop(); n=pop(); storeWord(t, n);
-        NCASE TOR:    rpush(pop());
-        NCASE RAT:    push(rstk[rsp]);
-        NCASE RFROM:  push(rpop());
-        NCASE COLON:  addWord(0); state = 1;
-        NCASE SEMI:   comma(EXIT); state = 0;
-        NCASE IMM:    { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; }
-        NCASE COMMA:  comma((ushort)pop());
-        NCASE CREATE: addWord(0); comma(LIT2); commaCell(vhere+(cell)vars);
-        NCASE ANEW:   aStk[++aSp] = pop();
-        NCASE ASET:   aStk[aSp] = pop();
-        NCASE AGET:   push(aStk[aSp]);
-        NCASE AFREE:  if (0 < aSp) --aSp;
-        NCASE SEE:    doSee();
-        NCASE COUNT:  t=pop(); push(t+1); push(*(byte *)t);
-        NCASE TYPE:   t=pop(); n=pop(); for (int i = 0; i<t; i++) printf("%c", ((char *)n)[i]);
-        NCASE QUOTE:  quote();
-        NCASE DOTQT:  quote(); comma(COUNT); comma(TYPE);
-        NCASE TOCODE:  TOS += (cell)code;
-        NCASE TOVARS:  TOS += (cell)vars;
-        NCASE TODICT:  TOS += (cell)dict;
-        NCASE RAND:    doRand();
-        NCASE BYE:     exit(0);
-        default:      if (code[pc] != EXIT) { rpush(pc); } pc = wc;
-            goto next;
+        case  STOP:  return;
+        NCASE LIT1:  push(code[pc++]);
+        NCASE LIT2:  push(fetchCell((cell)&code[pc])); pc += CELL_SZ/2;
+        NCASE JMP:   pc=code[pc];
+        NCASE JMPZ:  if (pop()==0) { pc=code[pc]; } else { ++pc; }
+        NCASE JMPNZ: if (pop()) { pc=code[pc]; } else { ++pc; }
+        PRIMS
+        default: if (code[pc] != EXIT) { rpush(pc); }
+                 pc = wc;
+                 goto next;
     }
 }
 
