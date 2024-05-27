@@ -22,7 +22,10 @@ cr  0 begin dup. 1+ dup 10 = until drop
 go cr
 words cr cr
 var xxx
+." -xxx created-" cr
 12345 xxx ! xxx @
 const yyy
-xxx @ yyy =  IF ." PASS: const/var." THEN
-xxx @ yyy = 0= IF ." FAIL: const/var!" THEN
+." -yyy created-" cr
+xxx @ yyy =    dup . cr IF ." PASS: const/var." THEN
+xxx @ yyy = 0= dup . cr IF ." FAIL: const/var!" THEN
+." end" cr

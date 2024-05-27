@@ -24,7 +24,11 @@ typedef union { FLT_T f; cell i; } SE_T;
 typedef struct { ushort xt; byte sz, fl, lx, ln; char nm[32]; } DE_T;
 
 // c4.c needs these
+extern cell inputFp, outputFp;
+extern void fileInit();
+extern cell filePop();
 extern cell fileOpen(cell name, cell mode);
 extern void fileClose(cell fh);
+extern int fileGets(char *buf, int sz, cell fh);
 
 #endif //  __C4_H__

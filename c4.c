@@ -87,6 +87,7 @@ typedef struct { short op; const char *name; byte imm; } PRIM_T;
     X(RAND,    "RAND",      0, { doRand(); } ) \
     X(FLOPEN,  "FOPEN",     0, { t=pop(); n=pop(); push(fileOpen(n, t)); } ) \
     X(FLCLOSE, "FCLOSE",    0, { t=pop(); fileClose(t); } ) \
+    X(FLGETS,  "FGETS",     0, { t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); } ) \
     X(BYE,     "BYE",       0, { exit(0); } )
 
 #define X(op, name, imm, cod) op,
@@ -399,30 +400,33 @@ void baseSys() {
 
 void Init() {
     for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
+    for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
+    for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
     sp = rsp = lsp = aSp = state = 0;
     last = DICT_SZ;
     base = 10;
     here = LASTPRIM+1;
+    fileInit();
     baseSys();
 }
 
 // REP - Read/Execute/Print (no Loop)
-FILE *REP(FILE *fp) {
-    if (!fp) { fp = stdin; }
-    if ((fp == stdin) && (state==0)) { printf(" ok\n"); }
-    if (fgets(tib, sizeof(tib), fp) == tib) {
+void REP() {
+    if ((inputFp == 0) && (state==0)) { printf(" ok\n"); }
+    if (fileGets(tib, sizeof(tib), inputFp)) {
         parseLine(tib);
-        return fp;
+        return;
     }
-    if (fp == stdin) { exit(0); }
-    fclose(fp);
-    return NULL;
+    if (inputFp == 0) { exit(0); }
+    fileClose(inputFp);
+    inputFp = filePop();
 }
 
 int main(int argc, char *argv[]) {
-    FILE *fp = NULL;
-    if (argc>1) { fp=fopen(argv[1], "rt"); }
     Init();
-    while (1) { fp = REP(fp); }; // REPL
+    if (argc>1) {
+        inputFp = fileOpen((cell)argv[1], (cell)"rt");
+    }
+    while (1) { REP(); };
     return 0;
 }
