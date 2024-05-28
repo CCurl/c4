@@ -35,10 +35,10 @@ int  fileGets(char *buf, int sz, cell fh) {
 }
 
 void fileLoad(cell name) {
-    cell fh = fileOpen(name, " rt");
+    cell fh = fileOpen(name, (cell)" rt");
     if (fh == 0) { printf("-not found-"); return; }
     if (inputFp) { filePush(inputFp); }
-    inputFp = fh;
+    inputFp = fh;   
 }
 
 #endif

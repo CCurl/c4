@@ -63,10 +63,10 @@ todo
 |  32  | DO     | (T F--)      | Begin DO loop with bounds F and T |
 |  33  | I      | (--I)        | I: Current DO LOOP index |
 |  34  | LOOP   | (--)         | Increment I, stop if I >= T |
-|  35  | +A     | (N--)        | Create a new A, initial value is N |
+|  35  | >A     | (N--)        | Set A to N |
 |  36  | A      | (--N)        | N: the current value of A |
-|  37  | >A     | (N--)        | Set the value of A to N |
-|  38  | -A     | (--)         | Destroy the current A |
+|  37  | A+     | (--N)        | Push, then increment A |
+|  38  | A-     | (--N)        | Push, then decrement A |
 |  39  | >R     | (N--R:N)     | Move TOS to the return stack |
 |  40  | R@     | (--N)        | N: return stack TOS |
 |  41  | R>     | (R:N--N)     | Move return TOS to the stack |
