@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include "c4.h"
 
+// #define NO_FILE
 #define PC_FILE
+// #define PICO_FILE
+// #define TEENSY_FILE
 
-cell inputFp, outputFp, fileStk[20];
+cell inputFp, outputFp, fileStk[FSTK_SZ+1];
 int fileSp;
 
-void filePush(cell val) { ; }
+void filePush(cell fh) { if (fileSp < FSTK_SZ) { fileStk[++fileSp] = fh; } }
 cell filePop() { return (0<fileSp) ? fileStk[fileSp--]: 0; }
 
 #ifdef NO_FILE
@@ -16,6 +19,7 @@ void fileClose(cell fh) {}
 cell fileRead(char *buf, int sz, cell fh) { buf[0]=0; return 0; }
 cell fileWrite(char *buf, int sz, cell fh) { return 0; }
 int fileGets(char *buf, int sz, cell fh) { buf[0]=0; return 0; }
+void fileLoad(cell name) {}
 #endif
 
 #ifdef PC_FILE
@@ -44,7 +48,21 @@ void fileLoad(cell name) {
 #endif
 
 #ifdef PICO_FILE
+void fileInit() { fileSp = 0; }
+cell fileOpen(cell name, cell mode) { return 0; }
+void fileClose(cell fh) {}
+cell fileRead(char* buf, int sz, cell fh) { buf[0] = 0; return 0; }
+cell fileWrite(char* buf, int sz, cell fh) { return 0; }
+int fileGets(char* buf, int sz, cell fh) { buf[0] = 0; return 0; }
+void fileLoad(cell name) {}
 #endif
 
 #ifdef TEENSY_FILE
+void fileInit() { fileSp = 0; }
+cell fileOpen(cell name, cell mode) { return 0; }
+void fileClose(cell fh) {}
+cell fileRead(char* buf, int sz, cell fh) { buf[0] = 0; return 0; }
+cell fileWrite(char* buf, int sz, cell fh) { return 0; }
+int fileGets(char* buf, int sz, cell fh) { buf[0] = 0; return 0; }
+void fileLoad(cell name) {}
 #endif

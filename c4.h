@@ -6,6 +6,7 @@
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60
+#define FSTK_SZ           10
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #if __LONG_MAX__ > __INT32_MAX__

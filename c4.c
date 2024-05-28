@@ -144,7 +144,7 @@ int nextWord() {
 DE_T *addWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	int ln = strLen(w);
-	int sz = ln + 7;
+	int sz = ln + 7;          // xt + sz + fl + lx + ln + null
 	if (sz & 1) { ++sz; }
 	ushort newLast = last - sz;
 	DE_T *dp = (DE_T*)&dict[newLast];
@@ -155,7 +155,7 @@ DE_T *addWord(const char *w) {
 	dp->ln = ln;
 	strCpy(dp->nm, w);
 	last = newLast;
-	// printf("\n-add:%d,[%s],%d (%d)-", last, dp->nm, here, dp->xt);
+	// printf("\n-add:%d,[%s],%d (%d)-", newLast, dp->nm, dp->lx, dp->xt);
 	return dp;
 }
 
