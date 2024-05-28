@@ -16,6 +16,10 @@ C4 uses three memory areas:
 - The dictionary area can be up to 65536 bytes, 16-bit index (DICT-SZ). <br/>
 - The variables area can be up to CELL bytes, CELL index (VARS-SZ).
 
+## C4 Strings
+
+Strings in C4 are both counted and NULL terminated.
+
 ## C4 architecture
 
 todo
@@ -85,4 +89,10 @@ todo
 |  56  | >VARS  | (N--A)       | A: Address of BYTE N in VARS |
 |  57  | >DICT  | (N--A)       | A: Address of BYTE N in DICT |
 |  58  | RAND   | (--N)        | N: a pseudo-random number (13/17/5 XOR shift) |
-|  59  | BYE    | (--)         | Exit C4 (PC only) |
+|  59  | FOPEN  | (NM MD--H)   | NM: File Name, MD: Mode, H: File Handle |
+|  60  | FCLOSE | (H--)        | H: File Handle |
+|  61  | FREAD  | (B SZ H--N)  | B: Buffer, SZ: Size, H: File Handle |
+|  62  | FWRITE | (B SZ H--N)  | B: Buffer, SZ: Size, H: File Handle |
+|  63  | FGETS  | (B SZ H--F)  | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
+|  64  | FLOAD  | (NM--)       | NM: File Name to load |
+|  65  | BYE    | (--)         | Exit C4 (PC only) |

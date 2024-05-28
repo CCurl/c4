@@ -26,10 +26,8 @@ byte vars[VARS_SZ];
 cell aStk[STK_SZ];
 short sp, rsp, lsp, aSp;
 cell lstk[60], rstk[STK_SZ];
-char tib[128], wd[32], * toIn;
+char tib[128], wd[32], *toIn;
 ushort code[CODE_SZ+1];
-
-typedef struct { short op; const char *name; byte imm; } PRIM_T;
 
 #define PRIMS \
     X(EXIT,    "EXIT",      0, { if (0<rsp) { pc = (ushort)rpop(); } else { return; } } ) \
@@ -87,7 +85,10 @@ typedef struct { short op; const char *name; byte imm; } PRIM_T;
     X(RAND,    "RAND",      0, { doRand(); } ) \
     X(FLOPEN,  "FOPEN",     0, { t=pop(); n=pop(); push(fileOpen(n, t)); } ) \
     X(FLCLOSE, "FCLOSE",    0, { t=pop(); fileClose(t); } ) \
+    X(FLREAD,  "FREAD",     0, { t=pop(); n=pop(); TOS = fileRead((char*)TOS, n, t); } ) \
+    X(FLWRITE, "FWRITE",    0, { t=pop(); n=pop(); TOS = fileWrite((char*)TOS, n, t); } ) \
     X(FLGETS,  "FGETS",     0, { t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); } ) \
+    X(FLLOAD,  "FLOAD",     0, { t=pop(); fileLoad(t); } ) \
     X(BYE,     "BYE",       0, { exit(0); } )
 
 #define X(op, name, imm, cod) op,
@@ -100,6 +101,7 @@ enum _PRIM  {
 #undef X
 #define X(op, name, imm, cod) { op, name, imm },
 
+typedef struct { short op; const char *name; byte imm; } PRIM_T;
 PRIM_T prims[] = {
     PRIMS
     {0, 0, 0}
@@ -244,13 +246,14 @@ void quote() {
     comma(LIT2);
     commaCell((cell)&vars[vhere]);
     ushort start = vhere;
-    vars[vhere++] = 0;
+    vars[vhere++] = 0; // Length byte
     if (*toIn) { ++toIn; }
     while (*toIn) {
         if (*toIn == '"') { ++toIn; break; }
         vars[vhere++] = *(toIn++);
         ++vars[start];
     }
+    vars[vhere++] = 0; // NULL terminator
 }
 
 void dotQuote() {
@@ -414,7 +417,7 @@ void Init() {
 void REP() {
     if ((inputFp == 0) && (state==0)) { printf(" ok\n"); }
     if (fileGets(tib, sizeof(tib), inputFp)) {
-        parseLine(tib);
+        parseLine(tib+1);
         return;
     }
     if (inputFp == 0) { exit(0); }
@@ -423,9 +426,11 @@ void REP() {
 }
 
 int main(int argc, char *argv[]) {
+    char fn[32];
     Init();
     if (argc>1) {
-        inputFp = fileOpen((cell)argv[1], (cell)"rt");
+        strCpy(fn+1, argv[1]);
+        inputFp = fileOpen((cell)fn, (cell)" rb");
     }
     while (1) { REP(); };
     return 0;
