@@ -3,7 +3,9 @@
 #define CODE_SZ       0xFFFF
 #define VARS_SZ       0xFFFF
 #define DICT_SZ       0xFFFF
-#define STK_SZ            64
+#define STK_SZ            63
+#define RSTK_SZ           63
+#define LSTK_SZ           60
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #if __LONG_MAX__ > __INT32_MAX__
