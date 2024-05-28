@@ -2,13 +2,14 @@ extern int parseLine(const char *ln);
 
 void sys_load() {
     parseLine("\
+: C@V >VARS C@ ; \
+: C!V >VARS C! ; \
 : @C DUP + >CODE W@ ; \
 : !C DUP + >CODE W! ; \
-: (HERE)  0 ; : HERE  (HERE)  @C ; \
-: (LAST)  1 ; : LAST  (LAST)  @C ; \
-: (VHERE) 2 ; : VHERE (VHERE) @C ; \
-: (LEX)   5 ; : LEX   (LEX)   @C ; \
-: BASE    3 ; : STATE 4 ; \
+: HERE  (HERE)  @C ; \
+: LAST  (LAST)  @C ; \
+: VHERE (VHERE) @C ; \
+: LEX   (LEX)   @C ; \
 : BEGIN HERE ; IMMEDIATE \
 : AGAIN (JMP)   , , ; IMMEDIATE \
 : WHILE (JMPNZ) , , ; IMMEDIATE \
@@ -24,8 +25,6 @@ void sys_load() {
   AGAIN ; IMMEDIATE \
 : ALLOT VHERE + (VHERE) !C ; \
 : ,V VHERE >VARS ! CELL ALLOT ; \
-: C@V >VARS C@ ; \
-: C!V >VARS C! ; \
 : CELLS CELL * ; \
 : NIP SWAP DROP ; \
 : TUCK SWAP OVER ; \

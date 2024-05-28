@@ -388,11 +388,19 @@ void baseSys() {
     parseF(": (LIT1)    #%d ;", LIT1);
     parseF(": (LIT2)    #%d ;", LIT2);
     parseF(": (EXIT)    #%d ;", EXIT);
-    // parseF(": CREATE  #%d ;", CREATE);
+
+    parseF(": (HERE)    #%d ;", 0);
+    parseF(": (LAST)    #%d ;", 1);
+    parseF(": (VHERE)   #%d ;", 2);
+    parseF(": BASE      #%d ;", 3);
+    parseF(": STATE     #%d ;", 4);
+    parseF(": (LEX)     #%d ;", 5);
+
     parseF(addrFmt, "CODE", &code[0]);
     parseF(addrFmt, "VARS", &vars[0]);
     parseF(addrFmt, "DICT", &dict[0]);
     parseF(addrFmt, ">IN",  &toIn);
+
     parseF(": CODE-SZ #%d ;", CODE_SZ);
     parseF(": VARS-SZ #%d ;", VARS_SZ);
     parseF(": DICT-SZ #%d ;", DICT_SZ);
