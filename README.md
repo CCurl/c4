@@ -2,12 +2,17 @@
 
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is an unsigned 16-bit unsigned value (0..65535). <br/>
-A `CELL` is either 32-bits or 64-bits, depending on the target system. <br/>
-
-## WORD-CODEs
-
-If a WORD-CODE is less than or equal to the last primitive (`BYE`), it is a primitive. <br/>
+Primitives are assigned numbers sequentially from 0 to `BYE`.
+If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
 If it is greater than the last primitive, it is the code address of a word to execute. <br/>
+
+## CELLs in C4
+A `CELL` is either 32-bits or 64-bits, depending on the target system.
+- Linux 32-bit (-m32): CELLs are 32-bit
+- Linux 64-bit (-m64): CELLs are 64-bit
+- Windows 32-bit (x86): CELLs are 32-bit
+- Windows 32-bit (x64): This configration does not work
+- Development boards: CELLs are 32-bit
 
 ## C4 memory areas
 
