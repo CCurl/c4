@@ -24,7 +24,7 @@
     <ProjectGuid>{bdd1c19e-3eec-4ddf-ad67-406628bacccf}</ProjectGuid>
     <RootNamespace>stable</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>wc</ProjectName>
+    <ProjectName>c4</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -144,13 +144,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="core.c4" />
     <None Include="makefile" />
     <None Include="README.md" />
-    <None Include="test.wc" />
+    <None Include="test.c4" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="c4.c" />
+    <ClCompile Include="file.c" />
     <ClCompile Include="sys-load.c" />
-    <ClCompile Include="wc.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="c4.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
