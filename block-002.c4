@@ -1,0 +1,50 @@
+2 >lex
+
+: rl forget 2 load ;
+
+: csi 27 emit '[' emit ;
+: cur-on  ( -- )       csi ." ?25h" ;
+: cur-off ( -- )       csi ." ?25l" ;
+: ->rc    ( r c-- )    csi (.) ';' emit (.) 'H' emit ;
+: ->cr    ( c r-- )    swap ->rc ;
+: cls     ( -- )       csi ." 2J" 1 dup ->rc ;
+: clr-eol ( -- )       csi ." 0K" ;
+: color   ( bg fg-- )  csi (.) ';' emit (.) 'm' emit ;
+: fg      ( fg-- )     40 swap color ;
+
+var (rows)
+var (cols)
+var (pos)
+: rows (rows) @ ; : >rows (rows) ! ;
+: cols (cols) @ ; : >cols (cols) ! ;
+: pos (pos) @ ; : >pos (pos) ! ; : pos++ pos 1+ >pos ;
+: block-sz rows cols * ;
+
+30 >rows 100 >cols
+var block
+block-sz allot
+
+: pos->rc ( --r c ) pos cols /mod swap ;
+: ->pos  pos->rc 1+ swap 1+ ->rc ;
+: show 1 dup ->rc block >a
+	rows for 
+		a cols type cr
+		a cols + >a
+	next ;
+: fill ( from char num-- )
+    a >r   >r swap >a
+    r> for dup a+ c! next
+	drop  r> >a ;
+: dump ( from num-- ) for dup c@ . 1+ next  drop ;
+
+: test-block block 'a' block-sz fill ;
+: init-block block  0  block-sz fill ;
+: dump-block block block-sz dump ;
+
+: fopen-rb ( fn--fh )  " rb" fopen ;
+: fopen-wb ( fn--fh )  " wb" fopen ;
+
+: read-block " block-000.c4" fopen-rb >a
+    a if block block-sz a fread drop  a fclose then ;
+: save-block " block-000.c4" fopen-wb >a
+    a if block block-sz a fwrite  a fclose then ;
