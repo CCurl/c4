@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="block-001.c4" />
     <None Include="core.c4" />
     <None Include="makefile" />
     <None Include="README.md" />

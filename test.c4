@@ -1,3 +1,5 @@
+11 (lex) !c
+
 : test-if 'N' swap if drop 'Y' then emit '.' emit ;
 0 test-if 1 test-if
 see test-if

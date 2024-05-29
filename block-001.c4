@@ -1,67 +1,72 @@
-: C@V >VARS C@ ;
-: C!V >VARS C! ;
-: @C DUP + >CODE W@ ;
-: !C DUP + >CODE W! ;
-: HEX     $10 BASE !C ;
-: BINARY  %10 BASE !C ;
-: DECIMAL #10 BASE !C ;
-: HERE  (HERE)  @C ;
-: LAST  (LAST)  @C ;
-: VHERE (VHERE) @C ;
-: LEX   (LEX)   @C ;
-: BEGIN HERE ; IMMEDIATE
-: AGAIN (JMP)   , , ; IMMEDIATE
-: WHILE (JMPNZ) , , ; IMMEDIATE
-: UNTIL (JMPZ)  , , ; IMMEDIATE
-: IF (JMPZ) , HERE 0 , ; IMMEDIATE
-: ELSE (JMP) , HERE SWAP 0 , HERE SWAP !C ; IMMEDIATE
-: THEN HERE SWAP !C ; IMMEDIATE
-: ( BEGIN
-    >IN @ C@ 
-    DUP  0= IF DROP EXIT THEN
-    >IN @ 1+ >IN !
-    ')' = IF EXIT THEN
-  AGAIN ; IMMEDIATE
-: ALLOT VHERE + (VHERE) !C ;
-: ,V VHERE >VARS ! CELL ALLOT ;
-: CELLS CELL * ;
-: NIP SWAP DROP ;
-: TUCK SWAP OVER ;
-: ?DUP DUP IF DUP THEN ;
-: NEGATE COM 1+ ;
-: ABS DUP 0 < IF NEGATE THEN ;
-: MOD /MOD DROP ;
-: +! TUCK @ + SWAP ! ;
-: SPACE 32 EMIT ;
-: . (.) SPACE ;
-: CR 13 EMIT 10 EMIT ;
-: TAB 9 EMIT ;
+: ->code code + ;
+: ->vars vars + ;
+: ->dict dict + ;
+: @c dup + ->code w@ ;
+: !c dup + ->code w! ;
+: here  (here)  @c ;
+: last  (last)  @c ;
+: vhere (vhere) @c ;
+: lex   (lex)   @c ;
+: >lex  (lex)   !c ;
+: , here  dup 1+     (here)  !c !c ;
+: begin here ; immediate
+: again (jmp)   , , ; immediate
+: while (jmpnz) , , ; immediate
+: until (jmpz)  , , ; immediate
+: if (jmpz) , here 0 , ; immediate
+: else (jmp) , here swap 0 , here swap !c ; immediate
+: then here swap !c ; immediate
+: ( begin
+    >in @ c@ 
+    dup  0= if drop exit then
+    >in @ 1+ >in !
+    ')' = if exit then
+  again ; immediate
+: allot vhere + (vhere) !c ;
+: ,v  vhere ->vars ! cell allot ;
+: hex     $10 base !c ;
+: binary  %10 base !c ;
+: decimal #10 base !c ;
+: cells cell * ;
+: nip swap drop ;
+: tuck swap over ;
+: ?dup dup if dup then ;
+: negate com 1+ ;
+: abs dup 0 < if negate then ;
+: mod /mod drop ;
+: +! tuck @ + swap ! ;
+: space 32 emit ;
+: . (.) space ;
+: cr 13 emit 10 emit ;
+: tab 9 emit ;
 : ?  @ . ;
-: A+C A DUP CELL + >A ;
-: !A   A ! ;   : !A+   A+C ! ;
-: @A   A @ ;   : @A+   A+C @ ;
-: C!A  A C! ;  : C!A+  A+  C! ;
-: C@A  A C@ ;  : C@A+  A+  C@ ;
-: >XT     W@ ;
-: >SIZE   2 + C@ ;
-: >FLAGS  3 + C@ ;
-: >LEX    4 + C@ ;
-: >NAME   5 + ;
-: lex-match? ( a--f ) >LEX LEX = LEX 0= OR ;
-: WORDS A >R  0 DUP >A >R  LAST >DICT BEGIN
-      DUP lex-match? IF
-        DUP >NAME COUNT TYPE  R> 1+ >R
-        A+ 8 > IF CR 0 >A ELSE TAB THEN
-      THEN
-      DUP >SIZE + DUP DICT-SZ >DICT <
-    WHILE DROP '(' EMIT R> . ." words)" R> >A ;
-: DOES> (JMP) , R> , ;
-: VAR   ADDWORD CELL ALLOT (EXIT) , ; IMMEDIATE
-: CONST ADDWORD ,V DOES> @ ; IMMEDIATE
-VAR hh
-VAR ll
-VAR vv
-: MARKER HERE hh ! LAST ll ! VHERE vv ! ;
-: FORGET hh @ (HERE) !C ll @ (LAST) !C vv @ (VHERE) !C ;
-MARKER
-." C4 - v24.06.01 - Chris Curl." CR
+: a+c a dup cell + >a ;
+: !a   a ! ;   : !a+   a+c ! ;
+: @a   a @ ;   : @a+   a+c @ ;
+: c!a  a c! ;  : c!a+  a+  c! ;
+: c@a  a c@ ;  : c@a+  a+  c@ ;
+: ->xt     w@ ;
+: ->size   2 + c@ ;
+: ->flags  3 + c@ ;
+: ->lex    4 + c@ ;
+: ->len    5 + ;
+: ->name   6 + ;
+: lex-match? ( a--f )  ->lex lex =  lex 0=  or ;
+: words a >r  0 dup >a >r  last ->dict begin
+      dup lex-match? if
+        dup ->len count type  r> 1+ >r
+        a+ 8 > if cr 0 >a else tab then
+      then
+      dup ->size + dup dict-sz ->dict <
+    while drop '(' emit r> . ." words)" r> >a ;
+: does> (jmp) , r> , ;
+: create addword ; immediate
+: var   addword cell allot (exit) , ; immediate
+: const addword ,v does> @ ; immediate
+var hh
+var ll
+var vv
+: marker here hh ! last ll ! vhere vv ! ;
+: forget hh @ (here) !c ll @ (last) !c vv @ (vhere) !c 0 >lex ;
+marker
+." c4 - v24.06.01 - chris curl." cr
