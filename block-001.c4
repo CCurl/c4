@@ -64,4 +64,4 @@ VAR vv
 : MARKER HERE hh ! LAST ll ! VHERE vv ! ;
 : FORGET hh @ (HERE) !C ll @ (LAST) !C vv @ (VHERE) !C ;
 MARKER
-." C4 - v24.05.29 - Chris Curl." CR
+." C4 - v24.06.01 - Chris Curl." CR
