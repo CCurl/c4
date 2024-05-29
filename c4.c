@@ -24,7 +24,7 @@ ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 short sp, rsp, lsp, aSp;
 cell A, lstk[LSTK_SZ], rstk[STK_SZ+1];
-char tib[128], wd[32], *toIn;
+char tib[128], wd[32], *toIn, wordAdded;
 
 #define PRIMS \
 	X(EXIT,    "EXIT",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -65,8 +65,8 @@ char tib[128], wd[32], *toIn;
 	X(RFROM,   "R>",        0, push(rpop()); ) \
 	X(EMIT,    "EMIT",      0, t=pop(); emit((char)t); ) \
 	X(DOT,     "(.)",       0, t=pop(); printf("%s", iToA(t, base)); ) \
-	X(COLON,   ":",         1, addWord(0); state = 1; ) \
-	X(SEMI,    ";",         1, comma(EXIT); state = 0; ) \
+	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
+	X(SEMI,    ";",         1, comma(EXIT); state = 0; cH=here; ) \
 	X(IMM,     "IMMEDIATE", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
 	X(CREATE,  "CREATE",    1, addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
 	X(COMMA,   ",",         0, comma((ushort)pop()); ) \
@@ -155,7 +155,7 @@ DE_T *addWord(const char *w) {
 	dp->ln = ln;
 	strCpy(dp->nm, w);
 	last = newLast;
-	// printf("\n-add:%d,[%s],%d (%d)-", newLast, dp->nm, dp->lx, dp->xt);
+	printf("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
 	return dp;
 }
 
@@ -266,6 +266,18 @@ void doRand() {
 	push(sd);
 }
 
+extern void Exec(int start);
+ushort cH, cL, cS, cV;
+void execIt() {
+	printf("-cH:%d,here:%d-\n",cH, here);
+	if (cH < here) {
+		comma(0);
+		here=cH;
+		vhere=cV;
+		Exec(cH);
+	}
+}
+
 #undef X
 #define X(op, name, imm, code) NCASE op: code
 
@@ -341,7 +353,7 @@ int parseWord(char *w) {
 }
 
 int parseLine(const char *ln) {
-	ushort cH=here, cL=last, cS=state, cV=vhere;
+    cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
 	// printf("-pl:%s-",ln);
 	while (nextWord()) {
@@ -354,12 +366,7 @@ int parseLine(const char *ln) {
 			return 0;
 		}
 	}
-	if ((cL==last) && (cH<here) && (cS==0) && (state==0 )) {
-		comma(0);
-		here=cH;
-		vhere=cV;
-		Exec(cH);
-	}
+	if ((cL==last) && (cS==0) && (state==0)) execIt();
 	return 1;
 }
 
