@@ -1,2 +1,6 @@
 c4
 c4-32
+/x64
+/Debug
+/Release
+/c4.vcxproj.user
