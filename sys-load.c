@@ -1,11 +1,23 @@
 extern int parseLine(const char *ln);
 
+// comment this out to back the system in
+#define _BOOTFILE_
+
+#ifdef _BOOTFILE_
+
+void sys_load() { parseLine("1 LOAD"); }
+
+#else
+
 void sys_load() {
     parseLine("\
 : C@V >VARS C@ ; \
 : C!V >VARS C! ; \
 : @C DUP + >CODE W@ ; \
 : !C DUP + >CODE W! ; \
+: HEX     $10 BASE !C ; \
+: BINARY  %10 BASE !C ; \
+: DECIMAL #10 BASE !C ; \
 : HERE  (HERE)  @C ; \
 : LAST  (LAST)  @C ; \
 : VHERE (VHERE) @C ; \
@@ -33,10 +45,16 @@ void sys_load() {
 : ABS DUP 0 < IF NEGATE THEN ; \
 : MOD /MOD DROP ; \
 : +! TUCK @ + SWAP ! ; \
-: SPACE 32 EMIT ; : . (.) SPACE ; \
-: CR 13 EMIT 10 EMIT ; : TAB 9 EMIT ; \
-: !A A C! ;   : !A+ A+ C! ; \
-: @A A C@ ;   : @A+ A+ C@ ; \
+: SPACE 32 EMIT ; \
+: . (.) SPACE ; \
+: CR 13 EMIT 10 EMIT ; \
+: TAB 9 EMIT ; \
+: ?  @ . ; \
+: A+C A DUP CELL + >A ; \
+: !A   A ! ;   : !A+   A+C ! ; \
+: @A   A @ ;   : @A+   A+C @ ; \
+: C!A  A C! ;  : C!A+  A+  C! ; \
+: C@A  A C@ ;  : C@A+  A+  C@ ; \
 : >XT     W@ ; \
 : >SIZE   2 + C@ ; \
 : >FLAGS  3 + C@ ; \
@@ -54,4 +72,11 @@ void sys_load() {
 : VAR   ADDWORD CELL ALLOT (EXIT) , ; IMMEDIATE \
 : CONST ADDWORD ,V DOES> @ ; IMMEDIATE \
 ");
+  parseLine("VAR hh");
+  parseLine("VAR ll");
+  parseLine("VAR vv");
+  parseLine(": MARKER HERE hh ! LAST ll ! VHERE vv ! ;");
+  parseLine(": FORGET hh @ (HERE) !C ll @ (LAST) !C vv @ (VHERE) !C ;");
+  parseLine("MARKER");
 }
+#endif // _BOOTFILE_

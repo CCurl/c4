@@ -53,13 +53,13 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(OR,      "OR",        0, t = pop(); TOS |= t; ) \
 	X(XOR,     "XOR",       0, t = pop(); TOS ^= t; ) \
 	X(COM,     "COM",       0, TOS = ~TOS; ) \
-	X(DO,      "DO",        0, lsp+=3; L2=pc; L0=pop(); L1=pop(); ) \
+	X(FOR,     "FOR",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "I",         0, push(L0); ) \
-	X(LOOP,    "LOOP",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
+	X(NEXT,    "NEXT",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
 	X(ASET,    ">A",        0, A = pop(); ) \
 	X(AGET,    "A",         0, push(A); ) \
-	X(AINC,    "A+",        0, A++; push(A); ) \
-	X(ADEC,    "A-",        0, A--; push(A); ) \
+	X(AINC,    "A+",        0, push(A++); ) \
+	X(ADEC,    "A-",        0, push(A--); ) \
 	X(TOR,     ">R",        0, rpush(pop()); ) \
 	X(RAT,     "R@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "R>",        0, push(rpop()); ) \
@@ -68,7 +68,7 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state = 0; cH=here; ) \
 	X(IMM,     "IMMEDIATE", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
-	X(CREATE,  "CREATE",    1, addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
+	X(CREATE,  "CREATE",    1, execIt(); addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
 	X(COMMA,   ",",         0, comma((ushort)pop()); ) \
 	X(CLK,     "TIMER",     0, push(clock()); ) \
 	X(SEE,     "SEE",       1, doSee(); ) \
@@ -80,12 +80,13 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(TOVARS,  ">VARS",     0, TOS += (cell)vars; ) \
 	X(TODICT,  ">DICT",     0, TOS += (cell)dict; ) \
 	X(RAND,    "RAND",      0, doRand(); ) \
-	X(FLOPEN,  "FOPEN",     0, t=pop(); n=pop(); push(fileOpen(n, t)); ) \
+	X(FLOPEN,  "FOPEN",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "FCLOSE",    0, t=pop(); fileClose(t); ) \
 	X(FLREAD,  "FREAD",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, n, t); ) \
 	X(FLWRITE, "FWRITE",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, n, t); ) \
 	X(FLGETS,  "FGETS",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
-	X(FLLOAD,  "FLOAD",     0, t=pop(); fileLoad(t); ) \
+	X(FLLOAD,  "FLOAD",     0, t=pop(); fileLoad((char*)t); ) \
+	X(LOAD,    "LOAD",      0, t=pop(); blockLoad((int)t); ) \
 	X(BYE,     "BYE",       0, exit(0); )
 
 #define X(op, name, imm, cod) op,
@@ -155,7 +156,7 @@ DE_T *addWord(const char *w) {
 	dp->ln = ln;
 	strCpy(dp->nm, w);
 	last = newLast;
-	printf("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
+	// printf("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
 	return dp;
 }
 
@@ -269,7 +270,7 @@ void doRand() {
 extern void Exec(int start);
 ushort cH, cL, cS, cV;
 void execIt() {
-	printf("-cH:%d,here:%d-\n",cH, here);
+	// printf("-cH:%d,here:%d-\n",cH, here);
 	if (cH < here) {
 		comma(0);
 		here=cH;
@@ -441,8 +442,15 @@ int main(int argc, char *argv[]) {
 	char fn[32];
 	Init();
 	if (argc>1) {
+        cell tmp = inputFp;
 		strCpy(fn+1, argv[1]);
-		inputFp = fileOpen((cell)fn, (cell)" rb");
+		fileLoad(fn);
+        // load init block first (if necessary)
+        if (tmp && inputFp) {
+            filePop();
+            filePush(inputFp);
+            inputFp = tmp;
+        }
 	}
 	while (1) { REP(); };
 	return 0;

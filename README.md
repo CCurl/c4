@@ -100,4 +100,5 @@ todo
 |  62  | FWRITE | (B SZ H--N)  | B: Buffer, SZ: Size, H: File Handle |
 |  63  | FGETS  | (B SZ H--F)  | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
 |  64  | FLOAD  | (NM--)       | NM: File Name to load |
-|  65  | BYE    | (--)         | Exit C4 (PC only) |
+|  65  | LOAD   | (N--)        | N: Block number to load |
+|  66  | BYE    | (--)         | Exit C4 (PC only) |

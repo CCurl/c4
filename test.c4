@@ -1,13 +1,13 @@
 : test-if 'N' swap if drop 'Y' then emit '.' emit ;
+0 test-if 1 test-if
 see test-if
-0 test-if 1 test-if cr cr
 
 : if-else if " yes" else " no" then count type '.' emit ;
-0 if-else 1 if-else
+cr cr 0 if-else 1 if-else
 see if-else cr
 
 : .. dup . ;
-cr 60 50 do I . 4 1 do I . loop loop 
+cr 10 FOR I . 4 FOR I . NEXT NEXT 
 cr 10 begin .. 1- dup      while drop
 cr  0 begin .. 1+ dup 10 = until drop
 
@@ -16,19 +16,19 @@ cr  0 begin .. 1+ dup 10 = until drop
 : T0 a drop ;
 : T1 T0 ;
 : fib 1- dup 2 < if drop 1 exit then dup fib swap 1- fib + ;
-: bm1 cr ." bm1: empty loop: "  timer swap 0 do loop elapsed ;
+: bm1 cr ." bm1: empty loop: "  timer swap FOR NEXT elapsed ;
 : bm2 cr ." bm2: Decrement loop: "  >A timer begin A- while elapsed ;
-: bm3 cr ." bm3: call loop: "   timer swap 0 do T0 loop elapsed ;
-: bm4 cr ." bm4: 2 call loop: " timer swap 0 do T1 loop elapsed ;
+: bm3 cr ." bm3: call loop: "   timer swap FOR T0 NEXT elapsed ;
+: bm4 cr ." bm4: 2 call loop: " timer swap FOR T1 NEXT elapsed ;
 : bm5 cr ." bm5: fib " ..       timer swap fib . elapsed ;
 : go  250 mil DUP DUP DUP bm1 bm2 bm3 bm4  37 bm5 cr ;
 
 go cr
 words cr cr
-var xxx
+var xxx 
 ." -xxx created-" cr
-12345 xxx ! xxx @
-const yyy
-." -yyy created-" cr
+12345 xxx !
+xxx @ const yyy
+." -yyy created, (" yyy (.) ." ) -" cr
 xxx @ yyy =    IF ." PASS: const/var." THEN
 xxx @ yyy = 0= IF ." FAIL: const/var!" THEN
