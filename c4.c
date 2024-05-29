@@ -87,6 +87,7 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(FLGETS,  "FGETS",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(FLLOAD,  "FLOAD",     0, t=pop(); fileLoad((char*)t); ) \
 	X(LOAD,    "LOAD",      0, t=pop(); blockLoad((int)t); ) \
+	X(SYSTEM,  "SYSTEM",    0, t=pop(); system((char*)t+1); ) \
 	X(BYE,     "BYE",       0, exit(0); )
 
 #define X(op, name, imm, cod) op,

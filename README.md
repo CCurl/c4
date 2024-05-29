@@ -1,10 +1,10 @@
 # c4: a portable Forth system inspired by Tachyon
 
 In C4, a program is a sequence of WORD-CODEs. <br/>
-A `WORD-CODE` is an unsigned 16-bit unsigned value (0..65535). <br/>
+A `WORD-CODE` is a 16-bit unsigned number (0..65535). <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`.
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
-If it is greater than the last primitive, it is the code address of a word to execute. <br/>
+If it is greater than `BYE`, it is the code address of a word to execute. <br/>
 
 ## CELLs in C4
 A `CELL` is either 32-bits or 64-bits, depending on the target system.
@@ -100,5 +100,6 @@ todo
 |  62  | FWRITE | (B SZ H--N)  | B: Buffer, SZ: Size, H: File Handle |
 |  63  | FGETS  | (B SZ H--F)  | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
 |  64  | FLOAD  | (NM--)       | NM: File Name to load |
-|  65  | LOAD   | (N--)        | N: Block number to load |
-|  66  | BYE    | (--)         | Exit C4 (PC only) |
+|  65  | LOAD   | (N--)        | N: Block number to load (block-NNN.c4) |
+|  66  | SYSTEM | (A--)        | PC ONLY: A: String to send to the system() |
+|  67  | BYE    | (--)         | PC ONLY: Exit C4 |
