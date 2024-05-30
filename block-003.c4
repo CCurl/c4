@@ -20,7 +20,10 @@ var (t)
 : t@  t  c@ ;  : t!  t  c! ;
 : t@+ t+ c@ ;  : t!+ t+ c! ;
 
-: s-len  ( s--n ) c@ ;
+: s-len   ( s--n ) c@ ;
+: sz-len  ( sz--n ) >t 0 begin
+      t@+ 0= if exit then 1+
+    again ;
 : s-cat  ( d s--d )  >s >d
     s@ 0= if d exit then
     d count + >t
@@ -33,8 +36,8 @@ var (t)
     d count + >t
     d@ 1+ d!
     t!+ 0 t! d ;
+: s-scatc ( c d--d ) swap s-catc ;
 : s-catn ( d n--d ) drop ;
-
 
 : p1 vhere ->vars 100 + ;
 : p2 p1 100 + ;

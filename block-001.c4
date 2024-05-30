@@ -75,3 +75,5 @@ var vv
 : forget hh @ (here) !c ll @ (last) !c vv @ (vhere) !c 0 >lex ;
 marker
 ." c4 - v24.06.01 - chris curl." cr
+6 load
+2 load

@@ -44,7 +44,7 @@ void fileLoad(char *name) {
     cell fh = fileOpen(name, " rt");
     if (fh == 0) { printf("-not found-"); return; }
     if (inputFp) { filePush(inputFp); }
-    inputFp = fh;   
+    inputFp = fh;
 }
 
 static char *blockFn(int blk) { sprintf(fn, " block-%03d.c4", blk); return fn; }

@@ -83,6 +83,7 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(FLLOAD,  "fload",     0, t=pop(); fileLoad((char*)t); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
+	X(ITOA,    "i->a",      0, TOS=(cell)iToA(TOS, base); push(strLen((char*)TOS)); ) \
 	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
 	X(BYE,     "bye",       0, exit(0); )
 
