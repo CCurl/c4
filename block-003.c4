@@ -1,0 +1,42 @@
+( Strings )
+
+3 >lex
+
+: rl forget 3 load ;
+
+var (s)
+var (d)
+var (t)
+
+: s (s) @ ;    : >s (s) ! ;  : s+ s dup 1+ >s ;
+: s@  s  c@ ;  : s!  s  c! ;
+: s@+ s+ c@ ;  : s!+ s+ c! ;
+
+: d (d) @ ;    : >d (d) ! ;  : d+ d dup 1+ >d ;
+: d@  d  c@ ;  : d!  d  c! ;
+: d@+ d+ c@ ;  : d!+ d+ c! ;
+
+: t (t) @ ;    : >t (t) ! ;  : t+ t dup 1+ >t ;
+: t@  t  c@ ;  : t!  t  c! ;
+: t@+ t+ c@ ;  : t!+ t+ c! ;
+
+: s-len  ( s--n ) c@ ;
+: s-cat  ( d s--d )  >s >d
+    s@ 0= if d exit then
+    d count + >t
+    s@  d@ +  d!
+    s@+ for s@+ t!+  next
+    0 t! d ;
+: s-trunc ( d--d ) 0 over c! ;
+: s-cpy ( d s--d ) >r s-trunc r> s-cat ;
+: s-catc ( d c--d ) swap >d
+    d count + >t
+    d@ 1+ d!
+    t!+ 0 t! d ;
+: s-catn ( d n--d ) drop ;
+
+
+: p1 vhere ->vars 100 + ;
+: p2 p1 100 + ;
+: t1 p1 " hi" s-cpy count type ;
+: t2 p1 " -there" s-cat count type ;

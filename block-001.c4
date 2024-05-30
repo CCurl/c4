@@ -31,6 +31,10 @@
 : nip swap drop ;
 : tuck swap over ;
 : ?dup dup if dup then ;
+: 2dup over over ;
+: min ( a b--c ) 2dup > if swap then drop ;
+: max ( a b--c ) 2dup < if swap then drop ;
+: 2+ 1+ 1+ ;
 : negate com 1+ ;
 : abs dup 0 < if negate then ;
 : mod /mod drop ;
@@ -55,6 +59,7 @@
 : words a >r  0 dup >a >r  last ->dict begin
       dup lex-match? if
         dup ->len count type  r> 1+ >r
+        dup ->len c@ 7 > if a+ drop then
         a+ 8 > if cr 0 >a else tab then
       then
       dup ->size + dup dict-sz ->dict <
