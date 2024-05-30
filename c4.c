@@ -85,6 +85,7 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
 	X(ITOA,    "i->a",      0, TOS=(cell)iToA(TOS, base); push(strLen((char*)TOS)); ) \
 	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
+	X(DOTS,    ".s",        0, dotS(); ) \
 	X(BYE,     "bye",       0, exit(0); )
 
 #define X(op, name, imm, cod) op,
@@ -237,6 +238,12 @@ char *iToA(cell N, int b) {
 	} while (X);
 	if (isNeg) { *(--cp) = '-'; }
 	return cp;
+}
+
+void dotS() {
+    printf("( ");
+    for (int i = 1; i <= sp; i++) { printf("%s ", iToA(stk[i].i, base)); }
+    printf(")");
 }
 
 void quote() {
