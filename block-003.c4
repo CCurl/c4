@@ -12,7 +12,7 @@
     s c@ 0= if d exit then
     d count + >a
     s c@  d c@ +  d c!
-    s+ c@ for s+ c@ d+ c! next
+    s+ c@ for s+ c@ a+ c! next
     0 a c! d ;
 : s-trunc ( d--d ) 0 over c! ;
 : s-cpy ( d s--d ) >r s-trunc r> s-cat ;
