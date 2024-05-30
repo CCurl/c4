@@ -1,8 +1,6 @@
 : ->code code + ;
 : ->vars vars + ;
 : ->dict dict + ;
-: @c dup + ->code w@ ;
-: !c dup + ->code w! ;
 : here  (here)  @c ;
 : last  (last)  @c ;
 : vhere (vhere) @c ;
@@ -44,11 +42,7 @@
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
-: a+c a dup cell + >a ;
-: !a   a ! ;   : !a+   a+c ! ;
-: @a   a @ ;   : @a+   a+c @ ;
-: c!a  a c! ;  : c!a+  a+  c! ;
-: c@a  a c@ ;  : c@a+  a+  c@ ;
+: a-  a dup 1- >a ;
 : ->xt     w@ ;
 : ->size   2 + c@ ;
 : ->flags  3 + c@ ;

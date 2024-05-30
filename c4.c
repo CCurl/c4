@@ -23,7 +23,7 @@ SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 short sp, rsp, lsp, aSp;
-cell A, lstk[LSTK_SZ], rstk[STK_SZ+1];
+cell A, B, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char tib[128], wd[32], *toIn, wordAdded;
 
 #define PRIMS \
@@ -56,10 +56,18 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-	X(ASET,    ">a",        0, A = pop(); ) \
 	X(AGET,    "a",         0, push(A); ) \
+	X(ASET,    ">a",        0, A = pop(); ) \
 	X(AINC,    "a+",        0, push(A++); ) \
-	X(ADEC,    "a-",        0, push(A--); ) \
+	X(BGET,    "b",         0, push(B); ) \
+	X(BINC,    "b+",        0, push(B++); ) \
+	X(BSET,    ">b",        0, B=pop(); ) \
+	X(SGET,    "s",         0, push(S); ) \
+	X(SINC,    "s+",        0, push(S++); ) \
+	X(SSET,    ">s",        0, S=pop(); ) \
+	X(DGET,    "d",         0, push(D); ) \
+	X(DINC,    "d+",        0, push(D++); ) \
+	X(DSET,    ">d",        0, D=pop(); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
@@ -86,6 +94,8 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(ITOA,    "i->a",      0, TOS=(cell)iToA(TOS, base); push(strLen((char*)TOS)); ) \
 	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
 	X(DOTS,    ".s",        0, dotS(); ) \
+	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
+	X(STOV,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; /**/) \
 	X(BYE,     "bye",       0, exit(0); )
 
 #define X(op, name, imm, cod) op,
@@ -332,7 +342,7 @@ int parseWord(char *w) {
 	if (!w) { w = &wd[0]; }
 	// printf("-pw:%s-",w);
 
-	if (isNum(w, base)) {
+	if (isNum(w, 10)) {
 		long n = pop();
 		if (btwi(n, 0, 0xffff)) {
 			comma(LIT1); comma((ushort)n);

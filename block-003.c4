@@ -4,38 +4,22 @@
 
 : rl forget 3 load ;
 
-var (s)
-var (d)
-var (t)
-
-: s (s) @ ;    : >s (s) ! ;  : s+ s dup 1+ >s ;
-: s@  s  c@ ;  : s!  s  c! ;
-: s@+ s+ c@ ;  : s!+ s+ c! ;
-
-: d (d) @ ;    : >d (d) ! ;  : d+ d dup 1+ >d ;
-: d@  d  c@ ;  : d!  d  c! ;
-: d@+ d+ c@ ;  : d!+ d+ c! ;
-
-: t (t) @ ;    : >t (t) ! ;  : t+ t dup 1+ >t ;
-: t@  t  c@ ;  : t!  t  c! ;
-: t@+ t+ c@ ;  : t!+ t+ c! ;
-
 : s-len   ( s--n ) c@ ;
-: sz-len  ( sz--n ) >t 0 begin
-      t@+ 0= if exit then 1+
+: sz-len  ( sz--n ) s >r 0 begin
+      s+ c@ 0= if r> >s exit then 1+
     again ;
 : s-cat  ( d s--d )  >s >d
-    s@ 0= if d exit then
-    d count + >t
-    s@  d@ +  d!
-    s@+ for s@+ t!+  next
-    0 t! d ;
+    s c@ 0= if d exit then
+    d count + >a
+    s c@  d c@ +  d c!
+    s+ c@ for s+ c@ d+ c! next
+    0 a c! d ;
 : s-trunc ( d--d ) 0 over c! ;
 : s-cpy ( d s--d ) >r s-trunc r> s-cat ;
 : s-catc ( d c--d ) swap >d
-    d count + >t
-    d@ 1+ d!
-    t!+ 0 t! d ;
+    d count + >a
+    d c@ 1+ d c!
+    a+ c! 0 a c! d ;
 : s-scatc ( c d--d ) swap s-catc ;
 : s-catn ( d n--d ) drop ;
 
