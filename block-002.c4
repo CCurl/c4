@@ -1,0 +1,58 @@
+( block 2 - editor )
+
+5 load ( screen )
+3 load ( strings )
+
+2 >lex
+
+: rl forget 2 load ;
+
+: rows ( --n ) 40 @c ; : >rows ( n-- ) 40 !c ;
+: cols ( --n ) 41 @c ; : >cols ( n-- ) 41 !C ;
+: row  ( --n ) 42 @c ; : >row  ( n-- ) 42 !c ;
+: col  ( --n ) 43 @c ; : >col  ( n-- ) 43 !c ;
+: pos  ( --n ) 44 @c ; : >pos  ( n-- ) 44 !c ;
+: blk  ( --n ) 45 @c ; : >blk  ( n-- ) 45 !c ;
+: block-sz rows cols * ;
+
+30 >rows 100 >cols
+var block
+block-sz allot
+
+: rc->pos ( -- )  row cols * col + >pos ;
+: pos->rc ( -- )  pos cols /mod >row >col ;
+: ->pos   ( -- )  pos->rc row 1+ col 1+ ->rc ;
+: ->cmd   ( -- )  rows 2+ 1 ->rc ;
+: show    ( -- )  1 dup ->rc block >a
+	rows for 
+	    cols for
+		    a+ c@ dup 32 < if drop 32 then emit
+		next
+		cr
+	next ;
+: fill ( from char num-- )
+    a >r   >r swap >a
+    r> for dup a+ c! next
+	drop  r> >a ;
+
+: dump ( from num-- ) for dup c@ . 1+ next  drop ;
+: move ( dist-- ) pos + 0 max block-sz min >pos pos->rc ;
+: test-block block 'a' block-sz fill ;
+: init-block block  0  block-sz fill ;
+: dump-block block block-sz dump ;
+
+: fopen-rb ( fn--fh )  " rb" fopen ;
+: fopen-wb ( fn--fh )  " wb" fopen ;
+
+: .. . dup . cr ;
+: block-fn ( --s ) p1 " block-" s-cpy
+	blk 10 /mod 10 /mod
+	3 for p1 swap '0' + s-catc drop next
+	" .c4" s-cat ;
+
+: read-block block-fn fopen-rb >a
+    a if block block-sz a fread drop  a fclose then ;
+: save-block block-fn fopen-wb >a
+    a if block block-sz a fwrite  a fclose then ;
+
+23 >blk

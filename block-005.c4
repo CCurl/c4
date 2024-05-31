@@ -1,0 +1,16 @@
+( block 5 - screen )
+
+find csi loaded?
+
+0 >lex : lex-screen 5 >lex ;
+lex-screen
+
+: csi 27 emit '[' emit ;
+: cur-on  ( -- )       csi ." ?25h" ;
+: cur-off ( -- )       csi ." ?25l" ;
+: ->cr    ( r c-- )    csi (.) ';' emit (.) 'H' emit ;
+: ->rc    ( c r-- )    swap ->cr ;
+: cls     ( -- )       csi ." 2J" 1 dup ->rc ;
+: clr-eol ( -- )       csi ." 0K" ;
+: color   ( bg fg-- )  csi (.) ';' emit (.) 'm' emit ;
+: fg      ( fg-- )     40 swap color ;
