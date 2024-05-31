@@ -68,7 +68,11 @@ var vv
 : marker here hh ! last ll ! vhere vv ! ;
 : forget hh @ (here) !c ll @ (last) !c vv @ (vhere) !c 0 >lex ;
 marker
-." c4 - v24.06.01 - chris curl." cr
+: .02 '.' emit dup 10 < if 0 (.) then (.) ;
+: .ver version 100 /mod 100 /mod (.) .02 .02 ;
+." c4 - v" .ver ."  - Chris Curl." cr
+forget
+
 6 load
 3 load
 5 load

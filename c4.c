@@ -92,11 +92,11 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(ITOA,    "to-string", 0, t=pop(); push((cell)iToA(t, base)); ) \
-	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
 	X(DOTS,    ".s",        0, dotS(); ) \
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; /**/) \
-	X(FIND,    "FIND",      1, { DE_T *dp = (DE_T*)findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(FIND,    "find",      1, { DE_T *dp = (DE_T*)findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
 	X(BYE,     "bye",       0, exit(0); )
 
 #define X(op, name, imm, cod) op,
@@ -406,6 +406,7 @@ void baseSys() {
 		w->fl = prims[i].imm;
 	}
 
+	parseF(": version   #%d ;", VERSION);
 	parseF(": (jmp)     #%d ;", JMP);
 	parseF(": (jmpz)    #%d ;", JMPZ);
 	parseF(": (jmpnz)   #%d ;", JMPNZ);

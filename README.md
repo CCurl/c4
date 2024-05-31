@@ -75,9 +75,9 @@ todo
 | or        | (A B--N)     | N: A OR  B |
 | xor       | (A B--N)     | N: A XOR B |
 | com       | (A--B)       | N: A with all bits flipped |
-| do        | (T F--)      | Begin DO loop with bounds F and T |
+| for       | (T F--)      | Begin DO loop with bounds F and T |
 | i         | (--I)        | I: Current DO LOOP index |
-| loop      | (--)         | Increment I, stop if I >= T |
+| next      | (--)         | Increment I, stop if I >= T |
 | a         | (--N)        | Push a (a built-in variable ala MachineForth) |
 | a+        | (--N)        | Push a, then increment it |
 | >a        | (N--)        | Set a to N |
@@ -94,7 +94,6 @@ todo
 | r@        | (--N)        | N: return stack TOS |
 | r>        | (R:N--N)     | Move return TOS to the stack |
 | emit      | (C--)        | Output char C |
-| (.)       | (N--)        | Print N in the current BASE, no trailing SPACE |
 | :         | (--)         | Create a new word, set STATE=1 |
 | ;         | (--)         | Compile EXIT, set STATE=0 |
 | immediate | (--)         | Mark the last created word as IMMEDIATE |
@@ -115,5 +114,11 @@ todo
 | fgets     | (B SZ H--F)  | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
 | fload     | (NM--)       | NM: File Name to load |
 | load      | (N--)        | N: Block number to load (block-NNN.c4) |
+| loaded?   | (XT DP--)    | Stops a load if DP <> 0 |
+| to-string | (N--A)       | Convert N to a string in the current BASE |
+| .s        | (--)         | Display the stack |
+| @c        | (A--N)       | Fetch N from CODE address A |
+| !c        | (N A--)      | Store N to CODE address A |
+| find      | (--XT DP)    | XT: word XT, DP: dict entry (0 if not found) |
 | system    | (A--)        | PC ONLY: A: String to send to the system() |
 | bye       | (--)         | PC ONLY: Exit C4 |
