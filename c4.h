@@ -1,6 +1,6 @@
 #ifndef __C4_H__
 
-#define VERSION       240531
+#define VERSION       240601
 #define CODE_SZ       0xFFFF
 #define VARS_SZ       0xFFFF
 #define DICT_SZ       0xFFFF
