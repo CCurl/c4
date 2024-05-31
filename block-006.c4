@@ -1,2 +1,4 @@
+find ls loaded?
+
 : ls " ls -l" system ;
 : lg " lazygit" system ;

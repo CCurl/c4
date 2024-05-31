@@ -38,11 +38,13 @@
 : mod /mod drop ;
 : +! tuck @ + swap ! ;
 : space 32 emit ;
+: (.) to-string count type ;
 : . (.) space ;
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
 : a-  a dup 1- >a ;
+: a++ a+ drop ;
 : ->xt     w@ ;
 : ->size   2 + c@ ;
 : ->flags  3 + c@ ;
@@ -70,4 +72,4 @@ var vv
 marker
 ." c4 - v24.06.01 - chris curl." cr
 6 load
-2 load
+3 load

@@ -31,33 +31,33 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(DUP,     "dup",       0, t=TOS; push(t); ) \
 	X(SWAP,    "swap",      0, t=TOS; TOS=NOS; NOS=t; ) \
 	X(DROP,    "drop",      0, pop(); ) \
-	X(OVER,    "over",      0, t = NOS; push(t); ) \
+	X(OVER,    "over",      0, t=NOS; push(t); ) \
 	X(FET,     "@",         0, TOS = fetchCell(TOS); ) \
 	X(CFET,    "c@",        0, TOS = *(byte *)TOS; ) \
 	X(WFET,    "w@",        0, TOS = fetchWord(TOS); ) \
 	X(STO,     "!",         0, t=pop(); n=pop(); storeCell(t, n); ) \
 	X(CSTO,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
 	X(WSTO,    "w!",        0, t=pop(); n=pop(); storeWord(t, n); ) \
-	X(ADD,     "+",         0, t = pop(); TOS += t; ) \
-	X(SUB,     "-",         0, t = pop(); TOS -= t; ) \
-	X(MUL,     "*",         0, t = pop(); TOS *= t; ) \
-	X(DIV,     "/",         0, t = pop(); TOS /= t; ) \
-	X(SLMOD,   "/mod",      0, t = TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
+	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
+	X(SUB,     "-",         0, t=pop(); TOS -= t; ) \
+	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
+	X(DIV,     "/",         0, t=pop(); TOS /= t; ) \
+	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
 	X(INC,     "1+",        0, ++TOS; ) \
 	X(DEC,     "1-",        0, --TOS; ) \
-	X(LT,      "<",         0, t = pop(); TOS = (TOS < t); ) \
-	X(EQ,      "=",         0, t = pop(); TOS = (TOS == t); ) \
-	X(GT,      ">",         0, t = pop(); TOS = (TOS > t); ) \
+	X(LT,      "<",         0, t=pop(); TOS = (TOS < t); ) \
+	X(EQ,      "=",         0, t=pop(); TOS = (TOS == t); ) \
+	X(GT,      ">",         0, t=pop(); TOS = (TOS > t); ) \
 	X(EQ0,     "0=",        0, TOS = (TOS == 0) ? 1 : 0; ) \
-	X(AND,     "and",       0, t = pop(); TOS &= t; ) \
-	X(OR,      "or",        0, t = pop(); TOS |= t; ) \
-	X(XOR,     "xor",       0, t = pop(); TOS ^= t; ) \
+	X(AND,     "and",       0, t=pop(); TOS &= t; ) \
+	X(OR,      "or",        0, t=pop(); TOS |= t; ) \
+	X(XOR,     "xor",       0, t=pop(); TOS ^= t; ) \
 	X(COM,     "com",       0, TOS = ~TOS; ) \
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
 	X(AGET,    "a",         0, push(A); ) \
-	X(ASET,    ">a",        0, A = pop(); ) \
+	X(ASET,    ">a",        0, A=pop(); ) \
 	X(AINC,    "a+",        0, push(A++); ) \
 	X(BGET,    "b",         0, push(B); ) \
 	X(BINC,    "b+",        0, push(B++); ) \
@@ -72,10 +72,9 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(EMIT,    "emit",      0, t=pop(); emit((char)t); ) \
-	X(DOT,     "(.)",       0, t=pop(); printf("%s", iToA(t, base)); ) \
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state = 0; cH=here; ) \
-	X(IMM,     "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
+	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
 	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
 	X(CLK,     "timer",     0, push(clock()); ) \
 	X(SEE,     "see",       1, doSee(); ) \
@@ -91,11 +90,13 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(FLLOAD,  "fload",     0, t=pop(); fileLoad((char*)t); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
-	X(ITOA,    "i->a",      0, TOS=(cell)iToA(TOS, base); push(strLen((char*)TOS)); ) \
+	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
+	X(ITOA,    "to-string", 0, t=pop(); push((cell)iToA(t, base)); ) \
 	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
 	X(DOTS,    ".s",        0, dotS(); ) \
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
-	X(STOV,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; /**/) \
+	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; /**/) \
+	X(FIND,    "FIND",      1, { DE_T *dp = (DE_T*)findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(BYE,     "bye",       0, exit(0); )
 
 #define X(op, name, imm, cod) op,
@@ -156,15 +157,15 @@ DE_T *addWord(const char *w) {
 	int ln = strLen(w);
 	int sz = ln + 7;          // xt + sz + fl + lx + ln + null
 	if (sz & 1) { ++sz; }
-	ushort newLast = last - sz;
+	ushort newLast=last - sz;
 	DE_T *dp = (DE_T*)&dict[newLast];
 	dp->sz = sz;
-	dp->xt = here;
+	dp->xt=here;
 	dp->fl = 0;
 	dp->lx = (byte)lex;
 	dp->ln = ln;
 	strCpy(dp->nm, w);
-	last = newLast;
+	last=newLast;
 	// printf("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
 	return dp;
 }
@@ -194,12 +195,12 @@ int findXT(int xt) {
 }
 
 int findPrevXT(int xt) {
-	int prevXT = here;
+	int prevXT=here;
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
 		if (dp->xt == xt) { return prevXT; }
-		prevXT = dp->xt;
+		prevXT=dp->xt;
 		cw += dp->sz;
 	}
 	return here;
@@ -235,7 +236,7 @@ void doSee() {
 char *iToA(cell N, int b) {
 	static char buf[65];
 	ucell X = (ucell)N;
-	int isNeg = 0;
+	int isNeg = 0, len = 0;
 	if (b == 0) { b = (int)base; }
 	if ((b == 10) && (N < 0)) { isNeg = 1; X = -N; }
 	char c, *cp = &buf[64];
@@ -245,21 +246,23 @@ char *iToA(cell N, int b) {
 		X /= b;
 		c = (c > '9') ? c+7 : c;
 		*(--cp) = c;
+		++len;
 	} while (X);
 	if (isNeg) { *(--cp) = '-'; }
+	*(--cp) = len;
 	return cp;
 }
 
 void dotS() {
     printf("( ");
-    for (int i = 1; i <= sp; i++) { printf("%s ", iToA(stk[i].i, base)); }
+    for (int i = 1; i <= sp; i++) { printf("%s ", iToA(stk[i].i, base)+1); }
     printf(")");
 }
 
 void quote() {
 	comma(LIT2);
 	commaCell((cell)&vars[vhere]);
-	ushort start = vhere;
+	ushort start=vhere;
 	vars[vhere++] = 0; // Length byte
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
@@ -399,7 +402,7 @@ void parseF(const char *fmt, ...) {
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
 		DE_T *w = addWord(prims[i].name);
-		w->xt = prims[i].op;
+		w->xt=prims[i].op;
 		w->fl = prims[i].imm;
 	}
 
@@ -434,7 +437,7 @@ void Init() {
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
 	sp = rsp = lsp = aSp = state = 0;
-	last = DICT_SZ;
+	last=DICT_SZ;
 	base = 10;
 	here = LASTPRIM+1;
 	fileInit();
