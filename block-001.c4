@@ -43,8 +43,6 @@
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
-: a-  a dup 1- >a ;
-: a++ a+ drop ;
 : ->xt     w@ ;
 : ->size   2 + c@ ;
 : ->flags  3 + c@ ;
