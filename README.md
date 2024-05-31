@@ -2,7 +2,7 @@
 
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is a 16-bit unsigned number (0..65535). <br/>
-Primitives are assigned numbers sequentially from 0 to `BYE`.
+Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
 If it is greater than `BYE`, it is the code address of a word to execute. <br/>
 
@@ -27,10 +27,10 @@ Strings in C4 are both counted and NULL terminated.
 
 ## MachineForth influences
 
-C4 includes 4 built-in variables as primitives (a, b, s, d). <br/>
+C4 includes 4 built-in variables as primitives (`a`, `b`, `s`, `d`). <br/>
 This is in the spirit of MachineForth, with its opcodes for the 'a' register. <br/>
 's' is shorthand for 'source', but can be used for anything. <br/>
-'d' is shorthand for 'dest', but can be used for anything. <br/>
+'d' is shorthand for 'destination', but can be used for anything. <br/>
 - They all support set (`>a`, `>b`, `>s`, `>d`)
 - They all support get (`a`, `b`, `s`, `d`)
 - They all support get with increment (`a+`, `b+`, `s+`, `d+`)
@@ -64,7 +64,7 @@ todo
 | -         | (A B--C)     | C: A - B |
 | *         | (A B--C)     | C: A * B |
 | /         | (A B--C)     | C: A / B (integer division) |
-| /mod      | (A B--M Q)   | M: A MODULO B, Q: quotient of A / B |
+| /mod      | (A B--M Q)   | M: A modulo B, Q: quotient of A / B |
 | 1+        | (A--B)       | Increment TOS |
 | 1-        | (A--B)       | Decrement TOS |
 | <         | (A B--F)     | F: 1 if (A<B>), else 0 |
