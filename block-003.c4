@@ -1,4 +1,4 @@
-( Strings )
+( block 3 - strings )
 
 find lex-string loaded?
 
