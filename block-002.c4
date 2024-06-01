@@ -13,6 +13,7 @@
 : col  ( --n ) 43 @c ; : >col  ( n-- ) 43 !c ;
 : pos  ( --n ) 44 @c ; : >pos  ( n-- ) 44 !c ;
 : blk  ( --n ) 45 @c ; : >blk  ( n-- ) 45 !c ;
+: mod  ( --n ) 46 @c ; : >mod  ( n-- ) 46 !c ;
 : block-sz rows cols * ;
 
 30 >rows 100 >cols
@@ -22,37 +23,46 @@ block-sz allot
 : rc->pos ( -- )  row cols * col + >pos ;
 : pos->rc ( -- )  pos cols /mod >row >col ;
 : ->pos   ( -- )  pos->rc row 1+ col 1+ ->rc ;
+: ->foot  ( -- )  rows 1+ 1 ->rc ;
 : ->cmd   ( -- )  rows 2+ 1 ->rc ;
-: show    ( -- )  1 dup ->rc block >a
+: move  ( dist-- ) pos + 0 max block-sz min >pos  pos->rc ;
+: prev-line  cols negate move ;
+: next-line  cols move ;
+: set-color ( c--c )
+    dup 0=  if exit then
+    dup 7 > if exit then
+	dup 30 + fg ;
+: footer ->foot ." block " blk . 32 mod if drop '*' then emit ;
+: show    ( -- )  1 dup ->rc  block >a
 	rows for 
 	    cols for
-		    a+ c@ dup 32 < if drop 32 then emit
+		    a+ c@ set-color
+			dup 32 < if drop 32 then emit
 		next
 		cr
-	next ;
-: fill ( from char num-- )
-    a >r   >r swap >a
-    r> for dup a+ c! next
-	drop  r> >a ;
+	next footer ;
 
 : dump ( from num-- ) for dup c@ . 1+ next  drop ;
-: move ( dist-- ) pos + 0 max block-sz min >pos pos->rc ;
-: test-block block 'a' block-sz fill ;
+: test-block a >r  block >a
+	rows for cols for i 10 mod '1' + a+ c! next next
+    r> >a ;
 : init-block block  0  block-sz fill ;
 : dump-block block block-sz dump ;
 
 : fopen-rb ( fn--fh )  " rb" fopen ;
 : fopen-wb ( fn--fh )  " wb" fopen ;
 
-: .. . dup . cr ;
 : block-fn ( --s ) p1 " block-" s-cpy
 	blk 10 /mod 10 /mod
 	3 for p1 swap '0' + s-catc drop next
 	" .c4" s-cat ;
 
-: read-block block-fn fopen-rb >a
-    a if block block-sz a fread drop  a fclose then ;
+: read-block init-block  block-fn fopen-rb >a
+    a if block block-sz a fread  drop  a fclose then ;
+
 : save-block block-fn fopen-wb >a
     a if block block-sz a fwrite  a fclose then ;
 
-23 >blk
+2 >blk 
+: ed ( -- ) read-block show 0 >pos ;
+1 >mod ed

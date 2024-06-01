@@ -5,6 +5,12 @@ find lex-string loaded?
 0 >lex
 : lex-string 3 >lex ;
 lex-string
+
+: fill ( from char num-- )
+    a >r  >r  swap >a
+    r> for dup a+ c! next
+	drop  r> >a ;
+
 : p1 vhere ->vars 100 + ;
 : p2 p1 100 + ;
 : s-cat  ( dst src--dst )  >s >d
@@ -15,13 +21,11 @@ lex-string
     0 a c! d ;
 : s-trunc ( dst--dst ) 0 over c! 0 over 1+ c! ;
 : s-cpy ( dst src--dst ) >r s-trunc r> s-cat ;
-: s-catc ( dst ch--dst ) swap >d
-    d count + >a
-    d c@ 1+ d c!
-    a+ c! 0 a c! d ;
+: s-catc ( dst ch--dst ) swap >r
+    r@ count + >a  a+ c!  0 a c!
+    r@ c@ 1+ r@ c!  r> ;
 : s-scatc ( ch dst--dst ) swap s-catc ;
 : s-catn ( dst n--dst ) to-string s-cat ;
 : sz-len  ( sz--n ) s >r 0 begin
       s+ c@ 0= if r> >s exit then 1+
     again ;
-
