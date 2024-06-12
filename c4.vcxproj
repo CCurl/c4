@@ -152,7 +152,7 @@
     <None Include="core.c4" />
     <None Include="makefile" />
     <None Include="README.md" />
-    <None Include="test.c4" />
+    <None Include="block-200.c4" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c4.c" />

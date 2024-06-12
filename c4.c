@@ -91,7 +91,7 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(ITOA,    "to-string", 0, t=pop(); push((cell)iToA(t, base)); ) \
 	X(DOTS,    ".s",        0, dotS(); ) \
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
-	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; /**/) \
+	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
 	X(FIND,    "find",      1, { DE_T *dp = (DE_T*)findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
 	X(BYE,     "bye",       0, exit(0); )
@@ -157,7 +157,7 @@ DE_T *addWord(const char *w) {
 	ushort newLast=last - sz;
 	DE_T *dp = (DE_T*)&dict[newLast];
 	dp->sz = sz;
-	dp->xt=here;
+	dp->xt = here;
 	dp->fl = 0;
 	dp->lx = (byte)lex;
 	dp->ln = ln;
@@ -217,7 +217,7 @@ void doSee() {
 		printf("\n%04X: %04X\t", i-1, op);
 		switch (op) {
 			case  STOP: printf("stop"); i++;
-			BCASE LIT1: printf("lit1 %d (%hX)", (ushort)x, (ushort)x); i++;
+			BCASE LIT1: printf("lit1 %hd (%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
 				printf("lit2 %lld (%llX)", (int64_t)x, (uint64_t)x);
 				i += CELL_SZ / 2;
