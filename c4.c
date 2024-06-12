@@ -99,7 +99,7 @@ char tib[128], wd[32], *toIn, wordAdded;
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-	STOP, LIT1, LIT2, JMP, JMPZ, NJMPZ, JMPNZ,
+	STOP, LIT1, LIT2, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ,
 	PRIMS
 };
 
@@ -221,10 +221,11 @@ void doSee() {
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
 				printf("lit2 %lld (%llX)", (int64_t)x, (uint64_t)x);
 				i += CELL_SZ / 2;
-			BCASE JMP:   printf("jmp %04hX", (ushort)x);            i++;
-			BCASE JMPZ:  printf("jmpz %04hX (IF)", (ushort)x);      i++;
-			BCASE NJMPZ: printf("njmpz %04hX (-IF)", (ushort)x);    i++;
-			BCASE JMPNZ : printf("jmpnz %04hX (WHILE)", (ushort)x); i++; break;
+			BCASE JMP:    printf("jmp %04hX", (ushort)x);            i++;
+			BCASE JMPZ:   printf("jmpz %04hX (IF)", (ushort)x);      i++;
+			BCASE NJMPZ:  printf("njmpz %04hX (-IF)", (ushort)x);    i++;
+			BCASE JMPNZ:  printf("jmpnz %04hX (WHILE)", (ushort)x); i++; break;
+			BCASE NJMPNZ: printf("njmpnz %04hX (-WHILE)", (ushort)x); i++; break;
 			default: x = findXT(op); 
 				printf("%s", x ? ((DE_T*)&dict[(ushort)x])->nm : "??");
 		}
@@ -308,13 +309,14 @@ void inner(int start) {
 	next:
 	wc = code[pc++];
 	switch(wc) {
-		case  STOP:  return;
-		NCASE LIT1:  push(code[pc++]);
-		NCASE LIT2:  push(fetchCell((cell)&code[pc])); pc += CELL_SZ/2;
-		NCASE JMP:   pc=code[pc];
-		NCASE JMPZ:  if (pop()==0) { pc=code[pc]; } else { ++pc; }
-		NCASE NJMPZ: if (TOS==0) { pc=code[pc]; } else { ++pc; }
-		NCASE JMPNZ: if (pop()) { pc=code[pc]; } else { ++pc; }
+		case  STOP:   return;
+		NCASE LIT1:   push(code[pc++]);
+		NCASE LIT2:   push(fetchCell((cell)&code[pc])); pc += CELL_SZ/2;
+		NCASE JMP:    pc=code[pc];
+		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
+		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
+		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
+		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
 		PRIMS
 		default: if (code[pc] != EXIT) { rpush(pc); }
 				 pc = wc;
@@ -413,6 +415,7 @@ void baseSys() {
 	parseF(": (jmpz)    #%d ;", JMPZ);
 	parseF(": (njmpz)   #%d ;", NJMPZ);
 	parseF(": (jmpnz)   #%d ;", JMPNZ);
+	parseF(": (njmpnz)  #%d ;", NJMPNZ);
 	parseF(": (lit1)    #%d ;", LIT1);
 	parseF(": (lit2)    #%d ;", LIT2);
 	parseF(": (exit)    #%d ;", EXIT);
