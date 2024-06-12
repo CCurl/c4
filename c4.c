@@ -9,7 +9,6 @@
 #define BCASE         break; case
 #define here          code[0]
 #define last          code[1]
-#define vhere         code[2]
 #define base          code[3]
 #define state         code[4]
 #define lex           code[5]
@@ -23,7 +22,7 @@ SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 short sp, rsp, lsp, aSp;
-cell A, B, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
+cell vhere, A, B, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char tib[128], wd[32], *toIn, wordAdded;
 
 #define PRIMS \
@@ -262,19 +261,21 @@ void dotS() {
 void quote() {
 	comma(LIT2);
 	commaCell((cell)&vars[vhere]);
-	ushort start=vhere;
+	cell vh=vhere;
 	vars[vhere++] = 0; // Length byte
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
 		vars[vhere++] = *(toIn++);
-		++vars[start];
+		++vars[vh];
 	}
 	vars[vhere++] = 0; // NULL terminator
 }
 
 void dotQuote() {
-	quote(); comma(COUNT); comma(TYPE);
+	quote();
+	comma(COUNT);
+	comma(TYPE);
 }
 
 void doRand() {
@@ -286,22 +287,23 @@ void doRand() {
 	push(sd);
 }
 
-extern void Exec(int start);
-ushort cH, cL, cS, cV;
+extern void inner(int start);
+ushort cH, cL, cS;
+cell cV;
 void execIt() {
 	// printf("-cH:%d,here:%d-\n",cH, here);
 	if (cH < here) {
 		comma(0);
 		here=cH;
 		vhere=cV;
-		Exec(cH);
+		inner(cH);
 	}
 }
 
 #undef X
 #define X(op, name, imm, code) NCASE op: code
 
-void Exec(int start) {
+void inner(int start) {
 	cell t, n;
 	ushort pc = start, wc;
 	next:
@@ -362,7 +364,7 @@ int parseWord(char *w) {
 			int h = here+100;
 			code[h]   = de->xt;
 			code[h+1] = EXIT;
-			Exec(h);
+			inner(h);
 		} else {
 			comma(de->xt);
 		}
@@ -372,7 +374,7 @@ int parseWord(char *w) {
 	return 0;
 }
 
-int parseLine(const char *ln) {
+int outer(const char *ln) {
     cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
 	// printf("-pl:%s-",ln);
@@ -396,7 +398,7 @@ void parseF(const char *fmt, ...) {
 	va_start(args, fmt);
 	vsnprintf(buf, 128, fmt, args);
 	va_end(args);
-	parseLine(buf);
+	outer(buf);
 }
 
 void baseSys() {
@@ -416,15 +418,15 @@ void baseSys() {
 
 	parseF(": (here)    #%d ;", 0);
 	parseF(": (last)    #%d ;", 1);
-	parseF(": (vhere)   #%d ;", 2);
 	parseF(": base      #%d ;", 3);
 	parseF(": state     #%d ;", 4);
 	parseF(": (lex)     #%d ;", 5);
 
-	parseF(addrFmt, "code", &code[0]);
-	parseF(addrFmt, "vars", &vars[0]);
-	parseF(addrFmt, "dict", &dict[0]);
-	parseF(addrFmt, ">in",  &toIn);
+	parseF(addrFmt, "code",    &code[0]);
+	parseF(addrFmt, "vars",    &vars[0]);
+	parseF(addrFmt, "dict",    &dict[0]);
+	parseF(addrFmt, ">in",     &toIn);
+	parseF(addrFmt, "(vhere)", &vhere);
 
 	parseF(": code-sz #%d ;", CODE_SZ);
 	parseF(": vars-sz #%d ;", VARS_SZ);
@@ -449,7 +451,7 @@ void Init() {
 void REP() {
 	if ((inputFp == 0) && (state==0)) { printf(" ok\n"); }
 	if (fileGets(tib, sizeof(tib), inputFp)) {
-		parseLine(tib+1);
+		outer(tib+1);
 		return;
 	}
 	if (inputFp == 0) { exit(0); }

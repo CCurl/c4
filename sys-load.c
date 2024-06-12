@@ -1,16 +1,16 @@
-extern int parseLine(const char *ln);
+extern int outer(const char *ln);
 
 // comment this out to back the system in
 #define _BOOTFILE_
 
 #ifdef _BOOTFILE_
 
-void sys_load() { parseLine("1 LOAD"); }
+void sys_load() { outer("1 LOAD"); }
 
 #else
 
 void sys_load() {
-    parseLine("\
+    outer("\
 : C@V >VARS C@ ; \
 : C!V >VARS C! ; \
 : @C DUP + >CODE W@ ; \
@@ -20,7 +20,7 @@ void sys_load() {
 : DECIMAL #10 BASE !C ; \
 : HERE  (HERE)  @C ; \
 : LAST  (LAST)  @C ; \
-: VHERE (VHERE) @C ; \
+: VHERE (VHERE) @ ; \
 : LEX   (LEX)   @C ; \
 : BEGIN HERE ; IMMEDIATE \
 : AGAIN (JMP)   , , ; IMMEDIATE \
@@ -35,7 +35,7 @@ void sys_load() {
     >IN @ 1+ >IN ! \
     ')' = IF EXIT THEN \
   AGAIN ; IMMEDIATE \
-: ALLOT VHERE + (VHERE) !C ; \
+: ALLOT VHERE + (VHERE) ! ; \
 : ,V VHERE >VARS ! CELL ALLOT ; \
 : CELLS CELL * ; \
 : NIP SWAP DROP ; \

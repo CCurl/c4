@@ -28,7 +28,7 @@ Strings in C4 are both counted and NULL terminated.
 ## MachineForth influences
 
 C4 includes 4 built-in variables as primitives (`a`, `b`, `s`, `d`). <br/>
-This is in the spirit of MachineForth, with its opcodes for the 'a' register. <br/>
+This is in the spirit of MachineForth, that has opcodes for the 'a' register. <br/>
 's' is shorthand for 'source', but can be used for anything. <br/>
 'd' is shorthand for 'destination', but can be used for anything. <br/>
 - They all support set (`>a`, `>b`, `>s`, `>d`)

@@ -3,7 +3,7 @@
 : ->dict dict + ;
 : here  (here)  @c ;
 : last  (last)  @c ;
-: vhere (vhere) @c ;
+: vhere (vhere) @ ;
 : lex   (lex)   @c ;
 : >lex  (lex)   !c ;
 : , here  dup 1+     (here)  !c !c ;
@@ -20,7 +20,7 @@
     >in @ 1+ >in !
     ')' = if exit then
   again ; immediate
-: allot vhere + (vhere) !c ;
+: allot vhere + (vhere) ! ;
 : ,v  vhere ->vars ! cell allot ;
 : hex     $10 base !c ;
 : binary  %10 base !c ;
