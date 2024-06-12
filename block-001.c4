@@ -11,6 +11,7 @@
 : again (jmp)   , , ; immediate
 : while (jmpnz) , , ; immediate
 : until (jmpz)  , , ; immediate
+: -if (njmpz) , here 0 , ; immediate
 : if (jmpz) , here 0 , ; immediate
 : else (jmp) , here swap 0 , here swap !c ; immediate
 : then here swap !c ; immediate
