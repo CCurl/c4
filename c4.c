@@ -3,16 +3,18 @@
 #define LASTPRIM      BYE
 #define NCASE         goto next; case
 #define BCASE         break; case
-#define here          code[0]
-#define last          code[1]
-#define base          code[3]
-#define state         code[4]
-#define lex           code[5]
+#define here          code[HA]
+#define last          code[LA]
+#define base          code[BA]
+#define state         code[SA]
+#define lex           code[LEXA]
 #define TOS           stk[sp].i
 #define NOS           stk[sp-1].i
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
+
+enum { HA = 0, LA, BA, SA, LEXA };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
@@ -412,11 +414,11 @@ void baseSys() {
 	parseF(": (lit2)    #%d ;", LIT2);
 	parseF(": (exit)    #%d ;", EXIT);
 
-	parseF(": (here)    #%d ;", 0);
-	parseF(": (last)    #%d ;", 1);
-	parseF(": base      #%d ;", 3);
-	parseF(": state     #%d ;", 4);
-	parseF(": (lex)     #%d ;", 5);
+	parseF(": (here)    #%d ;", HA);
+	parseF(": (last)    #%d ;", LA);
+	parseF(": base      #%d ;", BA);
+	parseF(": state     #%d ;", SA);
+	parseF(": (lex)     #%d ;", LEXA);
 
 	parseF(addrFmt, "code",    &code[0]);
 	parseF(addrFmt, "vars",    &vars[0]);
