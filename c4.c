@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <time.h>
 #include "c4.h"
 
 #define LASTPRIM      BYE
@@ -84,8 +80,8 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(RAND,    "rand",      0, doRand(); ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
-	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, n, t); ) \
-	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, n, t); ) \
+	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
+	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(FLLOAD,  "fload",     0, t=pop(); fileLoad((char*)t); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
@@ -140,7 +136,7 @@ void strCpy(char *d, const char *s) {
 void comma(x) { code[here++] = x; }
 void commaCell(cell n) {
 	storeCell((cell)&code[here], n);
-	here += sizeof(cell) / 2;
+	here += CELL_SZ / 2;
 }
 
 int nextWord() {
@@ -212,20 +208,20 @@ void doSee() {
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
-	printf("\n%04lX: %s (%04hX to %04X)", x, dp->nm, dp->xt, stop);
+	printf("\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
 	while (i <= stop) {
 		int op = code[i++];
 		x = code[i];
 		printf("\n%04X: %04X\t", i-1, op);
 		switch (op) {
 			case  STOP: printf("stop"); i++;
-			BCASE LIT1: printf("lit1 %ld (%lX)", x, x); i++;
+			BCASE LIT1: printf("lit1 %d (%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
-				printf("lit2 %ld (%lX)", x, x);
+				printf("lit2 %lld (%llX)", (int64_t)x, (uint64_t)x);
 				i += CELL_SZ / 2;
-			BCASE JMP:   printf("jmp %04lX", x);   i++;
-			BCASE JMPZ:  printf("jmpz %04lX (IF)", x);     i++;
-			BCASE JMPNZ: printf("jmpnz %04lX (WHILE)", x); i++; break;
+			BCASE JMP:   printf("jmp %04hX", (ushort)x);   i++;
+			BCASE JMPZ:  printf("jmpz %04hX (IF)", (ushort)x);     i++;
+			BCASE JMPNZ: printf("jmpnz %04hX (WHILE)", (ushort)x); i++; break;
 			default: x = findXT(op); 
 				printf("%s", x ? ((DE_T*)&dict[(ushort)x])->nm : "??");
 		}
@@ -348,7 +344,7 @@ int parseWord(char *w) {
 	// printf("-pw:%s-",w);
 
 	if (isNum(w, 10)) {
-		long n = pop();
+		cell n = pop();
 		if (btwi(n, 0, 0xffff)) {
 			comma(LIT1); comma((ushort)n);
 		} else {

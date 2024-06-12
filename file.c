@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "c4.h"
 
 // #define NO_FILE
