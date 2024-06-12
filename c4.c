@@ -219,12 +219,12 @@ void doSee() {
 			case  STOP: printf("stop"); i++;
 			BCASE LIT1: printf("lit1 %hd (%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
-				printf("lit2 %lld (%llX)", (int64_t)x, (uint64_t)x);
+				printf("lit2 %zd (%zX)", (size_t)x, (size_t)x);
 				i += CELL_SZ / 2;
-			BCASE JMP:    printf("jmp %04hX", (ushort)x);            i++;
-			BCASE JMPZ:   printf("jmpz %04hX (IF)", (ushort)x);      i++;
-			BCASE NJMPZ:  printf("njmpz %04hX (-IF)", (ushort)x);    i++;
-			BCASE JMPNZ:  printf("jmpnz %04hX (WHILE)", (ushort)x); i++; break;
+			BCASE JMP:    printf("jmp %04hX", (ushort)x);             i++;
+			BCASE JMPZ:   printf("jmpz %04hX (IF)", (ushort)x);       i++;
+			BCASE NJMPZ:  printf("njmpz %04hX (-IF)", (ushort)x);     i++;
+			BCASE JMPNZ:  printf("jmpnz %04hX (WHILE)", (ushort)x);   i++; break;
 			BCASE NJMPNZ: printf("njmpnz %04hX (-WHILE)", (ushort)x); i++; break;
 			default: x = findXT(op); 
 				printf("%s", x ? ((DE_T*)&dict[(ushort)x])->nm : "??");
