@@ -109,7 +109,7 @@ enum _PRIM  {
 #undef X
 #define X(op, name, imm, cod) { op, name, imm },
 
-typedef struct { short op; const char *name; byte imm; } PRIM_T;
+typedef struct { short op; const char *name; byte fl; } PRIM_T;
 PRIM_T prims[] = {
 	PRIMS
 	{0, 0, 0}
@@ -219,7 +219,7 @@ void doSee() {
 		printF("\n%04X: %04X\t", i-1, op);
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT1: printF("lit1 %hd (%hX)", (ushort)x, (ushort)x); i++;
+			BCASE LIT1: printF("lit1 %hu (%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
 				printF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
 				i += CELL_SZ / 2;
@@ -418,8 +418,8 @@ void printF(const char *fmt, ...) {
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
 		DE_T *w = addWord(prims[i].name);
-		w->xt=prims[i].op;
-		w->fl = prims[i].imm;
+		w->xt = prims[i].op;
+		w->fl = prims[i].fl;
 	}
 
 	parseF(": version   #%d ;", VERSION);
@@ -456,8 +456,8 @@ void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
-	sp = rsp = lsp = aSp = state = 0;
-	last=DICT_SZ;
+	vhere = sp = rsp = lsp = aSp = state = 0;
+	last = DICT_SZ;
 	base = 10;
 	here = LASTPRIM+1;
 	fileInit();

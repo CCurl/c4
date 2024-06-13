@@ -2,6 +2,9 @@
 
 find ls loaded?
 
+3 load ( strings )
+5 load ( screen )
+
 : ls   " ls -l"    system ;
 : lg   " lazygit"  system ;
 : nvim " nvim ."   system ;

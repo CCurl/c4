@@ -65,17 +65,18 @@
 : create addword ; immediate
 : var   addword cell allot (exit) , ; immediate
 : const addword ,v does> @ ; immediate
-: hh 20 ;  : ll 21 ;
 var vv
-: marker here hh !c last ll !c vhere vv ! ;
-: forget hh @c (here) !c ll @c (last) !c vv @ (vhere) ! 0 >lex ;
+: base@ base @c ;
+: .02 base@ /mod (.) (.) ;
+: .03 base@ dup * /mod (.) .02 ;
+: .04 base@ dup dup * * /mod (.) .03 ;
+: marker here 20 !c last 21 !c vhere vv ! ;
+: forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;
 marker
-: .02 '.' emit dup 10 < if 0 (.) then (.) ;
-: .ver version 100 /mod 100 /mod (.) .02 .02 ;
+: .pt '.' emit .02 ;
+: .ver version 100 /mod 100 /mod .pt .pt .pt ;
 ." c4 - v" .ver ."  - Chris Curl." cr
 forget
 
 6 load
-3 load
-5 load
 0 >lex
