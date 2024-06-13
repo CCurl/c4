@@ -1,3 +1,5 @@
+find bm1 loaded?
+
 200 (lex) !c
 
 : test-if 'n' swap if drop 'y' then emit '.' emit ;

@@ -21,7 +21,7 @@ ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 short sp, rsp, lsp, aSp;
 cell vhere, A, B, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
-char tib[128], wd[32], *toIn, wordAdded;
+char wd[32], *toIn, wordAdded;
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -69,6 +69,8 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(EMIT,    "emit",      0, t=pop(); emit((char)t); ) \
+	X(KEY,     "key",       0, push(key()); ) \
+	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state = 0; cH=here; ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
@@ -77,6 +79,7 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(SEE,     "see",       1, doSee(); ) \
 	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
 	X(TYPE,    "type",      0, t=pop(); char *y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); ) \
+	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(QUOTE,   "\"",        1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); comma(COUNT); comma(TYPE); ) \
 	X(RAND,    "rand",      0, doRand(); ) \
@@ -93,8 +96,8 @@ char tib[128], wd[32], *toIn, wordAdded;
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
 	X(FIND,    "find",      1, { DE_T *dp = (DE_T*)findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
-	X(SYSTEM,  "system",    0, t=pop(); system((char*)t+1); ) \
-	X(BYE,     "bye",       0, exit(0); )
+	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
+	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
 
 #define X(op, name, imm, cod) op,
 
@@ -123,7 +126,6 @@ cell fetchCell(cell a) { return *(cell*)(a); }
 cell fetchWord(cell a) { return *(ushort*)(a); }
 int lower(char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
-void emit(char c) { printf("%c", c); }
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -163,7 +165,7 @@ DE_T *addWord(const char *w) {
 	dp->ln = ln;
 	strCpy(dp->nm, w);
 	last=newLast;
-	// printf("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
+	// printF("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
 	return dp;
 }
 
@@ -173,7 +175,7 @@ DE_T *findWord(const char *w) {
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
-		// printf("-%d,(%s)-", cw, dp->nm);
+		// printF("-%d,(%s)-", cw, dp->nm);
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += dp->sz;
 	}
@@ -184,7 +186,7 @@ int findXT(int xt) {
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
-		// printf("-%d,(%s)-", cw, dp->nm);
+		// printF("-%d,(%s)-", cw, dp->nm);
 		if (dp->xt == xt) { return cw; }
 		cw += dp->sz;
 	}
@@ -205,29 +207,29 @@ int findPrevXT(int xt) {
 
 void doSee() {
 	DE_T *dp = findWord(0);
-	if (!dp) { printf("-nf:%s-", wd); return; }
-	if (dp->xt < LASTPRIM) { printf("%s is a primitive (%hX).\n", wd, dp->xt); return; }
+	if (!dp) { printF("-nf:%s-", wd); return; }
+	if (dp->xt < LASTPRIM) { printF("%s is a primitive (%hX).\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
-	printf("\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
+	printF("\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
 	while (i <= stop) {
 		int op = code[i++];
 		x = code[i];
-		printf("\n%04X: %04X\t", i-1, op);
+		printF("\n%04X: %04X\t", i-1, op);
 		switch (op) {
-			case  STOP: printf("stop"); i++;
-			BCASE LIT1: printf("lit1 %hd (%hX)", (ushort)x, (ushort)x); i++;
+			case  STOP: zType("stop"); i++;
+			BCASE LIT1: printF("lit1 %hd (%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
-				printf("lit2 %zd (%zX)", (size_t)x, (size_t)x);
+				printF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
 				i += CELL_SZ / 2;
-			BCASE JMP:    printf("jmp %04hX", (ushort)x);             i++;
-			BCASE JMPZ:   printf("jmpz %04hX (IF)", (ushort)x);       i++;
-			BCASE NJMPZ:  printf("njmpz %04hX (-IF)", (ushort)x);     i++;
-			BCASE JMPNZ:  printf("jmpnz %04hX (WHILE)", (ushort)x);   i++; break;
-			BCASE NJMPNZ: printf("njmpnz %04hX (-WHILE)", (ushort)x); i++; break;
+			BCASE JMP:    printF("jmp %04hX", (ushort)x);             i++;
+			BCASE JMPZ:   printF("jmpz %04hX (IF)", (ushort)x);       i++;
+			BCASE NJMPZ:  printF("njmpz %04hX (-IF)", (ushort)x);     i++;
+			BCASE JMPNZ:  printF("jmpnz %04hX (WHILE)", (ushort)x);   i++; break;
+			BCASE NJMPNZ: printF("njmpnz %04hX (-WHILE)", (ushort)x); i++; break;
 			default: x = findXT(op); 
-				printf("%s", x ? ((DE_T*)&dict[(ushort)x])->nm : "??");
+				zType(x ? ((DE_T*)&dict[(ushort)x])->nm : "??");
 		}
 	}
 }
@@ -253,9 +255,9 @@ char *iToA(cell N, int b) {
 }
 
 void dotS() {
-    printf("( ");
-    for (int i = 1; i <= sp; i++) { printf("%s ", iToA(stk[i].i, base)+1); }
-    printf(")");
+    zType("( ");
+    for (int i = 1; i <= sp; i++) { printF("%s ", iToA(stk[i].i, base)+1); }
+    zType(")");
 }
 
 void quote() {
@@ -290,8 +292,9 @@ void doRand() {
 extern void inner(int start);
 ushort cH, cL, cS;
 cell cV;
+
 void execIt() {
-	// printf("-cH:%d,here:%d-\n",cH, here);
+	// printF("-cH:%d,here:%d-\n",cH, here);
 	if (cH < here) {
 		comma(0);
 		here=cH;
@@ -347,7 +350,7 @@ int isNum(const char *w, int b) {
 
 int parseWord(char *w) {
 	if (!w) { w = &wd[0]; }
-	// printf("-pw:%s-",w);
+	// printF("-pw:%s-",w);
 
 	if (isNum(w, 10)) {
 		cell n = pop();
@@ -379,10 +382,10 @@ int parseWord(char *w) {
 int outer(const char *ln) {
     cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
-	// printf("-pl:%s-",ln);
+	// printF("-pl:%s-",ln);
 	while (nextWord()) {
 		if (!parseWord(wd)) {
-			printf("-%s?-", wd);
+			printF("-%s?-", wd);
 			here=cH;
 			vhere=cV;
 			last=cL;
@@ -401,6 +404,15 @@ void parseF(const char *fmt, ...) {
 	vsnprintf(buf, 128, fmt, args);
 	va_end(args);
 	outer(buf);
+}
+
+void printF(const char *fmt, ...) {
+	char buf[128];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buf, 128, fmt, args);
+	va_end(args);
+	zType(buf);
 }
 
 void baseSys() {
@@ -426,11 +438,12 @@ void baseSys() {
 	parseF(": state     #%d ;", SA);
 	parseF(": (lex)     #%d ;", LEXA);
 
-	parseF(addrFmt, "code",    &code[0]);
-	parseF(addrFmt, "vars",    &vars[0]);
-	parseF(addrFmt, "dict",    &dict[0]);
-	parseF(addrFmt, ">in",     &toIn);
+	parseF(addrFmt, "code", &code[0]);
+	parseF(addrFmt, "vars", &vars[0]);
+	parseF(addrFmt, "dict", &dict[0]);
+	parseF(addrFmt, ">in",  &toIn);
 	parseF(addrFmt, "(vhere)", &vhere);
+	parseF(addrFmt, "(output-fp)", &outputFp);
 
 	parseF(": code-sz #%d ;", CODE_SZ);
 	parseF(": vars-sz #%d ;", VARS_SZ);
@@ -449,34 +462,4 @@ void Init() {
 	here = LASTPRIM+1;
 	fileInit();
 	baseSys();
-}
-
-// REP - Read/Execute/Print (no Loop)
-void REP() {
-	if ((inputFp == 0) && (state==0)) { printf(" ok\n"); }
-	if (fileGets(tib, sizeof(tib), inputFp)) {
-		outer(tib+1);
-		return;
-	}
-	if (inputFp == 0) { exit(0); }
-	fileClose(inputFp);
-	inputFp = filePop();
-}
-
-int main(int argc, char *argv[]) {
-	char fn[32];
-	Init();
-	if (argc>1) {
-        cell tmp = inputFp;
-		strCpy(fn+1, argv[1]);
-		fileLoad(fn);
-        // load init block first (if necessary)
-        if (tmp && inputFp) {
-            filePop();
-            filePush(inputFp);
-            inputFp = tmp;
-        }
-	}
-	while (1) { REP(); };
-	return 0;
 }

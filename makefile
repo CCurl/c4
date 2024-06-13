@@ -23,7 +23,10 @@ clean:
 	rm -f $(app) $(app32)
 
 test: $(app)
-	./$(app) test.c4
+	./$(app) block-200.c4
+
+run: $(app)
+	./$(app)
 
 bin: $(app)
 	cp -u -p $(app) ~/bin/

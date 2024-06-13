@@ -1,5 +1,17 @@
 #ifndef __C4_H__
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#define IS_WINDOWS 1
+#define IS_PC      1
+#define PC_FILE
+#endif
+
+#ifdef IS_LINUX
+#define IS_PC      1
+#define PC_FILE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -38,7 +50,10 @@ typedef union { FLT_T f; cell i; } SE_T;
 typedef struct { ushort xt; byte sz, fl, lx, ln; char nm[32]; } DE_T;
 
 // These are defined by c4.c
+
 extern int strLen(const char *s);
+extern void printF(const char *fmt, ...);
+extern void Init();
 
 // c4.c needs these
 extern cell inputFp, outputFp;
@@ -52,5 +67,11 @@ extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
 extern void fileLoad(char *name);
 extern void blockLoad(int blk);
+
+extern void zType(const char *str);
+extern void emit(const char ch);
+extern void ttyMode(int isRaw);
+extern int  key();
+extern int  qKey();
 
 #endif //  __C4_H__
