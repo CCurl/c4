@@ -3,49 +3,58 @@
 5 load ( screen )
 3 load ( strings )
 
+( idea: )
+( have 2 buffers, for 2 copies of the file, current and working )
+( have a temp buffer for the current line )
+( keep an array of indexes into where each line starts )
+( keep that updated as things change )
+( also sync the buffers up constantly as things change )
+
 2 >lex
 
 : rl forget 2 load ;
 
-: rows ( --n ) 40 @c ; : >rows ( n-- ) 40 !c ;
-: cols ( --n ) 41 @c ; : >cols ( n-- ) 41 !C ;
-: row  ( --n ) 42 @c ; : >row  ( n-- ) 42 !c ;
-: col  ( --n ) 43 @c ; : >col  ( n-- ) 43 !c ;
-: pos  ( --n ) 44 @c ; : >pos  ( n-- ) 44 !c ;
-: blk  ( --n ) 45 @c ; : >blk  ( n-- ) 45 !c ;
-: mod  ( --n ) 46 @c ; : >mod  ( n-- ) 46 !c ;
-: block-sz rows cols * ;
+: lines      40 @c ;  : >lines      40 !c ;
+: scr-top    41 @c ;  : >scr-top    41 !c ;
+: scr-lines  42 @c ;  : >scr-lines  42 !c ;
+: row        43 @c ;  : >row        43 !c ;
+: col        44 @c ;  : >col        44 !c ;
+: blk        45 @c ;  : >blk        45 !c ;
+: mod        46 @c ;  : >mod        46 !c ;
+: block-sz   47 @c ;  : >block-sz   47 !c ;
 
-30 >rows 100 >cols
+200 >lines  5000 >block-sz
+0 >scr-top 30 >scr-lines
+
 var block
 block-sz allot
+var work
+block-sz allot
 
-: rc->pos ( -- )  row cols * col + >pos ;
-: pos->rc ( -- )  pos cols /mod >row >col ;
-: ->pos   ( -- )  pos->rc row 1+ col 1+ ->rc ;
-: ->foot  ( -- )  rows 1+ 1 ->rc ;
-: ->cmd   ( -- )  rows 2+ 1 ->rc ;
-: move  ( dist-- ) pos + 0 max block-sz min >pos  pos->rc ;
-: prev-line  cols negate move ;
-: next-line  cols move ;
-: set-color ( c--c )
-    dup 0=  if exit then
-    dup 7 > if exit then
-	dup 30 + fg ;
+var (lines) lines cells allot
+
+: line  ( row--a )  cell * (lines) + @ ;
+: >line ( a row-- ) cell * (lines) + ! ;
+: rc->pos ( -- )  row line col + ;
+: ->foot  ( -- )  lines 1+ 1 ->rc ;
+: ->cmd   ( -- )  lines 2+ 1 ->rc ;
+: norm-r ;
+: norm-c ;
+: norm-rc norm-r norm-c ;
+: norm-ch ( c--c )
+	dup 31 > if exit then
+	dup 0= if exit then
+	dup 10 = if drop  0 exit then
+	drop 32 ;
+: move  ( r c-- ) col + >col row + >row norm-rc ;
 : footer ->foot ." block " blk . 32 mod if drop '*' then emit ;
-: show    ( -- )  1 dup ->rc  block >a
-	rows for 
-	    cols for
-		    a+ c@ set-color
-			dup 32 < if drop 32 then emit
-		next
-		cr
+: show    ( -- )  1 dup ->rc
+	scr-lines for 
+		i line ?dup if ztype then 
+		clr-eol cr
 	next footer ;
 
 : dump ( from num-- ) for dup c@ . 1+ next  drop ;
-: test-block a >r  block >a
-	rows for cols for i 10 mod '1' + a+ c! next next
-    r> >a ;
 : init-block block  0  block-sz fill ;
 : dump-block block block-sz dump ;
 
@@ -58,11 +67,14 @@ block-sz allot
 	" .c4" s-cat ;
 
 : read-block init-block  block-fn fopen-rb >a
-    a if block block-sz a fread  drop  a fclose then ;
+	a 0= if exit then
+    block block-sz a fread  drop
+	a fclose  block >a
+	block-sz for  a c@ norm-ch  a+ c!  next ;
 
 : save-block block-fn fopen-wb >a
     a if block block-sz a fwrite  a fclose then ;
 
 2 >blk 
-: ed ( -- ) read-block show 0 >pos ;
-1 >mod ed
+: ed ( -- ) read-block 0 >row 0 >col show ;
+( 1 >mod ed )
