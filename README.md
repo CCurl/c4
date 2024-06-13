@@ -2,7 +2,7 @@
 
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is a 16-bit unsigned number (0..65535). <br/>
-Primitives are assigned numbers sequentially from 0 to `BYE`.
+Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
 If it is greater than `BYE`, it is the code address of a word to execute. <br/>
 
@@ -27,10 +27,10 @@ Strings in C4 are both counted and NULL terminated.
 
 ## MachineForth influences
 
-C4 includes 4 built-in variables as primitives (a, b, s, d). <br/>
-This is in the spirit of MachineForth, with its opcodes for the 'a' register. <br/>
+C4 includes 4 built-in variables as primitives (`a`, `b`, `s`, `d`). <br/>
+This is in the spirit of MachineForth, that has opcodes for the 'a' register. <br/>
 's' is shorthand for 'source', but can be used for anything. <br/>
-'d' is shorthand for 'dest', but can be used for anything. <br/>
+'d' is shorthand for 'destination', but can be used for anything. <br/>
 - They all support set (`>a`, `>b`, `>s`, `>d`)
 - They all support get (`a`, `b`, `s`, `d`)
 - They all support get with increment (`a+`, `b+`, `s+`, `d+`)
@@ -64,7 +64,7 @@ todo
 | -         | (A B--C)     | C: A - B |
 | *         | (A B--C)     | C: A * B |
 | /         | (A B--C)     | C: A / B (integer division) |
-| /mod      | (A B--M Q)   | M: A MODULO B, Q: quotient of A / B |
+| /mod      | (A B--M Q)   | M: A modulo B, Q: quotient of A / B |
 | 1+        | (A--B)       | Increment TOS |
 | 1-        | (A--B)       | Decrement TOS |
 | <         | (A B--F)     | F: 1 if (A<B>), else 0 |
@@ -102,10 +102,10 @@ todo
 | see       | (--)         | Output the definition of a word |
 | count     | (S--A N)     | A,N: Address and Count of string S |
 | type      | (A N--)      | Print N chars starting at A |
-| "         | (--A)        | Compile time: Copy chars to " to VARS |
-|           |              | Run time: push address A of string |
-| ."        | (--)         | Compile time: Copy chars to " to VARS |
-|           |              | Run time: COUNT/TYPE string |
+| "         | (--A)        | COMPILE: Copy chars to " to VARS |
+|           |              | RUN: push address A of string |
+| ."        | (--)         | COMPILE: Copy chars to " to VARS |
+|           |              | RUN: COUNT/TYPE string |
 | rand      | (--N)        | N: a pseudo-random number (uses 13/17/5 XOR shift) |
 | fopen     | (NM MD--H)   | NM: File Name, MD: Mode, H: File Handle |
 | fclose    | (H--)        | H: File Handle |
@@ -114,11 +114,11 @@ todo
 | fgets     | (B SZ H--F)  | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
 | fload     | (NM--)       | NM: File Name to load |
 | load      | (N--)        | N: Block number to load (block-NNN.c4) |
-| loaded?   | (XT DP--)    | Stops a load if DP <> 0 |
+| loaded?   | (XT DE--)    | Stops a load if DE <> 0 |
 | to-string | (N--A)       | Convert N to a string in the current BASE |
 | .s        | (--)         | Display the stack |
 | @c        | (A--N)       | Fetch N from CODE address A |
 | !c        | (N A--)      | Store N to CODE address A |
-| find      | (--XT DP)    | XT: word XT, DP: dict entry (0 if not found) |
+| find      | (--XT DE)    | XT: word XT, DE: dict entry address (0 if not found) |
 | system    | (A--)        | PC ONLY: A: String to send to the system() |
 | bye       | (--)         | PC ONLY: Exit C4 |

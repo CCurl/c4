@@ -147,11 +147,12 @@
     <None Include="block-001.c4" />
     <None Include="block-002.c4" />
     <None Include="block-003.c4" />
+    <None Include="block-005.c4" />
     <None Include="block-006.c4" />
     <None Include="core.c4" />
     <None Include="makefile" />
     <None Include="README.md" />
-    <None Include="test.c4" />
+    <None Include="block-200.c4" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c4.c" />

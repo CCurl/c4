@@ -3,7 +3,7 @@
 : ->dict dict + ;
 : here  (here)  @c ;
 : last  (last)  @c ;
-: vhere (vhere) @c ;
+: vhere (vhere) @ ;
 : lex   (lex)   @c ;
 : >lex  (lex)   !c ;
 : , here  dup 1+     (here)  !c !c ;
@@ -11,6 +11,9 @@
 : again (jmp)   , , ; immediate
 : while (jmpnz) , , ; immediate
 : until (jmpz)  , , ; immediate
+: -while (njmpnz) , , ; immediate
+: -until (njmpz)  , , ; immediate
+: -if (njmpz) , here 0 , ; immediate
 : if (jmpz) , here 0 , ; immediate
 : else (jmp) , here swap 0 , here swap !c ; immediate
 : then here swap !c ; immediate
@@ -20,7 +23,7 @@
     >in @ 1+ >in !
     ')' = if exit then
   again ; immediate
-: allot vhere + (vhere) !c ;
+: allot vhere + (vhere) ! ;
 : ,v  vhere ->vars ! cell allot ;
 : hex     $10 base !c ;
 : binary  %10 base !c ;
@@ -62,11 +65,10 @@
 : create addword ; immediate
 : var   addword cell allot (exit) , ; immediate
 : const addword ,v does> @ ; immediate
-var hh
-var ll
+: hh 20 ;  : ll 21 ;
 var vv
-: marker here hh ! last ll ! vhere vv ! ;
-: forget hh @ (here) !c ll @ (last) !c vv @ (vhere) !c 0 >lex ;
+: marker here hh !c last ll !c vhere vv ! ;
+: forget hh @c (here) !c ll @c (last) !c vv @ (vhere) ! 0 >lex ;
 marker
 : .02 '.' emit dup 10 < if 0 (.) then (.) ;
 : .ver version 100 /mod 100 /mod (.) .02 .02 ;
