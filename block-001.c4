@@ -29,7 +29,7 @@
 : hex     $10 base !c ;
 : binary  %10 base !c ;
 : decimal #10 base !c ;
-: cells cell * ;
+: cells cell * ;  : chars ;
 : nip swap drop ;
 : tuck swap over ;
 : ?dup -if dup then ;
