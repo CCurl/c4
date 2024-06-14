@@ -29,7 +29,7 @@ cr  0 begin .. 1+ dup 10 = until drop
 
 go cr
 words cr cr
-var xxx 
+cell var xxx 
 ." -xxx created-" cr
 12345 xxx !
 xxx @ const yyy

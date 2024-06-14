@@ -28,14 +28,9 @@
  200 >lines    100 >cols
    0 >scr-top   25 >rows
 
-var block
-block-sz allot
-
-var work
-block-sz allot
-
-var (lines)
-lines cells allot
+block-sz 2+ var block
+block-sz 2+ var work
+lines cells var (lines)
 
 : norm ( n1 l h--n2 ) >r max r> min ;
 : valid-line? ( n--f ) 0 lines btwi ;
@@ -48,10 +43,10 @@ lines cells allot
 : norm-rc  row 0 rows 1- norm >row  col 0 cols 1- norm >col ;
 : ?? exit key drop ; : ?rc exit '[' emit row . col (.) ']' emit ?? ;
 : mv ( r c-- ) .s ?rc col + >col ?rc row + >row ?rc norm-rc ?rc ;
-: lpar '(' emit ; : rpar ')' emit ; : comma ',' emit ;
+: lpar. '(' emit (.) ; : .rpar (.) ')' emit ;
 : footer ->foot ."  - Block " blk . 
-    bl dirty? if drop '*' then emit
-    space lpar row 1+ (.) comma col 1+ (.) rpar clr-eol ;
+    dirty? if '*' else bl then emit
+    space row scr-top + 1+ lpar. ',' emit col 1+ .rpar clr-eol ;
 : show ( -- )  1 dup ->rc 
     rows for 
         i scr-top + line ?dup if ztype then 

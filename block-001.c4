@@ -3,6 +3,7 @@
 : ->dict dict + ;
 : here  (here)  @c ;
 : last  (last)  @c ;
+: base@ base    @c ;
 : vhere (vhere) @ ;
 : lex   (lex)   @c ;
 : >lex  (lex)   !c ;
@@ -64,10 +65,9 @@
     while drop '(' emit r> . ." words)" r> >a ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
-: var   addword cell allot (exit) , ; immediate
+: var   addword allot (exit) , ; immediate
 : const addword ,v does> @ ; immediate
-var vv
-: base@ base @c ;
+cell var vv
 : .02 base@ /mod (.) (.) ;
 : .03 base@ dup * /mod (.) .02 ;
 : .04 base@ dup dup * * /mod (.) .03 ;
