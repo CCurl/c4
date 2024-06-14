@@ -80,6 +80,10 @@ char wd[32], *toIn, wordAdded;
 	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
 	X(TYPE,    "type",      0, t=pop(); char *y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
+	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
+	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
+	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
+	X(SZLEN,   "sz-len",    0, TOS = strLen((char*)TOS); ) \
 	X(QUOTE,   "\"",        1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); comma(COUNT); comma(TYPE); ) \
 	X(RAND,    "rand",      0, doRand(); ) \
@@ -129,6 +133,11 @@ int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
+	return 0;
+}
+
+int strEq(const char *s, const char *d) {
+	while (*s == *d) { if (*s == 0) { return 1; } s++; d++; }
 	return 0;
 }
 

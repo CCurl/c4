@@ -20,19 +20,17 @@ find fill loaded?
 
 : p1 vhere ->vars 100 + ;
 : p2 p1 100 + ;
-: s-cat  ( dst src--dst )  >s >d
-    s c@ 0= if d exit then
+: s-cat  ( dst src--dst )
+    dup c@ 0= if drop exit then
+    s >r d >r a >r  >s >d
     d count + >a
     s c@  d c@ +  d c!
     s+ c@ for s+ c@ a+ c! next
-    0 a c! d ;
+    0 a c! ( null term )
+    d  r> >a  r> >d  r> >s ;
 : s-trunc ( dst--dst ) 0 over c! 0 over 1+ c! ;
-: s-cpy ( dst src--dst ) >r s-trunc r> s-cat ;
 : s-catc ( dst ch--dst ) swap >r
     r@ count + >a  a+ c!  0 a c!
     r@ c@ 1+ r@ c!  r> ;
 : s-scatc ( ch dst--dst ) swap s-catc ;
 : s-catn ( dst n--dst ) to-string s-cat ;
-: sz-len  ( sz--n ) s >r 0 begin
-      s+ c@ 0= if r> >s exit then 1+
-    again ;

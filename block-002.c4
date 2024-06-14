@@ -31,6 +31,7 @@
 block-sz 2+ var block
 block-sz 2+ var work
 lines cells var (lines)
+cols 2+     var cur-line
 
 : norm ( n1 l h--n2 ) >r max r> min ;
 : valid-line? ( n--f ) 0 lines btwi ;
