@@ -1,14 +1,17 @@
 ( block 3 - strings )
 
-find lex-string loaded?
+find fill loaded?
 
-0 >lex
-: lex-string 3 >lex ;
-lex-string
+3 >lex
 
-: fill ( from char num-- )
+: fill ( from ch num-- )
     a >r  >r  swap >a
     r> for dup a+ c! next
+	drop  r> >a ;
+
+: fill-c ( from n num-- )
+    a >r  >r  swap >a
+    r> for dup a ! a cell + >a next
 	drop  r> >a ;
 
 : cmove ( f t n-- ) s >r d >r >r >d >s

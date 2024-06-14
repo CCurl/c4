@@ -6,7 +6,7 @@
 ( idea: )
 ( have 2 buffers, for 2 copies of the file, current and working )
 ( have a temp buffer for the current line )
-( keep an array of indexes into where each line starts )
+( keep an array of addresses of where each line starts )
 ( keep that updated as things change )
 ( also sync the buffers up constantly as things change )
 
@@ -16,7 +16,7 @@
 
 : lines      40 @c ;  : >lines      40 !c ;
 : scr-top    41 @c ;  : >scr-top    41 !c ;
-: scr-lines  42 @c ;  : >scr-lines  42 !c ;
+: rows       42 @c ;  : >rows       42 !c ;
 : row        43 @c ;  : >row        43 !c ;
 : col        44 @c ;  : >col        44 !c ;
 : blk        45 @c ;  : >blk        45 !c ;
@@ -26,7 +26,7 @@
 
 5000 >block-sz
  200 >lines    100 >cols
-   0 >scr-top   25 >scr-lines
+   0 >scr-top   25 >rows
 
 var block
 block-sz allot
@@ -38,63 +38,69 @@ var (lines)
 lines cells allot
 
 : norm ( n1 l h--n2 ) >r max r> min ;
-: btwi ( n l h--f ) >r over > swap r> > or 0= ;
 : valid-line? ( n--f ) 0 lines btwi ;
 : line  ( row--a )  dup valid-line? 0= if drop 0 exit then cell * (lines) + @ ;
 : >line ( a row-- ) dup valid-line? 0= if 2drop  exit then cell * (lines) + ! ;
 : rc->pos ( -- )  row line col + ;
-: ->foot  ( -- )  scr-lines 1+ 1 .s ->rc ;
-: ->cmd   ( -- )  scr-lines 2+ 1 ->rc ;
-: norm-r row 0 scr-lines norm >row ;
-: norm-c col 0 100   norm >col ;
-: norm-rc norm-r norm-c ;
-: norm-ch ( c--c )
-    dup 31 > if exit then
-    dup 0=   if exit then
-    dup 10 = if drop  0 exit then
-    drop 32 ;
-: footer ->foot ." block " blk . 32 dirty? if drop '*' then emit ;
-: show    ( -- )  1 dup ->rc 
-    scr-lines for 
+: ->cur   ( -- )  row 1+ col 1+ ->rc ;
+: ->foot  ( -- )  rows 1+ 1 ->rc ;
+: ->cmd   ( -- )  rows 2+ 1 ->rc ;
+: norm-rc  row 0 rows 1- norm >row  col 0 cols 1- norm >col ;
+: ?? exit key drop ; : ?rc exit '[' emit row . col (.) ']' emit ?? ;
+: mv ( r c-- ) .s ?rc col + >col ?rc row + >row ?rc norm-rc ?rc ;
+: lpar '(' emit ; : rpar ')' emit ; : comma ',' emit ;
+: footer ->foot ."  - Block " blk . 
+    bl dirty? if drop '*' then emit
+    space lpar row 1+ (.) comma col 1+ (.) rpar clr-eol ;
+: show ( -- )  1 dup ->rc 
+    rows for 
         i scr-top + line ?dup if ztype then 
         clr-eol cr
     next footer ;
-
-: move  ( r c-- ) col + >col row + >row norm-rc ;
-: scroll scr-top + 0 100 norm >scr-top show ;
-
+: scroll scr-top + 0 lines rows - 1+ norm >scr-top show ;
 : dump ( from num-- ) for dup c@ . 1+ next  drop ;
-: init-block block  0  block-sz fill ;
-: dump-block block block-sz dump ;
-
-: work->block work block block-sz cmove ;
-
-: ?? . cr ;
-: process-block ( a-- ) s >r  >s  a >r  1 >a
-    block 0 >line
-    block-sz for s+ c@ 0= if s a+ >line then next
-    r> >a r> >s ;
-
+: init-lines  (lines) 0 lines fill-c ;
+: init-block  block 0 block-sz fill ;
+: dump-block  block block-sz dump ;
 : fopen-rb ( fn--fh )  " rb" fopen ;
 : fopen-wb ( fn--fh )  " wb" fopen ;
-
-: block-fn ( --s ) p1 " block-" s-cpy
+: block-fn ( --fn ) p1 " block-" s-cpy
     blk 10 /mod 10 /mod
     3 for p1 swap '0' + s-catc drop next
     " .c4" s-cat ;
 
-: read-block init-block  block-fn fopen-rb >a
-    a 0= if exit then
-    block block-sz a fread  drop
-    a fclose  block >a
-    block-sz for  a c@ norm-ch  a+ c!  next
-    block process-block ;
+: prep-block ( -- ) a >r  b >r  init-lines
+    block >a  0 >b  a b+ >line
+    begin
+        a c@ ?dup 0= if r> >b r> >a exit then
+        dup 10 =
+        if 0= a+ c! a b+ >line
+        else bl max a+ c!
+        then
+    again ;
 
-: save-block block-fn fopen-wb >a
-    a if block block-sz a fwrite  a fclose then ;
+: read-block block-fn fopen-rb ?dup if
+   >r block block-sz r@ fread drop r> fclose 
+   then ;
+: save-block block-fn fopen-wb ?dup if
+    >r block block-sz r@ fwrite drop r> fclose
+    then ;
+
+: load-block init-block read-block prep-block ;
+: work->block work  block block-sz cmove ;
+: block->work block work  block-sz cmove ;
 
 2 >blk 
-read-block
 
-: ed ( -- ) read-block 0 >row 0 >col show ;
+: quit? 26 = ;
+: do-work ( c-- )
+    dup  5 = if drop  1 scroll exit then ( left )
+    dup 25 = if drop -1 scroll exit then ( left )
+    dup  8 = if drop  0 -1 mv exit then ( left )
+    dup 12 = if drop  0  1 mv exit then ( right )
+    dup 11 = if drop -1  0 mv exit then ( up )
+    dup 10 = if drop  1  0 mv exit then ( down )
+    drop ;
+: ed-loop begin show ->cur key dup quit? if drop exit then do-work again ;
+: ed ( -- ) load-block 0 >row 0 >col cls ed-loop ->cmd ;
 ( 1 dirty ed )
