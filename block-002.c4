@@ -1,7 +1,7 @@
 ( block 2 - editor )
 
-5 load ( screen )
 3 load ( strings )
+5 load ( screen )
 
 ( idea: )
 ( have 2 buffers, for 2 copies of the file, current and working )
@@ -20,61 +20,81 @@
 : row        43 @c ;  : >row        43 !c ;
 : col        44 @c ;  : >col        44 !c ;
 : blk        45 @c ;  : >blk        45 !c ;
-: mod        46 @c ;  : >mod        46 !c ;
+: dirty?     46 @c ;  : dirty     1 46 !c ;  : clean   0 46 !c ;
 : block-sz   47 @c ;  : >block-sz   47 !c ;
+: cols       48 @c ;  : >cols       48 !c ;
 
-200 >lines  5000 >block-sz
-0 >scr-top 30 >scr-lines
+5000 >block-sz
+ 200 >lines    100 >cols
+   0 >scr-top   25 >scr-lines
 
 var block
 block-sz allot
+
 var work
 block-sz allot
 
-var (lines) lines cells allot
+var (lines)
+lines cells allot
 
-: line  ( row--a )  cell * (lines) + @ ;
-: >line ( a row-- ) cell * (lines) + ! ;
+: norm ( n1 l h--n2 ) >r max r> min ;
+: btwi ( n l h--f ) >r over > swap r> > or 0= ;
+: valid-line? ( n--f ) 0 lines btwi ;
+: line  ( row--a )  dup valid-line? 0= if drop 0 exit then cell * (lines) + @ ;
+: >line ( a row-- ) dup valid-line? 0= if 2drop  exit then cell * (lines) + ! ;
 : rc->pos ( -- )  row line col + ;
-: ->foot  ( -- )  lines 1+ 1 ->rc ;
-: ->cmd   ( -- )  lines 2+ 1 ->rc ;
-: norm-r ;
-: norm-c ;
+: ->foot  ( -- )  scr-lines 1+ 1 .s ->rc ;
+: ->cmd   ( -- )  scr-lines 2+ 1 ->rc ;
+: norm-r row 0 scr-lines norm >row ;
+: norm-c col 0 100   norm >col ;
 : norm-rc norm-r norm-c ;
 : norm-ch ( c--c )
-	dup 31 > if exit then
-	dup 0= if exit then
-	dup 10 = if drop  0 exit then
-	drop 32 ;
+    dup 31 > if exit then
+    dup 0=   if exit then
+    dup 10 = if drop  0 exit then
+    drop 32 ;
+: footer ->foot ." block " blk . 32 dirty? if drop '*' then emit ;
+: show    ( -- )  1 dup ->rc 
+    scr-lines for 
+        i scr-top + line ?dup if ztype then 
+        clr-eol cr
+    next footer ;
+
 : move  ( r c-- ) col + >col row + >row norm-rc ;
-: footer ->foot ." block " blk . 32 mod if drop '*' then emit ;
-: show    ( -- )  1 dup ->rc
-	scr-lines for 
-		i line ?dup if ztype then 
-		clr-eol cr
-	next footer ;
+: scroll scr-top + 0 100 norm >scr-top show ;
 
 : dump ( from num-- ) for dup c@ . 1+ next  drop ;
 : init-block block  0  block-sz fill ;
 : dump-block block block-sz dump ;
 
+: work->block work block block-sz cmove ;
+
+: ?? . cr ;
+: process-block ( a-- ) s >r  >s  a >r  1 >a
+    block 0 >line
+    block-sz for s+ c@ 0= if s a+ >line then next
+    r> >a r> >s ;
+
 : fopen-rb ( fn--fh )  " rb" fopen ;
 : fopen-wb ( fn--fh )  " wb" fopen ;
 
 : block-fn ( --s ) p1 " block-" s-cpy
-	blk 10 /mod 10 /mod
-	3 for p1 swap '0' + s-catc drop next
-	" .c4" s-cat ;
+    blk 10 /mod 10 /mod
+    3 for p1 swap '0' + s-catc drop next
+    " .c4" s-cat ;
 
 : read-block init-block  block-fn fopen-rb >a
-	a 0= if exit then
+    a 0= if exit then
     block block-sz a fread  drop
-	a fclose  block >a
-	block-sz for  a c@ norm-ch  a+ c!  next ;
+    a fclose  block >a
+    block-sz for  a c@ norm-ch  a+ c!  next
+    block process-block ;
 
 : save-block block-fn fopen-wb >a
     a if block block-sz a fwrite  a fclose then ;
 
 2 >blk 
+read-block
+
 : ed ( -- ) read-block 0 >row 0 >col show ;
-( 1 >mod ed )
+( 1 dirty ed )

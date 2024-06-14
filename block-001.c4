@@ -32,7 +32,7 @@
 : nip swap drop ;
 : tuck swap over ;
 : ?dup dup if dup then ;
-: 2dup over over ;
+: 2dup over over ;  : 2drop drop drop ;
 : min ( a b--c ) 2dup > if swap then drop ;
 : max ( a b--c ) 2dup < if swap then drop ;
 : 2+ 1+ 1+ ;
@@ -78,5 +78,5 @@ marker
 ." c4 - v" .ver ."  - Chris Curl." cr
 forget
 
-6 load
+2 load
 0 >lex

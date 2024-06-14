@@ -11,6 +11,10 @@ lex-string
     r> for dup a+ c! next
 	drop  r> >a ;
 
+: cmove ( f t n-- ) s >r d >r >r >d >s
+    r> for s+ c@ d+ c! next
+    r> >d r> >s ;
+
 : p1 vhere ->vars 100 + ;
 : p2 p1 100 + ;
 : s-cat  ( dst src--dst )  >s >d
