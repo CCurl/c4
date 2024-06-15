@@ -19,9 +19,10 @@ enum { HA = 0, LA, BA, SA, LEXA };
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-short sp, rsp, lsp, aSp;
+short sp, rsp, lsp, tsp;
 cell vhere, A, B, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn, wordAdded;
+cell tstk[TSTK_SZ];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -56,9 +57,6 @@ char wd[32], *toIn, wordAdded;
 	X(AGET,    "a",         0, push(A); ) \
 	X(ASET,    ">a",        0, A=pop(); ) \
 	X(AINC,    "a+",        0, push(A++); ) \
-	X(BGET,    "b",         0, push(B); ) \
-	X(BINC,    "b+",        0, push(B++); ) \
-	X(BSET,    ">b",        0, B=pop(); ) \
 	X(SGET,    "s",         0, push(S); ) \
 	X(SINC,    "s+",        0, push(S++); ) \
 	X(SSET,    ">s",        0, S=pop(); ) \
@@ -68,6 +66,9 @@ char wd[32], *toIn, wordAdded;
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
+	X(TOT,     ">t",        0, tpush(pop()); ) \
+	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
+	X(TFROM,   "t>",        0, push(tpop()); ) \
 	X(EMIT,    "emit",      0, t=pop(); emit((char)t); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
@@ -124,6 +125,8 @@ void push(cell x) { if (sp < STK_SZ) { stk[++sp].i = x; } }
 cell pop() { return (0<sp) ? stk[sp--].i : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
+void tpush(cell x) { if (tsp < TSTK_SZ) { tstk[++tsp] = x; } }
+cell tpop() { return (0<tsp) ? tstk[tsp--] : 0; }
 void storeCell(cell a, cell val) { *(cell*)(a) = val; }
 void storeWord(cell a, cell val) { *(ushort*)(a) = (ushort)val; }
 cell fetchCell(cell a) { return *(cell*)(a); }
@@ -465,7 +468,7 @@ void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
-	vhere = sp = rsp = lsp = aSp = state = 0;
+	vhere = sp = rsp = lsp = tsp = state = 0;
 	last = DICT_SZ;
 	base = 10;
 	here = LASTPRIM+1;

@@ -42,6 +42,10 @@
 : abs dup 0 < if negate then ;
 : mod /mod drop ;
 : +! tuck @ + swap ! ;
+: c++ dup c@ 1+ swap c! ;
+: +a a >t >a ;  : -a t> >a ;  : a- ( --n ) a dup 1- >a ;  : a++ a+ drop ;
+: +s s >t >s ;  : -s t> >s ;  : s- ( --n ) s dup 1- >s ;  : s++ s+ drop ;
+: +d d >t >d ;  : -d t> >d ;  : d- ( --n ) d dup 1- >d ;  : d++ d+ drop ;
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;
@@ -55,14 +59,14 @@
 : ->len    5 + ;
 : ->name   6 + ;
 : lex-match? ( a--f )  ->lex lex =  lex 0=  or ;
-: words a >r  0 dup >a >r  last ->dict begin
+: words 0 dup +a +d  last ->dict begin
       dup lex-match? if
-        dup ->len count type  r> 1+ >r
-        dup ->len c@ 7 > if a+ drop then
+        dup ->len count type d++
+        dup ->len c@ 7 > if a++ then
         a+ 8 > if cr 0 >a else tab then
       then
       dup ->size + dup dict-sz ->dict <
-    while drop '(' emit r> . ." words)" r> >a ;
+    while drop '(' emit d . ." words)" -d -a ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
 : var   addword allot (exit) , ; immediate

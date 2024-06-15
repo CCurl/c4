@@ -27,13 +27,16 @@ Strings in C4 are both counted and NULL terminated.
 
 ## MachineForth influences
 
-C4 includes 4 built-in variables as primitives (`a`, `b`, `s`, `d`). <br/>
+C4 includes 3 built-in variables as primitives (`a`, `s`, `d`). <br/>
 This is in the spirit of MachineForth, that has opcodes for the 'a' register. <br/>
+C4 also includes third stack (`>t`, `t@`, `t>`). <br/>
+This third stack can be used for any purpose. <br/>
+I use it to save and restore `a`, `s`, and `d`.
 's' is shorthand for 'source', but can be used for anything. <br/>
 'd' is shorthand for 'destination', but can be used for anything. <br/>
-- They all support set (`>a`, `>b`, `>s`, `>d`)
-- They all support get (`a`, `b`, `s`, `d`)
-- They all support get with increment (`a+`, `b+`, `s+`, `d+`)
+- They all support set (`>a`, `>s`, `>d`)
+- They all support get (`a`, `s`, `d`)
+- They all support get with increment (`a+`, `s+`, `d+`)
 
 ## C4 architecture
 
@@ -67,9 +70,9 @@ todo
 | /mod      | (A B--M Q)   | M: A modulo B, Q: quotient of A / B |
 | 1+        | (A--B)       | Increment TOS |
 | 1-        | (A--B)       | Decrement TOS |
-| <         | (A B--F)     | F: 1 if (A<B>), else 0 |
-| =         | (A B--F)     | F: 1 if (A=B>), else 0 |
-| >         | (A B--F)     | F: 1 if (A>B>), else 0 |
+| <         | (A B--F)     | F: 1 if (A < B), else 0 |
+| =         | (A B--F)     | F: 1 if (A = B), else 0 |
+| >         | (A B--F)     | F: 1 if (A > B), else 0 |
 | 0=        | (N--F)       | F: 1 if (N=0), else 0 |
 | and       | (A B--N)     | N: A AND B |
 | or        | (A B--N)     | N: A OR  B |
@@ -81,9 +84,6 @@ todo
 | a         | (--N)        | Push a (a built-in variable ala MachineForth) |
 | a+        | (--N)        | Push a, then increment it |
 | >a        | (N--)        | Set a to N |
-| b         | (--N)        | Push b (a built-in variable ala MachineForth) |
-| b+        | (--N)        | Push b, then increment it |
-| >b        | (N--)        | Set b to N |
 | s         | (--N)        | Push s (s => alias for "source") |
 | s+        | (--N)        | Push s, then increment it |
 | >s        | (N--)        | Set s to N |
@@ -93,6 +93,9 @@ todo
 | >r        | (N--R:N)     | Move TOS to the return stack |
 | r@        | (--N)        | N: return stack TOS |
 | r>        | (R:N--N)     | Move return TOS to the stack |
+| >t        | (N--T:N)     | Move TOS to the third stack |
+| t@        | (--N)        | N: third stack TOS |
+| t>        | (T:N--N)     | Move third TOS to the stack |
 | emit      | (C--)        | Output char C |
 | :         | (--)         | Create a new word, set STATE=1 |
 | ;         | (--)         | Compile EXIT, set STATE=0 |

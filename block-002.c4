@@ -10,7 +10,7 @@
 ( keep that updated as things change )
 ( also sync the buffers up constantly as things change )
 
-2 >lex
+2 >lex  decimal
 
 : rl forget 2 load ;
 
@@ -25,8 +25,8 @@
 : cols       48 @c ;  : >cols       48 !c ;
 
 5000 >block-sz
- 200 >lines    100 >cols
-   0 >scr-top   25 >rows
+ 200 >lines      100 >cols
+   0 >scr-top     25 >rows
 
 block-sz 2+ var block
 block-sz 2+ var work
@@ -57,9 +57,9 @@ cols 2+     var cur-line
 : scroll scr-top + 0 lines rows - norm >scr-top show ;
 : init-lines  (lines) 0 lines fill-c ;
 : init-block  block 0 block-sz fill ;
-: hex-dump base@ >r a >r hex 1 >a
+: hex-dump base@ >r hex 1 +a
     for dup c@ .02 space 1+ a+ $20 > if cr 1 >a then next drop
-    drop r> >a r> base !c ;
+    drop -a r> base !c ;
 : dump-block  block block-sz hex-dump ;
 : fopen-rb ( fn--fh )  " rb" fopen ;
 : fopen-wb ( fn--fh )  " wb" fopen ;
@@ -68,12 +68,12 @@ cols 2+     var cur-line
     3 for p1 swap '0' + s-catc drop next
     " .c4" s-cat ;
 
-: prep-block ( -- ) a >r  b >r  init-lines
-    block >a  0 >b  a b+ >line
+: prep-block ( -- ) init-lines
+    block +a  0 +d  a d+ >line
     begin
-        a c@ ?dup 0= if r> >b r> >a exit then
+        a c@ ?dup 0= if -d -a exit then
         dup 10 =
-        if 0= a+ c! a b+ >line
+        if 0= a+ c! a d+ >line
         else bl max a+ c!
         then
     again ;
