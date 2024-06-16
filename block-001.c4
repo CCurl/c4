@@ -83,5 +83,4 @@ marker
 ." c4 - v" .ver ."  - Chris Curl." cr
 forget
 
-2 load
-0 >lex
+99 load
