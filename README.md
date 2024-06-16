@@ -29,9 +29,9 @@ Strings in C4 are both counted and NULL terminated.
 
 C4 includes 3 built-in variables as primitives (`a`, `s`, `d`). <br/>
 This is in the spirit of MachineForth, that has opcodes for the 'a' register. <br/>
-C4 also includes third stack (`>t`, `t@`, `t>`). <br/>
+C4 also includes third stack, same ops at the return stack. (`>t`, `t@`, `t>`). <br/>
 This third stack can be used for any purpose. <br/>
-I use it to save and restore `a`, `s`, and `d`.
+I use it to save and restore `a`, `s`, and `d`. <br/>
 's' is shorthand for 'source', but can be used for anything. <br/>
 'd' is shorthand for 'destination', but can be used for anything. <br/>
 - They all support set (`>a`, `>s`, `>d`)
@@ -60,9 +60,9 @@ todo
 | @         | (A--N)       | N: the CELL at A |
 | c@        | (A--C)       | C: the CHAR at A |
 | w@        | (A--W)       | W: the WORD at A |
-| !         | (V A--)      | Store CELL N to A |
-| c!        | (V A--)      | Store CHAR C to A |
-| w!        | (V A--)      | Store WORD W to A |
+| !         | (N A--)      | Store CELL N to A |
+| c!        | (C A--)      | Store CHAR C to A |
+| w!        | (W A--)      | Store WORD W to A |
 | +         | (A B--C)     | C: A + B |
 | -         | (A B--C)     | C: A - B |
 | *         | (A B--C)     | C: A * B |
