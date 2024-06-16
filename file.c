@@ -41,7 +41,7 @@ int  fileGets(char *buf, int sz, cell fh) {
 
 void fileLoad(char *name) {
     cell fh = fileOpen(name, " rt");
-    if (fh == 0) { printf("-not found-"); return; }
+    if (fh == 0) { zType("-not found-"); return; }
     if (inputFp) { filePush(inputFp); }
     inputFp = fh;
 }

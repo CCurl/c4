@@ -23,6 +23,9 @@
 : dirty?     46 @c ;  : dirty     1 46 !c ;  : clean   0 46 !c ;
 : block-sz   47 @c ;  : >block-sz   47 !c ;
 : cols       48 @c ;  : >cols       48 !c ;
+: ed-mode    49 @c ;  : >ed-mode    49 !c ;
+: insert-mode  1 ;    : replace-mode  2 ;
+
 
 5000 >block-sz
  200 >lines      100 >cols
@@ -38,7 +41,7 @@ cols 2+     var cur-line
 : line  ( row--a )  dup valid-line? 0= if drop 0 exit then cell * (lines) + @ ;
 : >line ( a row-- ) dup valid-line? 0= if 2drop  exit then cell * (lines) + ! ;
 : real-row ( --n ) row scr-top + ;
-: rc->pos row line col + ;
+: rc->pos  ( --n ) real-row line -if col + then ;
 : ->cur   row 1+ col 1+ ->rc ;
 : ->foot  rows 1+ 1 ->rc ;
 : ->cmd   rows 2+ 1 ->rc ;
@@ -89,8 +92,17 @@ cols 2+     var cur-line
 : work->block work  block block-sz cmove ;
 : block->work block work  block-sz cmove ;
 
+: >cur-line cur-line s-trunc line ?dup if s-cpy drop then ;
+
+: replace-char ( -- ) rc->pos ?dup if a swap c! 0 1 mv then ;
+: insert-blank ( -- ) ;
+: insert-char ( -- ) insert-blank replace-char ;
+: delete-char ( -- ) ;
+: delete-line ( -- ) ;
+
 : quit? 26 = ;
 : do-ctrl ( -- )
+    a  3 = if  0 >ed-mode exit then ( stop )
     a  8 = if  0 -1 mv exit then ( left )
     a 12 = if  0  1 mv exit then ( right )
     a 11 = if -1  0 mv exit then ( up )
@@ -104,6 +116,8 @@ cols 2+     var cur-line
     ;
 : do-work ( c-- ) >a
     a bl < if do-ctrl exit then
+    ed-mode insert-mode  = if insert-char  exit then
+    ed-mode replace-mode = if replace-char exit then
     a 'h' = if  0 -1 mv exit then ( left )
     a 'l' = if  0  1 mv exit then ( right )
     a 'k' = if -1  0 mv exit then ( up )
@@ -112,6 +126,10 @@ cols 2+     var cur-line
     a 'Q' = if  0 -8 mv exit then ( tab-left )
     a '_' = if  0 >col  exit then ( home )
     a '$' = if  cols 1- >col exit then ( end )
+    a 'i' = if insert-mode >ed-mode  exit then
+    a 'r' = if replace-mode key >a replace-char exit then
+    a 'R' = if replace-mode >ed-mode exit then
     ;
 : ed-loop begin show ->cur key dup quit? if drop exit then do-work again ;
-: edit ( blk-- ) >blk load-block 0 >row 0 >col cls ed-loop ->cmd ;
+: ed-init 0 dup dup dup  >ed-mode >row >col >scr-top ;
+: edit ( blk-- ) >blk load-block ed-init cls ed-loop ->cmd ;

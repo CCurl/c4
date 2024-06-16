@@ -20,7 +20,7 @@ SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 short sp, rsp, lsp, tsp;
-cell vhere, A, B, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
+cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn, wordAdded;
 cell tstk[TSTK_SZ];
 
