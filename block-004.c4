@@ -1,0 +1,74 @@
+( block 004 - a simple memory manager )
+
+find mb loaded?
+
+3 load
+
+4 >lex
+( mem-buf-slot-info: )
+( cell 1: bit #1: 0=free, 1=in-ise, #2-<x> size )
+( NOTE: a size of 0 means unallocated )
+
+: rl forget 4 load ;
+
+: mb-sz 1000 ;  ( memory buffer size )
+: mb-ssz 20 ;   ( memory buffer slots size )
+
+cell         var (mbh) ( memory-buffer-here )
+mb-sz        var mb    ( memory-buffer )
+mb-ssz cells var mb-sa ( memory-buf-slot-address )
+mb-ssz cells var mb-si ( memory-buf-slot-info )
+
+: mb-here (mbh) @ ; : >mb-here (mbh) ! ;
+: mb-slot-a ( n--a ) cells mb-sa + ;
+: mb-slot-i ( n--a ) cells mb-si + ;
+
+: mb-init ( -- )
+  mb >mb-here
+  mb mb-sz 0 fill
+  mb-sa 0 mb-ssz fill-c
+  mb-si 0 mb-ssz fill-c ;
+
+: mb-end ( --a ) mb mb-sz + ;
+: mb-new ( sz--h ) mb-here tuck +
+  dup mb-end > if 2drop 0 exit then
+  >mb-here ;
+
+: mb-dump mb-ssz for i . i mb-slot-i @ . i mb-slot-a @ . cr next ;
+
+: 0< 0 < ;  : 0> 0 > ;
+: mb-free? ( n sz--f )
+  +s  mb-slot-i @ +a
+  a 0= if 1 then        ( not allocated )
+  a 0< if 0 then        ( allocated, in-use )
+  a 0> if a 1+ s > then ( allocated-free )
+  -s -a ;
+
+: mb-alloc ( sz--h|0 )
+  +s  0 +a  a +s   a +d
+  begin
+    d s mb-free?
+    if d mb-slot-a @ >a  1
+    else d+ mb-ssz < then
+  until
+  d mb-ssz < if
+    a 0= if 
+      s mb-new >a
+      a d mb-slot-a !
+      s d mb-slot-i !
+    then
+    d mb-slot-i @ negate d mb-slot-i !
+  then
+  a  -d -s -a ;
+
+: mb-free ( h-- )
+  +a  0 +d begin
+    d mb-slot-a @ a =
+    if d mb-slot-i @ dup 0<
+      if negate then
+      d mb-slot-i !
+    then
+    d mb-ssz <
+  while -d -a ;
+
+mb-init
