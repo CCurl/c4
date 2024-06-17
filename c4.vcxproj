@@ -148,7 +148,7 @@
     <None Include="block-002.c4" />
     <None Include="block-003.c4" />
     <None Include="block-005.c4" />
-    <None Include="block-006.c4" />
+    <None Include="block-004.c4" />
     <None Include="makefile" />
     <None Include="README.md" />
     <None Include="block-200.c4" />
