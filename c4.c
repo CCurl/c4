@@ -229,6 +229,7 @@ void doSee() {
 		int op = code[i++];
 		x = code[i];
 		printF("\n%04X: %04X\t", i-1, op);
+		if (op & 0xC000) { printF("lit %d", (int)(op & 0x3FFF)); continue; }
 		switch (op) {
 			case  STOP: zType("stop"); i++;
 			BCASE LIT1: printF("lit1 %hu (%hX)", (ushort)x, (ushort)x); i++;
@@ -323,6 +324,7 @@ void inner(int start) {
 	ushort pc = start, wc;
 	next:
 	wc = code[pc++];
+	if (wc & 0xC000) { push(wc & 0x3FFF); goto next; }
 	switch(wc) {
 		case  STOP:   return;
 		NCASE LIT1:   push(code[pc++]);
@@ -366,7 +368,9 @@ int parseWord(char *w) {
 
 	if (isNum(w, 10)) {
 		cell n = pop();
-		if (btwi(n, 0, 0xffff)) {
+		if (btwi(n, 0, 0x3fff)) {
+			comma((ushort)(n | 0xC000));
+		} else if (btwi(n, 0, 0xffff)) {
 			comma(LIT1); comma((ushort)n);
 		} else {
 			comma(LIT2);

@@ -25,7 +25,9 @@
 : cols       48 @c ;  : >cols       48 !c ;
 : ed-mode    49 @c ;  : >ed-mode    49 !c ;
 : insert-mode  1 ;    : replace-mode  2 ;
-
+: .mode space ed-mode dup 0= if ." -normal-" then
+  dup insert-mode  = if ." -insert-" then
+  replace-mode = if ." -replace-" then ;
 
 5000 >block-sz
  200 >lines      100 >cols
@@ -51,7 +53,7 @@ cols 2+     var cur-line
 : lpar. '(' emit (.) ; : .rpar (.) ')' emit ;
 : footer ->foot ."  - Block " blk . 
     dirty? if '*' else bl then emit
-    space real-row 1+ lpar. ',' emit col 1+ .rpar clr-eol ;
+    space real-row 1+ lpar. ',' emit col 1+ .rpar .mode clr-eol ;
 : show ( -- )  1 dup ->rc 
     rows for 
         i scr-top + line ?dup if ztype then 
@@ -131,5 +133,5 @@ cols 2+     var cur-line
     a 'R' = if replace-mode >ed-mode exit then
     ;
 : ed-loop begin show ->cur key dup quit? if drop exit then do-work again ;
-: ed-init 0 dup dup dup  >ed-mode >row >col >scr-top ;
+: ed-init 0 >ed-mode 0 >row 0 >col 0 >scr-top ;
 : edit ( blk-- ) >blk load-block ed-init cls ed-loop ->cmd ;

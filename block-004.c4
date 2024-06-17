@@ -13,6 +13,7 @@ find mb loaded?
 
 : mb-sz #10000 ;  ( memory buffer size )
 : mb-ssz  #250 ;  ( memory buffer slots size )
+: mb-ruv   #25 ;  ( round-up value )
 
 mb-sz        var mb     ( memory-buffer )
 cell         var (mbh)  ( here )
@@ -30,11 +31,14 @@ mb-ssz cells var mb-si  ( slot-info )
   mb-si 0 mb-ssz fill-c ;
 
 : mb-end ( --a ) mb mb-sz + ;
+: mb-ru ( sz--n ) mb-ruv / 1+ mb-ruv * ;
 : mb-new ( sz--h ) mb-here tuck +
   dup mb-end > if = exit then
   >mb-here ;
 
-: mbd cr mb-ssz for i . i mb-slot-i @ . i mb-slot-a @ . cr next ;
+: mbd cr mb-ssz 1 +a for
+    i mb-slot-i @ ?dup if 0 >a i . . i mb-slot-a @ . cr then
+  next a if ." (empty)" then -a ;
 
 : mb-free? ( n sz--f )
   +s  mb-slot-i @ +a
@@ -52,7 +56,7 @@ mb-ssz cells var mb-si  ( slot-info )
   while
   d mb-ssz < if
     a 0= if
-      s mb-new >a
+      s mb-ru >s   s mb-new >a
       a if  a d mb-slot-a !  s d mb-slot-i !  then
     then
     d mb-slot-i @ -abs d mb-slot-i !
@@ -73,8 +77,8 @@ mb-ssz cells var mb-si  ( slot-info )
 mb-init
 
 ( some tests )
-: t1 100 alloc >a a . mbd ;
-: t2 100 alloc >d d . mbd ;
+: t1 49 alloc >a a . mbd ;
+: t2 80 alloc >d d . mbd ;
 : t3 200 alloc >s s . mbd ;
 : t4 s  free mbd ;
 : t5 d  free mbd ;
