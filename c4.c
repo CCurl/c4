@@ -261,7 +261,7 @@ char *iToA(cell N, int b) {
 		*(--cp) = c;
 		++len;
 	} while (X);
-	if (isNeg) { *(--cp) = '-'; }
+	if (isNeg) { *(--cp) = '-'; ++len; }
 	*(--cp) = len;
 	return cp;
 }

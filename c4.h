@@ -25,7 +25,7 @@
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60
-#define TSTK_SZ           20
+#define TSTK_SZ          100
 #define FSTK_SZ           10
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 

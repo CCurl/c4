@@ -34,5 +34,5 @@ cell var xxx
 12345 xxx !
 xxx @ const yyy
 ." -yyy created, (" yyy (.) ." ) -" cr
-xxx @ yyy =    if ." PASS: const/var." then
-xxx @ yyy = 0= if ." FAIL: const/var!" then
+xxx @ yyy =   if ." PASS: const/var." then
+xxx @ yyy <>  if ." FAIL: const/var!" then
