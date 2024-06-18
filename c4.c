@@ -22,7 +22,7 @@ byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 short sp, rsp, lsp, tsp;
 cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn;
-cell tstk[TSTK_SZ];
+cell tstk[TSTK_SZ+1];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
