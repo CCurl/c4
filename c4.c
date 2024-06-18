@@ -21,7 +21,7 @@ ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 short sp, rsp, lsp, tsp;
 cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
-char wd[32], *toIn, wordAdded;
+char wd[32], *toIn;
 cell tstk[TSTK_SZ];
 
 #define PRIMS \
@@ -112,13 +112,10 @@ enum _PRIM  {
 };
 
 #undef X
-#define X(op, name, imm, cod) { op, name, imm },
+#define X(op, name, imm, code) { op, name, imm },
 
 typedef struct { short op; const char *name; byte fl; } PRIM_T;
-PRIM_T prims[] = {
-	PRIMS
-	{0, 0, 0}
-};
+PRIM_T prims[] = { PRIMS {0, 0, 0} };
 
 void sys_load();
 void push(cell x) { if (sp < STK_SZ) { stk[++sp].i = x; } }

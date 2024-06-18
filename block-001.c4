@@ -43,7 +43,7 @@
 : abs  dup 0< if negate then ;
 : -abs dup 0> if negate then ;
 : mod /mod drop ;
-: +! tuck @ + swap ! ;
+: +! tuck @ + swap ! ;   : c+! tuck c@ + swap c! ;
 : c++ dup c@ 1+ swap c! ;
 : +a a >t >a ;  : -a t> >a ;  : a- ( --n ) a dup 1- >a ;  : a++ a+ drop ;
 : +s s >t >s ;  : -s t> >s ;  : s- ( --n ) s dup 1- >s ;  : s++ s+ drop ;
