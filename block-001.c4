@@ -29,13 +29,13 @@
 : hex     $10 base !c ;
 : binary  %10 base !c ;
 : decimal #10 base !c ;
-: cells cell * ;  : chars ;
 : ?dup -if dup then ;
 : nip swap drop ;     : tuck swap over ;
 : 2dup over over ;    : 2drop drop drop ;
-: 2+ 1+ 1+ ;          : 2* dup + ;
 : 0< 0 < ;            : 0> 0 > ;
-: <= > 0= ;           : >= < 0= ;  : <> = 0= ;
+: <= > 0= ;           : >= < 0= ;      : <> = 0= ;
+: 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;
+: cells cell * ;      : chars ;        : cell+ cell + ;
 : min ( a b--c ) 2dup > if swap then drop ;
 : max ( a b--c ) 2dup < if swap then drop ;
 : btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
@@ -71,8 +71,8 @@
     while drop '(' emit d . ." words)" -d -a ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
-: var   addword allot (exit) , ; immediate
-: const addword ,v does> @ ; immediate
+: const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
+: var    addword allot (exit) , ; immediate
 cell var vv
 : .02 base@ /mod (.) (.) ;
 : .03 base@ dup * /mod (.) .02 ;

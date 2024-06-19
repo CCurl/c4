@@ -363,7 +363,7 @@ int parseWord(char *w) {
 	if (!w) { w = &wd[0]; }
 	// printF("-pw:%s-",w);
 
-	if (isNum(w, 10)) {
+	if (isNum(w, base)) {
 		cell n = pop();
 		if (btwi(n, 0, 0x3fff)) {
 			comma((ushort)(n | 0xC000));
