@@ -19,19 +19,25 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 
 C4 uses three memory areas:
 - The code area can store up to 65536 WORD-CODEs, 16-bit index. (CODE-SZ).
-- The dictionary area can be up to 65536 bytes, 16-bit index (DICT-SZ).
-- The variables area can be up to CELL bytes, CELL index (VARS-SZ).
-- Use `->code`, `->vars`, or `->dict` to turn a relative address into a real one.
+- The dictionary area can store up to 65536 bytes, 16-bit index (DICT-SZ).
+- The variables area can store up to CELL bytes, CELL index (VARS-SZ).
+- Use `->code`, `->vars`, or `->dict` to turn an offset into an address.
 
-Some 16-bit system variables are located in the code area.<br/>
-The are set/retrieved using words `@c` and `!c`.
-- here  `(here)`
-- last  `(last)`
-- base  `base`
-- state `state`
-- lex   `(lex)`
-- sp    `(sp)`
-- rsp   `(rsp)`
+16-bit system variables are located in the code area.<br/>
+They are set/retrieved using `@c` and `!c` (e.g. `: here (here) @c ;`).<br/>
+
+
+| WORD   | STACK   | DESCRIPTION |
+|:--     |:--      |:--          |
+| (sp)   | (--N)   | Offset of the parameter stack pointer |
+| (rsp)  | (--N)   | Offset of the return stack pointer |
+| (here) | (--N)   | Offset of the HERE variable |
+| (last) | (--N)   | Offset of the LAST variable |
+| base   | (--N)   | Offset of the BASE variable |
+| state  | (--N)   | Offset of the STATE variable |
+| (lex)  | (--N)   | Offset of the LEX (the current lexicon) |
+| (lsp)  | (--N)   | Offset of the loop stack pointer |
+| (tsp)  | (--N)   | Offset of the third stack pointer |
 
 ## C4 Strings
 
@@ -39,20 +45,21 @@ Strings in C4 are both counted and NULL terminated.
 
 ## MachineForth influences
 
-C4 includes 3 built-in variables as primitives (`a`, `s`, `d`). <br/>
-This is in the spirit of MachineForth, that has opcodes for the 'a' register. <br/>
-C4 also includes third stack, same ops at the return stack. (`>t`, `t@`, `t>`). <br/>
-This third stack can be used for any purpose. <br/>
-I use it to save and restore `a`, `s`, and `d` (see `+a` for details). <br/>
+C4 includes opcodes for 3 built-in cells (`a`, `s`, `d`). <br/>
+This is in the spirit of MachineForth, that has opcodes for an 'a' register. <br/>
 's' is shorthand for 'source', but can be used for anything. <br/>
 'd' is shorthand for 'destination', but can be used for anything. <br/>
 - They all support set (`>a`, `>s`, `>d`)
 - They all support get (`a`, `s`, `d`)
 - They all support get with increment (`a+`, `s+`, `d+`)
 
+C4 also includes third stack, with same ops as the return stack. (`>t`, `t@`, `t>`). <br/>
+This third stack can be used for any purpose. <br/>
+I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
+
 ## C4 WORD-CODE primitives
 
-| NAME      | STACK        | DESCRIPTION |
+| WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
 | (lit1)    | (--N)        | N: WORD-CODE for LIT1 primitive |
 | (lit2)    | (--N)        | N: WORD-CODE for LIT2 primitive |
@@ -115,10 +122,13 @@ I use it to save and restore `a`, `s`, and `d` (see `+a` for details). <br/>
 | count     | (S--A N)     | A,N: address and count of chars in string S |
 | type      | (A N--)      | Print N chars starting at A |
 | ztype     | (A--)        | Print uncounted, NULL terminated string at A |
-| "         | (--)         | -COMPILE: Copy chars up to " to VARS |
+| s-cpy     | (D S--D)     | Copy string S to D |
+| s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
+| s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
+| "         | (--)         | -COMPILE: Copy chars up to next " to VARS |
 |           | (--A)        | -RUN: push address A of string |
-| ."        | (--)         | -COMPILE: Copy chars to up " to VARS |
-|           | (--)         | -RUN: COUNT/TYPE string |
+| ."        | (--)         | -COMPILE: Copy chars up to next " to VARS |
+|           | (--)         | -RUN: COUNT/TYPE on string |
 | rand      | (--N)        | N: a pseudo-random number (uses XOR shift) |
 | fopen     | (NM MD--H)   | NM: File Name, MD: Mode, H: File Handle |
 | fclose    | (H--)        | H: File Handle (0 if error or not found) |
@@ -130,8 +140,8 @@ I use it to save and restore `a`, `s`, and `d` (see `+a` for details). <br/>
 | loaded?   | (XT DE--)    | Stops a load if DE <> 0 |
 | to-string | (N--A)       | Convert N to a string in the current BASE |
 | .s        | (--)         | Display the stack |
-| @c        | (A--N)       | Fetch unsiged 16-bit N from CODE address A |
-| !c        | (N A--)      | Store unsiged 16-bit N to CODE address A |
-| find      | (--XT DE)    | XT: word XT, DE: dict entry address (0 if not found) |
+| @c        | (A--N)       | Fetch unsigned 16-bit N from CODE address A |
+| !c        | (N A--)      | Store unsigned 16-bit N to CODE address A |
+| find      | (--WC DE)    | WC: WORD-CODE, DE: Dict Entry address (0 if not found) |
 | system    | (A--)        | PC ONLY: A: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |
