@@ -58,13 +58,13 @@ cell tstk[TSTK_SZ+1];
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-	X(AGET,    "a",         0, push(A); ) \
+	X(AGET,    "a>",        0, push(A); ) \
 	X(ASET,    ">a",        0, A=pop(); ) \
 	X(AINC,    "a+",        0, push(A++); ) \
-	X(SGET,    "s",         0, push(S); ) \
+	X(SGET,    "s>",        0, push(S); ) \
 	X(SINC,    "s+",        0, push(S++); ) \
 	X(SSET,    ">s",        0, S=pop(); ) \
-	X(DGET,    "d",         0, push(D); ) \
+	X(DGET,    "d>",        0, push(D); ) \
 	X(DINC,    "d+",        0, push(D++); ) \
 	X(DSET,    ">d",        0, D=pop(); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
@@ -221,7 +221,7 @@ int findPrevXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0);
 	if (!dp) { printF("-nf:%s-", wd); return; }
-	if (dp->xt <= LASTPRIM) { printF("%s is a primitive (%hX).\n", wd, dp->xt); return; }
+	if (dp->xt <= LASTPRIM) { printF("%s is a> primitive (%hX).\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
@@ -399,7 +399,7 @@ int parseWord(char *w) {
 int outer(const char *ln) {
     cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
-	// printF("-pl:%s-",ln);
+	// printF("-outer:%s-\n",ln);
 	while (nextWord()) {
 		if (!parseWord(wd)) {
 			printF("-%s?-", wd);

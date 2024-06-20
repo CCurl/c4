@@ -74,11 +74,11 @@ cols 2+     var cur-line
     " .c4" s-cat ;
 
 : prep-block ( -- ) init-lines
-    block +a  0 +d  a d+ >line
+    block +a  0 +d  a> d+ >line
     begin
-        a c@ ?dup 0= if -d -a exit then
+        a> c@ ?dup 0= if -d -a exit then
         dup 10 =
-        if 0= a+ c! a d+ >line
+        if 0= a+ c! a> d+ >line
         else bl max a+ c!
         then
     again ;
@@ -96,7 +96,7 @@ cols 2+     var cur-line
 
 : >cur-line cur-line s-trunc line ?dup if s-cpy drop then ;
 
-: replace-char ( -- ) rc->pos ?dup if a swap c! 0 1 mv then ;
+: replace-char ( -- ) rc->pos ?dup if a> swap c! 0 1 mv then ;
 : insert-blank ( -- ) ;
 : insert-char ( -- ) insert-blank replace-char ;
 : delete-char ( -- ) ;
@@ -104,33 +104,33 @@ cols 2+     var cur-line
 
 : quit? 26 = ;
 : do-ctrl ( -- )
-    a  3 = if  0 >ed-mode exit then ( stop )
-    a  8 = if  0 -1 mv exit then ( left )
-    a 12 = if  0  1 mv exit then ( right )
-    a 11 = if -1  0 mv exit then ( up )
-    a 10 = if  1  0 mv exit then ( down )
-    a  9 = if  0  8 mv exit then ( tab-right )
-    a 17 = if  0 -8 mv exit then ( tab-left )
-    a  4 = if  10 scroll exit then ( pgdn )
-    a 21 = if -10 scroll exit then ( pgup )
-    a  5 = if   1 scroll exit then ( scrdn )
-    a 25 = if  -1 scroll exit then ( scrup )
+    a>  3 = if  0 >ed-mode exit then ( stop )
+    a>  8 = if  0 -1 mv exit then ( left )
+    a> 12 = if  0  1 mv exit then ( right )
+    a> 11 = if -1  0 mv exit then ( up )
+    a> 10 = if  1  0 mv exit then ( down )
+    a>  9 = if  0  8 mv exit then ( tab-right )
+    a> 17 = if  0 -8 mv exit then ( tab-left )
+    a>  4 = if  10 scroll exit then ( pgdn )
+    a> 21 = if -10 scroll exit then ( pgup )
+    a>  5 = if   1 scroll exit then ( scrdn )
+    a> 25 = if  -1 scroll exit then ( scrup )
     ;
 : do-work ( c-- ) >a
-    a bl < if do-ctrl exit then
+    a> bl < if do-ctrl exit then
     ed-mode insert-mode  = if insert-char  exit then
     ed-mode replace-mode = if replace-char exit then
-    a 'h' = if  0 -1 mv exit then ( left )
-    a 'l' = if  0  1 mv exit then ( right )
-    a 'k' = if -1  0 mv exit then ( up )
-    a 'j' = if  1  0 mv exit then ( down )
-    a 'q' = if  0  8 mv exit then ( tab-right )
-    a 'Q' = if  0 -8 mv exit then ( tab-left )
-    a '_' = if  0 >col  exit then ( home )
-    a '$' = if  cols 1- >col exit then ( end )
-    a 'i' = if insert-mode >ed-mode  exit then
-    a 'r' = if replace-mode key >a replace-char exit then
-    a 'R' = if replace-mode >ed-mode exit then
+    a> 'h' = if  0 -1 mv exit then ( left )
+    a> 'l' = if  0  1 mv exit then ( right )
+    a> 'k' = if -1  0 mv exit then ( up )
+    a> 'j' = if  1  0 mv exit then ( down )
+    a> 'q' = if  0  8 mv exit then ( tab-right )
+    a> 'Q' = if  0 -8 mv exit then ( tab-left )
+    a> '_' = if  0 >col  exit then ( home )
+    a> '$' = if  cols 1- >col exit then ( end )
+    a> 'i' = if insert-mode >ed-mode  exit then
+    a> 'r' = if replace-mode key >a replace-char exit then
+    a> 'R' = if replace-mode >ed-mode exit then
     ;
 : ed-loop begin show ->cur key dup quit? if drop exit then do-work again ;
 : ed-init 0 >ed-mode 0 >row 0 >col 0 >scr-top ;

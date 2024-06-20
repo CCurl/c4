@@ -96,13 +96,13 @@ I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
 | for       | (N--)        | Begin FOR loop with bounds 0 and N |
 | i         | (--I)        | I: Current DO LOOP index |
 | next      | (--)         | Increment I, stop if I >= T |
-| a         | (--N)        | Push a (a built-in variable ala MachineForth) |
+| a>        | (--N)        | Push a (a built-in variable ala MachineForth) |
 | a+        | (--N)        | Push a, then increment it |
 | >a        | (N--)        | Set a to N |
-| s         | (--N)        | Push s (s: alias for "source") |
+| s>        | (--N)        | Push s (s is an alias for "source") |
 | s+        | (--N)        | Push s, then increment it |
 | >s        | (N--)        | Set s to N |
-| d         | (--N)        | Push d (d: alias for "destination") |
+| d>        | (--N)        | Push d (d is an alias for "destination") |
 | d+        | (--N)        | Push d, then increment it |
 | >d        | (N--)        | Set d to N |
 | >r        | (N--R:N)     | Move TOS to the return stack |
@@ -130,11 +130,11 @@ I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
 | ."        | (--)         | -COMPILE: Copy chars up to next " to VARS |
 |           | (--)         | -RUN: COUNT/TYPE on string |
 | rand      | (--N)        | N: a pseudo-random number (uses XOR shift) |
-| fopen     | (NM MD--H)   | NM: File Name, MD: Mode, H: File Handle |
-| fclose    | (H--)        | H: File Handle (0 if error or not found) |
-| fread     | (B SZ H--N)  | B: Buffer, SZ: Size, H: File Handle |
-| fwrite    | (B SZ H--N)  | B: Buffer, SZ: Size, H: File Handle |
-| fgets     | (B SZ H--F)  | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
+| fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle |
+| fclose    | (FH--)       | FH: File Handle (0 if error or not found) |
+| fread     | (B SZ FH--N) | B: Buffer, SZ: Size, FH: File Handle |
+| fwrite    | (B SZ FH--N) | B: Buffer, SZ: Size, FH: File Handle |
+| fgets     | (B SZ FH--F) | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
 | fload     | (NM--)       | NM: File Name to load |
 | load      | (N--)        | N: Block number to load (block-NNN.c4) |
 | loaded?   | (XT DE--)    | Stops a load if DE <> 0 |
@@ -142,6 +142,6 @@ I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
 | .s        | (--)         | Display the stack |
 | @c        | (A--N)       | Fetch unsigned 16-bit N from CODE address A |
 | !c        | (N A--)      | Store unsigned 16-bit N to CODE address A |
-| find      | (--WC DE)    | WC: WORD-CODE, DE: Dict Entry address (0 if not found) |
+| find      | (--WC DE)    | WC: WORD-CODE, DE: Dict Entry address (0 0 if not found) |
 | system    | (A--)        | PC ONLY: A: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |

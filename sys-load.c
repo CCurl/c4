@@ -50,18 +50,18 @@ void sys_load() {
 : CR 13 EMIT 10 EMIT ; \
 : TAB 9 EMIT ; \
 : ?  @ . ; \
-: A+C A DUP CELL + >A ; \
-: !A   A ! ;   : !A+   A+C ! ; \
-: @A   A @ ;   : @A+   A+C @ ; \
-: C!A  A C! ;  : C!A+  A+  C! ; \
-: C@A  A C@ ;  : C@A+  A+  C@ ; \
+: A+C a> DUP CELL + >A ; \
+: !A   a> ! ;   : !A+   A+C ! ; \
+: @A   a> @ ;   : @A+   A+C @ ; \
+: C!A  a> C! ;  : C!A+  A+  C! ; \
+: C@A  a> C@ ;  : C@A+  A+  C@ ; \
 : >XT     W@ ; \
 : >SIZE   2 + C@ ; \
 : >FLAGS  3 + C@ ; \
 : >LEX    4 + C@ ; \
 : >NAME   5 + ; \
 : lex-match? ( a--f ) >LEX LEX = LEX 0= OR ; \
-: WORDS A >R  0 DUP >A >R  LAST >DICT BEGIN \
+: WORDS a> >R  0 DUP >A >R  LAST >DICT BEGIN \
       DUP lex-match? IF \
         DUP >NAME COUNT TYPE  R> 1+ >R \
         A+ 8 > IF CR 0 >A ELSE TAB THEN \

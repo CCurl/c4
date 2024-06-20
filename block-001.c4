@@ -48,12 +48,13 @@
 : mod /mod drop ;
 : +! tuck @ + swap ! ;   : c+! tuck c@ + swap c! ;
 : c++ dup c@ 1+ swap c! ;
-: +a a >t >a ;  : -a t> >a ;  : a- ( --n ) a dup 1- >a ;  : a++ a+ drop ;
-: +s s >t >s ;  : -s t> >s ;  : s- ( --n ) s dup 1- >s ;  : s++ s+ drop ;
-: +d d >t >d ;  : -d t> >d ;  : d- ( --n ) d dup 1- >d ;  : d++ d+ drop ;
+: +a a> >t >a ;  : -a t> >a ;  : a- ( --n ) a> dup 1- >a ;  : a++ a+ drop ;
+: +s s> >t >s ;  : -s t> >s ;  : s- ( --n ) s> dup 1- >s ;  : s++ s+ drop ;
+: +d d> >t >d ;  : -d t> >d ;  : d- ( --n ) d> dup 1- >d ;  : d++ d+ drop ;
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;
+: .02 base@ /mod (.) (.) ;
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
@@ -71,7 +72,7 @@
         a+ 8 > if cr 0 >a else tab then
       then
       dup ->size + dup dict-sz ->dict <
-    while drop '(' emit d . ." words)" -d -a ;
+    while drop '(' emit d> . ." words)" -d -a ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
 : const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
@@ -80,7 +81,6 @@ cell var vv
 : marker here 20 !c last 21 !c vhere vv ! ;
 : forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;
 marker
-: .02 base@ /mod (.) (.) ;
 : .pt .02 '.' emit ;
 : .ver version 100 /mod 100 /mod .pt .pt .02 ;
 ." c4 - v" .ver ."  - Chris Curl." cr

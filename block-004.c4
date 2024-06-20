@@ -38,37 +38,37 @@ mb-ssz cells var mb-si  ( slot-info )
 
 : mbd cr mb-ssz 1 +a for
     i mb-slot-i @ ?dup if 0 >a i . . i mb-slot-a @ . cr then
-  next a if ." (empty)" then -a ;
+  next a> if ." (empty)" then -a ;
 
 : mb-free? ( n sz--f )
   +s  mb-slot-i @ +a
-  a 0= if 1 then        ( not allocated )
-  a 0< if 0 then        ( allocated, in-use )
-  a 0> if s a <= then   ( allocated-free )
+  a> 0= if 1 then        ( not allocated )
+  a> 0< if 0 then        ( allocated, in-use )
+  a> 0> if s> a> <= then   ( allocated-free )
   -a -s ;
 
 : alloc ( sz--h - 0 means error )
-  +s  0 +a   a +d
+  +s  0 +a   a> +d
   begin
-    d s mb-free?
-    if d mb-slot-a @ >a  0
+    d> s> mb-free?
+    if d> mb-slot-a @ >a  0
     else d+ mb-ssz < then
   while
-  d mb-ssz < if
-    a 0= if
-      s mb-ru >s   s mb-new >a
-      a if  a d mb-slot-a !  s d mb-slot-i !  then
+  d> mb-ssz < if
+    a> 0= if
+      s> mb-ru >s   s> mb-new >a
+      a> if  a> d> mb-slot-a !  s> d> mb-slot-i !  then
     then
-    d mb-slot-i @ -abs d mb-slot-i !
+    d> mb-slot-i @ -abs d> mb-slot-i !
   then
-  a  -d -a -s ;
+  a>  -d -a -s ;
 
 : free ( h-- )
   +a  0 +d begin
-    d mb-slot-a @ dup 0= 
+    d> mb-slot-a @ dup 0= 
     if  drop -d -a exit  then
-    a = if
-      d mb-slot-i @ abs d mb-slot-i !
+    a> = if
+      d> mb-slot-i @ abs d> mb-slot-i !
       mb-ssz >d
     then
     d+ mb-ssz <
@@ -77,9 +77,9 @@ mb-ssz cells var mb-si  ( slot-info )
 mb-init
 
 ( some tests )
-: t1 49 alloc >a a . mbd ;
-: t2 80 alloc >d d . mbd ;
-: t3 200 alloc >s s . mbd ;
-: t4 s  free mbd ;
-: t5 d  free mbd ;
-: t6 a  free mbd ;
+: t1 49 alloc >a a> . mbd ;
+: t2 80 alloc >d d> . mbd ;
+: t3 200 alloc >s s> . mbd ;
+: t4 s>  free mbd ;
+: t5 d>  free mbd ;
+: t6 a>  free mbd ;
