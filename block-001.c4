@@ -4,9 +4,12 @@
 : here  (here)  @c ;
 : last  (last)  @c ;
 : base@ base    @c ;
+: >base base    !c ;
 : vhere (vhere) @ ;
 : lex   (lex)   @c ;
 : >lex  (lex)   !c ;
+: 0sp  0 (sp)  !c ;
+: 0rsp 0 (rsp) !c ;
 : , here  dup 1+     (here)  !c !c ;
 : begin here ; immediate
 : again (jmp)   , , ; immediate
@@ -26,9 +29,9 @@
   again ; immediate
 : allot vhere + (vhere) ! ;
 : ,v  vhere ->vars ! cell allot ;
-: hex     $10 base !c ;
-: binary  %10 base !c ;
-: decimal #10 base !c ;
+: hex     $10 >base ;
+: binary  %10 >base ;
+: decimal #10 >base ;
 : ?dup -if dup then ;
 : nip swap drop ;     : tuck swap over ;
 : 2dup over over ;    : 2drop drop drop ;
@@ -74,15 +77,14 @@
 : const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
 : var    addword allot (exit) , ; immediate
 cell var vv
-: .02 base@ /mod (.) (.) ;
-: .03 base@ dup * /mod (.) .02 ;
-: .04 base@ dup dup * * /mod (.) .03 ;
 : marker here 20 !c last 21 !c vhere vv ! ;
 : forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;
 marker
-: .pt '.' emit .02 ;
-: .ver version 100 /mod 100 /mod .pt .pt .pt ;
+: .02 base@ /mod (.) (.) ;
+: .pt .02 '.' emit ;
+: .ver version 100 /mod 100 /mod .pt .pt .02 ;
 ." c4 - v" .ver ."  - Chris Curl." cr
 forget
 
 99 load
+0 >lex

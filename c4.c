@@ -3,6 +3,8 @@
 #define LASTPRIM      BYE
 #define NCASE         goto next; case
 #define BCASE         break; case
+#define sp            code[SPA]
+#define rsp           code[RSPA]
 #define here          code[HA]
 #define last          code[LA]
 #define base          code[BA]
@@ -14,12 +16,12 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { HA = 0, LA, BA, SA, LEXA };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LEXA };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-short sp, rsp, lsp, tsp;
+short spx, rspx, lsp, tsp;
 cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1];
@@ -445,6 +447,8 @@ void baseSys() {
 	parseF(": (lit2)    #%d ;", LIT2);
 	parseF(": (exit)    #%d ;", EXIT);
 
+	parseF(": (sp)      #%d ;", SPA);
+	parseF(": (rsp)     #%d ;", RSPA);
 	parseF(": (here)    #%d ;", HA);
 	parseF(": (last)    #%d ;", LA);
 	parseF(": base      #%d ;", BA);
