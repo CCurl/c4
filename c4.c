@@ -217,7 +217,7 @@ int findPrevXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0);
 	if (!dp) { printF("-nf:%s-", wd); return; }
-	if (dp->xt < LASTPRIM) { printF("%s is a primitive (%hX).\n", wd, dp->xt); return; }
+	if (dp->xt <= LASTPRIM) { printF("%s is a primitive (%hX).\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
