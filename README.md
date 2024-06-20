@@ -23,6 +23,16 @@ C4 uses three memory areas:
 - The variables area can be up to CELL bytes, CELL index (VARS-SZ).
 - Use `->code`, `->vars`, or `->dict` to turn a relative address into a real one.
 
+Some 16-bit system variables are located in the code area.<br/>
+The are set/retrieved using words `@c` and `!c`.
+- here  `(here)`
+- last  `(last)`
+- base  `base`
+- state `state`
+- lex   `(lex)`
+- sp    `(sp)`
+- rsp   `(rsp)`
+
 ## C4 Strings
 
 Strings in C4 are both counted and NULL terminated.

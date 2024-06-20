@@ -9,6 +9,8 @@
 #define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
+#define lsp           code[LSPA]
+#define tsp           code[TSPA]
 #define lex           code[LEXA]
 #define TOS           stk[sp].i
 #define NOS           stk[sp-1].i
@@ -16,12 +18,12 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { SPA=0, RSPA, HA, LA, BA, SA, LEXA };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-short spx, rspx, lsp, tsp;
+short spx, rspx, lspx, tspx;
 cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1];
@@ -453,6 +455,8 @@ void baseSys() {
 	parseF(": (last)    #%d ;", LA);
 	parseF(": base      #%d ;", BA);
 	parseF(": state     #%d ;", SA);
+	parseF(": (lsp)     #%d ;", LSPA);
+	parseF(": (tsp)     #%d ;", TSPA);
 	parseF(": (lex)     #%d ;", LEXA);
 
 	parseF(addrFmt, "code", &code[0]);
