@@ -23,7 +23,6 @@ enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA };
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-short spx, rspx, lspx, tspx;
 cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1];
@@ -62,11 +61,11 @@ cell tstk[TSTK_SZ+1];
 	X(ASET,    ">a",        0, A=pop(); ) \
 	X(AINC,    "a+",        0, push(A++); ) \
 	X(SGET,    "s>",        0, push(S); ) \
-	X(SINC,    "s+",        0, push(S++); ) \
 	X(SSET,    ">s",        0, S=pop(); ) \
+	X(SINC,    "s+",        0, push(S++); ) \
 	X(DGET,    "d>",        0, push(D); ) \
-	X(DINC,    "d+",        0, push(D++); ) \
 	X(DSET,    ">d",        0, D=pop(); ) \
+	X(DINC,    "d+",        0, push(D++); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
@@ -104,7 +103,7 @@ cell tstk[TSTK_SZ+1];
 	X(DOTS,    ".s",        0, dotS(); ) \
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
-	X(FIND,    "find",      1, { DE_T *dp = (DE_T*)findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
 	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
 
@@ -407,6 +406,7 @@ int outer(const char *ln) {
 			vhere=cV;
 			last=cL;
 			state=0;
+			while (inputFp) { fileClose(inputFp); inputFp=filePop(); }
 			return 0;
 		}
 	}
