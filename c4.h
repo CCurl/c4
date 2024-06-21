@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION       240613
+#define VERSION       240627
 #define CODE_SZ       0xFFFF
 #define VARS_SZ     0x100000
 #define DICT_SZ       0xFFFF
