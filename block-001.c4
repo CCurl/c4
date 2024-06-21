@@ -3,9 +3,13 @@
 : ->dict dict + ;
 : here  (here)  @c ;
 : last  (last)  @c ;
+: base@ base    @c ;
+: >base base    !c ;
 : vhere (vhere) @ ;
 : lex   (lex)   @c ;
 : >lex  (lex)   !c ;
+: 0sp  0 (sp)  !c ;
+: 0rsp 0 (rsp) !c ;
 : , here  dup 1+     (here)  !c !c ;
 : begin here ; immediate
 : again (jmp)   , , ; immediate
@@ -25,57 +29,62 @@
   again ; immediate
 : allot vhere + (vhere) ! ;
 : ,v  vhere ->vars ! cell allot ;
-: hex     $10 base !c ;
-: binary  %10 base !c ;
-: decimal #10 base !c ;
-: cells cell * ;
-: nip swap drop ;
-: tuck swap over ;
-: ?dup dup if dup then ;
-: 2dup over over ;
+: hex     $10 >base ;
+: binary  %10 >base ;
+: decimal #10 >base ;
+: ?dup -if dup then ;
+: nip swap drop ;     : tuck swap over ;
+: 2dup over over ;    : 2drop drop drop ;
+: 0< 0 < ;            : 0> 0 > ;
+: <= > 0= ;           : >= < 0= ;      : <> = 0= ;
+: 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;
+: cells cell * ;      : chars ;        : cell+ cell + ;
 : min ( a b--c ) 2dup > if swap then drop ;
 : max ( a b--c ) 2dup < if swap then drop ;
-: 2+ 1+ 1+ ;
+: btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
 : negate com 1+ ;
-: abs dup 0 < if negate then ;
+: abs  dup 0< if negate then ;
+: -abs dup 0> if negate then ;
 : mod /mod drop ;
-: +! tuck @ + swap ! ;
-: space 32 emit ;
+: +! tuck @ + swap ! ;   : c+! tuck c@ + swap c! ;
+: c++ dup c@ 1+ swap c! ;
+: +a a> >t >a ;  : -a t> >a ;  : a- ( --n ) a> dup 1- >a ;  : a++ a+ drop ;
+: +s s> >t >s ;  : -s t> >s ;  : s- ( --n ) s> dup 1- >s ;  : s++ s+ drop ;
+: +d d> >t >d ;  : -d t> >d ;  : d- ( --n ) d> dup 1- >d ;  : d++ d+ drop ;
+: bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;
+: .02 base@ /mod (.) (.) ;
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
 : ->xt     w@ ;
-: ->size   2 + c@ ;
+: ->size   2+  c@ ;
 : ->flags  3 + c@ ;
 : ->lex    4 + c@ ;
 : ->len    5 + ;
 : ->name   6 + ;
 : lex-match? ( a--f )  ->lex lex =  lex 0=  or ;
-: words a >r  0 dup >a >r  last ->dict begin
+: words 0 dup +a +d  last ->dict begin
       dup lex-match? if
-        dup ->len count type  r> 1+ >r
-        dup ->len c@ 7 > if a+ drop then
+        dup ->len count type d++
+        dup ->len c@ 7 > if a++ then
         a+ 8 > if cr 0 >a else tab then
       then
       dup ->size + dup dict-sz ->dict <
-    while drop '(' emit r> . ." words)" r> >a ;
+    while drop '(' emit d> . ." words)" -d -a ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
-: var   addword cell allot (exit) , ; immediate
-: const addword ,v does> @ ; immediate
-: hh 20 ;  : ll 21 ;
-var vv
-: marker here hh !c last ll !c vhere vv ! ;
-: forget hh @c (here) !c ll @c (last) !c vv @ (vhere) ! 0 >lex ;
+: const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
+: var    addword allot (exit) , ; immediate
+cell var vv
+: marker here 20 !c last 21 !c vhere vv ! ;
+: forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;
 marker
-: .02 '.' emit dup 10 < if 0 (.) then (.) ;
-: .ver version 100 /mod 100 /mod (.) .02 .02 ;
+: .pt .02 '.' emit ;
+: .ver version 100 /mod 100 /mod .pt .pt .02 ;
 ." c4 - v" .ver ."  - Chris Curl." cr
 forget
 
-6 load
-3 load
-5 load
+99 load
 0 >lex

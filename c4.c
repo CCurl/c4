@@ -3,10 +3,14 @@
 #define LASTPRIM      BYE
 #define NCASE         goto next; case
 #define BCASE         break; case
+#define sp            code[SPA]
+#define rsp           code[RSPA]
 #define here          code[HA]
 #define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
+#define lsp           code[LSPA]
+#define tsp           code[TSPA]
 #define lex           code[LEXA]
 #define TOS           stk[sp].i
 #define NOS           stk[sp-1].i
@@ -14,14 +18,14 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { HA = 0, LA, BA, SA, LEXA };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-short sp, rsp, lsp, aSp;
-cell vhere, A, B, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
-char wd[32], *toIn, wordAdded;
+cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
+char wd[32], *toIn;
+cell tstk[TSTK_SZ+1];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -53,21 +57,21 @@ char wd[32], *toIn, wordAdded;
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-	X(AGET,    "a",         0, push(A); ) \
+	X(AGET,    "a>",        0, push(A); ) \
 	X(ASET,    ">a",        0, A=pop(); ) \
 	X(AINC,    "a+",        0, push(A++); ) \
-	X(BGET,    "b",         0, push(B); ) \
-	X(BINC,    "b+",        0, push(B++); ) \
-	X(BSET,    ">b",        0, B=pop(); ) \
-	X(SGET,    "s",         0, push(S); ) \
-	X(SINC,    "s+",        0, push(S++); ) \
+	X(SGET,    "s>",        0, push(S); ) \
 	X(SSET,    ">s",        0, S=pop(); ) \
-	X(DGET,    "d",         0, push(D); ) \
-	X(DINC,    "d+",        0, push(D++); ) \
+	X(SINC,    "s+",        0, push(S++); ) \
+	X(DGET,    "d>",        0, push(D); ) \
 	X(DSET,    ">d",        0, D=pop(); ) \
+	X(DINC,    "d+",        0, push(D++); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
+	X(TOT,     ">t",        0, tpush(pop()); ) \
+	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
+	X(TFROM,   "t>",        0, push(tpop()); ) \
 	X(EMIT,    "emit",      0, t=pop(); emit((char)t); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
@@ -80,6 +84,10 @@ char wd[32], *toIn, wordAdded;
 	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
 	X(TYPE,    "type",      0, t=pop(); char *y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
+	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
+	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
+	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
+	X(SZLEN,   "sz-len",    0, TOS = strLen((char*)TOS); ) \
 	X(QUOTE,   "\"",        1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); comma(COUNT); comma(TYPE); ) \
 	X(RAND,    "rand",      0, doRand(); ) \
@@ -95,7 +103,7 @@ char wd[32], *toIn, wordAdded;
 	X(DOTS,    ".s",        0, dotS(); ) \
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
-	X(FIND,    "find",      1, { DE_T *dp = (DE_T*)findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
 	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
 
@@ -107,19 +115,18 @@ enum _PRIM  {
 };
 
 #undef X
-#define X(op, name, imm, cod) { op, name, imm },
+#define X(op, name, imm, code) { op, name, imm },
 
-typedef struct { short op; const char *name; byte imm; } PRIM_T;
-PRIM_T prims[] = {
-	PRIMS
-	{0, 0, 0}
-};
+typedef struct { short op; const char *name; byte fl; } PRIM_T;
+PRIM_T prims[] = { PRIMS {0, 0, 0} };
 
 void sys_load();
 void push(cell x) { if (sp < STK_SZ) { stk[++sp].i = x; } }
 cell pop() { return (0<sp) ? stk[sp--].i : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
+void tpush(cell x) { if (tsp < TSTK_SZ) { tstk[++tsp] = x; } }
+cell tpop() { return (0<tsp) ? tstk[tsp--] : 0; }
 void storeCell(cell a, cell val) { *(cell*)(a) = val; }
 void storeWord(cell a, cell val) { *(ushort*)(a) = (ushort)val; }
 cell fetchCell(cell a) { return *(cell*)(a); }
@@ -129,6 +136,11 @@ int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
+	return 0;
+}
+
+int strEq(const char *s, const char *d) {
+	while (*s == *d) { if (*s == 0) { return 1; } s++; d++; }
 	return 0;
 }
 
@@ -208,7 +220,7 @@ int findPrevXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0);
 	if (!dp) { printF("-nf:%s-", wd); return; }
-	if (dp->xt < LASTPRIM) { printF("%s is a primitive (%hX).\n", wd, dp->xt); return; }
+	if (dp->xt <= LASTPRIM) { printF("%s is a> primitive (%hX).\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
@@ -217,9 +229,10 @@ void doSee() {
 		int op = code[i++];
 		x = code[i];
 		printF("\n%04X: %04X\t", i-1, op);
+		if (op & 0xC000) { printF("lit %d", (int)(op & 0x3FFF)); continue; }
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT1: printF("lit1 %hd (%hX)", (ushort)x, (ushort)x); i++;
+			BCASE LIT1: printF("lit1 %hu (%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
 				printF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
 				i += CELL_SZ / 2;
@@ -249,7 +262,7 @@ char *iToA(cell N, int b) {
 		*(--cp) = c;
 		++len;
 	} while (X);
-	if (isNeg) { *(--cp) = '-'; }
+	if (isNeg) { *(--cp) = '-'; ++len; }
 	*(--cp) = len;
 	return cp;
 }
@@ -311,6 +324,7 @@ void inner(int start) {
 	ushort pc = start, wc;
 	next:
 	wc = code[pc++];
+	if (wc & 0xC000) { push(wc & 0x3FFF); goto next; }
 	switch(wc) {
 		case  STOP:   return;
 		NCASE LIT1:   push(code[pc++]);
@@ -352,9 +366,11 @@ int parseWord(char *w) {
 	if (!w) { w = &wd[0]; }
 	// printF("-pw:%s-",w);
 
-	if (isNum(w, 10)) {
+	if (isNum(w, base)) {
 		cell n = pop();
-		if (btwi(n, 0, 0xffff)) {
+		if (btwi(n, 0, 0x3fff)) {
+			comma((ushort)(n | 0xC000));
+		} else if (btwi(n, 0, 0xffff)) {
 			comma(LIT1); comma((ushort)n);
 		} else {
 			comma(LIT2);
@@ -382,7 +398,7 @@ int parseWord(char *w) {
 int outer(const char *ln) {
     cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
-	// printF("-pl:%s-",ln);
+	// printF("-outer:%s-\n",ln);
 	while (nextWord()) {
 		if (!parseWord(wd)) {
 			printF("-%s?-", wd);
@@ -390,6 +406,7 @@ int outer(const char *ln) {
 			vhere=cV;
 			last=cL;
 			state=0;
+			while (inputFp) { fileClose(inputFp); inputFp=filePop(); }
 			return 0;
 		}
 	}
@@ -418,8 +435,8 @@ void printF(const char *fmt, ...) {
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
 		DE_T *w = addWord(prims[i].name);
-		w->xt=prims[i].op;
-		w->fl = prims[i].imm;
+		w->xt = prims[i].op;
+		w->fl = prims[i].fl;
 	}
 
 	parseF(": version   #%d ;", VERSION);
@@ -432,10 +449,14 @@ void baseSys() {
 	parseF(": (lit2)    #%d ;", LIT2);
 	parseF(": (exit)    #%d ;", EXIT);
 
+	parseF(": (sp)      #%d ;", SPA);
+	parseF(": (rsp)     #%d ;", RSPA);
 	parseF(": (here)    #%d ;", HA);
 	parseF(": (last)    #%d ;", LA);
 	parseF(": base      #%d ;", BA);
 	parseF(": state     #%d ;", SA);
+	parseF(": (lsp)     #%d ;", LSPA);
+	parseF(": (tsp)     #%d ;", TSPA);
 	parseF(": (lex)     #%d ;", LEXA);
 
 	parseF(addrFmt, "code", &code[0]);
@@ -456,8 +477,8 @@ void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
-	sp = rsp = lsp = aSp = state = 0;
-	last=DICT_SZ;
+	vhere = sp = rsp = lsp = tsp = state = 0;
+	last = DICT_SZ;
 	base = 10;
 	here = LASTPRIM+1;
 	fileInit();

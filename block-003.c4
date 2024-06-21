@@ -1,31 +1,28 @@
 ( block 3 - strings )
 
-find lex-string loaded?
+find fill loaded?
 
-0 >lex
-: lex-string 3 >lex ;
-lex-string
+3 >lex
 
-: fill ( from char num-- )
-    a >r  >r  swap >a
-    r> for dup a+ c! next
-	drop  r> >a ;
+: fill ( from ch num-- )
+    >r >r  +a
+    r> r>  for dup a+ c! next drop
+	-a ;
+
+: fill-c ( from n num-- )
+    >r >r  +a
+    r> r>  for dup a> ! a> cell + >a next drop
+	-a ;
+
+: cmove ( f t n-- ) >r  +d  +s
+    r> for s+ c@ d+ c! next
+    -d -s ;
 
 : p1 vhere ->vars 100 + ;
 : p2 p1 100 + ;
-: s-cat  ( dst src--dst )  >s >d
-    s c@ 0= if d exit then
-    d count + >a
-    s c@  d c@ +  d c!
-    s+ c@ for s+ c@ a+ c! next
-    0 a c! d ;
-: s-trunc ( dst--dst ) 0 over c! 0 over 1+ c! ;
-: s-cpy ( dst src--dst ) >r s-trunc r> s-cat ;
-: s-catc ( dst ch--dst ) swap >r
-    r@ count + >a  a+ c!  0 a c!
-    r@ c@ 1+ r@ c!  r> ;
-: s-scatc ( ch dst--dst ) swap s-catc ;
-: s-catn ( dst n--dst ) to-string s-cat ;
-: sz-len  ( sz--n ) s >r 0 begin
-      s+ c@ 0= if r> >s exit then 1+
-    again ;
+: s-trunc ( dst--dst ) 0 over w! ;
+: s-cat   ( dst src--dst ) +s +d d> count + s> 1+ s-cpy drop s> c@ d> c+! d> -d -s ;
+: s-catc  ( dst ch--dst )  >r +d r> d> count + w! d> c++ d>  -d ;
+: s-catn  ( dst n--dst )   to-string s-cat ;
+: s-scatc ( ch dst--dst )  swap s-catc ;
+: s-scatn ( n dst--dst )   swap s-catn ;

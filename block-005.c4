@@ -5,7 +5,7 @@ find csi loaded?
 0 >lex : lex-screen 5 >lex ;
 lex-screen
 
-: csi 27 emit '[' emit ;
+: csi     27 emit '[' emit ;
 : cur-on  ( -- )       csi ." ?25h" ;
 : cur-off ( -- )       csi ." ?25l" ;
 : ->cr    ( r c-- )    csi (.) ';' emit (.) 'H' emit ;

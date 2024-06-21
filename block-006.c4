@@ -1,7 +1,0 @@
-( block 6 - util words )
-
-find ls loaded?
-
-: ls   " ls -l"    system ;
-: lg   " lazygit"  system ;
-: nvim " nvim ."   system ;
