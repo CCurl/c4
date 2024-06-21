@@ -1,4 +1,4 @@
-# c4: a portable Forth system inspired by Tachyon
+# c4: a portable Forth system inspired by MachineForth and Tachyon
 
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is a 16-bit unsigned number (0..65535). <br/>
@@ -50,7 +50,7 @@ This is in the spirit of MachineForth, that has opcodes for an 'a' register. <br
 's' is shorthand for 'source', but can be used for anything. <br/>
 'd' is shorthand for 'destination', but can be used for anything. <br/>
 - They all support set (`>a`, `>s`, `>d`)
-- They all support get (`a`, `s`, `d`)
+- They all support get (`a>`, `s>`, `d>`)
 - They all support get with increment (`a+`, `s+`, `d+`)
 
 C4 also includes third stack, with same ops as the return stack. (`>t`, `t@`, `t>`). <br/>
