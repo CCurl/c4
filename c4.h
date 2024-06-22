@@ -49,11 +49,13 @@ typedef unsigned short ushort;
 typedef unsigned char byte;
 typedef union { FLT_T f; cell i; } SE_T;
 typedef struct { ushort xt; byte sz, fl, lx, ln; char nm[32]; } DE_T;
+typedef struct { short op; const char* name; byte fl; } PRIM_T;
 
 // These are defined by c4.c
 extern void strCpy(char *d, const char *s);
 extern int  strLen(const char *s);
 extern void printF(const char *fmt, ...);
+extern void inner(ushort start);
 extern int  outer(const char *s);
 extern void Init();
 

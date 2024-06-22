@@ -21,9 +21,9 @@
 enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA };
 
 SE_T stk[STK_SZ+1];
-ushort code[CODE_SZ+1];
+ushort code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-cell vhere, A, S, D, lstk[LSTK_SZ], rstk[STK_SZ+1];
+cell vhere, A, S, D, cV, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1];
 
@@ -117,7 +117,6 @@ enum _PRIM  {
 #undef X
 #define X(op, name, imm, code) { op, name, imm },
 
-typedef struct { short op; const char *name; byte fl; } PRIM_T;
 PRIM_T prims[] = { PRIMS {0, 0, 0} };
 
 void sys_load();
@@ -149,7 +148,7 @@ void strCpy(char *d, const char *s) {
 	*(d) = 0;
 }
 
-void comma(x) { code[here++] = x; }
+void comma(ushort x) { code[here++] = x; }
 void commaCell(cell n) {
 	storeCell((cell)&code[here], n);
 	here += CELL_SZ / 2;
@@ -302,10 +301,6 @@ void doRand() {
 	push(sd);
 }
 
-extern void inner(int start);
-ushort cH, cL, cS;
-cell cV;
-
 void execIt() {
 	// printF("-cH:%d,here:%d-\n",cH, here);
 	if (cH < here) {
@@ -319,7 +314,7 @@ void execIt() {
 #undef X
 #define X(op, name, imm, code) NCASE op: code
 
-void inner(int start) {
+void inner(ushort start) {
 	cell t, n;
 	ushort pc = start, wc;
 	next:
