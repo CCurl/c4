@@ -7,12 +7,12 @@ find fill loaded?
 : fill ( from ch num-- )
     >r >r  +a
     r> r>  for dup a+ c! next drop
-	-a ;
+    -a ;
 
 : fill-c ( from n num-- )
     >r >r  +a
     r> r>  for dup a> ! a> cell + >a next drop
-	-a ;
+    -a ;
 
 : cmove ( f t n-- ) >r  +d  +s
     r> for s+ c@ d+ c! next
