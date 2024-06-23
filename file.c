@@ -25,7 +25,7 @@ void blockLoad(cell blk) {}
 #ifdef PC_FILE
 static char fn[32];
 void fileInit() { fileSp = 0; inputFp = 0; }
-cell fileOpen(char *name, char *mode) { return (cell)fopen(name+1, mode+1); }
+cell fileOpen(const char *name, const char *mode) { return (cell)fopen(name, mode); }
 void fileClose(cell fh) { fclose((FILE*)fh); }
 cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh); }
 cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
@@ -39,14 +39,14 @@ int  fileGets(char *buf, int sz, cell fh) {
     return 1;
 }
 
-void fileLoad(char *name) {
-    cell fh = fileOpen(name, " rt");
+void fileLoad(const char *name) {
+    cell fh = fileOpen(name, "rt");
     if (fh == 0) { zType("-not found-"); return; }
     if (inputFp) { filePush(inputFp); }
     inputFp = fh;
 }
 
-static char *blockFn(int blk) { sprintf(fn, " block-%03d.c4", blk); return fn; }
+static char *blockFn(int blk) { sprintf(fn, "block-%03d.c4", blk); return fn; }
 void blockLoad(int blk) { fileLoad(blockFn(blk)); }
 
 #endif

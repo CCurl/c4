@@ -75,20 +75,18 @@ void REP() {
 	inputFp = filePop();
 }
 
+void loadArgument(const char *arg) {
+    char fn[32];
+    strCpy(fn, arg);
+    cell tmp = fileOpen(fn, "rb");
+    if (!tmp) { return; }
+    if (inputFp) { filePush(tmp); }
+    else { inputFp = tmp; }
+}
+
 int main(int argc, char *argv[]) {
-	char fn[32];
 	Init();
-	if (argc>1) {
-        cell tmp = inputFp;
-		strCpy(fn+1, argv[1]);
-		fileLoad(fn);
-        // load init block first (if necessary)
-        if (tmp && inputFp) {
-            filePop();
-            filePush(inputFp);
-            inputFp = tmp;
-        }
-	}
+	if (argc > 1) { loadArgument(argv[1]); }
 	while (1) { REP(); };
 	return 0;
 }

@@ -69,12 +69,12 @@ extern int  qKey();
 extern void fileInit();
 extern void filePush(cell fh);
 extern cell filePop();
-extern cell fileOpen(char *name, char *mode);
+extern cell fileOpen(const char *name, const char *mode);
 extern void fileClose(cell fh);
 extern cell fileRead(char *buf, int sz, cell fh);
 extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
-extern void fileLoad(char *name);
+extern void fileLoad(const char *name);
 extern void blockLoad(int blk);
 
 #endif //  __C4_H__

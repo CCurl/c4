@@ -66,8 +66,8 @@ cols 2+     var cur-line
     for dup c@ .02 space 1+ a+ $20 > if cr 1 >a then next drop
     drop -a r> base !c ;
 : dump-block  block block-sz hex-dump ;
-: fopen-rb ( fn--fh )  " rb" fopen ;
-: fopen-wb ( fn--fh )  " wb" fopen ;
+: fopen-rb ( fn--fh ) 1+ z" rb" fopen ;
+: fopen-wb ( fn--fh ) 1+ z" wb" fopen ;
 : block-fn ( --fn ) p1 " block-" s-cpy
     blk 10 /mod 10 /mod
     3 for p1 swap '0' + s-catc drop next

@@ -88,8 +88,9 @@ cell tstk[TSTK_SZ+1];
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SZLEN,   "sz-len",    0, TOS = strLen((char*)TOS); ) \
-	X(QUOTE,   "\"",        1, quote(); ) \
-	X(DOTQT,   ".\"",       1, quote(); comma(COUNT); comma(TYPE); ) \
+	X(ZQUOTE,  "z\"",       1, quote(0); ) \
+	X(QUOTE,   "\"",        1, quote(1); ) \
+	X(DOTQT,   ".\"",       1, quote(0); comma(ZTYPE); ) \
 	X(RAND,    "rand",      0, doRand(); ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
@@ -272,24 +273,18 @@ void dotS() {
     zType(")");
 }
 
-void quote() {
+void quote(int counted) {
 	comma(LIT2);
 	commaCell((cell)&vars[vhere]);
 	cell vh=vhere;
-	vars[vhere++] = 0; // Length byte
+	if (counted) { vars[vhere++] = 0; } // Length byte
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
 		vars[vhere++] = *(toIn++);
-		++vars[vh];
+		if (counted) { ++vars[vh]; }
 	}
 	vars[vhere++] = 0; // NULL terminator
-}
-
-void dotQuote() {
-	quote();
-	comma(COUNT);
-	comma(TYPE);
 }
 
 void doRand() {
