@@ -94,7 +94,7 @@ I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
 | xor       | (A B--N)     | N: A XOR B |
 | com       | (A--B)       | N: A with all bits flipped (complement) |
 | for       | (N--)        | Begin FOR loop with bounds 0 and N |
-| i         | (--I)        | I: Current DO LOOP index |
+| i         | (--I)        | I: Current FOR LOOP index |
 | next      | (--)         | Increment I, stop if I >= T |
 | a>        | (--N)        | Push a (a built-in variable ala MachineForth) |
 | a+        | (--N)        | Push a, then increment it |
@@ -125,23 +125,26 @@ I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
 | s-cpy     | (D S--D)     | Copy string S to D |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
-| "         | (--)         | -COMPILE: Copy chars up to next " to VARS |
+| z"        | (--)         | -COMPILE: Copy chars up to next " to VARS (NOT counted) |
+|           | (--A)        | -RUN: push address A of string |
+| "         | (--)         | -COMPILE: Copy chars up to next " to VARS (counted) |
 |           | (--A)        | -RUN: push address A of string |
 | ."        | (--)         | -COMPILE: Copy chars up to next " to VARS |
 |           | (--)         | -RUN: COUNT/TYPE on string |
 | rand      | (--N)        | N: a pseudo-random number (uses XOR shift) |
-| fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle |
-| fclose    | (FH--)       | FH: File Handle (0 if error or not found) |
+| fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
+|           |              |     NOTE: NM and MD are NOT counted, use `z"` |
+| fclose    | (FH--)       | FH: File Handle |
 | fread     | (B SZ FH--N) | B: Buffer, SZ: Size, FH: File Handle |
 | fwrite    | (B SZ FH--N) | B: Buffer, SZ: Size, FH: File Handle |
 | fgets     | (B SZ FH--F) | B: Buffer, SZ: Size, F: 0 if EOF/Error, else 1 |
-| fload     | (NM--)       | NM: File Name to load |
-| load      | (N--)        | N: Block number to load (block-NNN.c4) |
-| loaded?   | (XT DE--)    | Stops a load if DE <> 0 |
-| to-string | (N--A)       | Convert N to a string in the current BASE |
+| fload     | (SZ--)       | SZ: File Name to load (NOT counted, use `z"`) |
+| load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
+| loaded?   | (XT DE--)    | Stops a load if DE <> 0 (see `find`) |
+| to-string | (N--A)       | Convert N to string A in the current BASE |
 | .s        | (--)         | Display the stack |
-| @c        | (A--N)       | Fetch unsigned 16-bit N from CODE address A |
-| !c        | (N A--)      | Store unsigned 16-bit N to CODE address A |
-| find      | (--WC DE)    | WC: WORD-CODE, DE: Dict Entry address (0 0 if not found) |
+| @c        | (N--WC)      | Fetch unsigned 16-bit WC from CODE address N |
+| !c        | (WC N--)     | Store unsigned 16-bit WC to CODE address N |
+| find      | (--XT DE)    | XT: Execution Token, DE: Dict Entry address (0 0 if not found) |
 | system    | (A--)        | PC ONLY: A: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |
