@@ -127,7 +127,7 @@ I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
 | z"        | (--)         | -COMPILE: Copy chars up to next " to VARS (NOT counted) |
 |           | (--A)        | -RUN: push address A of string |
-| "         | (--)         | -COMPILE: Copy chars up to next " to VARS (counted) |
+| s"        | (--)         | -COMPILE: Copy chars up to next " to VARS (counted) |
 |           | (--A)        | -RUN: push address A of string |
 | ."        | (--)         | -COMPILE: Copy chars up to next " to VARS |
 |           | (--)         | -RUN: COUNT/TYPE on string |

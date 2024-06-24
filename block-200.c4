@@ -6,7 +6,7 @@ find bm1 loaded?
 0 test-if 1 test-if
 see test-if
 
-: if-else if " yes" else " no" then count type '.' emit ;
+: if-else if s" yes" else s" no" then count type '.' emit ;
 cr cr 0 if-else 1 if-else
 see if-else cr
 

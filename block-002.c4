@@ -68,10 +68,10 @@ cols 2+     var cur-line
 : dump-block  block block-sz hex-dump ;
 : fopen-rb ( fn--fh ) 1+ z" rb" fopen ;
 : fopen-wb ( fn--fh ) 1+ z" wb" fopen ;
-: block-fn ( --fn ) p1 " block-" s-cpy
+: block-fn ( --fn ) p1 s" block-" s-cpy
     blk 10 /mod 10 /mod
     3 for p1 swap '0' + s-catc drop next
-    " .c4" s-cat ;
+    s" .c4" s-cat ;
 
 : prep-block ( -- ) init-lines
     block +a  0 +d  a> d+ >line

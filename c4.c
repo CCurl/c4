@@ -89,7 +89,7 @@ cell tstk[TSTK_SZ+1];
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SZLEN,   "sz-len",    0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(0); ) \
-	X(QUOTE,   "\"",        1, quote(1); ) \
+	X(QUOTE,   "s\"",       1, quote(1); ) \
 	X(DOTQT,   ".\"",       1, quote(0); comma(ZTYPE); ) \
 	X(RAND,    "rand",      0, doRand(); ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
