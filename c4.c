@@ -12,20 +12,21 @@
 #define lsp           code[LSPA]
 #define tsp           code[TSPA]
 #define lex           code[LEXA]
+#define regBase       code[RBA]
 #define TOS           stk[sp].i
 #define NOS           stk[sp-1].i
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA, RBA };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-cell vhere, A, S, D, cV, lstk[LSTK_SZ], rstk[STK_SZ+1];
+cell vhere, cV, lstk[LSTK_SZ], rstk[STK_SZ+1];
 char wd[32], *toIn;
-cell tstk[TSTK_SZ+1];
+cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -57,15 +58,14 @@ cell tstk[TSTK_SZ+1];
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-	X(AGET,    "a>",        0, push(A); ) \
-	X(ASET,    ">a",        0, A=pop(); ) \
-	X(AINC,    "a+",        0, push(A++); ) \
-	X(SGET,    "s>",        0, push(S); ) \
-	X(SSET,    ">s",        0, S=pop(); ) \
-	X(SINC,    "s+",        0, push(S++); ) \
-	X(DGET,    "d>",        0, push(D); ) \
-	X(DSET,    ">d",        0, D=pop(); ) \
-	X(DINC,    "d+",        0, push(D++); ) \
+    X(REGA,    "+regs",     0, if ((regBase+4) < REGS_SZ) { regBase+=5; } ) \
+    X(REGM,    "-regs",     0, if (regBase>4) { regBase-=5; } ) \
+    X(REGR,    "reg>",      0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
+    X(REGS,    ">reg",      0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
+    X(REGI,    "reg+",      0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
+    X(REGD,    "reg-",      0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]--; } ) \
+    X(REGRI,   "reg>+",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]++ : 0); ) \
+    X(REGRD,   "reg>-",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
@@ -380,7 +380,7 @@ int parseWord(char *w) {
 			comma(de->xt);
 		}
 		return 1;
-	 }
+	}
 
 	return 0;
 }
@@ -448,6 +448,7 @@ void baseSys() {
 	parseF(": (lsp)     #%d ;", LSPA);
 	parseF(": (tsp)     #%d ;", TSPA);
 	parseF(": (lex)     #%d ;", LEXA);
+	parseF(": (r-base)  #%d ;", RBA);
 
 	parseF(addrFmt, "code", &code[0]);
 	parseF(addrFmt, "vars", &vars[0]);
@@ -455,6 +456,10 @@ void baseSys() {
 	parseF(addrFmt, ">in",  &toIn);
 	parseF(addrFmt, "(vhere)", &vhere);
 	parseF(addrFmt, "(output-fp)", &outputFp);
+	parseF(addrFmt, "stk",  &stk[0]);
+	parseF(addrFmt, "rstk", &rstk[0]);
+	parseF(addrFmt, "tstk", &tstk[0]);
+	parseF(addrFmt, "regs", &regs[0]);
 
 	parseF(": code-sz #%d ;", CODE_SZ);
 	parseF(": vars-sz #%d ;", VARS_SZ);

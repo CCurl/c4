@@ -4,25 +4,26 @@ find fill loaded?
 
 3 >lex
 
-: fill ( from ch num-- )
-    >r >r  +a
-    r> r>  for dup a+ c! next drop
-    -a ;
+: fill ( start ch num-- )
+    >t swap t>
+    for over over c! 1+ next
+    drop drop ;
 
-: fill-c ( from n num-- )
-    >r >r  +a
-    r> r>  for dup a> ! a> cell + >a next drop
-    -a ;
+: fill-c ( start n num-- )
+    >t swap t>
+    for over over ! cell + next
+    drop drop ;
 
-: cmove ( f t n-- ) >r  +d  +s
-    r> for s+ c@ d+ c! next
-    -d -s ;
+: cmove ( f t n-- )
+    +regs >a >d >s
+    a> for s>+ c@ d>+ c! next
+    -regs ;
 
 : p1 vhere ->vars 100 + ;
 : p2 p1 100 + ;
 : s-trunc ( dst--dst ) 0 over w! ;
-: s-cat   ( dst src--dst ) +s +d d> count + s> 1+ s-cpy drop s> c@ d> c+! d> -d -s ;
-: s-catc  ( dst ch--dst )  >r +d r> d> count + w! d> c++ d>  -d ;
+: s-cat   ( dst src--dst ) +regs >s >d d> count + s> 1+ s-cpy drop s> c@ d> c+! d> -regs ;
+: s-catc  ( dst ch--dst )  +regs swap >d  d> count + w! d> c++ d> -regs ;
 : s-catn  ( dst n--dst )   to-string s-cat ;
 : s-ccat  ( src dst--dst ) swap s-cat ;
 : s-scatc ( ch dst--dst )  swap s-catc ;

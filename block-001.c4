@@ -33,8 +33,10 @@
 : binary  %10 >base ;
 : decimal #10 >base ;
 : ?dup -if dup then ;
-: nip swap drop ;     : tuck swap over ;
-: 2dup over over ;    : 2drop drop drop ;
+: nip swap drop ;        : tuck swap over ;
+: 2dup over over ;       : 2drop drop drop ;
+: rot >r swap r> swap ;  : -rot swap >r swap r> ;
+: tdrop t> drop ;
 : 0< 0 < ;            : 0> 0 > ;
 : <= > 0= ;           : >= < 0= ;      : <> = 0= ;
 : 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;
@@ -48,9 +50,27 @@
 : mod /mod drop ;
 : +! tuck @ + swap ! ;   : c+! tuck c@ + swap c! ;
 : c++ dup c@ 1+ swap c! ;
-: +a a> >t >a ;  : -a t> >a ;  : a- ( --n ) a> dup 1- >a ;  : a++ a+ drop ;
-: +s s> >t >s ;  : -s t> >s ;  : s- ( --n ) s> dup 1- >s ;  : s++ s+ drop ;
-: +d d> >t >d ;  : -d t> >d ;  : d- ( --n ) d> dup 1- >d ;  : d++ d+ drop ;
+
+: a>  0 reg> ;  : >a  0 >reg ;
+: a>+ 0 reg>+ ;  : a+ 0 reg+ ;
+: a>- 0 reg>- ;  : a- 0 reg- ;
+
+: s>  1 reg> ;  : >s  1 >reg ;
+: s>+ 1 reg>+ ;  : s+ 1 reg+ ;
+: s>- 1 reg>- ;  : s- 1 reg- ;
+
+: d>  2 reg> ;  : >d  2 >reg ;
+: d>+ 2 reg>+ ;  : d+ 2 reg+ ;
+: d>- 2 reg>- ;  : d- 2 reg- ;
+
+: x>  3 reg> ;  : >x  3 >reg ;
+: x>+ 3 reg>+ ;  : x+ 3 reg+ ;
+: x>- 3 reg>- ;  : x- 3 reg- ;
+
+: y>  4 reg> ;  : >y  4 >reg ;
+: y>+ 4 reg>+ ;  : y+ 4 reg+ ;
+: y>- 4 reg>- ;  : y- 4 reg- ;
+
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;
@@ -65,14 +85,15 @@
 : ->len    5 + ;
 : ->name   6 + ;
 : lex-match? ( a--f )  ->lex lex =  lex 0=  or ;
-: words 0 dup +a +d  last ->dict begin
-      dup lex-match? if
-        dup ->len count type d++
-        dup ->len c@ 7 > if a++ then
-        a+ 8 > if cr 0 >a else tab then
+: words +regs 0 >a 0 >d  last ->dict >s  dict-sz ->dict >x
+    begin
+      s> lex-match? if
+        s> ->len count type d+
+        s> ->len c@ 7 > if a+ then
+        a>+ 8 > if cr 0 >a else tab then
       then
-      dup ->size + dup dict-sz ->dict <
-    while drop '(' emit d> . ." words)" -d -a ;
+      s> dup ->size + dup >s  x> <
+    while '(' emit d> . ." words)" -regs ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
 : const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
