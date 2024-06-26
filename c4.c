@@ -60,15 +60,16 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
     X(REGA,    "+regs",     0, if ((regBase+4) < REGS_SZ) { regBase+=5; } ) \
     X(REGM,    "-regs",     0, if (regBase>4) { regBase-=5; } ) \
-    X(REGR,    "reg>",      0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
-    X(REGS,    ">reg",      0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
-    X(REGI,    "reg+",      0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
-    X(REGD,    "reg-",      0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]--; } ) \
-    X(REGRI,   "reg>+",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]++ : 0); ) \
-    X(REGRD,   "reg>-",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
+    X(REGR,    "reg-r",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
+    X(REGS,    "reg-s",     0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
+    X(REGI,    "reg-i",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
+    X(REGD,    "reg-d",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]--; } ) \
+    X(REG_RI,  "reg-ri",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]++ : 0); ) \
+    X(REG_RD,  "reg-rd",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
+	X(RDROP,   "rdrop",     0, rpop(); ) \
 	X(TOT,     ">t",        0, tpush(pop()); ) \
 	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
 	X(TFROM,   "t>",        0, push(tpop()); ) \

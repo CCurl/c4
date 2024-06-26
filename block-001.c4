@@ -51,25 +51,25 @@
 : +! tuck @ + swap ! ;   : c+! tuck c@ + swap c! ;
 : c++ dup c@ 1+ swap c! ;
 
-: a>  0 reg> ;  : >a  0 >reg ;
-: a>+ 0 reg>+ ;  : a+ 0 reg+ ;
-: a>- 0 reg>- ;  : a- 0 reg- ;
+: a>  0 reg-r ;  : >a  0 reg-s ;
+: a>+ 0 reg-ri ;  : a+ 0 reg-i ;
+: a>- 0 reg-rd ;  : a- 0 reg-d ;
 
-: s>  1 reg> ;  : >s  1 >reg ;
-: s>+ 1 reg>+ ;  : s+ 1 reg+ ;
-: s>- 1 reg>- ;  : s- 1 reg- ;
+: s>  1 reg-r ;  : >s  1 reg-s ;
+: s>+ 1 reg-ri ;  : s+ 1 reg-i ;
+: s>- 1 reg-rd ;  : s- 1 reg-d ;
 
-: d>  2 reg> ;  : >d  2 >reg ;
-: d>+ 2 reg>+ ;  : d+ 2 reg+ ;
-: d>- 2 reg>- ;  : d- 2 reg- ;
+: d>  2 reg-r ;  : >d  2 reg-s ;
+: d>+ 2 reg-ri ;  : d+ 2 reg-i ;
+: d>- 2 reg-rd ;  : d- 2 reg-d ;
 
-: x>  3 reg> ;  : >x  3 >reg ;
-: x>+ 3 reg>+ ;  : x+ 3 reg+ ;
-: x>- 3 reg>- ;  : x- 3 reg- ;
+: x>  3 reg-r ;  : >x  3 reg-s ;
+: x>+ 3 reg-ri ;  : x+ 3 reg-i ;
+: x>- 3 reg-rd ;  : x- 3 reg-d ;
 
-: y>  4 reg> ;  : >y  4 >reg ;
-: y>+ 4 reg>+ ;  : y+ 4 reg+ ;
-: y>- 4 reg>- ;  : y- 4 reg- ;
+: y>  4 reg-r ;  : >y  4 reg-s ;
+: y>+ 4 reg-ri ;  : y+ 4 reg-i ;
+: y>- 4 reg-rd ;  : y- 4 reg-d ;
 
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
