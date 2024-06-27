@@ -25,6 +25,6 @@ find fill loaded?
 : s-cat   ( dst src--dst ) +regs >s >d d> count + s> 1+ s-cpy drop s> c@ d> c+! d> -regs ;
 : s-catc  ( dst ch--dst )  +regs swap >d  d> count + w! d> c++ d> -regs ;
 : s-catn  ( dst n--dst )   to-string s-cat ;
-: s-ccat  ( src dst--dst ) swap s-cat ;
+: s-scat  ( src dst--dst ) swap s-cat ;
 : s-scatc ( ch dst--dst )  swap s-catc ;
 : s-scatn ( n dst--dst )   swap s-catn ;
