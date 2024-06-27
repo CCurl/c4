@@ -18,13 +18,15 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 ## C4 memory areas
 
 C4 provides three memory areas:
-- The code area can store up to 65536 WORD-CODEs, 16-bit index. (CODE-SZ).
-- The dictionary area can store up to 65536 bytes, 16-bit index (DICT-SZ).
-- The variables area can store up to CELL bytes, CELL index (VARS-SZ).
+- The code area can store up to 65536 16-bit WORD-CODEs, 16-bit index. (see `code-sz`).
+- NOTE: In the CODE area, slots 25-75 (`25 @c` .. `75 @c`) are unused by C4.
+- NOTE: These are free for the application to use as desired.
+- The variables area can store up to CELL bytes, CELL index (see `vars-sz`).
+- The dictionary area can store up to 65536 bytes, 16-bit index (see `dict-sz`).
 - Use `->code`, `->vars`, or `->dict` to turn an offset into an address.
 
 16-bit system variables are located in the code area.<br/>
-They are set/retrieved using `@c` and `!c` (e.g. `: here (here) @c ;`).<br/>
+They are set/retrieved using `!c` and `@c` (e.g. `: hex #16 !c ;`).<br/>
 
 | WORD       | STACK   | DESCRIPTION |
 |:--         |:--      |:--          |
@@ -47,7 +49,7 @@ C4 also supports NULL-terminated strings with no count byte (ztype).<br/>
 ## Registers
 
 C4 includes an array of `registers` (pre-defined cells).<br/>
-The number of registers is configurable (see REG_SZ).<br/>
+The number of registers is configurable (see `reg-sz`).<br/>
 There is a `reg-base` that can be used to provide a "stack frame" if desired.<br/>
 Note that you can leave `reg-base` at 0, and reference them all individually.<br/>
 Or you can create words to reference them 5 at a time in a pseudo "stack frame".<br/>
@@ -67,6 +69,7 @@ C4 provides 8 words to manage these registers. They are:<br/>
 
 ## The Third Stack
 C4 includes a third stack, with same ops as the return stack. (`>t`, `t@`, `t>`). <br/>
+The size of the third stack is configurable (see `tstk-sz`).<br/>
 This third stack can be used for any purpose. Words are:<br/>
 
 | WORD  | STACK  | DESCRIPTION |
@@ -111,17 +114,18 @@ This third stack can be used for any purpose. Words are:<br/>
 | or        | (A B--N)     | N: A OR  B |
 | xor       | (A B--N)     | N: A XOR B |
 | com       | (A--B)       | N: A with all bits flipped (complement) |
-| for       | (N--)        | Begin FOR loop with bounds 0 and N |
-| i         | (--I)        | I: Current FOR LOOP index |
-| next      | (--)         | Increment I, stop if I >= T |
-| +regs     | (--)         | Increment REG_BASE by 5 |
-| -regs     | (--)         | Decrement REG_BASE by 5 |
-| reg-r     | (R--N)       | Set register (REG_BASE+R) to N |
-| reg-s     | (N R--)      | Push register (REG_BASE+R) |
-| reg-i     | (R--)        | Increment register (REG_BASE+R) |
-| reg-d     | (R--)        | Decrement register (REG_BASE+R) |
-| reg-ri    | (R--N)       | Push register (REG_BASE+R), then increment it |
-| reg-rd    | (R--N)       | Push register (REG_BASE+R), then decrement it |
+| for       | (CNT--)      | Begin FOR loop with bounds 0 and CNT. |
+| i         | (--I)        | I: Current FOR loop index. |
+| next      | (--)         | Increment I. If I < CNT, start loop again, else exit. |
+| unloop    | (--)         | Unwind the loop stack. NOTE: this does NOT exit the loop. |
+| +regs     | (--)         | Increment `reg-base` by 5 |
+| -regs     | (--)         | Decrement `reg-base` by 5 |
+| reg-r     | (R--N)       | Set register (`reg-base`+R) to N |
+| reg-s     | (N R--)      | Push register (`reg-base`+R) |
+| reg-i     | (R--)        | Increment register (`reg-base`+R) |
+| reg-d     | (R--)        | Decrement register (`reg-base`+R) |
+| reg-ri    | (R--N)       | Push register (`reg-base`+R), then increment it |
+| reg-rd    | (R--N)       | Push register (`reg-base`+R), then decrement it |
 | >r        | (N--R:N)     | Move TOS to the return stack |
 | r@        | (--N)        | N: return stack TOS |
 | r>        | (R:N--N)     | Move return TOS to the stack |

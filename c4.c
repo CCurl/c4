@@ -24,7 +24,7 @@ enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA, RBA };
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-cell vhere, cV, lstk[LSTK_SZ], rstk[STK_SZ+1];
+cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 
@@ -57,6 +57,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(COM,     "com",       0, TOS = ~TOS; ) \
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
+	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
     X(REGA,    "+regs",     0, if ((regBase+4) < REGS_SZ) { regBase+=5; } ) \
     X(REGM,    "-regs",     0, if (regBase>4) { regBase-=5; } ) \
@@ -462,10 +463,13 @@ void baseSys() {
 	parseF(addrFmt, "tstk", &tstk[0]);
 	parseF(addrFmt, "regs", &regs[0]);
 
-	parseF(": code-sz #%d ;", CODE_SZ);
-	parseF(": vars-sz #%d ;", VARS_SZ);
-	parseF(": dict-sz #%d ;", DICT_SZ);
-	parseF(": cell    #%d ;", CELL_SZ);
+	parseF(": code-sz #%d ;", CODE_SZ+1);
+	parseF(": vars-sz #%d ;", VARS_SZ+1);
+	parseF(": dict-sz #%d ;", DICT_SZ+1);
+	parseF(": stk-sz  #%d ;", STK_SZ+1);
+	parseF(": regs-sz #%d ;", REGS_SZ+1);
+	parseF(": tstk-sz #%d ;", TSTK_SZ+1);
+	parseF(": cell    #%d ;", CELL_SZ+1);
 	sys_load();
 }
 

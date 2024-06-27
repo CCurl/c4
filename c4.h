@@ -25,9 +25,9 @@
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60
-#define TSTK_SZ           31
-#define FSTK_SZ           10
-#define REGS_SZ           49
+#define TSTK_SZ           63
+#define FSTK_SZ            9
+#define REGS_SZ          255
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #if INTPTR_MAX > INT32_MAX
