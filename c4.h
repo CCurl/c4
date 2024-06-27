@@ -21,7 +21,7 @@
 #define VERSION       240627
 #define CODE_SZ       0xFFFF
 #define VARS_SZ     0x100000
-#define DICT_SZ       0xFFFF
+#define DICT_SZ       0xFFFD
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60

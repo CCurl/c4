@@ -23,7 +23,7 @@ enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA, RBA };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1], cH, cL, cS;
-byte dict[DICT_SZ+1], vars[VARS_SZ+1];
+byte dict[DICT_SZ+2], vars[VARS_SZ+1];
 cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
@@ -479,6 +479,7 @@ void Init() {
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
 	vhere = sp = rsp = lsp = tsp = state = 0;
 	last = DICT_SZ;
+	if ((cell)&dict[last] & 0x01) { ++last; }
 	base = 10;
 	here = LASTPRIM+1;
 	fileInit();

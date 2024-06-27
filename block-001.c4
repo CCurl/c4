@@ -85,7 +85,7 @@
 : ->len    5 + ;
 : ->name   6 + ;
 : lex-match? ( a--f )  ->lex lex =  lex 0=  or ;
-: words +regs 0 >a 0 >d  last ->dict >s  dict-sz ->dict >x
+: words +regs 0 >a 0 >d  last ->dict >s  dict-sz 1- ->dict >x
     begin
       s> lex-match? if
         s> ->len count type d+
