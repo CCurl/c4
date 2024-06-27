@@ -440,16 +440,16 @@ void baseSys() {
 	parseF(": (lit2)    #%d ;", LIT2);
 	parseF(": (exit)    #%d ;", EXIT);
 
-	parseF(": (sp)      #%d ;", SPA);
-	parseF(": (rsp)     #%d ;", RSPA);
-	parseF(": (here)    #%d ;", HA);
-	parseF(": (last)    #%d ;", LA);
-	parseF(": base      #%d ;", BA);
-	parseF(": state     #%d ;", SA);
-	parseF(": (lsp)     #%d ;", LSPA);
-	parseF(": (tsp)     #%d ;", TSPA);
-	parseF(": (lex)     #%d ;", LEXA);
-	parseF(": (r-base)  #%d ;", RBA);
+	parseF(": (sp)       #%d ;", SPA);
+	parseF(": (rsp)      #%d ;", RSPA);
+	parseF(": (here)     #%d ;", HA);
+	parseF(": (last)     #%d ;", LA);
+	parseF(": base       #%d ;", BA);
+	parseF(": state      #%d ;", SA);
+	parseF(": (lsp)      #%d ;", LSPA);
+	parseF(": (tsp)      #%d ;", TSPA);
+	parseF(": (lex)      #%d ;", LEXA);
+	parseF(": (reg-base) #%d ;", RBA);
 
 	parseF(addrFmt, "code", &code[0]);
 	parseF(addrFmt, "vars", &vars[0]);

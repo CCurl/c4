@@ -17,7 +17,7 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 
 ## C4 memory areas
 
-C4 uses three memory areas:
+C4 provides three memory areas:
 - The code area can store up to 65536 WORD-CODEs, 16-bit index. (CODE-SZ).
 - The dictionary area can store up to 65536 bytes, 16-bit index (DICT-SZ).
 - The variables area can store up to CELL bytes, CELL index (VARS-SZ).
@@ -26,36 +26,54 @@ C4 uses three memory areas:
 16-bit system variables are located in the code area.<br/>
 They are set/retrieved using `@c` and `!c` (e.g. `: here (here) @c ;`).<br/>
 
-
-| WORD   | STACK   | DESCRIPTION |
-|:--     |:--      |:--          |
-| (sp)   | (--N)   | Offset of the parameter stack pointer |
-| (rsp)  | (--N)   | Offset of the return stack pointer |
-| (here) | (--N)   | Offset of the HERE variable |
-| (last) | (--N)   | Offset of the LAST variable |
-| base   | (--N)   | Offset of the BASE variable |
-| state  | (--N)   | Offset of the STATE variable |
-| (lex)  | (--N)   | Offset of the LEX (the current lexicon) |
-| (lsp)  | (--N)   | Offset of the loop stack pointer |
-| (tsp)  | (--N)   | Offset of the third stack pointer |
+| WORD       | STACK   | DESCRIPTION |
+|:--         |:--      |:--          |
+| (sp)       | (--N)   | Offset of the parameter stack pointer |
+| (rsp)      | (--N)   | Offset of the return stack pointer |
+| (here)     | (--N)   | Offset of the HERE variable |
+| (last)     | (--N)   | Offset of the LAST variable |
+| base       | (--N)   | Offset of the BASE variable |
+| state      | (--N)   | Offset of the STATE variable |
+| (lex)      | (--N)   | Offset of the LEX (the current lexicon) |
+| (lsp)      | (--N)   | Offset of the loop stack pointer |
+| (tsp)      | (--N)   | Offset of the third stack pointer |
+| (reg-base) | (--N)   | Offset of the register base |
 
 ## C4 Strings
 
-Strings in C4 are both counted and NULL terminated.
+Strings in C4 are both counted and NULL terminated.<br/>
+C4 also supports NULL-terminated strings with no count byte (ztype).<br/>
 
-## MachineForth influences
+## Registers
 
-C4 includes opcodes for 3 built-in cells (`a`, `s`, `d`). <br/>
-This is in the spirit of MachineForth, that has opcodes for an 'a' register. <br/>
-'s' is shorthand for 'source', but can be used for anything. <br/>
-'d' is shorthand for 'destination', but can be used for anything. <br/>
-- They all support set (`>a`, `>s`, `>d`)
-- They all support get (`a>`, `s>`, `d>`)
-- They all support get with increment (`a+`, `s+`, `d+`)
+C4 includes an array of `registers` (pre-defined cells).<br/>
+The number of registers is configurable (see REG_SZ).<br/>
+There is a `reg-base` that can be used to provide a "stack frame" if desired.<br/>
+Note that you can leave `reg-base` at 0, and reference them all individually.<br/>
+Or you can create words to reference them 5 at a time in a pseudo "stack frame".<br/>
+The default bootstrap file creates 5 "registers" for stack frame use (a, s, d, x, y).<br/>
+C4 provides 8 words to manage these registers. They are:<br/>
 
-C4 also includes third stack, with same ops as the return stack. (`>t`, `t@`, `t>`). <br/>
-This third stack can be used for any purpose. <br/>
-I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
+| WORD     | STACK   | DESCRIPTION |
+|:--       |:--      |:-- |
+| `+regs`  | (--)    | Add 5 to `reg-base`. |
+| `-regs`  | (--)    | Subtract 5 from `reg-base`. |
+| `reg-r`  | (R--N)  | Push register (R + reg-base). |
+| `reg-s`  | (N R--) | Set register (R + reg-base). |
+| `reg-i`  | (R--)   | Increment register (R + reg-base). |
+| `reg-d`  | (R--)   | Decrement register (R + reg-base). |
+| `reg-ri` | (R--N)  | Push register (R + reg-base), then decrement it. |
+| `reg-rd` | (R--N)  | Push register (R + reg-base), then decrement it. |
+
+## The Third Stack
+C4 includes a third stack, with same ops as the return stack. (`>t`, `t@`, `t>`). <br/>
+This third stack can be used for any purpose. Words are:<br/>
+
+| WORD  | STACK  | DESCRIPTION |
+|:--    |:--     |:-- |
+| `>t`  | (N--)  | Move N to the third stack. |
+| `t@`  | (--N)  | Copy TOS from the third stack. |
+| `t>`  | (--N)  | Move N from the third stack. |
 
 ## C4 WORD-CODE primitives
 
@@ -96,15 +114,14 @@ I use it to save and restore `a`, `s`, and `d` (see `+a/-a` for details). <br/>
 | for       | (N--)        | Begin FOR loop with bounds 0 and N |
 | i         | (--I)        | I: Current FOR LOOP index |
 | next      | (--)         | Increment I, stop if I >= T |
-| a>        | (--N)        | Push a (a built-in variable ala MachineForth) |
-| a+        | (--N)        | Push a, then increment it |
-| >a        | (N--)        | Set a to N |
-| s>        | (--N)        | Push s (s is an alias for "source") |
-| s+        | (--N)        | Push s, then increment it |
-| >s        | (N--)        | Set s to N |
-| d>        | (--N)        | Push d (d is an alias for "destination") |
-| d+        | (--N)        | Push d, then increment it |
-| >d        | (N--)        | Set d to N |
+| +regs     | (--)         | Increment REG_BASE by 5 |
+| -regs     | (--)         | Decrement REG_BASE by 5 |
+| reg-r     | (R--N)       | Set register (REG_BASE+R) to N |
+| reg-s     | (N R--)      | Push register (REG_BASE+R) |
+| reg-i     | (R--)        | Increment register (REG_BASE+R) |
+| reg-d     | (R--)        | Decrement register (REG_BASE+R) |
+| reg-ri    | (R--N)       | Push register (REG_BASE+R), then increment it |
+| reg-rd    | (R--N)       | Push register (REG_BASE+R), then decrement it |
 | >r        | (N--R:N)     | Move TOS to the return stack |
 | r@        | (--N)        | N: return stack TOS |
 | r>        | (R:N--N)     | Move return TOS to the stack |
