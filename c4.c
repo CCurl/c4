@@ -232,7 +232,7 @@ void doSee() {
 		int op = code[i++];
 		x = code[i];
 		printF("\n%04X: %04X\t", i-1, op);
-		if (op & 0xC000) { printF("lit %d", (int)(op & 0x3FFF)); continue; }
+		if (op & 0xE000) { printF("lit %d", (int)(op & 0x1FFF)); continue; }
 		switch (op) {
 			case  STOP: zType("stop"); i++;
 			BCASE LIT1: printF("lit1 %hu (%hX)", (ushort)x, (ushort)x); i++;
