@@ -48,8 +48,8 @@
 : abs  dup 0< if negate then ;
 : -abs dup 0> if negate then ;
 : mod /mod drop ;
-: +! tuck @ + swap ! ;   : c+! tuck c@ + swap c! ;
-: c++ dup c@ 1+ swap c! ;
+: +! tuck @ + swap ! ;     : c+! tuck c@ + swap c! ;
+: c++ dup c@ 1+ swap c! ;  : c-- dup c@ 1- swap c! ;
 
 : a>  0 reg-r ;  : >a  0 reg-s ;
 : a>+ 0 reg-ri ;  : a+ 0 reg-i ;

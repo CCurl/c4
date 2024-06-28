@@ -159,9 +159,9 @@ This third stack can be used for any purpose. Words are:<br/>
 | timer     | (--N)        | N: Current time |
 | see       | (--)         | Output the definition of a word |
 | count     | (S--A N)     | A,N: address and count of chars in string S |
-| type      | (A N--)      | Print N chars starting at A |
-| ztype     | (A--)        | Print uncounted, NULL terminated string at A |
-| ftype     | (A--)        | Print formatted string at A |
+| type      | (A N--)      | Print string at A (counted, unformatted) |
+| ztype     | (A--)        | Print string at A (uncounted, unformatted) |
+| ftype     | (A--)        | Print string at A (uncounted, formatted) |
 | s-cpy     | (D S--D)     | Copy string S to D |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
