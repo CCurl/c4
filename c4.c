@@ -86,13 +86,14 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
 	X(TYPE,    "type",      0, t=pop(); char *y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
+	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SZLEN,   "sz-len",    0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(0); ) \
 	X(QUOTE,   "s\"",       1, quote(1); ) \
-	X(DOTQT,   ".\"",       1, quote(0); comma(ZTYPE); ) \
+	X(DOTQT,   ".\"",       1, quote(0); comma(FTYPE); ) \
 	X(RAND,    "rand",      0, doRand(); ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
@@ -267,6 +268,30 @@ char *iToA(cell N, int b) {
 	if (isNeg) { *(--cp) = '-'; ++len; }
 	*(--cp) = len;
 	return cp;
+}
+
+void fType(const char *s) {
+	// s is a counted & NULL terminated string
+	// if (*(s++) == 0) { return; }
+	while (*s) {
+		char c = *(s++);
+		if (c=='%') {
+			c = *(s++);
+			switch (c) {
+				case  'b': zType(iToA(pop(),2)+1);
+				BCASE 'c': emit(pop());
+				BCASE 'd': zType(iToA(pop(),base)+1);
+				BCASE 'e': emit(27);
+				BCASE 'i': zType(iToA(pop(),10)+1);
+				BCASE 'n': emit(13); emit(10);
+				BCASE 'q': emit('"');
+				BCASE 's': zType((char *)pop()+1);
+				BCASE 'x': zType(iToA(pop(),16)+1); break;
+				default: emit(c); break;
+			}
+		}
+		else { emit(c); }
+	}
 }
 
 void dotS() {
