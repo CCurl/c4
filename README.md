@@ -4,7 +4,7 @@ In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is a 16-bit unsigned number (0..65535). <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
-If the top 2 bits are set ($C000), it is a (14-bit unsigned) literal. <br/>
+If the top 3 bits are set ($E000), it is a (13-bit unsigned) literal (0-8191). <br/>
 If it is greater than `BYE`, it is the code address of a word to execute. <br/>
 
 ## CELLs in C4
@@ -46,12 +46,30 @@ They are set/retrieved using `!c` and `@c` (e.g. `: hex #16 !c ;`).<br/>
 Strings in C4 are both counted and NULL terminated.<br/>
 C4 also supports NULL-terminated strings with no count byte (ztype).<br/>
 
+## Format specifiers in `ftype` and `."`
+Similar to the printf() function in C, C4 supports formatted output using '%'. <br/>
+For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x%n" ;`.
+
+| Format | Stack | Description |
+|:--     |:--    |:-- |
+| %b     | (N--) | Print TOS in base 2. |
+| %c     | (N--) | EMIT TOS. |
+| %d     | (N--) | Print TOS in base 10. |
+| %e     | (--)  | EMIT `escape` (#27). |
+| %i     | (N--) | Print TOS in the current base. |
+| %n     | (--)  | Print CR/LF (13/10). |
+| %q     | (--)  | EMIT `"` (#34). |
+| %s     | (A--) | Print TOS as a string (uncounted, formatted). |
+| %S     | (A--) | Print TOS as a string (uncounted, unformatted). |
+| %x     | (N--) | Print TOS in base 16. |
+| %[x]   | (--)  | EMIT [x]. |
+
 ## Registers
 
-C4 includes an array of `registers` (pre-defined cells).<br/>
+C4 includes an array of "registers" (pre-defined cells).<br/>
 The number of registers is configurable (see `reg-sz`).<br/>
 There is a `reg-base` that can be used to provide a "stack frame" if desired.<br/>
-Note that you can leave `reg-base` at 0, and reference them all individually.<br/>
+Note that you can leave `reg-base` at 0, and reference them all individually `123 42 reg-s`.<br/>
 Or you can create words to reference them 5 at a time in a pseudo "stack frame".<br/>
 The default bootstrap file creates 5 "registers" for stack frame use (a, s, d, x, y).<br/>
 C4 provides 8 words to manage these registers. They are:<br/>
@@ -143,18 +161,19 @@ This third stack can be used for any purpose. Words are:<br/>
 | count     | (S--A N)     | A,N: address and count of chars in string S |
 | type      | (A N--)      | Print N chars starting at A |
 | ztype     | (A--)        | Print uncounted, NULL terminated string at A |
+| ftype     | (A--)        | Print formatted string at A |
 | s-cpy     | (D S--D)     | Copy string S to D |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
-| z"        | (--)         | -COMPILE: Copy chars up to next " to VARS (NOT counted) |
+| z"        | (--)         | -COMPILE: Create uncounted string to next `"` |
 |           | (--A)        | -RUN: push address A of string |
-| s"        | (--)         | -COMPILE: Copy chars up to next " to VARS (counted) |
+| s"        | (--)         | -COMPILE: Create counted string to next `"` |
 |           | (--A)        | -RUN: push address A of string |
-| ."        | (--)         | -COMPILE: Copy chars up to next " to VARS |
-|           | (--)         | -RUN: COUNT/TYPE on string |
+| ."        | (--)         | -COMPILE: execute `z"`, compile `ftype` |
+|           | (--)         | -RUN: `ftype` on string |
 | rand      | (--N)        | N: a pseudo-random number (uses XOR shift) |
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
-|           |              |     NOTE: NM and MD are NOT counted, use `z"` |
+|           |              |     NOTE: NM and MD are uncounted, use `z"` |
 | fclose    | (FH--)       | FH: File Handle |
 | fread     | (B SZ FH--N) | B: Buffer, SZ: Size, FH: File Handle |
 | fwrite    | (B SZ FH--N) | B: Buffer, SZ: Size, FH: File Handle |

@@ -271,21 +271,21 @@ char *iToA(cell N, int b) {
 }
 
 void fType(const char *s) {
-	// s is a counted & NULL terminated string
-	// if (*(s++) == 0) { return; }
+	// s is a NULL terminated string (NOT counted)
 	while (*s) {
 		char c = *(s++);
 		if (c=='%') {
 			c = *(s++);
 			switch (c) {
 				case  'b': zType(iToA(pop(),2)+1);
-				BCASE 'c': emit(pop());
-				BCASE 'd': zType(iToA(pop(),base)+1);
+				BCASE 'c': emit((char)pop());
+				BCASE 'd': zType(iToA(pop(),10)+1);
 				BCASE 'e': emit(27);
-				BCASE 'i': zType(iToA(pop(),10)+1);
+				BCASE 'i': zType(iToA(pop(),base)+1);
 				BCASE 'n': emit(13); emit(10);
 				BCASE 'q': emit('"');
-				BCASE 's': zType((char *)pop()+1);
+				BCASE 's': fType((char*)pop());
+				BCASE 'S': zType((char*)pop());
 				BCASE 'x': zType(iToA(pop(),16)+1); break;
 				default: emit(c); break;
 			}
@@ -341,7 +341,6 @@ void inner(ushort start) {
 	ushort pc = start, wc;
 	next:
 	wc = code[pc++];
-	if (wc & 0xC000) { push(wc & 0x3FFF); goto next; }
 	switch(wc) {
 		case  STOP:   return;
 		NCASE LIT1:   push(code[pc++]);
@@ -352,9 +351,11 @@ void inner(ushort start) {
 		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
 		PRIMS
-		default: if (code[pc] != EXIT) { rpush(pc); }
-				 pc = wc;
-				 goto next;
+		default:
+			if (wc & 0xE000) { push(wc & 0x1FFF); goto next; }
+			if (code[pc] != EXIT) { rpush(pc); }
+			pc = wc;
+			goto next;
 	}
 }
 
@@ -385,8 +386,8 @@ int parseWord(char *w) {
 
 	if (isNum(w, base)) {
 		cell n = pop();
-		if (btwi(n, 0, 0x3fff)) {
-			comma((ushort)(n | 0xC000));
+		if (btwi(n, 0, 0x1fff)) {
+			comma((ushort)(n | 0xE000));
 		} else if (btwi(n, 0, 0xffff)) {
 			comma(LIT1); comma((ushort)n);
 		} else {

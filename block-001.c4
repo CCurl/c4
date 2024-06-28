@@ -71,6 +71,8 @@
 : y>+ 4 reg-ri ;  : y+ 4 reg-i ;
 : y>- 4 reg-rd ;  : y- 4 reg-d ;
 
+: z>  5 reg-r ;  : >z  5 reg-s ;
+
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;
