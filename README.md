@@ -138,8 +138,8 @@ This third stack can be used for any purpose. Words are:<br/>
 | unloop    | (--)         | Unwind the loop stack. NOTE: this does NOT exit the loop. |
 | +regs     | (--)         | Increment `reg-base` by 5 |
 | -regs     | (--)         | Decrement `reg-base` by 5 |
-| reg-r     | (R--N)       | Set register (`reg-base`+R) to N |
-| reg-s     | (N R--)      | Push register (`reg-base`+R) |
+| reg-r     | (R--N)       | Push register (`reg-base`+R) |
+| reg-s     | (N R--)      | Set register (`reg-base`+R) to N |
 | reg-i     | (R--)        | Increment register (`reg-base`+R) |
 | reg-d     | (R--)        | Decrement register (`reg-base`+R) |
 | reg-ri    | (R--N)       | Push register (`reg-base`+R), then increment it |
