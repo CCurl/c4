@@ -13,13 +13,14 @@
 #define tsp           code[TSPA]
 #define lex           code[LEXA]
 #define regBase       code[RBA]
+#define frameSz       code[FSZ]
 #define TOS           stk[sp].i
 #define NOS           stk[sp-1].i
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA, RBA };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA, RBA, FSZ };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1], cH, cL, cS;
@@ -59,8 +60,8 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-    X(REGA,    "+regs",     0, if ((regBase+4) < REGS_SZ) { regBase+=5; } ) \
-    X(REGM,    "-regs",     0, if (regBase>4) { regBase-=5; } ) \
+    X(REGA,    "+regs",     0, if ((regBase+frameSz) < REGS_SZ) { regBase+=frameSz; } ) \
+    X(REGM,    "-regs",     0, if (regBase>=frameSz) { regBase-=frameSz; } ) \
     X(REGR,    "reg-r",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
     X(REGS,    "reg-s",     0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
     X(REGI,    "reg-i",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
@@ -477,6 +478,7 @@ void baseSys() {
 	parseF(": (tsp)      #%d ;", TSPA);
 	parseF(": (lex)      #%d ;", LEXA);
 	parseF(": (reg-base) #%d ;", RBA);
+	parseF(": (frame-sz) #%d ;", FSZ);
 
 	parseF(addrFmt, "code", &code[0]);
 	parseF(addrFmt, "vars", &vars[0]);
@@ -505,6 +507,7 @@ void Init() {
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
 	vhere = sp = rsp = lsp = tsp = state = 0;
 	last = DICT_SZ;
+	frameSz = 5;
 	if ((cell)&dict[last] & 0x01) { ++last; }
 	base = 10;
 	here = LASTPRIM+1;

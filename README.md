@@ -40,6 +40,7 @@ They are set/retrieved using `!c` and `@c` (e.g. `: hex #16 !c ;`).<br/>
 | (lsp)      | (--N)   | Offset of the loop stack pointer |
 | (tsp)      | (--N)   | Offset of the third stack pointer |
 | (reg-base) | (--N)   | Offset of the register base |
+| (frame-sz) | (--N)   | Offset of the frame-sz value |
 
 ## C4 Strings
 
@@ -66,24 +67,26 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 
 ## Registers
 
-C4 includes an array of "registers" (pre-defined cells). Default size is 255 on PCs. <br/>
-The number of registers is configurable (see `reg-sz`).<br/>
+C4 includes an array of "registers" (pre-defined cells). <br/>
+The number of registers is configurable (see `reg-sz`). Default is 255 on PCs.<br/>
 There is a `reg-base` that can be used to provide a "stack frame" if desired.<br/>
-**NOTE** - you can leave `reg-base` at 0, and reference them all individually `123 42 reg-s`.<br/>
-Or you can create words to reference them 5 at a time in a pseudo "stack frame".<br/>
+You can create words to reference them `frame-sz` at a time in a pseudo "stack frame".<br/>
+For example: `123 42 reg-s`. <br/>
+**NOTE** - you can leave `reg-base` at 0, and reference them individually.<br/>
+Use `frame-sz` to control stack frame size. Default is 5.<br/>
 The default bootstrap file creates 5 "registers" for stack frame use (a, s, d, x, y).<br/>
 C4 provides 8 words to manage these registers. They are:<br/>
 
 | WORD     | STACK   | DESCRIPTION |
 |:--       |:--      |:-- |
-| `+regs`  | (--)    | Add 5 to `reg-base`. |
-| `-regs`  | (--)    | Subtract 5 from `reg-base`. |
-| `reg-r`  | (R--N)  | Push register (R + reg-base). |
-| `reg-s`  | (N R--) | Set register (R + reg-base). |
-| `reg-i`  | (R--)   | Increment register (R + reg-base). |
-| `reg-d`  | (R--)   | Decrement register (R + reg-base). |
-| `reg-ri` | (R--N)  | Push register (R + reg-base), then increment it. |
-| `reg-rd` | (R--N)  | Push register (R + reg-base), then decrement it. |
+| `+regs`  | (--)    | Create new frame; add `frame-sz` to `reg-base`. |
+| `-regs`  | (--)    | Destroy frame; subtract `frame-sz` from `reg-base`. |
+| `reg-r`  | (R--N)  | Push register (R + `reg-base`). |
+| `reg-s`  | (N R--) | Set register (R + `reg-base`). |
+| `reg-i`  | (R--)   | Increment register (R + `reg-base`). |
+| `reg-d`  | (R--)   | Decrement register (R + `reg-base`). |
+| `reg-ri` | (R--N)  | Push register (R + `reg-base`), then increment it. |
+| `reg-rd` | (R--N)  | Push register (R + `reg-base`), then decrement it. |
 
 ## The Third Stack
 C4 includes a third stack, with same ops as the return stack. (`>t`, `t@`, `t>`). <br/>
@@ -136,8 +139,8 @@ This third stack can be used for any purpose. Words are:<br/>
 | i         | (--I)        | I: Current FOR loop index. |
 | next      | (--)         | Increment I. If I < CNT, start loop again, else exit. |
 | unloop    | (--)         | Unwind the loop stack. NOTE: this does NOT exit the loop. |
-| +regs     | (--)         | Increment `reg-base` by 5 |
-| -regs     | (--)         | Decrement `reg-base` by 5 |
+| +regs     | (--)         | Increment `reg-base` by `frame-sz` |
+| -regs     | (--)         | Decrement `reg-base` by `frame-sz` |
 | reg-r     | (R--N)       | Push register (`reg-base`+R) |
 | reg-s     | (N R--)      | Set register (`reg-base`+R) to N |
 | reg-i     | (R--)        | Increment register (`reg-base`+R) |
