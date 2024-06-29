@@ -66,10 +66,10 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 
 ## Registers
 
-C4 includes an array of "registers" (pre-defined cells).<br/>
+C4 includes an array of "registers" (pre-defined cells). Default size is 255 on PCs. <br/>
 The number of registers is configurable (see `reg-sz`).<br/>
 There is a `reg-base` that can be used to provide a "stack frame" if desired.<br/>
-Note that you can leave `reg-base` at 0, and reference them all individually `123 42 reg-s`.<br/>
+**NOTE** - you can leave `reg-base` at 0, and reference them all individually `123 42 reg-s`.<br/>
 Or you can create words to reference them 5 at a time in a pseudo "stack frame".<br/>
 The default bootstrap file creates 5 "registers" for stack frame use (a, s, d, x, y).<br/>
 C4 provides 8 words to manage these registers. They are:<br/>
@@ -82,7 +82,7 @@ C4 provides 8 words to manage these registers. They are:<br/>
 | `reg-s`  | (N R--) | Set register (R + reg-base). |
 | `reg-i`  | (R--)   | Increment register (R + reg-base). |
 | `reg-d`  | (R--)   | Decrement register (R + reg-base). |
-| `reg-ri` | (R--N)  | Push register (R + reg-base), then decrement it. |
+| `reg-ri` | (R--N)  | Push register (R + reg-base), then increment it. |
 | `reg-rd` | (R--N)  | Push register (R + reg-base), then decrement it. |
 
 ## The Third Stack
