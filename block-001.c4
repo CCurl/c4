@@ -22,7 +22,7 @@
 : else (jmp) , here swap 0 , here swap !c ; immediate
 : then here swap !c ; immediate
 : ( begin
-    >in @ c@ 
+    >in @ c@
     dup  0= if drop exit then
     >in @ 1+ >in !
     ')' = if exit then
