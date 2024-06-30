@@ -22,7 +22,7 @@
 : else (jmp) , here swap 0 , here swap !c ; immediate
 : then here swap !c ; immediate
 : ( begin
-    >in @ c@ 
+    >in @ c@
     dup  0= if drop exit then
     >in @ 1+ >in !
     ')' = if exit then
@@ -33,8 +33,10 @@
 : binary  %10 >base ;
 : decimal #10 >base ;
 : ?dup -if dup then ;
-: nip swap drop ;     : tuck swap over ;
-: 2dup over over ;    : 2drop drop drop ;
+: nip swap drop ;        : tuck swap over ;
+: 2dup over over ;       : 2drop drop drop ;
+: rot >r swap r> swap ;  : -rot swap >r swap r> ;
+: tdrop t> drop ;
 : 0< 0 < ;            : 0> 0 > ;
 : <= > 0= ;           : >= < 0= ;      : <> = 0= ;
 : 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;
@@ -46,11 +48,34 @@
 : abs  dup 0< if negate then ;
 : -abs dup 0> if negate then ;
 : mod /mod drop ;
-: +! tuck @ + swap ! ;   : c+! tuck c@ + swap c! ;
-: c++ dup c@ 1+ swap c! ;
-: +a a> >t >a ;  : -a t> >a ;  : a- ( --n ) a> dup 1- >a ;  : a++ a+ drop ;
-: +s s> >t >s ;  : -s t> >s ;  : s- ( --n ) s> dup 1- >s ;  : s++ s+ drop ;
-: +d d> >t >d ;  : -d t> >d ;  : d- ( --n ) d> dup 1- >d ;  : d++ d+ drop ;
+: +! tuck @ + swap ! ;     : c+! tuck c@ + swap c! ;
+: c++ dup c@ 1+ swap c! ;  : c-- dup c@ 1- swap c! ;
+
+: reg-base (reg-base) @c ; : >reg-base (reg-base) !c ;
+: frame-sz (frame-sz) @c ; : >frame-sz (frame-sz) !c ;
+
+: a>  0 reg-r ;  : >a  0 reg-s ;
+: a>+ 0 reg-ri ;  : a+ 0 reg-i ;
+: a>- 0 reg-rd ;  : a- 0 reg-d ;
+
+: s>  1 reg-r ;  : >s  1 reg-s ;
+: s>+ 1 reg-ri ;  : s+ 1 reg-i ;
+: s>- 1 reg-rd ;  : s- 1 reg-d ;
+
+: d>  2 reg-r ;  : >d  2 reg-s ;
+: d>+ 2 reg-ri ;  : d+ 2 reg-i ;
+: d>- 2 reg-rd ;  : d- 2 reg-d ;
+
+: x>  3 reg-r ;  : >x  3 reg-s ;
+: x>+ 3 reg-ri ;  : x+ 3 reg-i ;
+: x>- 3 reg-rd ;  : x- 3 reg-d ;
+
+: y>  4 reg-r ;  : >y  4 reg-s ;
+: y>+ 4 reg-ri ;  : y+ 4 reg-i ;
+: y>- 4 reg-rd ;  : y- 4 reg-d ;
+
+: z>  5 reg-r ;  : >z  5 reg-s ;
+
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;
@@ -65,14 +90,15 @@
 : ->len    5 + ;
 : ->name   6 + ;
 : lex-match? ( a--f )  ->lex lex =  lex 0=  or ;
-: words 0 dup +a +d  last ->dict begin
-      dup lex-match? if
-        dup ->len count type d++
-        dup ->len c@ 7 > if a++ then
-        a+ 8 > if cr 0 >a else tab then
+: words +regs 0 >a 0 >d  last ->dict >s  dict-sz 1- ->dict >x
+    begin
+      s> lex-match? if
+        s> ->len count type d+
+        s> ->len c@ 7 > if a+ then
+        a>+ 8 > if cr 0 >a else tab then
       then
-      dup ->size + dup dict-sz ->dict <
-    while drop '(' emit d> . ." words)" -d -a ;
+      s> dup ->size + dup >s  x> <
+    while d> ."  (%d words)" -regs ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
 : const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
@@ -83,7 +109,8 @@ cell var vv
 marker
 : .pt .02 '.' emit ;
 : .ver version 100 /mod 100 /mod .pt .pt .02 ;
-." c4 - v" .ver ."  - Chris Curl." cr
+." c4 - v" .ver ."  - Chris Curl.%n"
+dict-sz tstk-sz regs-sz vars-sz code-sz ." Sizes - Code: %d, Vars: %d, Regs: %d, TStack: %d, Dict: %d%n"
 forget
 
 99 load

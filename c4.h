@@ -18,15 +18,16 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION       240613
+#define VERSION       240630
 #define CODE_SZ       0xFFFF
 #define VARS_SZ     0x100000
-#define DICT_SZ       0xFFFF
+#define DICT_SZ       0xFFFD
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60
-#define TSTK_SZ           31
-#define FSTK_SZ           10
+#define TSTK_SZ           63
+#define FSTK_SZ            9
+#define REGS_SZ          255
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #if INTPTR_MAX > INT32_MAX
@@ -49,12 +50,14 @@ typedef unsigned short ushort;
 typedef unsigned char byte;
 typedef union { FLT_T f; cell i; } SE_T;
 typedef struct { ushort xt; byte sz, fl, lx, ln; char nm[32]; } DE_T;
+typedef struct { short op; const char* name; byte fl; } PRIM_T;
 
 // These are defined by c4.c
 extern void strCpy(char *d, const char *s);
 extern int  strLen(const char *s);
 extern void printF(const char *fmt, ...);
-extern int  outer(const char *s);
+extern void inner(ushort start);
+extern int  outer(const char *src);
 extern void Init();
 
 // c4.c needs these
@@ -67,12 +70,12 @@ extern int  qKey();
 extern void fileInit();
 extern void filePush(cell fh);
 extern cell filePop();
-extern cell fileOpen(char *name, char *mode);
+extern cell fileOpen(const char *name, const char *mode);
 extern void fileClose(cell fh);
 extern cell fileRead(char *buf, int sz, cell fh);
 extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
-extern void fileLoad(char *name);
+extern void fileLoad(const char *name);
 extern void blockLoad(int blk);
 
 #endif //  __C4_H__
