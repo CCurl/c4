@@ -57,7 +57,7 @@ extern void strCpy(char *d, const char *s);
 extern int  strLen(const char *s);
 extern void printF(const char *fmt, ...);
 extern void inner(ushort start);
-extern int  outer(const char *s);
+extern int  outer(const char *src);
 extern void Init();
 
 // c4.c needs these

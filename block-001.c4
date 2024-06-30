@@ -98,7 +98,7 @@
         a>+ 8 > if cr 0 >a else tab then
       then
       s> dup ->size + dup >s  x> <
-    while '(' emit d> . ." words)" -regs ;
+    while d> ."  (%d words)" -regs ;
 : does> (jmp) , r> , ;
 : create addword ; immediate
 : const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
