@@ -108,13 +108,15 @@ Stack effect notation conventions:
 | SZ/NM/MD | String, uncounted, NULL terminated |
 | SC/D/S   | String, counted, NULL terminated |
 | A        | Address |
-| N/X/Y/   | Number, CELL sized |
-| W        | Number, 16-bits |
 | C        | Number, 8-bits |
+| W        | Number, 16-bits |
+| N/X/Y/   | Number, CELL sized |
 | F        | Flag: 0 mean0 false, <>0 means true |
 | R        | Register number |
 | FH       | File handle: 0 means no file |
 | I        | For loop index counter |
+
+The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
@@ -123,19 +125,21 @@ Stack effect notation conventions:
 | (jmp)     | (--W)        | W: WORD-CODE for JMP primitive |
 | (jmpz)    | (--W)        | W: WORD-CODE for JMPZ primitive |
 | (jmpnz)   | (--W)        | W: WORD-CODE for JMPNZ primitive |
+| (njmpz)   | (--W)        | W: WORD-CODE for NJMPZ primitive |
+| (njmpnz)  | (--W)        | W: WORD-CODE for NJMPNZ primitive |
 | (exit)    | (--W)        | W: WORD-CODE for EXIT primitive |
 | exit      | (--)         | EXIT word |
 | dup       | (X--X X)     | Duplicate TOS (Top-Of-Stack) |
 | swap      | (X Y--Y X)   | Swap TOS and NOS (Next-On-Stack) |
 | drop      | (N--)        | Drop TOS |
-| over      | (X Y--X Y X) | Push NOS |
+| over      | (N X--N X N) | Push NOS |
 | @         | (A--N)       | N: the CELL at absolute address A |
 | c@        | (A--C)       | C: the CHAR at absolute address A |
 | w@        | (A--W)       | W: the WORD at absolute address A |
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
 | w!        | (W A--)      | Store WORD W to absolute address A |
-| +         | (X Y--N)     | N: X + Y |fl
+| +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |
 | *         | (X Y--N)     | N: X * Y |
 | /         | (X Y--N)     | N: X / Y (integer division) |
@@ -149,7 +153,7 @@ Stack effect notation conventions:
 | and       | (X Y--N)     | N: X AND Y |
 | or        | (X Y--N)     | N: X OR  Y |
 | xor       | (X Y--N)     | N: X XOR Y |
-| com       | (A--B)       | N: A with all bits flipped (complement) |
+| com       | (X--Y)       | Y: X with all bits flipped (complement) |
 | for       | (N--)        | Begin FOR loop with bounds 0 and N. |
 | i         | (--I)        | N: Current FOR loop index. |
 | next      | (--)         | Increment I. If I < N, start loop again, else exit. |
@@ -180,12 +184,12 @@ Stack effect notation conventions:
 | type      | (A N--)      | Print string at A (counted, unformatted) |
 | ztype     | (SZ--)       | Print string at A (uncounted, unformatted) |
 | ftype     | (SZ--)       | Print string at A (uncounted, formatted) |
-| s-cpy     | (D S--D)     | Copy string S to D |
+| s-cpy     | (D S--D)     | Copy string S to D, counted |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
-| z"        | (--)         | -COMPILE: Create uncounted string to next `"` |
+| z"        | (--)         | -COMPILE: Create uncounted string SZ to next `"` |
 |           | (--SZ)       | -RUN: push address SZ of string |
-| s"        | (--)         | -COMPILE: Create counted string to next `"` |
+| s"        | (--)         | -COMPILE: Create counted string SC to next `"` |
 |           | (--SC)       | -RUN: push address SC of string |
 | ."        | (--)         | -COMPILE: execute `z"`, compile `ftype` |
 |           | (--)         | -RUN: `ftype` on string |
@@ -193,16 +197,16 @@ Stack effect notation conventions:
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
 |           |              |     NOTE: NM and MD are uncounted, use `z"` |
 | fclose    | (FH--)       | FH: File Handle |
-| fread     | (A N FH--N)  | A: Buffer, N: Size, FH: File Handle |
-| fwrite    | (A N FH--N)  | A: Buffer, N: Size, FH: File Handle |
+| fread     | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
+| fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
 | fgets     | (A N FH--F)  | A: Buffer, N: Size, F: 0 if EOF/Error, else 1 |
-| fload     | (SZ--)       | SZ: File Name to load (NOT counted, use `z"`) |
+| include X | (--)         | Load X (X: next word) |
 | load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
-| loaded?   | (XT DE--)    | Stops a load if DE <> 0 (see `find`) |
+| loaded?   | (W A--)      | Stops a load if DE <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
 | .s        | (--)         | Display the stack |
 | @c        | (N--W)       | Fetch unsigned 16-bit W from CODE address N |
 | !c        | (W N--)      | Store unsigned 16-bit W to CODE address N |
-| find      | (--XT DE)    | XT: Execution Token, DE: Dict Entry address (0 0 if not found) |
+| find      | (--W A)      | W: Execution Token, A: Dict Entry address (0 0 if not found) |
 | system    | (SC--)       | PC ONLY: SC: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |

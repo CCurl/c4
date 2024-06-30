@@ -101,7 +101,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
-	X(FLLOAD,  "fload",     0, t=pop(); fileLoad((char*)t); ) \
+	X(INCL,    "include",   1, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(ITOA,    "to-string", 0, t=pop(); push((cell)iToA(t, base)); ) \
@@ -160,11 +160,11 @@ void commaCell(cell n) {
 }
 
 int nextWord() {
-	int l = 0;
+	int len = 0;
 	while (btwi(*toIn, 1, 32)) { ++toIn; }
-	while (btwi(*toIn, 33, 126)) { wd[l++] = *(toIn++); }
-	wd[l] = 0;
-	return l;
+	while (btwi(*toIn, 33, 126)) { wd[len++] = *(toIn++); }
+	wd[len] = 0;
+	return len;
 }
 
 DE_T *addWord(const char *w) {
@@ -461,8 +461,8 @@ void baseSys() {
 	parseF(": version   #%d ;", VERSION);
 	parseF(": (jmp)     #%d ;", JMP);
 	parseF(": (jmpz)    #%d ;", JMPZ);
-	parseF(": (njmpz)   #%d ;", NJMPZ);
 	parseF(": (jmpnz)   #%d ;", JMPNZ);
+	parseF(": (njmpz)   #%d ;", NJMPZ);
 	parseF(": (njmpnz)  #%d ;", NJMPNZ);
 	parseF(": (lit1)    #%d ;", LIT1);
 	parseF(": (lit2)    #%d ;", LIT2);
