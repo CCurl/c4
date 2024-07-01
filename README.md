@@ -110,7 +110,7 @@ Stack effect notation conventions:
 | A        | Address |
 | C        | Number, 8-bits |
 | W        | Number, 16-bits |
-| N/X/Y/   | Number, CELL sized |
+| N/X/Y    | Number, CELL sized |
 | F        | Flag: 0 mean0 false, <>0 means true |
 | R        | Register number |
 | FH       | File handle: 0 means no file |
