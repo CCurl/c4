@@ -60,14 +60,14 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-    X(REGA,    "+regs",     0, if ((regBase+frameSz) < REGS_SZ) { regBase+=frameSz; } ) \
-    X(REGM,    "-regs",     0, if (regBase>=frameSz) { regBase-=frameSz; } ) \
-    X(REGR,    "reg-r",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
-    X(REGS,    "reg-s",     0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
-    X(REGI,    "reg-i",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
-    X(REGD,    "reg-d",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]--; } ) \
-    X(REG_RI,  "reg-ri",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]++ : 0); ) \
-    X(REG_RD,  "reg-rd",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
+	X(REGA,    "+regs",     0, if ((regBase+frameSz) < REGS_SZ) { regBase+=frameSz; } ) \
+	X(REGM,    "-regs",     0, if (regBase>=frameSz) { regBase-=frameSz; } ) \
+	X(REGR,    "reg-r",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
+	X(REGS,    "reg-s",     0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
+	X(REGI,    "reg-i",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
+	X(REGD,    "reg-d",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]--; } ) \
+	X(REG_RI,  "reg-ri",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]++ : 0); ) \
+	X(REG_RD,  "reg-rd",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
@@ -149,6 +149,7 @@ int strEq(const char *s, const char *d) {
 }
 
 void strCpy(char *d, const char *s) {
+	*(d+1) = 0;  // NULL terminator for empty counted strings
 	while (*s) { *(d++) = *(s++); }
 	*(d) = 0;
 }
@@ -296,9 +297,9 @@ void fType(const char *s) {
 }
 
 void dotS() {
-    zType("( ");
-    for (int i = 1; i <= sp; i++) { printF("%s ", iToA(stk[i].i, base)+1); }
-    zType(")");
+	zType("( ");
+	for (int i = 1; i <= sp; i++) { printF("%s ", iToA(stk[i].i, base)+1); }
+	zType(")");
 }
 
 void quote(int counted) {
@@ -415,7 +416,7 @@ int parseWord(char *w) {
 }
 
 int outer(const char *ln) {
-    cH=here, cL=last, cS=state, cV=vhere;
+	cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
 	// printF("-outer:%s-\n",ln);
 	while (nextWord()) {
