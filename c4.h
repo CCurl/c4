@@ -4,12 +4,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define IS_WINDOWS 1
 #define IS_PC      1
-#define PC_FILE
 #endif
 
-#ifdef IS_LINUX
+#ifdef __linux__
+#define IS_LINUX   1
 #define IS_PC      1
-#define PC_FILE
 #endif
 
 #include <stdio.h>
@@ -18,7 +17,8 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION       240715
+#ifdef IS_PC
+#define VERSION       240703
 #define CODE_SZ       0xFFFF
 #define VARS_SZ     0x100000
 #define DICT_SZ       0xFFFD
@@ -29,6 +29,8 @@
 #define FSTK_SZ            9
 #define REGS_SZ          255
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
+#define PC_FILE
+#endif // IS_PC
 
 #if INTPTR_MAX > INT32_MAX
 #define CELL_T    int64_t
