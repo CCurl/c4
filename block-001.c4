@@ -76,6 +76,9 @@
 
 : z>  5 reg-r ;  : >z  5 reg-s ;
 
+: t@+  t@ dup 1+ t! ;
+: q@+  q@ dup 1+ q! ;
+
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;

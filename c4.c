@@ -11,6 +11,7 @@
 #define state         code[SA]
 #define lsp           code[LSPA]
 #define tsp           code[TSPA]
+#define qsp           code[QSPA]
 #define lex           code[LEXA]
 #define regBase       code[RBA]
 #define frameSz       code[FSZ]
@@ -20,14 +21,14 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA, RBA, FSZ };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, QSPA, LEXA, RBA, FSZ };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+2], vars[VARS_SZ+1];
 cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1];
 char wd[32], *toIn;
-cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
+cell qstk[TSTK_SZ+1], tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -72,9 +73,14 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
-	X(TOT,     ">t",        0, tpush(pop()); ) \
+	X(TTO,     ">t",        0, if (tsp < TSTK_SZ) { tstk[++tsp] = pop(); }; ) \
 	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
-	X(TFROM,   "t>",        0, push(tpop()); ) \
+	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
+	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
+	X(QTO,     ">q",        0, if (qsp < TSTK_SZ) { qstk[++qsp] = pop(); }; ) \
+	X(QAT,     "q@",        0, push(qstk[qsp]); ) \
+	X(QSTO,    "q!",        0, qstk[qsp] = pop(); ) \
+	X(QFROM,   "q>",        0, push((0 < qsp) ? qstk[qsp--] : 0); ) \
 	X(EMIT,    "emit",      0, t=pop(); emit((char)t); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
@@ -129,8 +135,6 @@ void push(cell x) { if (sp < STK_SZ) { stk[++sp].i = x; } }
 cell pop() { return (0<sp) ? stk[sp--].i : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
-void tpush(cell x) { if (tsp < TSTK_SZ) { tstk[++tsp] = x; } }
-cell tpop() { return (0<tsp) ? tstk[tsp--] : 0; }
 void storeCell(cell a, cell val) { *(cell*)(a) = val; }
 void storeWord(cell a, cell val) { *(ushort*)(a) = (ushort)val; }
 cell fetchCell(cell a) { return *(cell*)(a); }
@@ -477,6 +481,7 @@ void baseSys() {
 	parseF(": state      #%d ;", SA);
 	parseF(": (lsp)      #%d ;", LSPA);
 	parseF(": (tsp)      #%d ;", TSPA);
+	parseF(": (qsp)      #%d ;", QSPA);
 	parseF(": (lex)      #%d ;", LEXA);
 	parseF(": (reg-base) #%d ;", RBA);
 	parseF(": (frame-sz) #%d ;", FSZ);
@@ -490,6 +495,7 @@ void baseSys() {
 	parseF(addrFmt, "stk",  &stk[0]);
 	parseF(addrFmt, "rstk", &rstk[0]);
 	parseF(addrFmt, "tstk", &tstk[0]);
+	parseF(addrFmt, "qstk", &qstk[0]);
 	parseF(addrFmt, "regs", &regs[0]);
 
 	parseF(": code-sz #%d ;", CODE_SZ+1);
@@ -498,7 +504,7 @@ void baseSys() {
 	parseF(": stk-sz  #%d ;", STK_SZ+1);
 	parseF(": regs-sz #%d ;", REGS_SZ+1);
 	parseF(": tstk-sz #%d ;", TSTK_SZ+1);
-	parseF(": cell    #%d ;", CELL_SZ+1);
+	parseF(": cell    #%d ;", CELL_SZ);
 	sys_load();
 }
 
@@ -506,12 +512,12 @@ void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
-	vhere = sp = rsp = lsp = tsp = state = 0;
+	here = LASTPRIM+1;
 	last = DICT_SZ;
-	frameSz = 5;
 	if ((cell)&dict[last] & 0x01) { ++last; }
 	base = 10;
-	here = LASTPRIM+1;
+	vhere = 0;
+	frameSz = 5;
 	fileInit();
 	baseSys();
 }
