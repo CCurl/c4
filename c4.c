@@ -11,7 +11,6 @@
 #define state         code[SA]
 #define lsp           code[LSPA]
 #define tsp           code[TSPA]
-#define qsp           code[QSPA]
 #define lex           code[LEXA]
 #define regBase       code[RBA]
 #define frameSz       code[FSZ]
@@ -21,14 +20,14 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, QSPA, LEXA, RBA, FSZ };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, LEXA, RBA, FSZ };
 
 SE_T stk[STK_SZ+1];
 ushort code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+2], vars[VARS_SZ+1];
 cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1];
 char wd[32], *toIn;
-cell qstk[TSTK_SZ+1], tstk[TSTK_SZ+1], regs[REGS_SZ+1];
+cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -73,15 +72,11 @@ cell qstk[TSTK_SZ+1], tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
-	X(TTO,     ">t",        0, if (tsp < TSTK_SZ) { tstk[++tsp] = pop(); }; ) \
+	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
 	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
 	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
-	X(QTO,     ">q",        0, if (qsp < TSTK_SZ) { qstk[++qsp] = pop(); }; ) \
-	X(QAT,     "q@",        0, push(qstk[qsp]); ) \
-	X(QSTO,    "q!",        0, qstk[qsp] = pop(); ) \
-	X(QFROM,   "q>",        0, push((0 < qsp) ? qstk[qsp--] : 0); ) \
-	X(EMIT,    "emit",      0, t=pop(); emit((char)t); ) \
+	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
@@ -481,7 +476,6 @@ void baseSys() {
 	parseF(": state      #%d ;", SA);
 	parseF(": (lsp)      #%d ;", LSPA);
 	parseF(": (tsp)      #%d ;", TSPA);
-	parseF(": (qsp)      #%d ;", QSPA);
 	parseF(": (lex)      #%d ;", LEXA);
 	parseF(": (reg-base) #%d ;", RBA);
 	parseF(": (frame-sz) #%d ;", FSZ);
@@ -495,7 +489,6 @@ void baseSys() {
 	parseF(addrFmt, "stk",  &stk[0]);
 	parseF(addrFmt, "rstk", &rstk[0]);
 	parseF(addrFmt, "tstk", &tstk[0]);
-	parseF(addrFmt, "qstk", &qstk[0]);
 	parseF(addrFmt, "regs", &regs[0]);
 
 	parseF(": code-sz #%d ;", CODE_SZ+1);

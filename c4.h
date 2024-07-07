@@ -18,8 +18,8 @@
 #include <time.h>
 
 #ifdef IS_PC
-#define VERSION       240703
-#define CODE_SZ       0xFFFF
+#define VERSION       240707
+#define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
 #define VARS_SZ     0x100000
 #define DICT_SZ       0xFFFD
 #define STK_SZ            63
