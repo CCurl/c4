@@ -22,8 +22,8 @@ find fill loaded?
 : p1 vhere ->vars 100 + ;
 : p2 p1 100 + ;
 : s-trunc ( dst--dst ) 0 over w! ;
-: s-cat   ( dst src--dst ) +regs >s >d d> count + s> 1+ s-cpy drop s> c@ d> c+! d> -regs ;
-: s-catc  ( dst ch--dst )  +regs swap >d  d> count + w! d> c++ d> -regs ;
+: s-cat   ( dst src--dst ) >t >r r@ count + t@ 1+ s-cpy drop t> c@ r@ c+! r> ;
+: s-catc  ( dst ch--dst )  over count + w! dup c++ ;
 : s-catn  ( dst n--dst )   to-string s-cat ;
 : s-scat  ( src dst--dst ) swap s-cat ;
 : s-scatc ( ch dst--dst )  swap s-catc ;
