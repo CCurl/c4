@@ -95,9 +95,10 @@ This third stack can be used for any purpose. Words are:<br/>
 
 | WORD  | STACK  | DESCRIPTION |
 |:--    |:--     |:-- |
-| `>t`  | (N--)  | Move N to the third stack. |
-| `t@`  | (--N)  | Copy TOS from the third stack. |
-| `t>`  | (--N)  | Move N from the third stack. |
+| `>t`  | (N--)  | Push N to the third stack. |
+| `t@`  | (--N)  | N: The third stack TOS. |
+| `t!`  | (N--)  | Set the third stack TOS to N. |
+| `t>`  | (--N)  | Pop N from the third stack. |
 
 ## C4 WORD-CODE primitives
 
@@ -169,9 +170,10 @@ The primitives:
 | >r        | (N--R:N)     | Move TOS to the return stack |
 | r@        | (--N)        | N: return stack TOS |
 | r>        | (R:N--N)     | Move return TOS to the stack |
-| >t        | (N--T:N)     | Move TOS to the third stack |
+| >t        | (N--T:N)     | Push N to the third stack |
 | t@        | (--N)        | N: third stack TOS |
-| t>        | (T:N--N)     | Move third TOS to the stack |
+| t!        | (N--)        | Set the third stack TOS to N |
+| t>        | (T:N--N)     | Pop N from the third stack |
 | emit      | (C--)        | Output char C |
 | :         | (--)         | Create a new word, set STATE=1 |
 | ;         | (--)         | Compile EXIT, set STATE=0 |
@@ -179,11 +181,11 @@ The primitives:
 | addword   | (--)         | -COMPILE: Add the next word to the dictionary |
 |           | (--A)        | -RUN: A: current VHERE address |
 | timer     | (--N)        | N: Current time |
-| see       | (--)         | Output the definition of a word |
-| count     | (SC--A N)    | A,N: address and count of chars in string S |
+| see X     | (--)         | Output the definition of word X |
+| count     | (SC--A N)    | A,N: address and count of chars in string SC |
 | type      | (A N--)      | Print string at A (counted, unformatted) |
-| ztype     | (SZ--)       | Print string at A (uncounted, unformatted) |
-| ftype     | (SZ--)       | Print string at A (uncounted, formatted) |
+| ztype     | (SZ--)       | Print string at SZ (uncounted, unformatted) |
+| ftype     | (SZ--)       | Print string at SZ (uncounted, formatted) |
 | s-cpy     | (D S--D)     | Copy string S to D, counted |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
@@ -199,10 +201,10 @@ The primitives:
 | fclose    | (FH--)       | FH: File Handle |
 | fread     | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
 | fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
-| fgets     | (A N FH--N)  | A: Buffer, N: Size, N: num chars read (0 if EOF/Error) |
+| fgets     | (A N FH--X)  | A: Buffer, N: Size, X: num chars read (0 if EOF/Error) |
 | include X | (--)         | Load file named X (X: next word) |
 | load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
-| loaded?   | (W A--)      | Stops a load if DE <> 0 (see `find`) |
+| loaded?   | (W A--)      | Stops current load if A <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
 | .s        | (--)         | Display the stack |
 | @c        | (N--W)       | Fetch unsigned 16-bit W from CODE address N |
