@@ -199,8 +199,8 @@ The primitives:
 | fclose    | (FH--)       | FH: File Handle |
 | fread     | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
 | fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
-| fgets     | (A N FH--F)  | A: Buffer, N: Size, F: 0 if EOF/Error, else 1 |
-| include X | (--)         | Load X (X: next word) |
+| fgets     | (A N FH--N)  | A: Buffer, N: Size, N: num chars read (0 if EOF/Error) |
+| include X | (--)         | Load file named X (X: next word) |
 | load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
 | loaded?   | (W A--)      | Stops a load if DE <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
