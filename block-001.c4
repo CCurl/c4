@@ -1,3 +1,4 @@
+: \ 0 >in @ w! ; immediate
 : ->code code + ;
 : ->vars vars + ;
 : ->dict dict + ;
