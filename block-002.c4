@@ -14,6 +14,21 @@
 
 2 >lex  decimal
 
+\ ==================================================================
+: prep-block block block-sz for dup c@ 32 max over c! 1+ next drop
+    rows for 0 i cols 1- >pos c! next ;
+
+: read-block block 0 block-sz fill
+    block-fn fopen-rt ?dup 0= if ." -nf-" exit then
+    +regs >a 0 >x
+    begin
+        x>+ 0 >pos cols a> fgets >y
+        x> rows < y> 0> and
+    while
+    a> fclose -regs prep-block ;
+: show 1 1 ->rc rows for i 0 >pos '|' emit ztype '|' emit cr next ;
+\ ==================================================================
+
 : re forget 2 load ;
 
 : lines      40 @c ;  : >lines      40 !c ;

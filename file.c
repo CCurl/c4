@@ -31,12 +31,10 @@ cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh);
 cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
 
 int  fileGets(char *buf, int sz, cell fh) {
-    buf[0] = 0; // length
-    buf[1] = 0; // NULL terminator
+    buf[0] = 0;
     if (fh == 0) { fh = (cell)stdin; }
-    if (fgets(buf+1, sz, (FILE*)fh) != buf+1) return 0;
-    buf[0] = strLen(buf+1);
-    return 1;
+    if (fgets(buf, sz, (FILE*)fh) != buf) return 0;
+    return strLen(buf);
 }
 
 void fileLoad(const char *name) {

@@ -67,7 +67,7 @@ void REP() {
 		zType(" ok\r\n");
 	}
 	if (fileGets(tib, sizeof(tib), inputFp)) {
-		outer(tib+1);
+		outer(tib);
 		return;
 	}
 	if (inputFp == 0) { exit(0); }
