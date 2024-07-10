@@ -17,8 +17,9 @@
 #include <stdint.h>
 #include <time.h>
 
+#define VERSION       240710
+
 #ifdef IS_PC
-#define VERSION       240707
 #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
 #define VARS_SZ     0x100000
 #define DICT_SZ       0xFFFD
@@ -26,7 +27,7 @@
 #define RSTK_SZ           63
 #define LSTK_SZ           60
 #define TSTK_SZ           63
-#define FSTK_SZ            9
+#define FSTK_SZ           15
 #define REGS_SZ          255
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define PC_FILE
