@@ -1,19 +1,18 @@
 ( block 3 - strings )
-
 3 >lex find fill loaded?
 
-: p1 vhere ->vars 100 + ;    : p2 p1 100 + ;
-
+: p1 vhere ->vars $100 + ;    : p2 p1 $100 + ;
 : fill ( start ch num-- ) >t swap t>
     ?dup if for over over c! 1+ next then
     drop drop ;
-
 : fill-c ( start n num-- ) >t swap t>
     ?dup if for over over ! cell + next then
     drop drop ;
-
-: cmove ( dst src n-- ) +regs >a >d >s
+: cmove ( src dst n-- ) +regs >a >d >s
     a> ?dup if for s>+ c@ d>+ c! next then
+    -regs ;
+: cmove> ( src dst n-- ) +regs >a a> + 1- >d a> + 1- >s
+    a> ?dup if for s>- c@ d>- c! next then
     -regs ;
 
 : s-trunc ( dst--dst ) 0 over w! ;
@@ -24,9 +23,10 @@
 : s-scatc ( ch dst--dst )  swap s-catc ;
 : s-scatn ( n dst--dst )   swap s-catn ;
 
-: sz-rtrim ( sz--sz ) >t +regs t@ sz-len + 1- >a
+: sz-cat   ( dst src--dst ) >t >r r@ dup sz-len + t> s-cpy drop r> ;
+: sz-rtrim ( sz--sz ) >t +regs t@ dup sz-len + 1- >a
     begin
-        a> t@ < if -regs t> exit then
-        a> c@ 32 > if -regs t> exit then
+        a> t@ < if t> -exit then
+        a> c@ 32 > if t> -exit then
         0 a>- c!
     again ;
