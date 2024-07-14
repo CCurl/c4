@@ -76,12 +76,9 @@
 : y>+ 4 reg-ri ;  : y+ 4 reg-i ;
 : y>- 4 reg-rd ;  : y- 4 reg-d ;
 
-: z>  5 reg-r ;  : >z  5 reg-s ;
-
 : bl 32 ; : space bl emit ;
 : (.) to-string count type ;
 : . (.) space ;
-: .02 base@ /mod (.) (.) ;
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
@@ -113,10 +110,5 @@ cell var vv
 : forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;
 : thru ( f t-- ) begin dup load 1- over over > until drop drop ;
 marker
-: .pt .02 '.' emit ;
-: .ver version 100 /mod 100 /mod .pt .pt .02 ;
-." c4 - v" .ver ."  - Chris Curl.%n"
-dict-sz tstk-sz regs-sz vars-sz code-sz ." Sizes - Code: %d, Vars: %d, Regs: %d, TStack: %d, Dict: %d%n"
-forget
 
 99 load
