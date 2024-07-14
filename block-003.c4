@@ -1,6 +1,6 @@
 ( block 3 - strings )
-3 >lex find fill loaded?
-
+find fill loaded?
+3 >lex
 : p1 vhere ->vars $100 + ;    : p2 p1 $100 + ;
 : fill ( start ch num-- ) >t swap t>
     ?dup if for over over c! 1+ next then
