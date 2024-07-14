@@ -182,11 +182,11 @@ The primitives:
 | addword   | (--)         | -COMPILE: Add the next word to the dictionary |
 |           | (--A)        | -RUN: A: current VHERE address |
 | timer     | (--N)        | N: Current time |
-| see       | (--)         | Output the definition of a word |
-| count     | (SC--A N)    | A,N: address and count of chars in string S |
+| see X     | (--)         | Output the definition of word X |
+| count     | (SC--A N)    | A,N: address and count of chars in string SC |
 | type      | (A N--)      | Print string at A (counted, unformatted) |
-| ztype     | (SZ--)       | Print string at A (uncounted, unformatted) |
-| ftype     | (SZ--)       | Print string at A (uncounted, formatted) |
+| ztype     | (SZ--)       | Print string at SZ (uncounted, unformatted) |
+| ftype     | (SZ--)       | Print string at SZ (uncounted, formatted) |
 | s-cpy     | (D S--D)     | Copy string S to D, counted |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
@@ -202,10 +202,10 @@ The primitives:
 | fclose    | (FH--)       | FH: File Handle |
 | fread     | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
 | fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
-| fgets     | (A N FH--F)  | A: Buffer, N: Size, F: 0 if EOF/Error, else 1 |
-| include X | (--)         | Load X (X: next word) |
+| fgets     | (A N FH--X)  | A: Buffer, N: Size, X: num chars read (0 if EOF/Error) |
+| include X | (--)         | Load file named X (X: next word) |
 | load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
-| loaded?   | (W A--)      | Stops a load if DE <> 0 (see `find`) |
+| loaded?   | (W A--)      | Stops current load if A <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
 | .s        | (--)         | Display the stack |
 | @c        | (N--W)       | Fetch unsigned 16-bit W from CODE slot N |
