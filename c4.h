@@ -20,31 +20,31 @@
 #define VERSION       240715
 
 #ifdef IS_PC
-#define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
-#define VARS_SZ     0x100000
-#define DICT_SZ       0xFFFD
-#define STK_SZ            63
-#define RSTK_SZ           63
-#define LSTK_SZ           60
-#define TSTK_SZ           63
-#define FSTK_SZ           15
-#define REGS_SZ          255
-#define btwi(n,l,h)   ((l<=n) && (n<=h))
-#define PC_FILE
+    #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
+    #define VARS_SZ     0x100000
+    #define DICT_SZ       0xFFFD
+    #define STK_SZ            63
+    #define RSTK_SZ           63
+    #define LSTK_SZ           60
+    #define TSTK_SZ           63
+    #define FSTK_SZ           15
+    #define REGS_SZ          255
+    #define btwi(n,l,h)   ((l<=n) && (n<=h))
+    #define PC_FILE
 #endif // IS_PC
 
 #if INTPTR_MAX > INT32_MAX
-#define CELL_T    int64_t
-#define UCELL_T   uint64_t
-#define CELL_SZ   8
-#define FLT_T     double
-#define addrFmt ": %s $%llx ;"
+    #define CELL_T    int64_t
+    #define UCELL_T   uint64_t
+    #define CELL_SZ   8
+    #define FLT_T     double
+    #define addrFmt ": %s $%llx ;"
 #else
-#define CELL_T    int32_t
-#define UCELL_T   uint32_t
-#define CELL_SZ   4
-#define FLT_T     float
-#define addrFmt ": %s $%lx ;"
+    #define CELL_T    int32_t
+    #define UCELL_T   uint32_t
+    #define CELL_SZ   4
+    #define FLT_T     float
+    #define addrFmt ": %s $%lx ;"
 #endif
 
 typedef CELL_T cell;
@@ -56,14 +56,21 @@ typedef struct { ushort xt; byte sz, fl, lx, ln; char nm[32]; } DE_T;
 typedef struct { short op; const char* name; byte fl; } PRIM_T;
 
 // These are defined by c4.c
+extern void push(cell x);
+extern cell pop();
 extern void strCpy(char *d, const char *s);
+extern int  strEq(const char *d, const char *s);
+extern int  strEqI(const char *d, const char *s);
 extern int  strLen(const char *s);
+extern int  lower(const char c);
+extern char *iToA(cell N, int b);
 extern void printF(const char *fmt, ...);
+extern void parseF(const char *fmt, ...);
 extern void inner(ushort start);
 extern int  outer(const char *src);
 extern void Init();
 
-// c4.c needs these
+// c4.c needs these to be defined
 extern cell inputFp, outputFp;
 extern void zType(const char *str);
 extern void emit(const char ch);
