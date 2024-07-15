@@ -24,9 +24,9 @@
     p1 s" q"  s-eq if  ?quit exit  then
     p1 s" q!" s-eq if  quit! exit  then
     p1 s" wq" s-eq if  save-block quit!  exit  then
-    p1 s" w"  s-eq if  save-block clean  exit  then ;
+    p1 s" w"  s-eq if  save-block clean  exit  then
+    p1 s" rl" s-eq if  ed-load  show! exit  then ;
 : put-line     row 0 >pos p2 s-cpy drop dirty ;
 : yank-line p2 row 0 >pos    s-cpy drop ;
-
 
 
