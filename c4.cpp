@@ -83,10 +83,10 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(SEMI,    ";",         1, comma(EXIT); state = 0; cH=here; ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
 	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
-	X(CLK,     "timer",     0, push(clock()); ) \
+	X(CLK,     "timer",     0, push(timer()); ) \
 	X(SEE,     "see",       1, doSee(); ) \
 	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
-	X(TYPE,    "type",      0, t=pop(); char *y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); ) \
+	X(TYPE,    "type",      0, t=pop(); y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
@@ -317,7 +317,7 @@ void quote(int counted) {
 
 void doRand() {
 	static cell sd = 0;
-	if (!sd) { sd = (cell)code  *clock(); }
+	if (!sd) { sd = (cell)code; }
 	sd = (sd << 13) ^ sd;
 	sd = (sd >> 17) ^ sd;
 	sd = (sd <<  5) ^ sd;
@@ -339,6 +339,7 @@ void execIt() {
 
 void inner(ushort start) {
 	cell t, n;
+	char *y;
 	ushort pc = start, wc;
 	next:
 	wc = code[pc++];

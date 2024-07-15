@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION       240715
+#define VERSION       240716
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
@@ -31,6 +31,22 @@
     #define REGS_SZ          255
     #define btwi(n,l,h)   ((l<=n) && (n<=h))
     #define PC_FILE
+    #define _BOOTFILE_
+#endif // IS_PC
+
+#ifndef IS_PC
+    // Must be a dev board ...
+    #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
+    #define VARS_SZ      0x10000
+    #define DICT_SZ       0x4000
+    #define STK_SZ            63
+    #define RSTK_SZ           63
+    #define LSTK_SZ           60
+    #define TSTK_SZ           63
+    #define FSTK_SZ           15
+    #define REGS_SZ          200
+    #define btwi(n,l,h)   ((l<=n) && (n<=h))
+    #define NO_FILE
 #endif // IS_PC
 
 #if INTPTR_MAX > INT32_MAX
@@ -55,7 +71,7 @@ typedef union { FLT_T f; cell i; } SE_T;
 typedef struct { ushort xt; byte sz, fl, lx, ln; char nm[32]; } DE_T;
 typedef struct { short op; const char* name; byte fl; } PRIM_T;
 
-// These are defined by c4.c
+// These are defined by c4.cpp
 extern void push(cell x);
 extern cell pop();
 extern void strCpy(char *d, const char *s);
@@ -70,13 +86,14 @@ extern void inner(ushort start);
 extern int  outer(const char *src);
 extern void Init();
 
-// c4.c needs these to be defined
+// c4.cpp needs these to be defined
 extern cell inputFp, outputFp;
 extern void zType(const char *str);
 extern void emit(const char ch);
 extern void ttyMode(int isRaw);
 extern int  key();
 extern int  qKey();
+extern cell timer();
 extern void fileInit();
 extern void filePush(cell fh);
 extern cell filePop();

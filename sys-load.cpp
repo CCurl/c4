@@ -1,5 +1,4 @@
-// comment this out to bake the base system into the executable
-#define _BOOTFILE_
+#include "c4.h"
 
 extern int  outer(const char *src);
 
@@ -33,6 +32,7 @@ void sys_load() {
     outer(": if (jmpz) , here 0 , ; immediate");
     outer(": else (jmp) , here swap 0 , here swap !c ; immediate");
     outer(": then here swap !c ; immediate");
+    outer(": -exit 39 , 8 , ; immediate");
     outer(": ( begin");
     outer("    >in @ c@");
     outer("    dup  0= if drop exit then");
@@ -115,7 +115,7 @@ void sys_load() {
     outer(".\" c4 - v\" .ver .\"  - Chris Curl.%n\"");
     outer("dict-sz tstk-sz regs-sz vars-sz code-sz .\" Sizes - Code: %d, Vars: %d, Regs: %d, TStack: %d, Dict: %d%n\"");
     outer("forget");
-    outer("99 load");
-    outer("0 >lex");
+    outer("( 99 load )");
+    outer("( 0 >lex )");
 }
 #endif // _BOOTFILE_
