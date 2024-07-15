@@ -1,7 +1,8 @@
 : ->file ( fh-- ) (output-fp) ! ;  : ->stdout 0 ->file ;
 : write-row  p1 i 0 >pos s-cpy sz-rtrim ztype 10 emit ;
 : write-block rows for write-row next ;
-: save-block  block-fn fopen-wb ?dup
+: save-block  dirty? 0= if exit then
+    block-fn fopen-wb ?dup
     if >t t@ ->file write-block t> fclose clean ->stdout then ;
 : bs 8 emit ;
 : printable? ( c--f ) dup 31 > swap 127 < and ;
@@ -28,5 +29,4 @@
     p1 s" rl" s-eq if  ed-load  show! exit  then ;
 : put-line     row 0 >pos p2 s-cpy drop dirty ;
 : yank-line p2 row 0 >pos    s-cpy drop ;
-
 

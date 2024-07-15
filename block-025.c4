@@ -27,6 +27,6 @@
     a> 'J' = if join-lines  exit then   a> 'C' = if row clear-line  exit then
     a> 'P' = if put-line    exit then   a> 'Y' = if yank-line       exit then
     a> 'b' = if 32 insert-char exit then
-    a> '-' = if blk 1- 0 max >blk ed-load show! exit then
-    a> '+' = if blk 1+       >blk ed-load show! exit then ;
+    a> '-' = save-block if blk 1- 0 max >blk ed-load show! exit then
+    a> '+' = save-block if blk 1+       >blk ed-load show! exit then ;
 
