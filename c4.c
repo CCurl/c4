@@ -60,22 +60,23 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-    X(REGA,    "+regs",     0, if ((regBase+frameSz) < REGS_SZ) { regBase+=frameSz; } ) \
-    X(REGM,    "-regs",     0, if (regBase>=frameSz) { regBase-=frameSz; } ) \
-    X(REGR,    "reg-r",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
-    X(REGS,    "reg-s",     0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
-    X(REGI,    "reg-i",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
-    X(REGD,    "reg-d",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]--; } ) \
-    X(REG_RI,  "reg-ri",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]++ : 0); ) \
-    X(REG_RD,  "reg-rd",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
+	X(REGA,    "+regs",     0, if ((regBase+frameSz) < REGS_SZ) { regBase+=frameSz; } ) \
+	X(REGM,    "-regs",     0, if (regBase>=frameSz) { regBase-=frameSz; } ) \
+	X(REGR,    "reg-r",     0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t] : 0); ) \
+	X(REGS,    "reg-s",     0, t=pop()+regBase; n=pop(); if (btwi(t,0,REGS_SZ)) { regs[t]=n; } ) \
+	X(REGI,    "reg-i",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]++; } ) \
+	X(REGD,    "reg-d",     0, t=pop()+regBase; if (btwi(t,0,REGS_SZ)) { regs[t]--; } ) \
+	X(REG_RI,  "reg-ri",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]++ : 0); ) \
+	X(REG_RD,  "reg-rd",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
-	X(TOT,     ">t",        0, tpush(pop()); ) \
+	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
-	X(TFROM,   "t>",        0, push(tpop()); ) \
-	X(EMIT,    "emit",      0, t=pop(); emit((char)t); ) \
+	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
+	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
+	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
@@ -129,13 +130,11 @@ void push(cell x) { if (sp < STK_SZ) { stk[++sp].i = x; } }
 cell pop() { return (0<sp) ? stk[sp--].i : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
-void tpush(cell x) { if (tsp < TSTK_SZ) { tstk[++tsp] = x; } }
-cell tpop() { return (0<tsp) ? tstk[tsp--] : 0; }
 void storeCell(cell a, cell val) { *(cell*)(a) = val; }
 void storeWord(cell a, cell val) { *(ushort*)(a) = (ushort)val; }
 cell fetchCell(cell a) { return *(cell*)(a); }
 cell fetchWord(cell a) { return *(ushort*)(a); }
-int lower(char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
+int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 
 int strEqI(const char *s, const char *d) {
@@ -149,6 +148,7 @@ int strEq(const char *s, const char *d) {
 }
 
 void strCpy(char *d, const char *s) {
+	*(d+1) = 0;  // NULL terminator for empty counted strings
 	while (*s) { *(d++) = *(s++); }
 	*(d) = 0;
 }
@@ -296,9 +296,9 @@ void fType(const char *s) {
 }
 
 void dotS() {
-    zType("( ");
-    for (int i = 1; i <= sp; i++) { printF("%s ", iToA(stk[i].i, base)+1); }
-    zType(")");
+	zType("( ");
+	for (int i = 1; i <= sp; i++) { printF("%s ", iToA(stk[i].i, base)+1); }
+	zType(")");
 }
 
 void quote(int counted) {
@@ -415,7 +415,7 @@ int parseWord(char *w) {
 }
 
 int outer(const char *ln) {
-    cH=here, cL=last, cS=state, cV=vhere;
+	cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
 	// printF("-outer:%s-\n",ln);
 	while (nextWord()) {
@@ -497,7 +497,7 @@ void baseSys() {
 	parseF(": stk-sz  #%d ;", STK_SZ+1);
 	parseF(": regs-sz #%d ;", REGS_SZ+1);
 	parseF(": tstk-sz #%d ;", TSTK_SZ+1);
-	parseF(": cell    #%d ;", CELL_SZ+1);
+	parseF(": cell    #%d ;", CELL_SZ);
 	sys_load();
 }
 
@@ -505,12 +505,12 @@ void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
-	vhere = sp = rsp = lsp = tsp = state = 0;
+	here = LASTPRIM+1;
 	last = DICT_SZ;
-	frameSz = 5;
 	if ((cell)&dict[last] & 0x01) { ++last; }
 	base = 10;
-	here = LASTPRIM+1;
+	vhere = 0;
+	frameSz = 5;
 	fileInit();
 	baseSys();
 }

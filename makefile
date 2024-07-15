@@ -2,8 +2,8 @@ app := c4
 app32 := c4-32
 
 CXX := clang
-CXXFLAGS := -m64 -O3 -D IS_LINUX
-C32FLAGS := -m32 -O3 -D IS_LINUX
+CXXFLAGS := -m64 -O3
+C32FLAGS := -m32 -O3
 
 srcfiles := $(shell find . -name "*.c")
 incfiles := $(shell find . -name "*.h")
