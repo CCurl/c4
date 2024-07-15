@@ -1,5 +1,5 @@
-: b1 green cols 1+ for '-' emit next cr white ;
-: b2 green '|' emit white ;
+: b1  green cols 1+ for '-' emit next cr white ;
+: b2  green '|' emit white ;
 : footer ->foot blk ."  -Block %d- "
     dirty? if '*' else bl then emit
     col 1+ row 1+ ."  (%d,%d) " .mode clr-eol ;
@@ -7,4 +7,26 @@
 
 : ?show show? if show then footer ;
 : ed-init 0 >row 0 >col normal-mode! clean cur-block ;
-: ed-loop begin ?show ->cur vkey cur-off ed-key quit? until  ->cmd cur-on ;
+: ed-loop begin ?show ->cur vkey cur-off >a ed-key quit? until  ->cmd cur-on ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
