@@ -155,10 +155,10 @@
     <None Include="block-200.c4" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="c4.c" />
-    <ClCompile Include="file.c" />
-    <ClCompile Include="sys-load.c" />
-    <ClCompile Include="system.c" />
+    <ClCompile Include="c4.cpp" />
+    <ClCompile Include="file.cpp" />
+    <ClCompile Include="sys-load.cpp" />
+    <ClCompile Include="system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c4.h" />
