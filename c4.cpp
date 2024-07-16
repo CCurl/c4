@@ -192,7 +192,7 @@ DE_T *addWord(const char *w) {
 	dp->ln = ln;
 	strCpy(dp->nm, w);
 	last=newLast;
-	// printF("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
+	// zTypeF("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
 	return dp;
 }
 
@@ -202,7 +202,7 @@ DE_T *findWord(const char *w) {
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
-		// printF("-%d,(%s)-", cw, dp->nm);
+		// zTypeF("-%d,(%s)-", cw, dp->nm);
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += dp->sz;
 	}
@@ -213,7 +213,7 @@ int findXT(int xt) {
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
-		// printF("-%d,(%s)-", cw, dp->nm);
+		// zTypeF("-%d,(%s)-", cw, dp->nm);
 		if (dp->xt == xt) { return cw; }
 		cw += dp->sz;
 	}
@@ -234,28 +234,28 @@ int findPrevXT(int xt) {
 
 void doSee() {
 	DE_T *dp = findWord(0);
-	if (!dp) { printF("-nf:%s-", wd); return; }
-	if (dp->xt <= LASTPRIM) { printF("%s is a> primitive (%hX).\n", wd, dp->xt); return; }
+	if (!dp) { zTypeF("-nf:%s-", wd); return; }
+	if (dp->xt <= LASTPRIM) { zTypeF("%s is a primitive (%hX).\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
-	printF("\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
+	zTypeF("\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
 	while (i <= stop) {
 		int op = code[i++];
 		x = code[i];
-		printF("\n%04X: %04X\t", i-1, op);
-		if (op & 0xE000) { printF("lit %d", (int)(op & 0x1FFF)); continue; }
+		zTypeF("\n%04X: %04X\t", i-1, op);
+		if (op & 0xE000) { zTypeF("lit %d", (int)(op & 0x1FFF)); continue; }
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT1: printF("lit1 %hu (%hX)", (ushort)x, (ushort)x); i++;
+			BCASE LIT1: zTypeF("lit1 %hu (%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
-				printF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
+				zTypeF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
 				i += CELL_SZ / 2;
-			BCASE JMP:    printF("jmp %04hX", (ushort)x);             i++;
-			BCASE JMPZ:   printF("jmpz %04hX (IF)", (ushort)x);       i++;
-			BCASE NJMPZ:  printF("njmpz %04hX (-IF)", (ushort)x);     i++;
-			BCASE JMPNZ:  printF("jmpnz %04hX (WHILE)", (ushort)x);   i++; break;
-			BCASE NJMPNZ: printF("njmpnz %04hX (-WHILE)", (ushort)x); i++; break;
+			BCASE JMP:    zTypeF("jmp %04hX", (ushort)x);             i++;
+			BCASE JMPZ:   zTypeF("jmpz %04hX (IF)", (ushort)x);       i++;
+			BCASE NJMPZ:  zTypeF("njmpz %04hX (-IF)", (ushort)x);     i++;
+			BCASE JMPNZ:  zTypeF("jmpnz %04hX (WHILE)", (ushort)x);   i++; break;
+			BCASE NJMPNZ: zTypeF("njmpnz %04hX (-WHILE)", (ushort)x); i++; break;
 			default: x = findXT(op); 
 				zType(x ? ((DE_T*)&dict[(ushort)x])->nm : "??");
 		}
@@ -308,7 +308,7 @@ void fType(const char *s) {
 
 void dotS() {
 	zType("( ");
-	for (int i = 1; i <= sp; i++) { printF("%s ", iToA(stk[i].i, base)+1); }
+	for (int i = 1; i <= sp; i++) { zTypeF("%s ", iToA(stk[i].i, base)+1); }
 	zType(")");
 }
 
@@ -336,7 +336,7 @@ void doRand() {
 }
 
 void execIt() {
-	// printF("-cH:%d,here:%d-\n",cH, here);
+	// zTypeF("-cH:%d,here:%d-\n",cH, here);
 	if (cH < here) {
 		comma(0);
 		here=cH;
@@ -395,7 +395,7 @@ int isNum(const char *w, int b) {
 
 int parseWord(char *w) {
 	if (!w) { w = &wd[0]; }
-	// printF("-pw:%s-",w);
+	// zTypeF("-pw:%s-",w);
 
 	if (isNum(w, base)) {
 		cell n = pop();
@@ -429,10 +429,10 @@ int parseWord(char *w) {
 int outer(const char *ln) {
 	cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
-	// printF("-outer:%s-\n",ln);
+	// zTypeF("-outer:%s-\n",ln);
 	while (nextWord()) {
 		if (!parseWord(wd)) {
-			printF("-%s?-", wd);
+			zTypeF("-%s?-", wd);
 			here=cH;
 			vhere=cV;
 			last=cL;
@@ -445,7 +445,7 @@ int outer(const char *ln) {
 	return 1;
 }
 
-void parseF(const char *fmt, ...) {
+void outerF(const char *fmt, ...) {
 	char buf[128];
 	va_list args;
 	va_start(args, fmt);
@@ -455,7 +455,7 @@ void parseF(const char *fmt, ...) {
 	outer(buf);
 }
 
-void printF(const char *fmt, ...) {
+void zTypeF(const char *fmt, ...) {
 	char buf[128];
 	va_list args;
 	va_start(args, fmt);
@@ -466,52 +466,52 @@ void printF(const char *fmt, ...) {
 
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
-        // printF("[%s]",prims[i].name); if (i%10==0) { zType("\r\n"); }
+        // zTypeF("[%s]",prims[i].name); if (i%10==0) { zType("\r\n"); }
 		DE_T *w = addWord(prims[i].name);
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
 	}
 
-	parseF(": version   #%d ;", VERSION);
-	parseF(": (jmp)     #%d ;", JMP);
-	parseF(": (jmpz)    #%d ;", JMPZ);
-	parseF(": (jmpnz)   #%d ;", JMPNZ);
-	parseF(": (njmpz)   #%d ;", NJMPZ);
-	parseF(": (njmpnz)  #%d ;", NJMPNZ);
-	parseF(": (lit1)    #%d ;", LIT1);
-	parseF(": (lit2)    #%d ;", LIT2);
-	parseF(": (exit)    #%d ;", EXIT);
+	outerF(": version   #%d ;", VERSION);
+	outerF(": (jmp)     #%d ;", JMP);
+	outerF(": (jmpz)    #%d ;", JMPZ);
+	outerF(": (jmpnz)   #%d ;", JMPNZ);
+	outerF(": (njmpz)   #%d ;", NJMPZ);
+	outerF(": (njmpnz)  #%d ;", NJMPNZ);
+	outerF(": (lit1)    #%d ;", LIT1);
+	outerF(": (lit2)    #%d ;", LIT2);
+	outerF(": (exit)    #%d ;", EXIT);
 
-	parseF(": (sp)       #%d ;", SPA);
-	parseF(": (rsp)      #%d ;", RSPA);
-	parseF(": (here)     #%d ;", HA);
-	parseF(": (last)     #%d ;", LA);
-	parseF(": base       #%d ;", BA);
-	parseF(": state      #%d ;", SA);
-	parseF(": (lsp)      #%d ;", LSPA);
-	parseF(": (tsp)      #%d ;", TSPA);
-	parseF(": (lex)      #%d ;", LEXA);
-	parseF(": (reg-base) #%d ;", RBA);
-	parseF(": (frame-sz) #%d ;", FSZ);
+	outerF(": (sp)       #%d ;", SPA);
+	outerF(": (rsp)      #%d ;", RSPA);
+	outerF(": (here)     #%d ;", HA);
+	outerF(": (last)     #%d ;", LA);
+	outerF(": base       #%d ;", BA);
+	outerF(": state      #%d ;", SA);
+	outerF(": (lsp)      #%d ;", LSPA);
+	outerF(": (tsp)      #%d ;", TSPA);
+	outerF(": (lex)      #%d ;", LEXA);
+	outerF(": (reg-base) #%d ;", RBA);
+	outerF(": (frame-sz) #%d ;", FSZ);
 
-	parseF(addrFmt, "code", &code[0]);
-	parseF(addrFmt, "vars", &vars[0]);
-	parseF(addrFmt, "dict", &dict[0]);
-	parseF(addrFmt, ">in",  &toIn);
-	parseF(addrFmt, "(vhere)", &vhere);
-	parseF(addrFmt, "(output-fp)", &outputFp);
-	parseF(addrFmt, "stk",  &stk[0]);
-	parseF(addrFmt, "rstk", &rstk[0]);
-	parseF(addrFmt, "tstk", &tstk[0]);
-	parseF(addrFmt, "regs", &regs[0]);
+	outerF(addrFmt, "code", &code[0]);
+	outerF(addrFmt, "vars", &vars[0]);
+	outerF(addrFmt, "dict", &dict[0]);
+	outerF(addrFmt, ">in",  &toIn);
+	outerF(addrFmt, "(vhere)", &vhere);
+	outerF(addrFmt, "(output-fp)", &outputFp);
+	outerF(addrFmt, "stk",  &stk[0]);
+	outerF(addrFmt, "rstk", &rstk[0]);
+	outerF(addrFmt, "tstk", &tstk[0]);
+	outerF(addrFmt, "regs", &regs[0]);
 
-	parseF(": code-sz #%d ;", CODE_SZ+1);
-	parseF(": vars-sz #%d ;", VARS_SZ);
-	parseF(": dict-sz #%d ;", DICT_SZ+1);
-	parseF(": stk-sz  #%d ;", STK_SZ+1);
-	parseF(": regs-sz #%d ;", REGS_SZ+1);
-	parseF(": tstk-sz #%d ;", TSTK_SZ+1);
-	parseF(": cell    #%d ;", CELL_SZ);
+	outerF(": code-sz #%d ;", CODE_SZ+1);
+	outerF(": vars-sz #%d ;", VARS_SZ);
+	outerF(": dict-sz #%d ;", DICT_SZ+1);
+	outerF(": stk-sz  #%d ;", STK_SZ+1);
+	outerF(": regs-sz #%d ;", REGS_SZ+1);
+	outerF(": tstk-sz #%d ;", TSTK_SZ+1);
+	outerF(": cell    #%d ;", CELL_SZ);
 	sys_load();
 }
 

@@ -33,23 +33,16 @@ void setup() {
     in = 0;
     serialInit();
     fill(tib, 0, sizeof(tib));
-    // zType("hello!\r\n");
 }
 
 void idle() {}
 
-
 void loop() {
-  // if (isInit==0) { zType("Init ... "); Init(); isInit=1; zType("back\r\n ok."); }
-  // ++isInit;
-  // zType("more ...");
-  // return;
-
   if (!isInit) {
     Init();
     isInit=1;
   }
-  // outer("a>+ . a> 64 = if cr then");
+
   if (qKey() == 0) { idle(); return; }
   int c = key();
   if (!in) {
@@ -57,17 +50,17 @@ void loop() {
       fill(tib, 0, sizeof(tib));
   }
 
-  if (c==13) {
+  if (c == 13) {
       *(in) = 0;
       emit(32);
       outer(tib);
       zType(" ok\r\n");
       in = 0;
-  } else if ((c==8) || (c==127)) {
+  } else if ((c == 8) || (c == 127)) {
       if ((--in) < tib) { in = tib; }
       else { emit(8); emit(32); emit(8); }
   } else {
-      if (c==9) { c = 32; }
+      if (c == 9) { c = 32; }
       if (btwi(c,32,126)) { *(in++) = c; emit(c); }
   }
 }

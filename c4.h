@@ -31,7 +31,6 @@
     #define REGS_SZ          255
     #define btwi(n,l,h)   ((l<=n) && (n<=h))
     #define PC_FILE
-    #define _BOOTFILE_
 #endif // IS_PC
 
 #ifndef IS_PC
@@ -80,10 +79,10 @@ extern int  strEqI(const char *d, const char *s);
 extern int  strLen(const char *s);
 extern int  lower(const char c);
 extern char *iToA(cell N, int b);
-extern void printF(const char *fmt, ...);
-extern void parseF(const char *fmt, ...);
+extern void zTypeF(const char *fmt, ...);
 extern void inner(ushort start);
 extern int  outer(const char *src);
+extern void outerF(const char *fmt, ...);
 extern void Init();
 
 // c4.cpp needs these to be defined

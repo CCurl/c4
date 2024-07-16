@@ -39,7 +39,7 @@ int  fileGets(char *buf, int sz, cell fh) {
 
 void fileLoad(const char *name) {
     cell fh = fileOpen(name, "rt");
-    if (fh == 0) { printF("-[%s] not found-", name); return; }
+    if (fh == 0) { zTypeF("-[%s] not found-", name); return; }
     if (inputFp) { filePush(inputFp); }
     inputFp = fh;
 }
