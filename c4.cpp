@@ -130,12 +130,23 @@ void push(cell x) { if (sp < STK_SZ) { stk[++sp].i = x; } }
 cell pop() { return (0<sp) ? stk[sp--].i : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
-void storeCell(cell a, cell val) { *(cell*)(a) = val; }
-void storeWord(cell a, cell val) { *(ushort*)(a) = (ushort)val; }
-cell fetchCell(cell a) { return *(cell*)(a); }
+void storeWord(cell a, cell v) { *(ushort*)(a) = (ushort)v; }
 cell fetchWord(cell a) { return *(ushort*)(a); }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
+
+#ifdef IS_PC
+void storeCell(cell a, cell v) { *(cell*)(a) = v; }
+cell fetchCell(cell a) { return *(cell*)(a); }
+#else
+void storeCell(cell a, cell v) {
+	storeWord(a, v & 0xFFFF);
+	storeWord(a+2, v >> 16);
+}
+cell fetchCell(cell a) {
+	return fetchWord(a) | (fetchWord(a+2) << 16);
+}
+#endif
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -440,6 +451,7 @@ void parseF(const char *fmt, ...) {
 	va_start(args, fmt);
 	vsnprintf(buf, 128, fmt, args);
 	va_end(args);
+    // zType(buf); zType("\r\n");
 	outer(buf);
 }
 
@@ -454,6 +466,7 @@ void printF(const char *fmt, ...) {
 
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
+        // printF("[%s]",prims[i].name); if (i%10==0) { zType("\r\n"); }
 		DE_T *w = addWord(prims[i].name);
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
@@ -493,12 +506,13 @@ void baseSys() {
 	parseF(addrFmt, "regs", &regs[0]);
 
 	parseF(": code-sz #%d ;", CODE_SZ+1);
-	parseF(": vars-sz #%d ;", VARS_SZ+1);
+	parseF(": vars-sz #%d ;", VARS_SZ);
 	parseF(": dict-sz #%d ;", DICT_SZ+1);
 	parseF(": stk-sz  #%d ;", STK_SZ+1);
 	parseF(": regs-sz #%d ;", REGS_SZ+1);
 	parseF(": tstk-sz #%d ;", TSTK_SZ+1);
 	parseF(": cell    #%d ;", CELL_SZ);
+	outer(": . to-string 1+ ztype 32 emit ;");
 	sys_load();
 }
 

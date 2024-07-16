@@ -28,5 +28,8 @@ test: $(app)
 run: $(app)
 	./$(app)
 
+run32: $(app32)
+	./$(app32)
+
 bin: $(app)
 	cp -u -p $(app) ~/bin/
