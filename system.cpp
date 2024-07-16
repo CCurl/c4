@@ -79,15 +79,14 @@ void loadArgument(const char *arg) {
     char fn[32];
     strCpy(fn, arg);
     cell tmp = fileOpen(fn, "rb");
-    if (!tmp) { return; }
-    if (inputFp) { filePush(tmp); }
-    else { inputFp = tmp; }
+    if (tmp) { inputFp = tmp; }
 }
 
 int main(int argc, char *argv[]) {
 	Init();
-	if (argc > 1) { loadArgument(argv[1]); }
-	while (1) { REP(); };
+    if (argc > 1) { loadArgument(argv[1]); }
+    else { loadArgument("block-999.c4"); }
+    while (1) { REP(); };
 	return 0;
 }
 

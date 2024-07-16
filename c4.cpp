@@ -512,7 +512,6 @@ void baseSys() {
 	parseF(": regs-sz #%d ;", REGS_SZ+1);
 	parseF(": tstk-sz #%d ;", TSTK_SZ+1);
 	parseF(": cell    #%d ;", CELL_SZ);
-	outer(": . to-string 1+ ztype 32 emit ;");
 	sys_load();
 }
 

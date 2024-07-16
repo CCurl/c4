@@ -2,13 +2,8 @@
 
 extern int  outer(const char *src);
 
-#ifdef _BOOTFILE_
-
-void sys_load() { outer("1 LOAD"); }
-
-#else
-
 void sys_load() {
+    outer(": \\ 0 >in @ w! ; immediate");
     outer(": ->code code + ;");
     outer(": ->vars vars + ;");
     outer(": ->dict dict + ;");
@@ -19,9 +14,10 @@ void sys_load() {
     outer(": vhere (vhere) @ ;");
     outer(": lex   (lex)   @c ;");
     outer(": >lex  (lex)   !c ;");
-    outer(": 0sp  0 (sp)  !c ;");
-    outer(": 0rsp 0 (rsp) !c ;");
-    outer(": , here  dup 1+     (here)  !c !c ;");
+    outer(": 0sp  0 (sp)   !c ;");
+    outer(": 0rsp 0 (rsp)  !c ;");
+    outer(": , here  dup 1+ (here) !c !c ;");
+    outer(": -exit 39 , 8 , ; immediate"); // NOTE: Change this if EXIT or -REGS changes
     outer(": begin here ; immediate");
     outer(": again (jmp)   , , ; immediate");
     outer(": while (jmpnz) , , ; immediate");
@@ -32,7 +28,6 @@ void sys_load() {
     outer(": if (jmpz) , here 0 , ; immediate");
     outer(": else (jmp) , here swap 0 , here swap !c ; immediate");
     outer(": then here swap !c ; immediate");
-    outer(": -exit 39 , 8 , ; immediate");
     outer(": ( begin");
     outer("    >in @ c@");
     outer("    dup  0= if drop exit then");
@@ -82,7 +77,6 @@ void sys_load() {
     outer(": bl 32 ; : space bl emit ;");
     outer(": (.) to-string count type ;");
     outer(": . (.) space ;");
-    outer(": .02 base@ /mod (.) (.) ;");
     outer(": cr 13 emit 10 emit ;");
     outer(": tab 9 emit ;");
     outer(": ?  @ . ;");
@@ -109,13 +103,9 @@ void sys_load() {
     outer("cell var vv");
     outer(": marker here 20 !c last 21 !c vhere vv ! ;");
     outer(": forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;");
+    outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
+    outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
+    outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
+    outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
     outer("marker");
-    outer(": .pt .02 '.' emit ;");
-    outer(": .ver version 100 /mod 100 /mod .pt .pt .02 ;");
-    outer(".\" c4 - v\" .ver .\"  - Chris Curl.%n\"");
-    outer("dict-sz tstk-sz regs-sz vars-sz code-sz .\" Sizes - Code: %d, Vars: %d, Regs: %d, TStack: %d, Dict: %d%n\"");
-    outer("forget");
-    outer("( 99 load )");
-    outer("( 0 >lex )");
 }
-#endif // _BOOTFILE_
