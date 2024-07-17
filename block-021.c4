@@ -1,5 +1,5 @@
 : block-fn ( --fn ) p1 s" block-" s-cpy blk 10 /mod 10 /mod
-    3 for to-string p1 s-scatc drop next
+    3 for to-string p1 s-scat drop next
     s" .c4" s-cat 1+ ;
 : w1 a> 10 = if x+ x> 0 >pos >d exit then a> 32 max d>+ c! ;
 : w2 -regs nt-lines ;
