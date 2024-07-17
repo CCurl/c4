@@ -32,7 +32,7 @@ void setup() {
     isInit = 0;
     in = 0;
     serialInit();
-    fill(tib, 0, sizeof(tib));
+    // zTypeF("hello\r\n");
 }
 
 void idle() {}
@@ -40,11 +40,13 @@ void idle() {}
 void loop() {
   if (!isInit) {
     Init();
+    zTypeF("c4 version %d\r\n ok\r\n", VERSION);
     isInit=1;
   }
 
   if (qKey() == 0) { idle(); return; }
   int c = key();
+  // zTypeF("c=%d",c);
   if (!in) {
       in = tib;
       fill(tib, 0, sizeof(tib));

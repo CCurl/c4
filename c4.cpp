@@ -111,7 +111,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
 	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
-	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
+	X(BYE,     "bye",       0, doBye(); )
 
 #define X(op, name, imm, cod) op,
 
@@ -130,15 +130,36 @@ void push(cell x) { if (sp < STK_SZ) { stk[++sp].i = x; } }
 cell pop() { return (0<sp) ? stk[sp--].i : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
-void storeWord(cell a, cell v) { *(ushort*)(a) = (ushort)v; }
-cell fetchWord(cell a) { return *(ushort*)(a); }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 
 #ifdef IS_PC
+void storeWord(cell a, cell v) { *(ushort*)(a) = (ushort)v; }
+cell fetchWord(cell a) { return *(ushort*)(a); }
 void storeCell(cell a, cell v) { *(cell*)(a) = v; }
 cell fetchCell(cell a) { return *(cell*)(a); }
+void doBye() { ttyMode(0); exit(0); }
 #else
+void doBye() { zType("-bye?-"); }
+void storeWord(cell a, cell v) {
+    // zTypeF("-sw:%lx=%lx-",a,v);
+	if ((a & 0x01) == 0) { *(ushort*)(a) = (ushort)v; }
+	else {
+		byte *y=(byte*)a;
+		*(y++) = (v & 0xFF);
+		*(y) = (v>>8) & 0xFF;
+	}
+}
+cell fetchWord(cell a) {
+    // zTypeF("-fw:%lx-",a);
+	if ((a & 0x01) == 0) { return *(ushort*)(a); }
+	else {
+        cell x;
+		byte *y = (byte*)a;
+        x = *(y++); x |= (*(y) << 8);
+		return x;
+    }
+}
 void storeCell(cell a, cell v) {
 	storeWord(a, v & 0xFFFF);
 	storeWord(a+2, v >> 16);
@@ -235,15 +256,15 @@ int findPrevXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0);
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
-	if (dp->xt <= LASTPRIM) { zTypeF("%s is a primitive (%hX).\n", wd, dp->xt); return; }
+	if (dp->xt <= LASTPRIM) { zTypeF("%s is a primitive (%hX).\r\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
-	zTypeF("\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
+	zTypeF("\r\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
 	while (i <= stop) {
 		int op = code[i++];
 		x = code[i];
-		zTypeF("\n%04X: %04X\t", i-1, op);
+		zTypeF("\r\n%04X: %04X\t", i-1, op);
 		if (op & 0xE000) { zTypeF("lit %d", (int)(op & 0x1FFF)); continue; }
 		switch (op) {
 			case  STOP: zType("stop"); i++;
@@ -427,9 +448,9 @@ int parseWord(char *w) {
 }
 
 int outer(const char *ln) {
+	// zTypeF("-outer:%s-\n",ln);
 	cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
-	// zTypeF("-outer:%s-\n",ln);
 	while (nextWord()) {
 		if (!parseWord(wd)) {
 			zTypeF("-%s?-", wd);

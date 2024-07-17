@@ -1,7 +1,5 @@
 #include "c4.h"
 
-extern int  outer(const char *src);
-
 void sys_load() {
     outer(": \\ 0 >in @ w! ; immediate");
     outer(": ->code code + ;");
