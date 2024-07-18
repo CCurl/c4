@@ -45,7 +45,9 @@
     #define FSTK_SZ           15
     #define REGS_SZ          200
     #define btwi(n,l,h)   ((l<=n) && (n<=h))
-    #define NO_FILE
+    // #define NO_FILE
+    #define PICO_FILE
+    // #define TEENSY_FILE
 #endif // IS_PC
 
 #if INTPTR_MAX > INT32_MAX
@@ -98,6 +100,7 @@ extern void filePush(cell fh);
 extern cell filePop();
 extern cell fileOpen(const char *name, const char *mode);
 extern void fileClose(cell fh);
+extern void fileDelete(const char *name);
 extern cell fileRead(char *buf, int sz, cell fh);
 extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);

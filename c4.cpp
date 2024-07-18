@@ -99,6 +99,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(RAND,    "rand",      0, doRand(); ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
+	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
 	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
