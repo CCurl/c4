@@ -199,7 +199,8 @@ The primitives:
 | rand      | (--N)        | N: a pseudo-random number (uses XOR shift) |
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
 |           |              |     NOTE: NM and MD are uncounted, use `z"` |
-| fclose    | (FH--)       | FH: File Handle |
+| fclose    | (FH--)       | FH: File Handle to close |
+| fdelete   | (NM--)       | NM: File Name to delere |
 | fread     | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
 | fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
 | fgets     | (A N FH--X)  | A: Buffer, N: Size, X: num chars read (0 if EOF/Error) |

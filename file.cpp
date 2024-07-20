@@ -22,7 +22,7 @@ void blockLoad(int blk) {}
 void fileInit() { fileSp = 0; inputFp = 0; }
 cell fileOpen(const char *name, const char *mode) { return (cell)fopen(name, mode); }
 void fileClose(cell fh) { fclose((FILE*)fh); }
-void fileDelete(const char *name) {}
+void fileDelete(const char *name) { remove(name); }
 cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh); }
 cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
 
