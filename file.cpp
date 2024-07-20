@@ -56,13 +56,12 @@ void blockLoad(int blk) { fileLoad(blockFn(blk)); }
 File files[NFILES+1];
 
 void fileInit() {
-	zType("\r\nLittleFS: begin ...");
+	zType("\r\nFileInit: begin ...");
 	myFS.begin();
-	zType("done.");
+	zType(" LittleFS initialized");
     FSInfo64 fsinfo;
     LittleFS.info64(fsinfo);
-	zType("\r\nLittleFS: initialized");
-	zTypeF("\r\nBytes total: %llu, used: %llu", fsinfo.totalBytes, fsinfo.usedBytes);
+	zTypeF("\r\nBytes - total: %llu, used: %llu", fsinfo.totalBytes, fsinfo.usedBytes);
 	fileSp = 0; inputFp = 0;
 	for (int i = 0; i <= NFILES; i++) { files[i] = File(); }
 }
