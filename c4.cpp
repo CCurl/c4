@@ -29,6 +29,31 @@ cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 
+// NOTE: Fill this in for custom primitives for your version of C4
+#define USER_PRIMS
+
+#ifdef IS_BOARD
+#define BOARD_PRIMS \
+	X(POPEN,   "popen",     0, t=pop(); zTypeF("-openPort(%ld)-", t); ) \
+	X(DWRITE,  "p!",        0, t=pop(); n=pop(); zTypeF("-digitalWrite(%ld, %ld)-", t, n); )
+#else
+    #define BOARD_PRIMS
+#endif
+
+#ifndef NO_FILE
+#define FILE_PRIMS \
+	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
+	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
+	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
+	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
+	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
+	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
+	X(INCL,    "include",   1, t=nextWord(); if (t) fileLoad(wd); ) \
+	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); )
+#else
+    #define FILE_PRIMS
+#endif
+
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
 	X(DUP,     "dup",       0, t=TOS; push(t); ) \
@@ -97,14 +122,6 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(QUOTE,   "s\"",       1, quote(1); ) \
 	X(DOTQT,   ".\"",       1, quote(0); comma(FTYPE); ) \
 	X(RAND,    "rand",      0, doRand(); ) \
-	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
-	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
-	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
-	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
-	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
-	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
-	X(INCL,    "include",   1, t=nextWord(); if (t) fileLoad(wd); ) \
-	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(ITOA,    "to-string", 0, t=pop(); push((cell)iToA(t, base)); ) \
 	X(DOTS,    ".s",        0, dotS(); ) \
@@ -112,6 +129,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
 	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
+	FILE_PRIMS BOARD_PRIMS USER_PRIMS \
 	X(BYE,     "bye",       0, doBye(); )
 
 #define X(op, name, imm, cod) op,
@@ -455,6 +473,7 @@ int outer(const char *ln) {
 	while (nextWord()) {
 		if (!parseWord(wd)) {
 			zTypeF("-%s?-", wd);
+			if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
 			here=cH;
 			vhere=cV;
 			last=cL;

@@ -101,9 +101,11 @@ void sys_load() {
     outer("cell var vv");
     outer(": marker here 20 !c last 21 !c vhere vv ! ;");
     outer(": forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;");
+#ifndef NO_FILE
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
     outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
+#endif
     outer("marker");
 }

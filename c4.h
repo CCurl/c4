@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION       240716
+#define VERSION   240720
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
@@ -35,6 +35,7 @@
 
 #ifndef IS_PC
     // Must be a dev board ...
+    #define IS_BOARD
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
     #define VARS_SZ      0x10000
     #define DICT_SZ       0x4000
