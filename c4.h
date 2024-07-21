@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240720
+#define VERSION   240721
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
@@ -46,9 +46,13 @@
     #define FSTK_SZ           15
     #define REGS_SZ          200
     #define btwi(n,l,h)   ((l<=n) && (n<=h))
-    // #define NO_FILE
-    #define PICO_FILE
-    // #define TEENSY_FILE
+    #if defined(ARDUINO_TEENSY40)
+        #define TEENSY_FILE
+    #elif defined(ARDUINO_ARCH_RP2040)
+        #define PICO_FILE
+    #else
+        #define NO_FILE
+    #endif
 #endif // IS_PC
 
 #if INTPTR_MAX > INT32_MAX
