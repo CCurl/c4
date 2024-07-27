@@ -81,9 +81,9 @@ void sys_load() {
     outer(": ->xt     w@ ;");
     outer(": ->size   2+  c@ ;");
     outer(": ->flags  3 + c@ ;");
-    outer(": ->lex    4 + c@ ;");
-    outer(": ->len    5 + ;");
-    outer(": ->name   6 + ;");
+    outer(": ->lex    4 + w@ ;");
+    outer(": ->len    6 + ;");
+    outer(": ->name   7 + ;");
     outer(": lex-match? ( a--f )  ->lex lex =  lex 0=  or ;");
     outer(": words +regs 0 >a 0 >d  last ->dict >s  dict-sz 1- ->dict >x");
     outer("    begin");

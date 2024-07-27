@@ -1,5 +1,5 @@
-find bm1 loaded?
-200 (lex) !c
+( benchmarks / tests )
+here last vhere
 : test-if 'n' swap if drop 'y' then emit '.' emit ;
 0 test-if 1 test-if
 see test-if
@@ -28,5 +28,5 @@ yyy ." -yyy created, (%d)-" cr
 see yyy cr
 xxx @ yyy =   if ." PASS: const/var." then
 xxx @ yyy <>  if ." FAIL: const/var!" then
-
+(vhere) ! (last) !c (here) !c
 

@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240721
+#define VERSION   240727
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
@@ -74,7 +74,7 @@ typedef UCELL_T ucell;
 typedef unsigned short ushort;
 typedef unsigned char byte;
 typedef union { FLT_T f; cell i; } SE_T;
-typedef struct { ushort xt; byte sz, fl, lx, ln; char nm[32]; } DE_T;
+typedef struct { ushort xt; byte sz, fl; ushort lx; byte ln; char nm[32]; } DE_T;
 typedef struct { short op; const char* name; byte fl; } PRIM_T;
 
 // These are defined by c4.cpp
