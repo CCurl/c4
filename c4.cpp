@@ -32,6 +32,13 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 // NOTE: Fill this in for custom primitives for your version of C4
 #define USER_PRIMS
 
+#ifdef IS_PC
+#define PC_PRIMS \
+	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); )
+#else
+    #define PC_PRIMS
+#endif
+
 #ifdef IS_BOARD
 #define BOARD_PRIMS \
 	X(POPEN,   "popen",     0, t=pop(); zTypeF("-openPort(%ld)-", t); ) \
@@ -95,6 +102,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(REG_RD,  "reg-rd",    0, t=pop()+regBase; push(btwi(t,0,REGS_SZ) ? regs[t]-- : 0); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
+	X(RSTO,    "r!",        0, rstk[rsp] = pop(); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
 	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
@@ -105,13 +113,13 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
-	X(SEMI,    ";",         1, comma(EXIT); state = 0; cH=here; ) \
+	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
 	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(SEE,     "see",       1, doSee(); ) \
 	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
-	X(TYPE,    "type",      0, t=pop(); y=(char*)pop(); for (int i = 0; i<t; i++) emit(y[i]); ) \
+	X(TYPE,    "type",      0, t=pop(); y=(char*)pop(); for (int i=0; i<t; i++) emit(y[i]); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
@@ -128,8 +136,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
 	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
-	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
-	FILE_PRIMS BOARD_PRIMS USER_PRIMS \
+	FILE_PRIMS PC_PRIMS BOARD_PRIMS USER_PRIMS \
 	X(BYE,     "bye",       0, doBye(); )
 
 #define X(op, name, imm, cod) op,
@@ -313,8 +320,7 @@ char *iToA(cell N, int b) {
 	do {
 		c = (char)(X % b) + '0';
 		X /= b;
-		c = (c > '9') ? c+7 : c;
-		*(--cp) = c;
+		*(--cp) = (c>'9') ? c+7 : c;
 		++len;
 	} while (X);
 	if (isNeg) { *(--cp) = '-'; ++len; }
@@ -369,9 +375,15 @@ void quote(int counted) {
 void doRand() {
 	static cell sd = 0;
 	if (!sd) { sd = (cell)code; }
+#if CELL_SZ == 4
 	sd = (sd << 13) ^ sd;
 	sd = (sd >> 17) ^ sd;
 	sd = (sd <<  5) ^ sd;
+#else
+	sd = (sd << 13) ^ sd;
+	sd = (sd >>  7) ^ sd;
+	sd = (sd << 17) ^ sd;
+#endif
 	push(sd);
 }
 

@@ -168,9 +168,12 @@ The primitives:
 | reg-rd    | (R--N)       | Push register (`reg-base`+R), then decrement it |
 | >r        | (N--R:N)     | Move TOS to the return stack |
 | r@        | (--N)        | N: return stack TOS |
+| r!        | (N--)        | Set return stack TOS to N |
 | r>        | (R:N--N)     | Move return TOS to the stack |
+| rdrop     | (R:N--)      | Drop return stack TOS |
 | >t        | (N--T:N)     | Move TOS to the third stack |
 | t@        | (--N)        | N: third stack TOS |
+| t!        | (N--)        | Set third stack TOS to N |
 | t>        | (T:N--N)     | Move third TOS to the stack |
 | emit      | (C--)        | Output char C |
 | :         | (--)         | Create a new word, set STATE=1 |
