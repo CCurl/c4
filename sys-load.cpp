@@ -91,7 +91,7 @@ void sys_load() {
     outer("        s> ->len count type d+");
     outer("        s> ->len c@ 7 > if a+ then");
     outer("        a>+ 8 > if cr 0 >a else tab then");
-    outer("      xthen");
+    outer("      then");
     outer("      s> dup ->size + dup >s  x> <");
     outer("    while d> .\"  (%d words)\" -regs ;");
     outer(": does> (jmp) , r> , ;");
