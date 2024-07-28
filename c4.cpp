@@ -537,12 +537,12 @@ void baseSys() {
 
 	outerF(": (sp)       #%d ;", SPA);
 	outerF(": (rsp)      #%d ;", RSPA);
+	outerF(": (lsp)      #%d ;", LSPA);
+	outerF(": (tsp)      #%d ;", TSPA);
 	outerF(": (here)     #%d ;", HA);
 	outerF(": (last)     #%d ;", LA);
 	outerF(": base       #%d ;", BA);
 	outerF(": state      #%d ;", SA);
-	outerF(": (lsp)      #%d ;", LSPA);
-	outerF(": (tsp)      #%d ;", TSPA);
 	outerF(": (lex)      #%d ;", LEXA);
 	outerF(": (reg-base) #%d ;", RBA);
 	outerF(": (frame-sz) #%d ;", FSZ);

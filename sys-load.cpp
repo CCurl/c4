@@ -15,7 +15,7 @@ void sys_load() {
     outer(": 0sp  0 (sp)   !c ;");
     outer(": 0rsp 0 (rsp)  !c ;");
     outer(": , here  dup 1+ (here) !c !c ;");
-    outer(": -exit #39 , #8 , ; immediate"); // NOTE: Change this if -REGS or EXIT changes
+    outer(": -exit #39 , (exit) , ; immediate"); // NOTE: #39 is -REGS
     outer(": begin here ; immediate");
     outer(": again (jmp)   , , ; immediate");
     outer(": while (jmpnz) , , ; immediate");
@@ -91,7 +91,7 @@ void sys_load() {
     outer("        s> ->len count type d+");
     outer("        s> ->len c@ 7 > if a+ then");
     outer("        a>+ 8 > if cr 0 >a else tab then");
-    outer("      then");
+    outer("      xthen");
     outer("      s> dup ->size + dup >s  x> <");
     outer("    while d> .\"  (%d words)\" -regs ;");
     outer(": does> (jmp) , r> , ;");
