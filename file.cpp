@@ -51,9 +51,9 @@ void fileInit() {
 	zType("\r\nFileInit: begin ...");
 	myFS.begin();
 	zType(" LittleFS initialized");
-    FSInfo64 fsinfo;
-    LittleFS.info64(fsinfo);
-	zTypeF("\r\nBytes - total: %llu, used: %llu", fsinfo.totalBytes, fsinfo.usedBytes);
+    FSInfo fsinfo;
+    LittleFS.info(fsinfo);
+	zTypeF("\r\nBytes - total: %lu, used: %lu\r\n", fsinfo.totalBytes, fsinfo.usedBytes);
 	fileSp = 0; inputFp = outputFp = 0;
 	for (int i = 0; i <= NFILES; i++) { files[i] = File(); }
 }
@@ -62,14 +62,16 @@ int freeFile() {
 	for (int i = 1; i <= NFILES; i++) {
 		if ((bool)files[i] == false) { return i; }
 	}
+    zType("-no free files-\r\n");
 	return 0;
 }
 
 cell fileOpen(const char *fn, const char *mode) {
 	int fh = freeFile();
+    // zTypeF("-file %d-\r\n",fh);
 	if (0 < fh) {
 		files[fh] = myFS.open((char*)fn, mode);
-        if (files[fh].name() == nullptr) { return 0; }
+        if (files[fh].name() == nullptr) { zType("-fopen failed-"); return 0; }
         if (mode[0] == 'w') { files[fh].truncate(0); }
 	}
 	return fh;

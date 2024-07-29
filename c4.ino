@@ -32,6 +32,7 @@ void setup() {
     isInit = 0;
     in = 0;
     serialInit();
+    zTypeF("\r\nc4 - version %d", VERSION);
     // zTypeF("hello\r\n");
 }
 
@@ -40,7 +41,7 @@ void idle() {}
 void loop() {
   if (!isInit) {
     Init();
-    zTypeF("c4 version %d\r\n ok\r\n", VERSION);
+    zType(" ok\r\n");
     isInit=1;
   }
 
