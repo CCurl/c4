@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240729
+#define VERSION   240730
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
@@ -121,7 +121,5 @@ extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
 extern void fileLoad(const char *name);
 extern void blockLoad(int blk);
-
-
 
 #endif //  __C4_H__
