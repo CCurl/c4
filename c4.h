@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240727
+#define VERSION   240729
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
@@ -31,10 +31,11 @@
     #define REGS_SZ          255
     #define btwi(n,l,h)   ((l<=n) && (n<=h))
     #define PC_FILE
-#endif // IS_PC
-
-#ifndef IS_PC
+    #define SYS_PRIMS \
+	    X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); )
+#else
     // Must be a dev board ...
+    #include <Arduino.h>
     #define IS_BOARD
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
     #define VARS_SZ      0x10000
@@ -53,6 +54,15 @@
     #else
         #define NO_FILE
     #endif
+    #define SYS_PRIMS \
+        X(POPENI,  "pin-input",  0, t=pop(); pinMode(t, INPUT); ) \
+        X(POPENO,  "pin-output", 0, t=pop(); pinMode(t, OUTPUT); ) \
+        X(POPENU,  "pin-pullup", 0, t=pop(); pinMode(t, INPUT_PULLUP); ) \
+        X(PDREAD,  "dpin@",      0, TOS = digitalRead(TOS); ) \
+        X(PDWRITE, "dpin!",      0, t=pop(); n=pop(); digitalWrite(t, n); ) \
+        X(PAREAD,  "apin@",      0, TOS = analogRead(TOS); ) \
+        X(PAWRITE, "apin!",      0, t=pop(); n=pop(); analogWrite(t, n); ) \
+        X(PDELAY,  "ms",         0, t=pop(); delay(t); )
 #endif // IS_PC
 
 #if INTPTR_MAX > INT32_MAX
@@ -111,5 +121,7 @@ extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
 extern void fileLoad(const char *name);
 extern void blockLoad(int blk);
+
+
 
 #endif //  __C4_H__

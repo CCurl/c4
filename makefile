@@ -9,7 +9,7 @@ srcfiles := $(shell find . -name "*.cpp")
 incfiles := $(shell find . -name "*.h")
 LDLIBS   := -lm
 
-all: $(app) $(app32)
+all: $(app)
 
 $(app): $(srcfiles) $(incfiles)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(app) $(srcfiles) $(LDLIBS)

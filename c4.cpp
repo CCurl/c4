@@ -32,21 +32,6 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 // NOTE: Fill this in for custom primitives for your version of C4
 #define USER_PRIMS
 
-#ifdef IS_PC
-#define PC_PRIMS \
-	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); )
-#else
-    #define PC_PRIMS
-#endif
-
-#ifdef IS_BOARD
-#define BOARD_PRIMS \
-	X(POPEN,   "popen",     0, t=pop(); zTypeF("-openPort(%ld)-", t); ) \
-	X(DWRITE,  "p!",        0, t=pop(); n=pop(); zTypeF("-digitalWrite(%ld, %ld)-", t, n); )
-#else
-    #define BOARD_PRIMS
-#endif
-
 #ifndef NO_FILE
 #define FILE_PRIMS \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
@@ -78,8 +63,8 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
 	X(DIV,     "/",         0, t=pop(); TOS /= t; ) \
 	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
-	X(INC,     "1+",        0, ++TOS; ) \
-	X(DEC,     "1-",        0, --TOS; ) \
+	X(INCR,    "1+",        0, ++TOS; ) \
+	X(DECR,    "1-",        0, --TOS; ) \
 	X(LT,      "<",         0, t=pop(); TOS = (TOS < t); ) \
 	X(EQ,      "=",         0, t=pop(); TOS = (TOS == t); ) \
 	X(GT,      ">",         0, t=pop(); TOS = (TOS > t); ) \
@@ -136,7 +121,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
 	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
-	FILE_PRIMS PC_PRIMS BOARD_PRIMS USER_PRIMS \
+	FILE_PRIMS SYS_PRIMS USER_PRIMS \
 	X(BYE,     "bye",       0, doBye(); )
 
 #define X(op, name, imm, cod) op,

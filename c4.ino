@@ -36,9 +36,22 @@ void setup() {
     // zTypeF("hello\r\n");
 }
 
-void idle() {}
+void blink() {
+    static cell xTime = 0;
+    static int onOff = 0;
+    if (xTime == 0) { pinMode(PIN_LED, OUTPUT); }
+    cell now = timer();
+    if (xTime + 1000 <= now) {
+        onOff = (onOff==0) ? 1 : 0;
+        xTime = now;
+        digitalWrite(PIN_LED, onOff);
+    }
+}
+
+void idle() { blink(); }
 
 void loop() {
+  digitalWrite(13, 234);
   if (!isInit) {
     Init();
     zType(" ok\r\n");
