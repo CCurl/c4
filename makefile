@@ -5,11 +5,11 @@ CXX := clang
 CXXFLAGS := -m64 -O3
 C32FLAGS := -m32 -O3
 
-srcfiles := $(shell find . -name "*.c")
+srcfiles := $(shell find . -name "*.cpp")
 incfiles := $(shell find . -name "*.h")
 LDLIBS   := -lm
 
-all: $(app) $(app32)
+all: $(app)
 
 $(app): $(srcfiles) $(incfiles)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(app) $(srcfiles) $(LDLIBS)
@@ -27,6 +27,9 @@ test: $(app)
 
 run: $(app)
 	./$(app)
+
+run32: $(app32)
+	./$(app32)
 
 bin: $(app)
 	cp -u -p $(app) ~/bin/

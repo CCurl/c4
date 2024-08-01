@@ -1,5 +1,4 @@
 # c4: a portable Forth system inspired by MachineForth and Tachyon
-
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is a 16-bit unsigned number (0..65535). <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
@@ -16,7 +15,6 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 - Development boards: a CELL is 32-bits.
 
 ## C4 memory areas
-
 C4 provides three memory areas:
 - The `code` area can store up to $DFFF 16-bit WORD-CODEs, 16-bit index. (see `code-sz`).
   - **NOTE**: This is because word-code values $Exxx are considered to be literals (0 .. $1FFF).
@@ -46,7 +44,6 @@ C4 provides three memory areas:
 | (frame-sz) | (--N)   | Offset of the frame-sz value |
 
 ## C4 Strings
-
 Strings in C4 are both counted and NULL terminated.<br/>
 C4 also supports NULL-terminated strings with no count byte (ztype).<br/>
 
@@ -69,7 +66,6 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %[x]   | (--)  | EMIT [x]. |
 
 ## Registers
-
 C4 includes an array of "registers" (pre-defined cells). <br/>
 The number of registers is configurable (see `reg-sz`). Default is 255 on PCs.<br/>
 There is a `reg-base` that can be used to provide a "stack frame" if desired.<br/>
@@ -103,6 +99,7 @@ This third stack can be used for any purpose. Words are:<br/>
 | `t>`  | (--N)  | Move N from the third stack. |
 
 ## C4 WORD-CODE primitives
+To add custom primitives, fill in macro `USER_PRIMS` with X() macros in file `c4.cpp`.
 
 Stack effect notation conventions:
 
@@ -171,9 +168,12 @@ The primitives:
 | reg-rd    | (R--N)       | Push register (`reg-base`+R), then decrement it |
 | >r        | (N--R:N)     | Move TOS to the return stack |
 | r@        | (--N)        | N: return stack TOS |
+| r!        | (N--)        | Set return stack TOS to N |
 | r>        | (R:N--N)     | Move return TOS to the stack |
+| rdrop     | (R:N--)      | Drop return stack TOS |
 | >t        | (N--T:N)     | Move TOS to the third stack |
 | t@        | (--N)        | N: third stack TOS |
+| t!        | (N--)        | Set third stack TOS to N |
 | t>        | (T:N--N)     | Move third TOS to the stack |
 | emit      | (C--)        | Output char C |
 | :         | (--)         | Create a new word, set STATE=1 |
@@ -199,7 +199,8 @@ The primitives:
 | rand      | (--N)        | N: a pseudo-random number (uses XOR shift) |
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
 |           |              |     NOTE: NM and MD are uncounted, use `z"` |
-| fclose    | (FH--)       | FH: File Handle |
+| fclose    | (FH--)       | FH: File Handle to close |
+| fdelete   | (NM--)       | NM: File Name to delere |
 | fread     | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
 | fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
 | fgets     | (A N FH--X)  | A: Buffer, N: Size, X: num chars read (0 if EOF/Error) |
@@ -213,3 +214,7 @@ The primitives:
 | find      | (--W A)      | W: Execution Token, A: Dict Entry address (0 0 if not found) |
 | system    | (SC--)       | PC ONLY: SC: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |
+
+## C4 default words
+Default words are defined in `sys_load()`, in file `sys-load.cpp`.
+To add default words, add more calls to `outer()`.

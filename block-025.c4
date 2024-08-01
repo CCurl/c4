@@ -9,8 +9,7 @@
     a> key-end   = if  row eol-offset >col exit then
     a> 3 = if normal-mode! exit then ;
 : rk cur-off red '?' emit key white ;
-: ed-key ( key-- ) >a
-    a> 32 126 btwi 0= if ed-ctrl-key  exit then
+: ed-key ( a> )   a> 32 126 btwi 0= if ed-ctrl-key  exit then
     insert-mode?  if a> insert-char   exit then
     replace-mode? if a> replace-char  exit then
     a> 'k' = if mv-up exit then         a> 'h' = if  mv-lt exit then
@@ -21,12 +20,13 @@
     a> ':' = if do-cmd   exit then      a> '!' = if show!         exit then
     a> 'r' = if rk replace-char     exit then
     a> '$' = if row eol-offset >col exit then
-    a> 'o' = if mv-dn insert-line   exit then
+    a> 'o' = if mv-dn insert-line replace-mode!  exit then
     a> 'x' = if delete-char exit then   a> 'X' = if mv-lt delete-char exit then
-    a> 'O' = if insert-line exit then   a> 'D' = if delete-line     exit then
+    a> 'O' = if insert-line replace-mode! exit then   a> 'D' = if delete-line     exit then
     a> 'J' = if join-lines  exit then   a> 'C' = if row clear-line  exit then
     a> 'P' = if put-line    exit then   a> 'Y' = if yank-line       exit then
-    a> 'b' = if 32 insert-char exit then
-    a> '-' = if blk 1- 0 max >blk ed-load show! exit then
-    a> '+' = if blk 1+       >blk ed-load show! exit then ;
+    a> 'b' = if 32 insert-char mv-lt exit then
+    a> '-' = if save-block blk 1- 0 max >blk ed-load exit then
+    a> '+' = if save-block blk 1+       >blk ed-load exit then ;
+
 

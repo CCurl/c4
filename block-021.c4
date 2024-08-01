@@ -5,10 +5,11 @@
 : w2 -regs nt-lines ;
 : work->block  +regs work >s block >d 0 >x
     begin  s>+ c@ >a a> 0= if w2 exit then w1 x> rows <  while w2 ;
-: ed-load  work 32 block-sz fill  block 32 block-sz fill
-    block-fn fopen-rb ?dup 0= if nt-lines exit then
-    >t work block-sz t@ fread drop t> fclose
-    work->block clean ;
+: clear-block 32 block-sz fill ;
+: ed-load  work clear-block  block clear-block
+    block-fn fopen-rb ?dup if
+        >t work block-sz t@ fread drop t> fclose
+    then work->block clean show! 0 0 ->edRC ;
 : printable? ( c--c 1 | 0 ) dup 32 126 btwi if 1 else drop 0 then ;
 : normal-mode  0 ;  : insert-mode  1 ;  : replace-mode  2 ;  : quit-mode 99 ;
 : normal-mode?  normal-mode  ed-mode = ;  : normal-mode!  normal-mode  >ed-mode ;
@@ -23,7 +24,6 @@
     normal-mode? if insert-mode!  exit then
     insert-mode? if replace-mode! exit then
     normal-mode! ;
-
 
 
 
