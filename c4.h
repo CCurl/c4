@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240730
+#define VERSION   240731
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
