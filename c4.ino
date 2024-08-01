@@ -51,7 +51,6 @@ void blink() {
 void idle() { blink(); }
 
 void loop() {
-  digitalWrite(13, 234);
   if (!isInit) {
     Init();
     zType(" ok\r\n");
