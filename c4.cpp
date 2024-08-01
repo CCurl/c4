@@ -267,7 +267,7 @@ int findPrevXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0);
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
-	if (dp->xt <= LASTPRIM) { zTypeF("%s is a primitive (%hX).\r\n", wd, dp->xt); return; }
+	if (dp->xt <= LASTPRIM) { zTypeF("%s is a primitive (#%hd).\r\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int stop = findPrevXT(dp->xt)-1;
 	int i = dp->xt;
@@ -276,12 +276,12 @@ void doSee() {
 		int op = code[i++];
 		x = code[i];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
-		if (op & 0xE000) { zTypeF("lit %d", (int)(op & 0x1FFF)); continue; }
+		if (op & 0xE000) { zTypeF("lit #%d", (int)(op & 0x1FFF)); continue; }
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT1: zTypeF("lit1 %hu (%hX)", (ushort)x, (ushort)x); i++;
+			BCASE LIT1: zTypeF("lit1 #%hu (#%hX)", (ushort)x, (ushort)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
-				zTypeF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
+				zTypeF("lit2 #%zd ($%zX)", (size_t)x, (size_t)x);
 				i += CELL_SZ / 2;
 			BCASE JMP:    zTypeF("jmp %04hX", (ushort)x);             i++;
 			BCASE JMPZ:   zTypeF("jmpz %04hX (IF)", (ushort)x);       i++;
