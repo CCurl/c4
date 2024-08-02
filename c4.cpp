@@ -28,6 +28,7 @@ byte dict[DICT_SZ+2], vars[VARS_SZ+1];
 cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
+DE_T tmpWords[10];
 
 // NOTE: Fill this in for custom primitives for your version of C4
 #define USER_PRIMS
@@ -212,13 +213,22 @@ int nextWord() {
 	return len;
 }
 
+DE_T *tempWord(const char *w) {
+	if ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) {
+		return &tmpWords[w[1]-'0'];
+	}
+	return 0;
+}
+
 DE_T *addWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
+	DE_T *dp = tempWord(w);
+	if (dp) { dp->xt = here; return dp; }
 	int ln = strLen(w);
 	int sz = ln + 8;          // xt + sz + fl + lx + ln + null
 	if (sz & 1) { ++sz; }
 	ushort newLast=last - sz;
-	DE_T *dp = (DE_T*)&dict[newLast];
+	dp = (DE_T*)&dict[newLast];
 	dp->sz = sz;
 	dp->xt = here;
 	dp->fl = 0;
@@ -232,10 +242,12 @@ DE_T *addWord(const char *w) {
 
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
+	DE_T *dp = tempWord(w);
+	if (dp) { return dp; }
 	int len = strLen(w);
 	int cw = last;
 	while (cw < DICT_SZ) {
-		DE_T *dp = (DE_T*)&dict[cw];
+		dp = (DE_T*)&dict[cw];
 		// zTypeF("-%d,(%s)-", cw, dp->nm);
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += dp->sz;
@@ -291,7 +303,8 @@ void doSee() {
 			BCASE JMPNZ:  zTypeF("jmpnz %04hX (WHILE)", (ushort)x);   i++; break;
 			BCASE NJMPNZ: zTypeF("njmpnz %04hX (-WHILE)", (ushort)x); i++; break;
 			default: x = findXT(op); 
-				zType(x ? ((DE_T*)&dict[(ushort)x])->nm : "??");
+				if (x) { zType(((DE_T*)&dict[(ushort)x])->nm); }
+				else { zTypeF("call %04hX", (ushort)op); }
 		}
 	}
 }
@@ -560,6 +573,7 @@ void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
+	for (int t=0; t<10; t++) { DE_T *x=&tmpWords[t]; x->fl=0, sprintf(x->nm,"t%d",t); }
 	here = LASTPRIM+1;
 	last = DICT_SZ;
 	if ((cell)&dict[last] & 0x01) { ++last; }

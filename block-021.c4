@@ -1,10 +1,10 @@
 : block-fn ( --fn ) p1 s" block-" s-cpy blk 10 /mod 10 /mod
     3 for p1 swap '0' + s-catc drop next
     s" .c4" s-cat 1+ ;
-: w1 a> 10 = if x+ x> 0 >pos >d exit then a> 32 max d>+ c! ;
-: w2 -regs nt-lines ;
+: t1 a> 10 = if x+ x> 0 >pos >d exit then a> 32 max d>+ c! ;
+: t2 -regs nt-lines ;
 : work->block  +regs work >s block >d 0 >x
-    begin  s>+ c@ >a a> 0= if w2 exit then w1 x> rows <  while w2 ;
+    begin  s>+ c@ >a a> 0= if t2 exit then t1 x> rows <  while t2 ;
 : clear-block 32 block-sz fill ;
 : ed-load  work clear-block  block clear-block
     block-fn fopen-rb ?dup if
