@@ -155,7 +155,9 @@ The primitives:
 | xor       | (X Y--N)     | N: X XOR Y |
 | com       | (X--Y)       | Y: X with all bits flipped (complement) |
 | for       | (N--)        | Begin FOR loop with bounds 0 and N. |
-| i         | (--I)        | N: Current FOR loop index. |
+| i         | (--I)        | I: Current FOR loop index. |
+| j         | (--N)        | N: First outer FOR loop index. |
+| k         | (--N)        | N: Second outer FOR loop index. |
 | next      | (--)         | Increment I. If I < N, start loop again, else exit. |
 | unloop    | (--)         | Unwind the loop stack. NOTE: this does NOT exit the loop. |
 | +regs     | (--)         | Increment `reg-base` by `frame-sz` |

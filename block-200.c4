@@ -5,7 +5,7 @@ here last vhere
 cr 0 test-if 1 test-if    see test-if cr
 cr 0 if-else 1 if-else    see if-else cr
 : .. dup . ;
-cr 5 for i . ." [[ " 4 for i . next ." ]] " next
+cr 4 for  ." [[ " 3 for j 10 + . i . next ." ]] " next
 cr 10 begin .. 1- dup      while drop
 cr  0 begin .. 1+ dup 10 = until drop
 : elapsed timer swap - ."  (%d usec)" ;   : mil 1000 dup * * ;

@@ -74,7 +74,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(XOR,     "xor",       0, t=pop(); TOS ^= t; ) \
 	X(COM,     "com",       0, TOS = ~TOS; ) \
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
-	X(INDEX,   "i",         0, push(L0); ) \
+	X(NDX_I,   "i",         0, push(L0); ) \
 	X(NDX_j,   "j",         0, t=(lsp>2) ? lsp-3 : 0; push(lstk[t]); ) \
 	X(NDX_K,   "k",         0, t=(lsp>5) ? lsp-6 : 0; push(lstk[t]); ) \
 	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
