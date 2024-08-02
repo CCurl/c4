@@ -15,7 +15,7 @@ void sys_load() {
     outer(": 0sp  0 (sp)   !c ;");
     outer(": 0rsp 0 (rsp)  !c ;");
     outer(": , here  dup 1+ (here) !c !c ;");
-    outer(": -exit #39 , (exit) , ; immediate"); // NOTE: #39 is -REGS
+    outer(": -exit (-regs) , (exit) , ; immediate");
     outer(": begin here ; immediate");
     outer(": again (jmp)   , , ; immediate");
     outer(": while (jmpnz) , , ; immediate");

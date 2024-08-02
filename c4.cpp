@@ -75,6 +75,8 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(COM,     "com",       0, TOS = ~TOS; ) \
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
+	X(NDX_j,   "j",         0, t=(lsp>2) ? lsp-3 : 0; push(lstk[t]); ) \
+	X(NDX_K,   "k",         0, t=(lsp>5) ? lsp-6 : 0; push(lstk[t]); ) \
 	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
 	X(REGA,    "+regs",     0, if ((regBase+frameSz) < REGS_SZ) { regBase+=frameSz; } ) \
@@ -519,6 +521,7 @@ void baseSys() {
 	outerF(": (lit1)    #%d ;", LIT1);
 	outerF(": (lit2)    #%d ;", LIT2);
 	outerF(": (exit)    #%d ;", EXIT);
+	outerF(": (-regs)   #%d ;", REGM);
 
 	outerF(": (sp)       #%d ;", SPA);
 	outerF(": (rsp)      #%d ;", RSPA);
