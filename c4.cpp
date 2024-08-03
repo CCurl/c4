@@ -464,7 +464,7 @@ int parseWord(char *w) {
 
 	DE_T *de = findWord(w);
 	if (de) {
-		if (de->fl == 1) {   // IMMEDIATE
+		if ((de->fl & 0x01) == 0x01) {   // IMMEDIATE
 			int h = here+100;
 			code[h]   = de->xt;
 			code[h+1] = EXIT;

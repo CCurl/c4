@@ -12,11 +12,9 @@
 : accept ( str-- ) +regs >d clr-buf
   begin
     key >a
-    a>  13 = if -exit then
-    a>  27 = if clr-buf -exit then
-    a>   3 = if clr-buf -exit then
-    a>   8 = if del-ch then
-    a> 127 = if del-ch then
+    a> 13 =  if -exit then
+    a> 27 =  a>   3 =  or  if clr-buf -exit then
+    a>  8 =  a> 127 =  or  if del-ch then
     a> printable? if app-ch then
   again ;
 : ?quit dirty? if ." (use q! to quit without saving)" exit then quit! ;
@@ -27,6 +25,8 @@
     p1 s" wq" s-eq if  save-block quit!  exit   then
     p1 s" w"  s-eq if  save-block clean  exit   then
     p1 s" rl" s-eq if  ed-load then ;
-: put-line      row 0 >pos p2 s-cpy drop dirty ;
-: yank-line  p2 row 0 >pos    s-cpy drop ;
+: yank-line   p2 row 0 >pos  s-cpy drop ;
+: put-line    insert-line  row 0 >pos p2 s-cpy drop dirty ;
+
+
 

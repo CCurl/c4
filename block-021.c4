@@ -9,7 +9,7 @@
 : ed-load  work clear-block  block clear-block
     block-fn fopen-rb ?dup if
         >t work block-sz t@ fread drop t> fclose
-    then work->block clean show! 0 0 ->edRC ;
+    then work->block clean show! 0 0 >rowcol ;
 : printable? ( c--c 1 | 0 ) dup 32 126 btwi if 1 else drop 0 then ;
 : normal-mode  0 ;  : insert-mode  1 ;  : replace-mode  2 ;  : quit-mode 99 ;
 : normal-mode?  normal-mode  ed-mode = ;  : normal-mode!  normal-mode  >ed-mode ;

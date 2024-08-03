@@ -2,12 +2,12 @@ find fill loaded?
 3 >lex
 
 : p1 vhere ->vars $100 + ;    : p2 p1 $100 + ;
-: fill ( start ch num-- ) >t swap t>
-    ?dup if for over over c! 1+ next then
-    drop drop ;
-: fill-c ( start n num-- ) >t swap t>
-    ?dup if for over over ! cell + next then
-    drop drop ;
+: fill ( start ch num-- ) >t
+    t@ if swap t@ for over over c! 1+ next then
+    2drop tdrop ;
+: fill-c ( start n num-- ) >t
+    t@ if swap t@ for over over ! cell + next then
+    2drop tdrop ;
 : cmove ( src dst n-- ) +regs >a >d >s
     a> ?dup if for s>+ c@ d>+ c! next then
     -regs ;
@@ -23,10 +23,10 @@ find fill loaded?
 : s-scatc ( ch dst--dst )  swap s-catc ;
 : s-scatn ( n dst--dst )   swap s-catn ;
 
-: sz-cat   ( dst src--dst )  >t >r r@ dup sz-len + t> s-cpy drop r> ;
-: sz-rtrim ( sz--sz )  >t +regs t@ dup sz-len + 1- >a
+: sz-cat  ( dst src--dst ) >t >r r@ dup sz-len + t> s-cpy drop r> ;
+: sz-rtrim ( sz--sz )  >r r@ sz-len r@ + 1- >t
     begin
-        a> t@ < if t> -exit then
-        a> c@ 32 > if t> -exit then
-        0 a>- c!
+        t@ r@ <  t@ c@ 32 >  or  if r> tdrop exit then
+        0 t@ c!  t@ 1- t!
     again ;
+
