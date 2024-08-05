@@ -18,7 +18,7 @@
     a> 'q' = if 0  8 mv exit then       a> 'R' = if replace-mode! exit then
     a> 'Q' = if 0 -8 mv exit then       a> 'i' = if insert-mode!  exit then
     a> ':' = if do-cmd  exit then       a> '!' = if show!         exit then
-    a> 'r' = if r-char  exit then       a> 'C' = if row clear-line    exit then
+    a> 'r' = if r-char  exit then       a> 'C' = if row col clear-eol exit then
     a> 'x' = if delete-char exit then   a> 'X' = if mv-lt delete-char exit then
     a> 'J' = if join-lines  exit then   a> 'Y' = if yank-line       exit then
     a> 'p' = if put-line    exit then   a> 'P' = if mv-dn put-line  exit then

@@ -15,16 +15,16 @@ find fill loaded?
     a> ?dup if 1+ for s>- c@ d>- c! next then
     -regs ;
 
-: s-trunc ( dst--dst )     0 over w! ;
-: s-cat   ( dst src--dst ) >t >r r@ count + t@ 1+ s-cpy drop t> c@ r@ c+! r> ;
-: s-catc  ( dst ch--dst )  over count + w! dup c++ ;
-: s-catn  ( dst n--dst )   to-string s-cat ;
-: s-scat  ( src dst--dst ) swap s-cat ;
-: s-scatc ( ch dst--dst )  swap s-catc ;
-: s-scatn ( n dst--dst )   swap s-catn ;
-
-: sz-cat  ( dst src--dst ) >t >r r@ dup sz-len + t> s-cpy drop r> ;
-: sz-rtrim ( sz--sz )  >r r@ sz-len r@ + 1- >t
+: s-trunc  ( dst--dst )      0 over w! ;
+: s-cat    ( dst src--dst )  >t >r r@ count + t@ 1+ s-cpy drop t> c@ r@ c+! r> ;
+: s-catc   ( dst ch--dst )   over count + w! dup c++ ;
+: s-catn   ( dst n--dst )    to-string s-cat ;
+: s-scat   ( src dst--dst )  swap s-cat ;
+: s-scatc  ( ch dst--dst )   swap s-catc ;
+: s-scatn  ( n dst--dst )    swap s-catn ;
+: sz-catc  ( dst ch--dst )   over dup sz-len + w! ;
+: sz-cat   ( dst src--dst )  >t >r r@ dup sz-len + t> s-cpy drop r> ;
+: sz-rtrim ( sz--sz )        >r r@ sz-len r@ + 1- >t
     begin
         t@ r@ <  t@ c@ 32 >  or  if r> tdrop exit then
         0 t@ c!  t@ 1- t!

@@ -10,23 +10,23 @@
     begin y> x> >pos c@ 32 > if x> 1+ -exit then x>- while 0 -regs ;
 : mv-eol row eol-offset >col ;
 : clear-line ( r-- ) 0 >pos max-col for 32 over c! 1+ next 0 swap c! dirty ;
+: clear-eol  ( r c-- ) max-col over - >t >pos t> for 32 over c! 1+ next drop dirty ;
 : insert-line ( -- ) +regs
     row max-row < if
-        row 0 >pos >s    s> cols + >d    max-row 0 >pos s> - >x
-        s> d> x> cmove>
+        row 0 >pos >s    s> cols + >d    max-row 0 >pos s> - >x   s> d> x> cmove>
     then row clear-line
     dirty -regs ;
 : delete-line ( -- ) +regs
     row max-row < if
-        row 0 >pos >d    d> cols + >s    rows 0 >pos s> - >x
-        s> d> x> cmove
+        row 0 >pos >d    d> cols + >s    rows 0 >pos s> - >x      s> d> x> cmove
     then   max-row clear-line
     dirty -regs ;
 : insert-row ( r-- ) row swap  >row insert-line  >row ;
 : delete-row ( r-- ) row swap  >row delete-line  >row ;
 : join-lines ( -- ) row max-row >= if exit then
-    p1 row 0 >pos s-cpy sz-rtrim
+    p1 row 0 >pos s-cpy sz-rtrim 32 sz-catc
     row 1+ 0 >pos sz-cat cols 1- + 0 swap c!
     row 0 >pos p1 s-cpy drop
     row 1+ delete-row  ;
+
 
