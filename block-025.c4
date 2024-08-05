@@ -22,7 +22,7 @@
     a> 'x' = if delete-char exit then   a> 'X' = if mv-lt delete-char exit then
     a> 'J' = if join-lines  exit then   a> 'Y' = if yank-line       exit then
     a> 'p' = if put-line    exit then   a> 'P' = if mv-dn put-line  exit then
-    a> '$' = if row eol-offset >col   exit then
+    a> '$' = if mv-eol exit then        a> 'A' = if mv-eol insert-mode! exit then
     a> 'D' = if yank-line delete-line exit then
     a> 'b' = if 32 insert-char mv-lt  exit then
     a> 'o' = if mv-dn insert-line replace-mode!  exit then
