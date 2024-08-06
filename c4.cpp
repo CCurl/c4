@@ -266,13 +266,13 @@ int findXT(int xt) {
 	return 0;
 }
 
-int findPrevXT(int xt) {
-	int prevXT=here;
+int findNextXT(int xt) {
+	int nextXT=here;
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
-		if (dp->xt == xt) { return prevXT; }
-		prevXT=dp->xt;
+		if (dp->xt <= xt) { return nextXT; }
+		nextXT=dp->xt;
 		cw += dp->sz;
 	}
 	return here;
@@ -283,7 +283,7 @@ void doSee() {
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= LASTPRIM) { zTypeF("%s is a primitive (#%hd).\r\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
-	int stop = findPrevXT(dp->xt)-1;
+	int stop = findNextXT(dp->xt)-1;
 	int i = dp->xt;
 	zTypeF("\r\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
 	while (i <= stop) {
