@@ -1,0 +1,104 @@
+: ->code code + ;
+: ->vars vars + ;
+: ->dict dict + ;
+: here  (here)  @ ;
+: last  (last)  @ ;
+: base@ base    @ ;
+: >base base    ! ;
+: vhere (vhere) @ ;
+: lex   (lex)   @ ;
+: >lex  (lex)   ! ;
+: 0sp  0 (sp)   ! ;
+: 0rsp 0 (rsp)  ! ;
+: , here  dup 1+ (here) !c !c ;
+: -exit (-regs) , (exit) , ; immediate
+: begin here ; immediate
+: again (jmp)   , , ; immediate
+: while (jmpnz) , , ; immediate
+: until (jmpz)  , , ; immediate
+: -while (njmpnz) , , ; immediate
+: -until (njmpz)  , , ; immediate
+: -if (njmpz) , here 0 , ; immediate
+: if (jmpz) , here 0 , ; immediate
+: else (jmp) , here swap 0 , here swap !c ; immediate
+: then here swap !c ; immediate
+: ( begin
+    >in @ c@
+    dup  0= if drop exit then
+    >in @ 1+ >in !
+    ')' = if exit then
+    again ; immediate
+: allot vhere + (vhere) ! ;
+: ,v  vhere ->vars ! cell allot ;
+: hex     $10 >base ;
+: binary  %10 >base ;
+: decimal #10 >base ;
+: ?dup -if dup then ;
+: nip swap drop ;        : tuck swap over ;
+: 2dup over over ;       : 2drop drop drop ;
+: rot >r swap r> swap ;  : -rot swap >r swap r> ;
+: tdrop t> drop ;
+: 0< 0 < ;            : 0> 0 > ;
+: <= > 0= ;           : >= < 0= ;      : <> = 0= ;
+: 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;
+: cells cell * ;      : chars ;        : cell+ cell + ;
+: min ( a b--c ) 2dup > if swap then drop ;
+: max ( a b--c ) 2dup < if swap then drop ;
+: btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
+: negate com 1+ ;
+: abs  dup 0< if negate then ;
+: -abs dup 0> if negate then ;
+: mod /mod drop ;
+: +! tuck @ + swap ! ;     : c+! tuck c@ + swap c! ;
+: c++ dup c@ 1+ swap c! ;  : c-- dup c@ 1- swap c! ;
+: reg-base (reg-base) @c ; : >reg-base (reg-base) !c ;
+: frame-sz (frame-sz) @c ; : >frame-sz (frame-sz) !c ;
+: a>  0 reg-r ;  : >a  0 reg-s ;
+: a>+ 0 reg-ri ;  : a+ 0 reg-i ;
+: a>- 0 reg-rd ;  : a- 0 reg-d ;
+: s>  1 reg-r ;  : >s  1 reg-s ;
+: s>+ 1 reg-ri ;  : s+ 1 reg-i ;
+: s>- 1 reg-rd ;  : s- 1 reg-d ;
+: d>  2 reg-r ;  : >d  2 reg-s ;
+: d>+ 2 reg-ri ;  : d+ 2 reg-i ;
+: d>- 2 reg-rd ;  : d- 2 reg-d ;
+: x>  3 reg-r ;  : >x  3 reg-s ;
+: x>+ 3 reg-ri ;  : x+ 3 reg-i ;
+: x>- 3 reg-rd ;  : x- 3 reg-d ;
+: y>  4 reg-r ;  : >y  4 reg-s ;
+: y>+ 4 reg-ri ;  : y+ 4 reg-i ;
+: y>- 4 reg-rd ;  : y- 4 reg-d ;
+: bl 32 ; : space bl emit ;
+: (.) to-string count type ;
+: . (.) space ;
+: cr 13 emit 10 emit ;
+: tab 9 emit ;
+: ?  @ . ;
+: ->xt     w@ ;
+: ->size   2+  c@ ;
+: ->flags  3 + c@ ;
+: ->lex    4 + w@ ;
+: ->len    6 + ;
+: ->name   7 + ;
+: lex-match? ( a--f )  ->lex lex =  lex 0=  or ;
+: words +regs 0 >a 0 >d  last ->dict >s  dict-sz 1- ->dict >x
+    begin
+        s> lex-match? if
+        s> ->len count type d+
+        s> ->len c@ 7 > if a+ then
+        a>+ 8 > if cr 0 >a else tab then
+        then
+        s> dup ->size + dup >s  x> <
+    while d> .\"  (%d words)\" -regs ;
+: does> (jmp) , r> , ;
+: create addword ; immediate
+: const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
+: var    addword allot (exit) , ; immediate
+cell var vv
+: marker here 20 !c last 21 !c vhere vv ! ;
+: forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;
+: fopen-rt ( fn--fh )  z\" rt\" fopen ;
+: fopen-rb ( fn--fh )  z\" rb\" fopen ;
+: fopen-wb ( fn--fh )  z\" wb\" fopen ;
+: thru ( f t-- ) begin dup load 1- over over > until drop drop ;
+marker

@@ -19,75 +19,47 @@
 
 #define VERSION   240805
 
-#ifdef IS_PC
-    #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
-    #define VARS_SZ     0x100000
-    #define DICT_SZ       0xFFFD
-    #define STK_SZ            63
-    #define RSTK_SZ           63
-    #define LSTK_SZ           60
-    #define TSTK_SZ           63
-    #define FSTK_SZ           15
-    #define REGS_SZ          255
-    #define btwi(n,l,h)   ((l<=n) && (n<=h))
-    #define PC_FILE
-    #define SYS_PRIMS \
-	    X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); )
-#else
-    // Must be a dev board ...
-    #include <Arduino.h>
-    #define IS_BOARD
-    #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
-    #define VARS_SZ      0x10000
-    #define DICT_SZ       0x4000
-    #define STK_SZ            63
-    #define RSTK_SZ           63
-    #define LSTK_SZ           60
-    #define TSTK_SZ           63
-    #define FSTK_SZ           15
-    #define REGS_SZ          200
-    #define btwi(n,l,h)   ((l<=n) && (n<=h))
-    #if defined(ARDUINO_TEENSY40)
-        #define TEENSY_FILE
-    #elif defined(ARDUINO_ARCH_RP2040)
-        #define PICO_FILE
-    #else
-        #define NO_FILE
-    #endif
-    #define SYS_PRIMS \
-        X(POPENI,  "pin-input",  0, t=pop(); pinMode(t, INPUT); ) \
-        X(POPENO,  "pin-output", 0, t=pop(); pinMode(t, OUTPUT); ) \
-        X(POPENU,  "pin-pullup", 0, t=pop(); pinMode(t, INPUT_PULLUP); ) \
-        X(PDREAD,  "dpin@",      0, TOS = digitalRead(TOS); ) \
-        X(PDWRITE, "dpin!",      0, t=pop(); n=pop(); digitalWrite(t, n); ) \
-        X(PAREAD,  "apin@",      0, TOS = analogRead(TOS); ) \
-        X(PAWRITE, "apin!",      0, t=pop(); n=pop(); analogWrite(t, n); ) \
-        X(PDELAY,  "ms",         0, t=pop(); delay(t); )
-#endif // IS_PC
+#define MAX_CODE      0x00FFFF    // 0x80000000 and above are numbers
+#define MAX_VARS      0x100000
+#define MAX_DICT         999
+#define MAX_SRC        99999
+#define STK_SZ            63
+#define RSTK_SZ           63
+#define LSTK_SZ           60
+#define TSTK_SZ           63
+#define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T    int64_t
     #define UCELL_T   uint64_t
     #define CELL_SZ   8
     #define FLT_T     double
-    #define addrFmt ": %s $%llx ;"
+    #define addrFmt   ": %s $%llx ;"
+    #define VAL_MASK  0x0800000000000000
+    #define VAL_MAX   0x07FFFFFFFFFFFFFF
+    #define NAME_LEN  26
 #else
     #define CELL_T    int32_t
     #define UCELL_T   uint32_t
     #define CELL_SZ   4
     #define FLT_T     float
-    #define addrFmt ": %s $%lx ;"
+    #define addrFmt   ": %s $%lx ;"
+    #define VAL_MASK  0x08000000
+    #define VAL_MAX   0x07FFFFFF
 #endif
+
+#define DE_SZ     32
+#define NAME_LEN  (DE_SZ-(CELL_SZ+2))
 
 typedef CELL_T cell;
 typedef UCELL_T ucell;
 typedef unsigned short ushort;
 typedef unsigned char byte;
-typedef union { FLT_T f; cell i; } SE_T;
-typedef struct { ushort xt; byte sz, fl; ushort lx; byte ln; char nm[32]; } DE_T;
+typedef struct { cell xt; byte fl; byte ln; char nm[NAME_LEN]; } DE_T;
 typedef struct { short op; const char* name; byte fl; } PRIM_T;
 
 // These are defined by c4.cpp
+extern char source[MAX_SRC+1];
 extern void push(cell x);
 extern cell pop();
 extern void strCpy(char *d, const char *s);
@@ -97,7 +69,7 @@ extern int  strLen(const char *s);
 extern int  lower(const char c);
 extern char *iToA(cell N, int b);
 extern void zTypeF(const char *fmt, ...);
-extern void inner(ushort start);
+extern void inner(cell start);
 extern int  outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void Init();

@@ -54,40 +54,41 @@ int key() {
 
 #endif // IS_LINUX
 
-#ifdef IS_PC
+cell fileOpen(const char *name, const char *mode) { return (cell)fopen(name, mode); }
+void fileClose(cell fh) { fclose((FILE*)fh); }
+void fileDelete(const char *name) { remove(name); }
+cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh); }
+cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
 cell timer() { return (cell)clock(); }
-void zType(const char* str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
+void zType(const char *str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
 void emit(const char ch) { fputc(ch, outputFp ? (FILE*)outputFp : stdout); }
 
 // REP - Read/Execute/Print (no Loop)
 void REP() {
-    char tib[128];
-	if (inputFp == 0) {
-		ttyMode(0);
-		zType(" ok\r\n");
-	}
-	if (fileGets(tib, sizeof(tib), inputFp)) {
+    char tib[256];
+	ttyMode(0);
+	zType(" ok\r\n");
+	if (fgets(tib, sizeof(tib), stdin) == tib) {
 		outer(tib);
 		return;
-	}
-	if (inputFp == 0) { exit(0); }
-	fileClose(inputFp);
-	inputFp = filePop();
+	} else { exit(0); }
 }
 
 void loadArgument(const char *arg) {
     char fn[32];
     strCpy(fn, arg);
-    cell tmp = fileOpen(fn, "rb");
-    if (tmp) { inputFp = tmp; }
+    cell fh = fileOpen(fn, "rb");
+    if (fh) {
+        fileRead(source, MAX_SRC+1, fh);
+        fileClose(fh);
+        outer(source);
+    }
 }
 
 int main(int argc, char *argv[]) {
 	Init();
     if (argc > 1) { loadArgument(argv[1]); }
-    else { loadArgument("block-999.c4"); }
+    // else { loadArgument("source.c4"); }
     while (1) { REP(); };
 	return 0;
 }
-
-#endif // is_PC
