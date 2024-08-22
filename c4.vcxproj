@@ -163,6 +163,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c4.cpp" />
+    <Text Include="source.c4">
+      <FileType>Document</FileType>
+    </Text>
     <ClCompile Include="sys-load.cpp" />
     <ClCompile Include="system.cpp" />
   </ItemGroup>

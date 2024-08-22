@@ -79,16 +79,18 @@ void loadArgument(const char *arg) {
     strCpy(fn, arg);
     cell fh = fileOpen(fn, "rb");
     if (fh) {
-        fileRead(source, MAX_SRC+1, fh);
+        for (int i = 0; i <= MAX_SRC; i++) { source[i] = 0; }
+        fileRead(source, MAX_SRC, fh);
         fileClose(fh);
         outer(source);
+        printf("\nback!");
     }
 }
 
 int main(int argc, char *argv[]) {
 	Init();
     if (argc > 1) { loadArgument(argv[1]); }
-    // else { loadArgument("source.c4"); }
+    else { loadArgument("source.c4"); }
     while (1) { REP(); };
 	return 0;
 }

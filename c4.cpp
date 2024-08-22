@@ -82,7 +82,7 @@ DE_T tmpWords[10];
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(IMMED,   "immediate", 1, dict[last].fl=1; ) \
-	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT); comma(vhere); ) \
+	X(ADDWORD, "addword",   0, execIt(); addWord((char*)123); comma(LIT); comma(vhere); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
@@ -98,6 +98,7 @@ DE_T tmpWords[10];
 	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
 	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
+    X(XDOT, "(.)", 0, printf("[%ld]",pop()); ) \
 	X(BYE,     "bye",       0, doBye(); )
 
 #define X(op, name, imm, cod) op,
@@ -160,7 +161,10 @@ DE_T *tempWord(const char *w) {
 }
 
 DE_T *addWord(const char *w) {
-	if (!w) { nextWord(); w = wd; }
+	if (TOS == 3456) {
+		printf("brk");
+	}
+	if ((w==0) || (w==(char*)123)) { nextWord(); w = wd; }
 	DE_T *dp = tempWord(w);
 	if (dp) { dp->xt = here; return dp; }
 	int ln = strLen(w);
@@ -169,7 +173,7 @@ DE_T *addWord(const char *w) {
 	dp->fl = 0;
 	dp->ln = ln;
 	strCpy(dp->nm, w);
-	// zTypeF("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
+	// printf("\n-add:%d,[%s],%d (%d)-\n", last, dp->nm, dp->xt);
 	return dp;
 }
 
@@ -191,15 +195,14 @@ DE_T *findWord(const char *w) {
 void quote(int counted) {
 	comma(LIT);
 	comma(vhere);
-	cell vh=vhere;
-	if (counted) { vars[vhere++] = 0; } // Length byte
+	char *vh = (char*)vhere;
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
-		vars[vhere++] = *(toIn++);
-		if (counted) { ++vars[vh]; }
+		*(vh++) = *(toIn++);
 	}
-	vars[vhere++] = 0; // NULL terminator
+	*(vh++) = 0; // NULL terminator
+	vhere = (cell)vh;
 }
 
 void execIt() {
@@ -218,19 +221,24 @@ void execIt() {
 void inner(cell start) {
 	cell t, n;
 	cell pc = start, wc;
-	next:
+next:
+	if (TOS == 334455) {
+		printf("break!");
+	}
 	wc = code[pc++];
+	// printf("-wc:%ld-",wc);
 	switch(wc) {
 		case  STOP:   return;
 		NCASE LIT:    push(code[pc++]);
 		NCASE JMP:    pc=code[pc];
-		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
+		NCASE JMPZ : if (pop() == 0) { pc = code[pc]; }
+		else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
 		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
 		PRIMS
 		default:
-			if (wc & VAL_MASK) { push(wc & (VAL_MASK-1)); goto next; }
+			if (wc & VAL_MASK) { push(wc&(VAL_MASK-1)); /*printf("-wc:%ld/%lx/%lx-", dsp, wc, wc & (VAL_MASK - 1));*/  goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
 			pc = wc;
 			goto next;
@@ -343,21 +351,21 @@ void baseSys() {
 	outerF(": (lit)     #%d ;", LIT);
 	outerF(": (exit)    #%d ;", EXIT);
 
-	outerF(addrFmt, "(here)", &code[HA]);
-	outerF(addrFmt, "(last)", &code[LA]);
-	outerF(addrFmt, "base",   &code[BA]);
-	outerF(addrFmt, "state ", &code[SA]);
+	outerF(addrFmt, "(ha)",   &here);
+	outerF(addrFmt, "(la)",   &last);
+	outerF(addrFmt, "(vha)",  &vhere);
+	outerF(addrFmt, "base",   &base);
+	outerF(addrFmt, "state ", &state);
 
-	outerF(addrFmt, "(dsp)", &code[DSPA]);
-	outerF(addrFmt, "(rsp)", &code[RSPA]);
-	outerF(addrFmt, "(lsp)", &code[LSPA]);
-	outerF(addrFmt, "(tsp)", &code[TSPA]);
+	outerF(addrFmt, "(dsp)", &dsp);
+	outerF(addrFmt, "(rsp)", &rsp);
+	outerF(addrFmt, "(lsp)", &lsp);
+	outerF(addrFmt, "(tsp)", &tsp);
 
 	outerF(addrFmt, "code",  &code[0]);
 	outerF(addrFmt, "vars",  &vars[0]);
 	outerF(addrFmt, "dict",  &dict[0]);
 	outerF(addrFmt, ">in",   &toIn);
-	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
 	outerF(addrFmt, "stk",  &dstk[0]);
 	outerF(addrFmt, "rstk", &rstk[0]);
@@ -369,7 +377,7 @@ void baseSys() {
 	outerF(": stk-sz  #%d ;", STK_SZ+1);
 	outerF(": tstk-sz #%d ;", TSTK_SZ+1);
 	outerF(": cell    #%d ;", CELL_SZ);
-	sys_load();
+	// sys_load();
 }
 
 void Init() {
@@ -380,6 +388,5 @@ void Init() {
 	last  = MAX_DICT+1;
 	vhere = (cell)&vars[0];
 	base = 10;
-	vhere = 0;
 	baseSys();
 }

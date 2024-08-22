@@ -23,8 +23,8 @@
 #define MAX_VARS      0x100000
 #define MAX_DICT         999
 #define MAX_SRC        99999
-#define STK_SZ            63
-#define RSTK_SZ           63
+#define STK_SZ            6300
+#define RSTK_SZ           6300
 #define LSTK_SZ           60
 #define TSTK_SZ           63
 #define btwi(n,l,h)   ((l<=n) && (n<=h))

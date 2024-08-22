@@ -1,0 +1,87 @@
+: . (.) ;
+: ->code cell * code + ;
+: @c ->code @ ;
+: !c ->code ! ;
+: cells cell * ;
+: cell+ cell + ;
+: ->dict 32 * dict + ;
+: here  (ha)    @ ;
+: last  (la)    @ ;
+: vhere (vha)   @ ;
+: 0sp  0 (dsp)  ! ;
+: 0rsp 0 (rsp)  ! ;
+: , here  dup 1+ (ha) ! !c ;
+: begin here ; immediate
+: again (jmp)   , , ; immediate
+: while (jmpnz) , , ; immediate
+: until (jmpz)  , , ; immediate
+: -while (njmpnz) , , ; immediate
+: -until (njmpz)  , , ; immediate
+: -if (njmpz) , here 0 , ; immediate
+: if  (jmpz)  , here 0 , ; immediate
+: if0 (jmpnz) , here 0 , ; immediate
+: else (jmp) , here swap 0 , here swap !c ; immediate
+: then here swap !c ; immediate
+: ( begin
+    >in @ c@ dup 0= if drop exit then
+    >in @ 1+ >in !
+    ')' = if exit then
+    again ; immediate
+( testing 123 )
+: allot ( sz-- ) vhere + (vha) ! ;
+: hex     $10 base ! ;
+: binary  %10 base ! ;
+: decimal #10 base ! ;
+: ?dup -if dup then ;
+: nip swap drop ;        : tuck swap over ;
+: 2dup over over ;       : 2drop drop drop ;
+: rot >r swap r> swap ;  : -rot swap >r swap r> ;
+: tdrop t> drop ;
+: 0< 0 < ;            : 0> 0 > ;
+: <= > 0= ;           : >= < 0= ;      : <> = 0= ;
+: 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;
+: min ( a b--c ) 2dup > if swap then drop ;
+: max ( a b--c ) 2dup < if swap then drop ;
+: btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
+: negate com 1+ ;
+: abs  dup 0< if negate then ;
+: -abs dup 0> if negate then ;
+: mod /mod drop ;
+: +! tuck @ + swap ! ;     : c+! tuck c@ + swap c! ;
+: c++ dup c@ 1+ swap c! ;  : c-- dup c@ 1- swap c! ;
+: bl 32 ; : space bl emit ;
+: cr 13 emit 10 emit ;
+: tab 9 emit ;
+: ?  @ . ;
+: ->xt     @ ;
+: ->flags  cell+ c@ ;
+: ->len    cell+ 1+ ;
+: ->name   cell+ 2+ ;
+: does> (jmp) , r> , ;
+: create addword ; immediate
+: const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
+: marker here 20 !c last 21 !c vhere 22 !c ;
+: forget 20 @c (ha) ! 21 @c (la) ! 22 @c (vha) ! ;
+: fopen-rt ( fn--fh )  " rt" fopen ;
+: fopen-rb ( fn--fh )  " rb" fopen ;
+: fopen-wb ( fn--fh )  " wb" fopen ;
+: words  last >t  0 >r
+    begin
+        t@ ->dict cell+ 2+ ztype 9 emit
+        t@ ->dict cell+ 1+ c@ 7 > if r@ 1+ r! then
+        r@ 1+ r! r@ 9 > if cr 0 r! then
+        t@ 1+ t! t@ 999 >
+    until rdrop tdrop ;
+words
+: var    addword allot (exit) , ; immediate
+3456 var abc
+cr 667788 .
+: tt abc ! ;
+cr 112233 .
+: ty abc @ . ;
+334455 tt ty
+: xx cr 888 . cr ; xx
+xx 
+: yy cr 999 . cr ;
+yy
+marker
