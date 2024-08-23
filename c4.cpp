@@ -206,7 +206,7 @@ void doSee() {
 	cell x = (cell)dp-(cell)dict;
 	int i= dp->xt, stop = (dp>lastWord) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
-	while (i <= stop) {
+	while (i < stop) {
 		int op = code[i++];
 		x = code[i];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
