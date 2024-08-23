@@ -37,7 +37,6 @@ C4 provides three memory areas:
 | (last)     | (--N)   | Offset of the LAST variable |
 | base       | (--N)   | Offset of the BASE variable |
 | state      | (--N)   | Offset of the STATE variable |
-| (lex)      | (--N)   | Offset of the LEX (the current lexicon) |
 | (lsp)      | (--N)   | Offset of the loop stack pointer |
 | (tsp)      | (--N)   | Offset of the third stack pointer |
 | (reg-base) | (--N)   | Offset of the register base |

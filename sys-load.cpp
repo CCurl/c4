@@ -10,8 +10,6 @@ void sys_load() {
     outer(": base@ base    @c ;");
     outer(": >base base    !c ;");
     outer(": vhere (vhere) @ ;");
-    outer(": lex   (lex)   @c ;");
-    outer(": >lex  (lex)   !c ;");
     outer(": 0sp  0 (sp)   !c ;");
     outer(": 0rsp 0 (rsp)  !c ;");
     outer(": , here  dup 1+ (here) !c !c ;");
@@ -79,20 +77,16 @@ void sys_load() {
     outer(": tab 9 emit ;");
     outer(": ?  @ . ;");
     outer(": ->xt     w@ ;");
-    outer(": ->size   2+  c@ ;");
-    outer(": ->flags  3 + c@ ;");
-    outer(": ->lex    4 + w@ ;");
-    outer(": ->len    6 + ;");
-    outer(": ->name   7 + ;");
-    outer(": lex-match? ( a--f )  ->lex lex =  lex 0=  or ;");
-    outer(": words +regs 0 >a 0 >d  last ->dict >s  dict-sz 1- ->dict >x");
+    outer(": ->flags  2 + c@ ;");
+    outer(": ->len    3 + ;");
+    outer(": ->name   4 + ;");
+    outer(": dict-end dict dict-sz + 1- ;");
+    outer(": words +regs 0 >a 0 >d  last ->dict >s");
     outer("    begin");
-    outer("      s> lex-match? if");
-    outer("        s> ->len count type d+");
-    outer("        s> ->len c@ 7 > if a+ then");
-    outer("        a>+ 8 > if cr 0 >a else tab then");
-    outer("      then");
-    outer("      s> dup ->size + dup >s  x> <");
+    outer("      s> ->name ztype d+");
+    outer("      s> ->len c@ 7 > if a+ then");
+    outer("      a>+ 8 > if cr 0 >a else tab then");
+    outer("      s> de-sz + >s s> dict-end <");
     outer("    while d> .\"  (%d words)\" -regs ;");
     outer(": does> (jmp) , r> , ;");
     outer(": create addword ; immediate");
@@ -100,20 +94,10 @@ void sys_load() {
     outer(": var    addword allot (exit) , ; immediate");
     outer("cell var vv");
     outer(": marker here 20 !c last 21 !c vhere vv ! ;");
-    outer(": forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! 0 >lex ;");
-#if defined(PC_FILE)
+    outer(": forget 20 @c (here) !c 21 @c (last) !c vv @ (vhere) ! ;");
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
     outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
-#elif defined(TEENSY_FILE)
-    outer(": fopen-r ( fn--fh )  z\" r\" fopen ;");
-    outer(": fopen-w ( fn--fh )  z\" w\" fopen ;");
-    outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
-#elif defined(PICO_FILE)
-    outer(": fopen-r ( fn--fh )  z\" r\" fopen ;");
-    outer(": fopen-w ( fn--fh )  z\" w\" fopen ;");
-    outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
-#endif
     outer("marker");
 }

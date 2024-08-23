@@ -17,53 +17,21 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240731
+#define VERSION   240823
 
 #ifdef IS_PC
     #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
     #define VARS_SZ     0x100000
-    #define DICT_SZ       0xFFFD
+    #define DICT_SZ       (2500*sizeof(DE_T))
     #define STK_SZ            63
     #define RSTK_SZ           63
     #define LSTK_SZ           60
     #define TSTK_SZ           63
     #define FSTK_SZ           15
+    #define NAME_LEN          20
     #define REGS_SZ          255
     #define btwi(n,l,h)   ((l<=n) && (n<=h))
-    #define PC_FILE
-    #define SYS_PRIMS \
-	    X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); )
-#else
-    // Must be a dev board ...
-    #include <Arduino.h>
-    #define IS_BOARD
-    #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
-    #define VARS_SZ      0x10000
-    #define DICT_SZ       0x4000
-    #define STK_SZ            63
-    #define RSTK_SZ           63
-    #define LSTK_SZ           60
-    #define TSTK_SZ           63
-    #define FSTK_SZ           15
-    #define REGS_SZ          200
-    #define btwi(n,l,h)   ((l<=n) && (n<=h))
-    #if defined(ARDUINO_TEENSY40)
-        #define TEENSY_FILE
-    #elif defined(ARDUINO_ARCH_RP2040)
-        #define PICO_FILE
-    #else
-        #define NO_FILE
-    #endif
-    #define SYS_PRIMS \
-        X(POPENI,  "pin-input",  0, t=pop(); pinMode(t, INPUT); ) \
-        X(POPENO,  "pin-output", 0, t=pop(); pinMode(t, OUTPUT); ) \
-        X(POPENU,  "pin-pullup", 0, t=pop(); pinMode(t, INPUT_PULLUP); ) \
-        X(PDREAD,  "dpin@",      0, TOS = digitalRead(TOS); ) \
-        X(PDWRITE, "dpin!",      0, t=pop(); n=pop(); digitalWrite(t, n); ) \
-        X(PAREAD,  "apin@",      0, TOS = analogRead(TOS); ) \
-        X(PAWRITE, "apin!",      0, t=pop(); n=pop(); analogWrite(t, n); ) \
-        X(PDELAY,  "ms",         0, t=pop(); delay(t); )
-#endif // IS_PC
+#endif
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T    int64_t
@@ -83,8 +51,7 @@ typedef CELL_T cell;
 typedef UCELL_T ucell;
 typedef unsigned short ushort;
 typedef unsigned char byte;
-typedef union { FLT_T f; cell i; } SE_T;
-typedef struct { ushort xt; byte sz, fl; ushort lx; byte ln; char nm[32]; } DE_T;
+typedef struct { ushort xt; byte fl, ln; char nm[NAME_LEN]; } DE_T;
 typedef struct { short op; const char* name; byte fl; } PRIM_T;
 
 // These are defined by c4.cpp

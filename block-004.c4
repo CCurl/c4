@@ -4,7 +4,6 @@ find mb loaded?
 
 3 load
 
-4 >lex
 ( mem-buf-slot-info: )
 (   0: free, >0: size/free, <0: -size/in-use )
 

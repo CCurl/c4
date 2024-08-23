@@ -1,5 +1,4 @@
 find fill loaded?
-3 >lex
 
 : p1 vhere ->vars $100 + ;    : p2 p1 $100 + ;
 : fill ( start ch num-- ) >t swap t>
