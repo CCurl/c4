@@ -28,7 +28,7 @@
     ')' = if exit then
     again ; immediate
 ( testing 123 )
-: allot ( sz-- ) vhere + (vha) ! ;
+: allot ( sz-- ) 'a' emit vhere . vhere + (vha) ! vhere . ;
 : hex     $10 base ! ;
 : binary  %10 base ! ;
 : decimal #10 base ! ;
@@ -73,15 +73,12 @@
         t@ 1+ t! t@ 999 >
     until rdrop tdrop ;
 words
-: var    addword allot (exit) , ; immediate
-3456 var abc
-cr 667788 .
-: tt abc ! ;
-cr 112233 .
-: ty abc @ . ;
-334455 tt ty
-: xx cr 888 . cr ; xx
-xx 
-: yy cr 999 . cr ;
-yy
+: dump ( f t-- ) cr >t >r begin r@ dup 1+ r! c@ . space r@ t@ > until rdrop tdrop ;
+cr 
+: var    addword allot (exit) , 'x' emit ; immediate
+1 dbg!
+cell var abc
+0 dbg!
+cr here ->code .
+cr 556 .
 marker

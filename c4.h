@@ -37,7 +37,6 @@
     #define addrFmt   ": %s $%llx ;"
     #define VAL_MASK  0x0800000000000000
     #define VAL_MAX   0x07FFFFFFFFFFFFFF
-    #define NAME_LEN  26
 #else
     #define CELL_T    int32_t
     #define UCELL_T   uint32_t

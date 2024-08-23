@@ -20,6 +20,10 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
+#define PP if (dbg) printf
+cell dbg = 0;
+void execIt();
+
 enum { DSPA=0, RSPA, LSPA, TSPA, HA, LA, BA, SA, VHA };
 
 cell dstk[STK_SZ+1], lstk[LSTK_SZ + 1], rstk[STK_SZ + 1];
@@ -82,7 +86,7 @@ DE_T tmpWords[10];
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(IMMED,   "immediate", 1, dict[last].fl=1; ) \
-	X(ADDWORD, "addword",   0, execIt(); addWord((char*)123); comma(LIT); comma(vhere); ) \
+	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT); comma(vhere); cH=here; cL=last; ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
@@ -99,6 +103,7 @@ DE_T tmpWords[10];
 	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
     X(XDOT, "(.)", 0, printf("[%ld]",pop()); ) \
+	X(DBG, "dbg!", 0, dbg=pop(); ) \
 	X(BYE,     "bye",       0, doBye(); )
 
 #define X(op, name, imm, cod) op,
@@ -143,7 +148,7 @@ void strCpy(char *d, const char *s) {
 	*(d) = 0;
 }
 
-void comma(cell x) { code[here++] = x; }
+void comma(cell x) { PP("-,:%ld/%ld-",here,x); code[here++] = x; }
 
 int nextWord() {
 	int len = 0;
@@ -161,10 +166,7 @@ DE_T *tempWord(const char *w) {
 }
 
 DE_T *addWord(const char *w) {
-	if (TOS == 3456) {
-		printf("brk");
-	}
-	if ((w==0) || (w==(char*)123)) { nextWord(); w = wd; }
+	if (w==0) { nextWord(); w = wd; }
 	DE_T *dp = tempWord(w);
 	if (dp) { dp->xt = here; return dp; }
 	int ln = strLen(w);
@@ -173,7 +175,7 @@ DE_T *addWord(const char *w) {
 	dp->fl = 0;
 	dp->ln = ln;
 	strCpy(dp->nm, w);
-	// printf("\n-add:%d,[%s],%d (%d)-\n", last, dp->nm, dp->xt);
+	// PP("\n-add:%ld/%s/%ld-\n", last, dp->nm, dp->xt);
 	return dp;
 }
 
@@ -206,7 +208,7 @@ void quote(int counted) {
 }
 
 void execIt() {
-	// zTypeF("-cH:%d,here:%d-\n",cH, here);
+	PP("-cH:%ld,here:%ld-\n",cH, here);
 	if (cH < here) {
 		comma(0);
 		here=cH;
@@ -222,11 +224,8 @@ void inner(cell start) {
 	cell t, n;
 	cell pc = start, wc;
 next:
-	if (TOS == 334455) {
-		printf("break!");
-	}
 	wc = code[pc++];
-	// printf("-wc:%ld-",wc);
+	PP("\n-wc:%ld-",wc);
 	switch(wc) {
 		case  STOP:   return;
 		NCASE LIT:    push(code[pc++]);
@@ -238,7 +237,7 @@ next:
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
 		PRIMS
 		default:
-			if (wc & VAL_MASK) { push(wc&(VAL_MASK-1)); /*printf("-wc:%ld/%lx/%lx-", dsp, wc, wc & (VAL_MASK - 1));*/  goto next; }
+			if (wc & VAL_MASK) { push(wc&(VAL_MASK-1)); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
 			pc = wc;
 			goto next;
@@ -287,6 +286,7 @@ int parseWord(char *w) {
 			code[here+100] = de->xt;
 			code[here+101] = EXIT;
 			inner(here+100);
+			emit('X');
 		} else {
 			comma(de->xt);
 		}
