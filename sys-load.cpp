@@ -39,7 +39,6 @@ void sys_load() {
     outer(": nip swap drop ;        : tuck swap over ;");
     outer(": 2dup over over ;       : 2drop drop drop ;");
     outer(": rot >r swap r> swap ;  : -rot swap >r swap r> ;");
-    outer(": tdrop t> drop ;");
     outer(": 0< 0 < ;            : 0> 0 > ;");
     outer(": <= > 0= ;           : >= < 0= ;      : <> = 0= ;");
     outer(": 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;");
@@ -55,9 +54,17 @@ void sys_load() {
     outer(": c++ dup c@ 1+ swap c! ;  : c-- dup c@ 1- swap c! ;");
     outer(": reg-base (reg-base) @c ; : >reg-base (reg-base) !c ;");
     outer(": frame-sz (frame-sz) @c ; : >frame-sz (frame-sz) !c ;");
-    outer(": a>  0 reg-r ;  : >a  0 reg-s ;");
-    outer(": a>+ 0 reg-ri ;  : a+ 0 reg-i ;");
-    outer(": a>- 0 reg-rd ;  : a- 0 reg-d ;");
+
+    outer(": a@  0 reg-r ;     : a!  0 reg-s ;   : a@+ 0 reg-ri ;");
+    outer(": a+  0 reg-i ;     : a-  0 reg-d ;");
+    outer(": @a  0 reg-r c@ ;  : !a  0 reg-r c! ;");
+    outer(": @a+ 0 reg-ri c@ ; : !a+ 0 reg-ri c! ;");
+    outer(": @a- 0 reg-rd c@ ; : !a- 0 reg-rd c! ;");
+    outer(": a>t a@ >t ;       : t>a t> a! ;");
+
+    outer(": a>  0 reg-r ;     : >a  0 reg-s ;");
+    outer(": a>+ 0 reg-ri ;    : a+ 0 reg-i ;");
+    outer(": a>- 0 reg-rd ;    : a- 0 reg-d ;");
     outer(": s>  1 reg-r ;  : >s  1 reg-s ;");
     outer(": s>+ 1 reg-ri ;  : s+ 1 reg-i ;");
     outer(": s>- 1 reg-rd ;  : s- 1 reg-d ;");
@@ -70,7 +77,6 @@ void sys_load() {
     outer(": y>  4 reg-r ;  : >y  4 reg-s ;");
     outer(": y>+ 4 reg-ri ;  : y+ 4 reg-i ;");
     outer(": y>- 4 reg-rd ;  : y- 4 reg-d ;");
-    outer(": a>t a> >t ; : t>a t> >a ;");
     outer(": bl 32 ; : space bl emit ;");
     outer(": (.) to-string count type ;");
     outer(": . (.) space ;");

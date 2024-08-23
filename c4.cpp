@@ -73,6 +73,7 @@ cell tstk[TSTK_SZ+1], regs[REGS_SZ+1];
 	X(RDROP,   "rdrop",     0, rpop(); ) \
 	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TAT,     "t@",        0, push(tstk[tsp]); ) \
+	X(TDROP,   "tdrop",     0, if (0 < tsp) { tsp--; } ) \
 	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
 	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
