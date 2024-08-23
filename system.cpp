@@ -57,40 +57,34 @@ int key() {
 cell fileOpen(const char *name, const char *mode) { return (cell)fopen(name, mode); }
 void fileClose(cell fh) { fclose((FILE*)fh); }
 void fileDelete(const char *name) { remove(name); }
-cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh); }
-cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
+cell fileRead(char *buf, cell sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh); }
+cell fileWrite(char *buf, cell sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
 cell timer() { return (cell)clock(); }
 void zType(const char *str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
 void emit(const char ch) { fputc(ch, outputFp ? (FILE*)outputFp : stdout); }
 
 // REP - Read/Execute/Print (no Loop)
 void REP() {
-    char tib[256];
+    char *tib = getTIB(128);
 	ttyMode(0);
 	zType(" ok\r\n");
-	if (fgets(tib, sizeof(tib), stdin) == tib) {
-		outer(tib);
-		return;
-	} else { exit(0); }
+	if (fgets(tib, 128, stdin) != tib) { exit(0); }
+    outer(tib);
 }
 
 void loadArgument(const char *arg) {
-    char fn[32];
-    strCpy(fn, arg);
-    cell fh = fileOpen(fn, "rb");
+    cell fh = fileOpen(arg, "rb");
     if (fh) {
-        for (int i = 0; i <= MAX_SRC; i++) { source[i] = 0; }
-        fileRead(source, MAX_SRC, fh);
+        fileRead(disk, DISK_SZ, fh);
         fileClose(fh);
-        outer(source);
-        printf("\nback!");
+        outer(disk);
     }
 }
 
 int main(int argc, char *argv[]) {
 	Init();
+    loadArgument("bootstrap.c4");
     if (argc > 1) { loadArgument(argv[1]); }
-    else { loadArgument("source.c4"); }
     while (1) { REP(); };
 	return 0;
 }

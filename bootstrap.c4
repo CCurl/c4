@@ -1,4 +1,3 @@
-: . (.) ;
 : ->code cell * code + ;
 : @c ->code @ ;
 : !c ->code ! ;
@@ -17,8 +16,8 @@
 : until (jmpz)  , , ; immediate
 : -while (njmpnz) , , ; immediate
 : -until (njmpz)  , , ; immediate
-: -if (njmpz) , here 0 , ; immediate
 : if  (jmpz)  , here 0 , ; immediate
+: -if (njmpz) , here 0 , ; immediate
 : if0 (jmpnz) , here 0 , ; immediate
 : else (jmp) , here swap 0 , here swap !c ; immediate
 : then here swap !c ; immediate
@@ -27,11 +26,26 @@
     >in @ 1+ >in !
     ')' = if exit then
     again ; immediate
+
 ( testing 123 )
-: allot ( sz-- ) 'a' emit vhere . vhere + (vha) ! vhere . ;
-: hex     $10 base ! ;
-: binary  %10 base ! ;
-: decimal #10 base ! ;
+: base@ base @ ;
+: base! base ! ;
+
+: <# ( -- ) dict 64 + >t 0 t@ c! ;
+: #c ( c-- ) t@ 1- dup t! c! ;
+: #n ( n-- ) dup 9 > if 7 + then '0' + #c ;
+: # ( n1--n2 ) base@ /mod swap #n ;
+: #s ( n-- ) begin # -while drop ;
+: #> t> ztype ;
+: space 32 emit ;
+: . <# #s #> space ;
+: .2 <# # #s #> space ;
+
+: hex     $10 base! ;
+: binary  %10 base! ;
+: decimal #10 base! ;
+: .hex base@ >t hex    . t> base! ;
+: .bin base@ >t binary . t> base! ;
 : ?dup -if dup then ;
 : nip swap drop ;        : tuck swap over ;
 : 2dup over over ;       : 2drop drop drop ;
@@ -42,24 +56,21 @@
 : 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;
 : min ( a b--c ) 2dup > if swap then drop ;
 : max ( a b--c ) 2dup < if swap then drop ;
-: btwi ( n l h--f ) >r over >  swap r> >  or 0= ;
+: btwi ( n l h--f ) >t over >  swap t> >  or 0= ;
 : negate com 1+ ;
 : abs  dup 0< if negate then ;
 : -abs dup 0> if negate then ;
 : mod /mod drop ;
 : +! tuck @ + swap ! ;     : c+! tuck c@ + swap c! ;
 : c++ dup c@ 1+ swap c! ;  : c-- dup c@ 1- swap c! ;
-: bl 32 ; : space bl emit ;
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
-: ->xt     @ ;
-: ->flags  cell+ c@ ;
-: ->len    cell+ 1+ ;
-: ->name   cell+ 2+ ;
 : does> (jmp) , r> , ;
-: create addword ; immediate
-: const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate
+: create addword (lit) , vhere , ; ( NB: needs EXIT added )
+: const ( N-- ) addword (lit) , , (exit) , ;
+: allot ( sz-- ) vhere + (vha) ! ;
+: var   ( SZ-- ) vhere const , allot ;
 : marker here 20 !c last 21 !c vhere 22 !c ;
 : forget 20 @c (ha) ! 21 @c (la) ! 22 @c (vha) ! ;
 : fopen-rt ( fn--fh )  " rt" fopen ;
@@ -67,18 +78,15 @@
 : fopen-wb ( fn--fh )  " wb" fopen ;
 : words  last >t  0 >r
     begin
-        t@ ->dict cell+ 2+ ztype 9 emit
+        t@ ->dict cell+ 2+ ztype tab
         t@ ->dict cell+ 1+ c@ 7 > if r@ 1+ r! then
         r@ 1+ r! r@ 9 > if cr 0 r! then
         t@ 1+ t! t@ 999 >
     until rdrop tdrop ;
-words
-: dump ( f t-- ) cr >t >r begin r@ dup 1+ r! c@ . space r@ t@ > until rdrop tdrop ;
-cr 
-: var    addword allot (exit) , 'x' emit ; immediate
-1 dbg!
-cell var abc
-0 dbg!
-cr here ->code .
-cr 556 .
+
+: a>t a@ >t ; : t>a t> a! ;
+
 marker
+: dump ( f t-- ) cr >t >r begin r@ dup 1+ r! c@ . space r@ t@ > until rdrop tdrop ;
+: .ver version <# # # '.' #c # # '.' #c #s #> ;
+" c4 - version " ztype  .ver cr " hello." ztype
