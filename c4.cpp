@@ -20,10 +20,6 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-#define PP if (dbg) printf
-cell dbg = 0;
-void execIt();
-
 enum { DSPA=0, RSPA, LSPA, TSPA, HA, LA, BA, SA, VHA };
 
 cell dstk[STK_SZ+1], lstk[LSTK_SZ + 1], rstk[STK_SZ + 1];
@@ -31,8 +27,7 @@ cell code[MAX_CODE+1];
 byte vars[MAX_VARS+1];
 DE_T dict[MAX_DICT+1];
 char source[MAX_SRC+1];
-cell cV, cH, cL, cS;
-cell inputFp, outputFp;
+cell cell inputFp, outputFp;
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1];
 DE_T tmpWords[10];
@@ -84,9 +79,9 @@ DE_T tmpWords[10];
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
-	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
+	X(SEMI,    ";",         1, comma(EXIT); state=0; ) \
 	X(IMMED,   "immediate", 1, dict[last].fl=1; ) \
-	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT); comma(vhere); cH=here; cL=last; ) \
+	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT); comma(vhere); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
@@ -96,7 +91,7 @@ DE_T tmpWords[10];
 	X(QUOTE,   "\"",        1, quote(0); ) \
 	X(DOTQT,   ".\"",       1, quote(0); comma(ZTYPE); ) \
 	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
-    X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
+X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
 	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
@@ -207,16 +202,6 @@ void quote(int counted) {
 	vhere = (cell)vh;
 }
 
-void execIt() {
-	PP("-cH:%ld,here:%ld-\n",cH, here);
-	if (cH < here) {
-		comma(0);
-		here=cH;
-		vhere=cV;
-		inner(cH);
-	}
-}
-
 #undef X
 #define X(op, name, imm, code) NCASE op: code
 
@@ -298,20 +283,20 @@ int parseWord(char *w) {
 
 int outer(const char *ln) {
 	// zTypeF("-outer:%s-\n",ln);
-	cH=here, cL=last, cS=state, cV=vhere;
+//	cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
 	while (nextWord()) {
 		if (!parseWord(wd)) {
 			zTypeF("-%s?-", wd);
 			if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
-			here=cH;
-			vhere=cV;
-			last=cL;
+	//		here=cH;
+			//vhere=cV;
+		//	last=cL;
 			state=0;
 			return 0;
 		}
 	}
-	if ((cL==last) && (cS==0) && (state==0)) execIt();
+	// if ((cL==last) && (cS==0) && (state==0)) execIt();
 	return 1;
 }
 
