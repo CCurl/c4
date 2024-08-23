@@ -70,6 +70,7 @@ void sys_load() {
     outer(": y>  4 reg-r ;  : >y  4 reg-s ;");
     outer(": y>+ 4 reg-ri ;  : y+ 4 reg-i ;");
     outer(": y>- 4 reg-rd ;  : y- 4 reg-d ;");
+    outer(": a>t a> >t ; : t>a t> >a ;");
     outer(": bl 32 ; : space bl emit ;");
     outer(": (.) to-string count type ;");
     outer(": . (.) space ;");
@@ -84,10 +85,14 @@ void sys_load() {
     outer(": words +regs 0 >a 0 >d  last ->dict >s");
     outer("    begin");
     outer("      s> ->name ztype d+");
-    outer("      s> ->len c@ 7 > if a+ then");
+    outer("      s> ->len c@  7 > if a+ then");
+    outer("      s> ->len c@ 12 > if a+ then");
     outer("      a>+ 8 > if cr 0 >a else tab then");
     outer("      s> de-sz + >s s> dict-end <");
     outer("    while d> .\"  (%d words)\" -regs ;");
+    outer(": words-n ( n-- ) a>t last ->dict swap for");
+    outer("          dup ->name ztype tab a>+ 9 > if cr 0 >a then de-sz +");
+    outer("      next drop t>a ;");
     outer(": does> (jmp) , r> , ;");
     outer(": create addword ; immediate");
     outer(": const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate");
