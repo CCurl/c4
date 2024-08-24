@@ -29,7 +29,6 @@
     #define TSTK_SZ           63
     #define FSTK_SZ           15
     #define NAME_LEN          20
-    #define REGS_SZ          255
     #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #endif
 
