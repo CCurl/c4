@@ -87,6 +87,17 @@
 : a>t a@ >t ; : t>a t> a! ;
 
 marker
-: dump ( f t-- ) cr >t >r begin r@ dup 1+ r! c@ . space r@ t@ > until rdrop tdrop ;
+: dump ( f t-- ) cr >t >r begin r@ dup 1+ r! c@ . r@ t@ > until rdrop tdrop ;
+: dumpc ( f t-- ) cr >t >r begin r@ dup 1+ r! @c . r@ t@ > until rdrop tdrop ;
 : .ver version <# # # '.' #c # # '.' #c #s #> ;
 " c4 - version " ztype  .ver cr " hello." ztype
+
+here dup . cr
+cell var b
+here dup . cr dumpc cr
+
+( : b@ b @ ;           : b! b ! ; )
+( : b+ b@ 1+ b! ;      : b- b@ 1- b! ;  )
+( : b@+ b@ dup 1+ b! ; : b@- b@ dup 1- b! ;  )
+( : @b b@ c@ ;         : !b b@ c! ; )
+( : @b+ b@+ c@ ;       : !b+ b@+ c! ; )
