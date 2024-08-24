@@ -7,17 +7,17 @@
 : bs 8 emit ;
 : printable? ( c--f ) dup 31 > swap 127 < and ;
 : del-ch d> c@ if d> c-- 0 x>- 1- c! bs space bs then ;
-: app-ch d> c++ a> x>+ c! 0 x> c! a> emit ;
+: app-ch d> c++ a@ x>+ c! 0 x> c! a@ emit ;
 : clr-buf d> >x 0 x>+ w! ;
 : accept ( str-- ) +regs >d clr-buf
   begin
-    key >a
-    a>  13 = if -exit then
-    a>  27 = if clr-buf -exit then
-    a>   3 = if clr-buf -exit then
-    a>   8 = if del-ch then
-    a> 127 = if del-ch then
-    a> printable? if app-ch then
+    key a!
+    a@  13 = if -exit then
+    a@  27 = if clr-buf -exit then
+    a@   3 = if clr-buf -exit then
+    a@   8 = if del-ch then
+    a@ 127 = if del-ch then
+    a@ printable? if app-ch then
   again ;
 : ?quit dirty? if ." (use q! to quit without saving)" exit then quit! ;
 : do-cmd ->cmd ':' emit clr-eol cur-on

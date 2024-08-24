@@ -35,8 +35,8 @@ mb-ssz cells var mb-si  ( slot-info )
     t> ;
 
 : mb-find ( a--ndx [0 means not found] )
-    +regs >a 1 >d begin
-      d> mb-slot-a @ a> =
+    +regs a! 1 >d begin
+      d> mb-slot-a @ a@ =
       if d> -exit then
       d>+ mb-ssz <
     while -1 -regs ;
@@ -54,10 +54,10 @@ mb-ssz cells var mb-si  ( slot-info )
 : alloc ( sz--h [0 means out-of-space] )
     +regs mb-ru >s  1 >x
     begin x> s> mb-free?
-      if x> mb-slot-a @ >a
-        a> 0= if s> mb-new dup >a x> mb-slot-a ! then
+      if x> mb-slot-a @ a!
+        a@ 0= if s> mb-new dup a! x> mb-slot-a ! then
         x> mb-slot-i dup >t @ s> max negate t> !
-        a> -exit
+        a@ -exit
       then
       x+ x> mb-ssz <
     while
@@ -69,28 +69,28 @@ mb-ssz cells var mb-si  ( slot-info )
     then ;
 
 : realloc ( h1 sz--h2 [0 means out-of-space] )
-    +regs >s >a  0 >y
-    a> mb-find dup >x
+    +regs >s a!  0 >y
+    a@ mb-find dup >x
     if x> mb-slot-i @ abs >y  ( already big enough? )
-       s> y> <= if a> -exit then
-       a> free
+       s> y> <= if a@ -exit then
+       a@ free
     then
     s> alloc >x
-    x> if a> x> y> cmove then
+    x> if a@ x> y> cmove then
     x> -regs ;
   
 : mb-dmp ( --)
-    a> >t cr mb-ssz 1 >a for
-      i mb-slot-i @ ?dup if 0 >a i . . i mb-slot-a @ . cr then
-    next a> if ." (empty)" then t> >a ;
+    a@ >t cr mb-ssz 1 a! for
+      i mb-slot-i @ ?dup if 0 a! i . . i mb-slot-a @ . cr then
+    next a@ if ." (empty)" then t> a! ;
 
 mb-init
 
 ( some tests )
-: t1  50 alloc >a a> . mb-dmp ;
+: t1  50 alloc a! a@ . mb-dmp ;
 : t2  99 alloc >d d> . mb-dmp ;
 : t3 151 alloc >s s> . mb-dmp ;
 : t4 s>  free mb-dmp ;
 : t5 d>  free mb-dmp ;
-: t6 a>  free mb-dmp ;
+: t6 a@  free mb-dmp ;
 : tst t1 t2 t3 t4 t5 t6 ;

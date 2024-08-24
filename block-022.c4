@@ -1,8 +1,8 @@
 : replace-char ( ch-- ) printable? if rc>pos c! dirty mv-rt then show! ;
 : insert-char  ( ch-- ) printable? 0= if exit then
-    +regs >a rc>pos >x  row max-col >pos >y
+    +regs a! rc>pos >x  row max-col >pos >y
     begin  y> 1- c@  y>- c!  y> x> > while
-    a> x> c! -regs mv-rt dirty ;
+    a@ x> c! -regs mv-rt dirty ;
 : delete-char ( -- ) +regs rc>pos >x  row max-col >pos >y
     begin  x> 1+ c@  x>+ c!  x> y> < while
     32 y> 1- c! -regs dirty ;

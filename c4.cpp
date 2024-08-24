@@ -75,12 +75,12 @@ cell tstk[TSTK_SZ+1], a;
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
-	X(COLON,   ":",         1, execIt(); addWord(0); state = 1; ) \
+	X(COLON,   ":",         1, addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
-	X(ADDWORD, "addword",   0, execIt(); addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
+	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
-	X(SEE,     "see",       1, doSee(); ) \
+	X(SEE,     "see",       1, execIt(); doSee(); ) \
 	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
 	X(TYPE,    "type",      0, t=pop(); y=(char*)pop(); for (int i=0; i<t; i++) emit(y[i]); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
@@ -90,7 +90,6 @@ cell tstk[TSTK_SZ+1], a;
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SZLEN,   "sz-len",    0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(0); ) \
-	X(QUOTE,   "s\"",       1, quote(1); ) \
 	X(DOTQT,   ".\"",       1, quote(0); comma(FTYPE); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(ITOA,    "to-string", 0, t=pop(); push((cell)iToA(t, base)); ) \
@@ -106,7 +105,7 @@ cell tstk[TSTK_SZ+1], a;
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(INCL,    "include",   1, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
-	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t+1); ) \
+	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
 	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
 
 #define X(op, name, imm, cod) op,
@@ -160,11 +159,26 @@ int nextWord() {
 	return len;
 }
 
-DE_T *addWord(char *w) {
-	if (!w) { nextWord(); w = wd; }
-	int ln = strLen(w);
-	if (NAME_LEN <= ln) { w[NAME_LEN-1]=0; }
+void execIt() {
+	// zTypeF("-cH:%d,here:%d-\n",cH, here);
+	if (cH < here) {
+		comma(0);
+		here=cH;
+		vhere=cV;
+		inner(cH);
+	}
+}
+
+DE_T *addWord(const char *w) {
 	last -= sizeof(DE_T);
+	if (!w) {
+		execIt();
+		nextWord();
+		if (NAME_LEN <= strLen(wd)) { wd[NAME_LEN-1]=0; }
+		w = wd;
+		// cL = last; - crash, why?
+	}
+	int ln = strLen(w);
 	DE_T *dp = (DE_T*)&dict[last];
 	dp->xt = here;
 	dp->fl = 0;
@@ -290,16 +304,6 @@ void quote(int counted) {
 	vars[vhere++] = 0; // NULL terminator
 }
 
-void execIt() {
-	// zTypeF("-cH:%d,here:%d-\n",cH, here);
-	if (cH < here) {
-		comma(0);
-		here=cH;
-		vhere=cV;
-		inner(cH);
-	}
-}
-
 #undef X
 #define X(op, name, imm, code) NCASE op: code
 
@@ -423,7 +427,7 @@ void zTypeF(const char *fmt, ...) {
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
         // zTypeF("[%s]",prims[i].name); if (i%10==0) { zType("\r\n"); }
-		DE_T *w = addWord((char*)prims[i].name);
+		DE_T *w = addWord(prims[i].name);
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
 	}

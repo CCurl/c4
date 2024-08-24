@@ -1,7 +1,7 @@
 ( benchmarks / tests )
 here last vhere
 : test-if 'n' swap if drop 'y' then emit '.' emit ;
-: if-else if s" yes" else s" no" then count type '.' emit ;
+: if-else if z" yes" else z" no" then ztype '.' emit ;
 cr 0 test-if 1 test-if    see test-if cr
 cr 0 if-else 1 if-else    see if-else cr
 : .. dup . ;

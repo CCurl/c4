@@ -72,7 +72,7 @@ You can create words to reference them `frame-sz` at a time in a pseudo "stack f
 Or you can leave `reg-base` at 0, and reference them individually.<br/>
 For example: `123 42 reg-s`. <br/>
 Use `frame-sz` to control stack frame size. Default is 5.<br/>
-The default bootstrap file creates 5 "registers" for stack frame (see a>, s>, d>, x>, and y>).<br/>
+The default bootstrap file creates 5 "registers" for stack frame (see a@, s>, d>, x>, and y>).<br/>
 C4 provides 8 words to manage C4 registers. They are:<br/>
 
 | WORD     | STACK   | DESCRIPTION |
