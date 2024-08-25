@@ -62,8 +62,10 @@ cell tstk[TSTK_SZ+1], a;
 	X(AGETD,   "a@-",       0, push(a--); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
-	X(RSTO,    "r!",        0, rstk[rsp] = pop(); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
+	X(RSTO,    "r!",        0, rstk[rsp] = pop(); ) \
+	X(RINC,    "r+",        0, rstk[rsp]++; ) \
+	X(RDEC,    "r-",        0, rstk[rsp]--; ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
 	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \

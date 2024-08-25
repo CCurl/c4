@@ -6,9 +6,13 @@
     if >t t@ ->file write-block t> fclose clean ->stdout then ;
 : bs 8 emit ;
 : printable? ( c--f ) dup 31 > swap 127 < and ;
+--- d: ??, x: ?? ---
 : del-ch d> c@ if d> c-- 0 x>- 1- c! bs space bs then ;
+--- d: ??, x: ?? ---
 : app-ch d> c++ a@ x>+ c! 0 x> c! a@ emit ;
+--- d: ??, x: ?? ---
 : clr-buf d> >x 0 x>+ w! ;
+--- d: ?? ---
 : accept ( str-- ) +regs >d clr-buf
   begin
     key a!

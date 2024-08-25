@@ -84,7 +84,7 @@
         t@ 1+ t! t@ 999 >
     until rdrop tdrop ;
 
-: a@t a@ >t ; : ta! t> a! ;
+: a>t a@ >t ; : t>a t> a! ;
 
 marker
 : dump ( f t-- ) cr >t >r begin r@ dup 1+ r! c@ . r@ t@ > until rdrop tdrop ;

@@ -1,7 +1,7 @@
 ( Block editor )
 3 load ( strings/fill/cmove/cmove> )
 5 load ( screen )
-
+: rl forget 20 20 load ;
 : rows       40 @c ;  : >rows         40 !c ;  : max-row  rows 1- ;
 : cols       41 @c ;  : >cols         41 !c ;  : max-col  cols 1- ;
 : blk        42 @c ;  : >blk          42 !c ;  : block-sz rows cols * ;

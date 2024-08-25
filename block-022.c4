@@ -1,20 +1,23 @@
 : replace-char ( ch-- ) printable? if rc>pos c! dirty mv-rt then show! ;
 : insert-char  ( ch-- ) printable? 0= if exit then
-    +regs a! rc>pos >x  row max-col >pos >y
-    begin  y> 1- c@  y>- c!  y> x> > while
-    a@ x> c! -regs mv-rt dirty ;
-: delete-char ( -- ) +regs rc>pos >x  row max-col >pos >y
-    begin  x> 1+ c@  x>+ c!  x> y> < while
-    32 y> 1- c! -regs dirty ;
+    a>t a! rc>pos >r  row max-col >pos >t
+    begin  t@ 1- c@  t@- c!  t@ r@ >  while
+    a@ r> c! tdrop t>a mv-rt dirty ;
+: delete-char ( -- ) rc>pos >t  row max-col >pos >r
+    begin  t@ 1+ c@  !t+ t@ r@ < while
+    32 r> 1- c! dirty ;
+--- x: a, y: t ---
 : eol-offset ( row--off ) +regs >y max-col >x
     begin y> x> >pos c@ 32 > if x> 1+ -exit then x>- while 0 -regs ;
 : clear-line ( r-- ) 0 >pos max-col for 32 over c! 1+ next 0 swap c! dirty ;
+--- s: d: x: ---
 : insert-line ( -- ) +regs
     row max-row < if
         row 0 >pos >s    s> cols + >d    max-row 0 >pos s> - >x
         s> d> x> cmove>
     then row clear-line
     dirty -regs ;
+--- s: d: x: ---
 : delete-line ( -- ) +regs
     row max-row < if
         row 0 >pos >d    d> cols + >s    rows 0 >pos s> - >x
