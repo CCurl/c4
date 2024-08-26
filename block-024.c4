@@ -9,7 +9,7 @@
 : del-ch ( -- ) y@ x@ < if 0 x@ 1- c! bs space bs then ;
 : app-ch ( ch-- ) dup x@+ c! 0 x@ c! emit ;
 : clr-buf y@ x! 0 x@ w! ;
-: t5 a>t x>t y>t ;  : t6 t>y t>x t>a ;
+: t5 0 >a x>t y>t ;  : t6 t>y t>x adrop ;
 : accept ( str-- ) t5 y! clr-buf
   begin
     key a!
