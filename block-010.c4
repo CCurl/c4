@@ -1,0 +1,23 @@
+( Global variables )
+
+find g@ loaded?
+
+10 cells var globals
+: t1 ( N--A ) cells globals + ;
+
+: !g  ( X N-- ) t1 ! ;
+: @g  ( N--X )  t1 @ ;
+: @g+ ( N--X )  t1 dup @ swap ++ ;
+: @g- ( N--X )  t1 dup @ swap -- ;
+
+: x!  0 !g ;
+: x@  0 @g ;
+: x@+ 0 @g+ ;
+: x@- 0 @g- ;
+
+: y!  1 !g ;
+: y@  1 @g ;
+: y@+ 1 @g+ ;
+: y@- 1 @g- ;
+
+: tst 20 x! 10 for x@+ . next 10 for x@- . next ;

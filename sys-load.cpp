@@ -55,8 +55,9 @@ void sys_load() {
     outer(": abs  dup 0< if negate then ;");
     outer(": -abs dup 0> if negate then ;");
     outer(": mod /mod drop ;");
-    outer(": +! tuck @ + swap ! ;     : c+! tuck c@ + swap c! ;");
-    outer(": c++ dup c@ 1+ swap c! ;  : c-- dup c@ 1- swap c! ;");
+    outer(": +! tuck  @ +  swap  ! ;  : c+! tuck c@ +  swap c! ;");
+    outer(": ++  dup  @ 1+ swap  ! ;  : --  dup   @ 1- swap  ! ;");
+    outer(": c++ dup c@ 1+ swap c! ;  : c-- dup  c@ 1- swap c! ;");
 
     outer(": @a  a@  c@ ;    : !a  a@  c! ;");
     outer(": @a+ a@+ c@ ;    : !a+ a@+ c! ;");
