@@ -1,23 +1,37 @@
 ( Global variables )
 
-find g@ loaded?
+find x! loaded?
 
-10 cells var globals
-: t1 ( N--A ) cells globals + ;
+10 cells var t9
+: t0 dup @ swap ; inline
 
-: !g  ( X N-- ) t1 ! ;
-: @g  ( N--X )  t1 @ ;
-: @g+ ( N--X )  t1 dup @ swap ++ ;
-: @g- ( N--X )  t1 dup @ swap -- ;
+0 cells t9 + const t2 inline
+: x!  t2 ! ;
+: x@  t2 @ ;
+: x@+ t2 t0 ++ ;
+: x@- t2 t0 -- ;
+: x>t x@ >t ;
+: t>x t> x! ;
 
-: x!  0 !g ;
-: x@  0 @g ;
-: x@+ 0 @g+ ;
-: x@- 0 @g- ;
+1 cells t9 + const t2 inline
+: y!  t2 ! ;
+: y@  t2 @ ;
+: y@+ t2 t0 ++ ;
+: y@- t2 t0 -- ;
+: y>t y@ >t ;
+: t>y t> y! ;
 
-: y!  1 !g ;
-: y@  1 @g ;
-: y@+ 1 @g+ ;
-: y@- 1 @g- ;
+2 cells t9 + const t2 inline
+: z!  t2 ! ;
+: z@  t2 @ ;
+: z@+ t2 t0 ++ ;
+: z@- t2 t0 -- ;
+: z>t z@ >t ;
+: t>z t> z! ;
 
-: tst 20 x! 10 for x@+ . next 10 for x@- . next ;
+: tst cr 100 x! 10 for x@+ . next cr 10 for x@- . next cr
+  x>t cr 500 x! 10 for x@+ . next cr 10 for x@- . next cr t>x
+      cr        10 for x@+ . next cr 10 for x@- . next cr
+      cr 200 y! 10 for y@+ . next cr 10 for y@- . next cr
+      cr 300 z! 10 for z@+ . next cr 10 for z@- . next ;
+      cr 300 z! 10 for z@+ . next cr 10 for z@- . next ;

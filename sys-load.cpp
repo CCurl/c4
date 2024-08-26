@@ -91,7 +91,7 @@ void sys_load() {
     outer("      a@ de-sz + a! a@ dict-end <");
     outer("    while tdrop adrop r> .\"  (%d words)\" ;");
     outer(": words-n ( n-- )  0 >a last ->dict swap for");
-    outer("          dup ->name ztype tab a@+ 9 > if cr 0 !a then de-sz +");
+    outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
     outer(": does> (jmp) , r> , ;");
     outer(": create addword ; immediate");

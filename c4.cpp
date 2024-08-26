@@ -84,6 +84,7 @@ cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 	X(COLON,   ":",         1, addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
+	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=2; } ) \
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(SEE,     "see",       1, execIt(); doSee(); ) \
@@ -384,6 +385,9 @@ int parseWord(char *w) {
 			code[h]   = de->xt;
 			code[h+1] = EXIT;
 			inner(h);
+		} else if (de->fl == 2) {   // INLINE
+			ushort x = de->xt;
+			do { comma(code[x++]); } while (code[x] != EXIT);
 		} else {
 			comma(de->xt);
 		}
