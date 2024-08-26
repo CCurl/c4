@@ -1,5 +1,9 @@
 #include "c4.h"
 
+// void sys_load() {
+//     fileLoad("bootstrap.c4");
+// }
+
 void sys_load() {
     outer(": \\ 0 >in @ w! ; immediate");
     outer(": ->code code + ;");
@@ -21,7 +25,8 @@ void sys_load() {
     outer(": -while (njmpnz) , , ; immediate");
     outer(": -until (njmpz)  , , ; immediate");
     outer(": -if (njmpz) , here 0 , ; immediate");
-    outer(": if (jmpz) , here 0 , ; immediate");
+    outer(": if  (jmpz)  , here 0 , ; immediate");
+    outer(": if0 (jmpnz) , here 0 , ; immediate");
     outer(": else (jmp) , here swap 0 , here swap !c ; immediate");
     outer(": then here swap !c ; immediate");
     outer(": ( begin");
@@ -57,8 +62,8 @@ void sys_load() {
     outer(": @a+ a@+ c@ ;    : !a+ a@+ c! ;");
     outer(": @a- a@- c@ ;    : !a- a@- c! ;");
     outer(": a+  a@+ drop ;  : a-  a@- drop ;");
-    
-    outer(": a>t a@ >t ;     : t>a t> a! ;");
+
+    outer(": adrop a> drop ; : atdrop adrop tdrop ;");
 
     outer(": @t  t@  c@ ;    : !t  t@  c! ;");
     outer(": @t+ t@+ c@ ;    : !t+ t@+ c! ;");
@@ -76,17 +81,17 @@ void sys_load() {
     outer(": ->len    3 + c@ ;");
     outer(": ->name   4 + ;");
     outer(": dict-end dict dict-sz + 1- ;");
-    outer(": words a>t last ->dict a! 0 >t 0 >r");
+    outer(": words last ->dict >a 0 >t 0 >r");
     outer("    begin");
     outer("      a@ ->name ztype r@ 1+ r!");
     outer("      a@ ->len  7 > if t+ then");
     outer("      a@ ->len 12 > if t+ then");
     outer("      t@+ 8 > if cr 0 t! else tab then");
     outer("      a@ de-sz + a! a@ dict-end <");
-    outer("    while tdrop r> .\"  (%d words)\" t>a ;");
-    outer(": words-n ( n-- ) a>t last ->dict swap for");
+    outer("    while tdrop adrop r> .\"  (%d words)\" ;");
+    outer(": words-n ( n-- )  0 >a last ->dict swap for");
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 !a then de-sz +");
-    outer("      next drop t>a ;");
+    outer("      next drop adrop ;");
     outer(": does> (jmp) , r> , ;");
     outer(": create addword ; immediate");
     outer(": const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate");

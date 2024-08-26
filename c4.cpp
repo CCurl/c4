@@ -5,25 +5,27 @@
 #define BCASE         break; case
 #define sp            code[SPA]
 #define rsp           code[RSPA]
+#define lsp           code[LSPA]
+#define tsp           code[TSPA]
+#define asp           code[ASPA]
 #define here          code[HA]
 #define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
-#define lsp           code[LSPA]
-#define tsp           code[TSPA]
 #define TOS           stk[sp]
 #define NOS           stk[sp-1]
+#define ATOS          astk[asp]
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA };
+enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, ASPA };
 
 ushort code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1], stk[STK_SZ+1];
 char wd[32], *toIn;
-cell tstk[TSTK_SZ+1], a;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (ushort)rpop(); } else { return; } ) \
@@ -56,10 +58,6 @@ cell tstk[TSTK_SZ+1], a;
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(ushort)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
-	X(ASET,    "a!",        0, a=pop(); ) \
-	X(AGET,    "a@",        0, push(a); ) \
-	X(AGETI,   "a@+",       0, push(a++); ) \
-	X(AGETD,   "a@-",       0, push(a--); ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
@@ -74,6 +72,12 @@ cell tstk[TSTK_SZ+1], a;
 	X(TATD,    "t@-",       0, push(tstk[tsp]--); ) \
 	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
 	X(TDROP,   "tdrop",     0, if (0 < tsp) { tsp--; } ) \
+	X(TOA,     ">a",        0, apush(pop()); ) \
+	X(ASET,    "a!",        0, ATOS=pop(); ) \
+	X(AGET,    "a@",        0, push(ATOS); ) \
+	X(AGETI,   "a@+",       0, push(ATOS++); ) \
+	X(AGETD,   "a@-",       0, push(ATOS--); ) \
+	X(AFROM,   "a>",        0, push(apop()); ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
@@ -128,6 +132,8 @@ void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void tpush(cell x) { if (tsp < TSTK_SZ) { tstk[++tsp] = x; } }
 cell tpop() { return (0<tsp) ? tstk[tsp--] : 0; }
+void apush(cell x) { if (asp < TSTK_SZ) { astk[++asp] = x; } }
+cell apop() { return (0<asp) ? astk[asp--] : 0; }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 void storeWord(cell a, cell v) { *(ushort*)(a) = (ushort)v; }
@@ -448,6 +454,7 @@ void baseSys() {
 	outerF(": (rsp)      #%d ;", RSPA);
 	outerF(": (lsp)      #%d ;", LSPA);
 	outerF(": (tsp)      #%d ;", TSPA);
+	outerF(": (asp)      #%d ;", ASPA);
 	outerF(": (here)     #%d ;", HA);
 	outerF(": (last)     #%d ;", LA);
 	outerF(": base       #%d ;", BA);

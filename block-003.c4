@@ -6,12 +6,12 @@ find fill loaded?
     ?dup if for over over c! 1+ next then 2drop ;
 : fill-c ( start n num-- ) >t swap t>
     ?dup if for over over ! cell + next then 2drop ;
-: cmove ( src dst n-- ) a>t >r >t a!
+: cmove ( src dst n-- ) >r >t >a
     r> ?dup if for @a+ !t+ next then
-    tdrop t>a ;
-: cmove> ( src dst n-- ) a>t >r >t a!
+    atdrop ;
+: cmove> ( src dst n-- ) >r >t >a
     r> ?dup if 1+ for @a- !t- next then
-    tdrop t>a ;
+    atdrop ;
 
 : s-trunc ( dst--dst )     0 over c! ;
 : s-cat   ( dst src--dst ) >t >r r@ dup sz-len + t> s-cpy drop r> ;
