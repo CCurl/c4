@@ -12,7 +12,7 @@
 : app-ch d> c++ a@ x>+ c! 0 x> c! a@ emit ;
 --- d: ??, x: ?? ---
 : clr-buf d> >x 0 x>+ w! ;
---- d: ?? ---
+--- d: ??, x: ?? ---
 : accept ( str-- ) +regs >d clr-buf
   begin
     key a!

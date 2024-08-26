@@ -10,14 +10,14 @@
 : eol-offset ( row--off ) +regs >y max-col >x
     begin y> x> >pos c@ 32 > if x> 1+ -exit then x>- while 0 -regs ;
 : clear-line ( r-- ) 0 >pos max-col for 32 over c! 1+ next 0 swap c! dirty ;
---- s: d: x: ---
+--- s: ?? d: ?? x: ?? ---
 : insert-line ( -- ) +regs
     row max-row < if
         row 0 >pos >s    s> cols + >d    max-row 0 >pos s> - >x
         s> d> x> cmove>
     then row clear-line
     dirty -regs ;
---- s: d: x: ---
+--- s: ?? d: ?? x: ?? ---
 : delete-line ( -- ) +regs
     row max-row < if
         row 0 >pos >d    d> cols + >s    rows 0 >pos s> - >x
