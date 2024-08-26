@@ -6,12 +6,14 @@ find fill loaded?
     ?dup if for over over c! 1+ next then 2drop ;
 : fill-c ( start n num-- ) >t swap t>
     ?dup if for over over ! cell + next then 2drop ;
+
 : cmove ( src dst n-- ) >r >t >a
-    r> ?dup if for @a+ !t+ next then
+    r> ?dup if for a@+ c@ t@+ c! next then
     atdrop ;
-: cmove> ( src dst n-- ) >r >t >a
-    r> ?dup if 1+ for @a- !t- next then
+: cmove> ( src dst n-- ) >r  r@ + >t  r@ + >a
+    r> ?dup if 1+ for a@- c@ t@- c! next then
     atdrop ;
+
 
 : s-trunc ( dst--dst )     0 over c! ;
 : s-end   ( str-end )      dup s-len + ;
@@ -27,6 +29,4 @@ find fill loaded?
         if tdrop r> exit then
         0 !t-
     again ;
-
-
 
