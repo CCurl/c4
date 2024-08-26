@@ -3,35 +3,27 @@
 find x! loaded?
 
 10 cells var t9
-: t0 dup @ swap ; inline
 
 0 cells t9 + const t2 inline
 : x!  t2 ! ;
 : x@  t2 @ ;
-: x@+ t2 t0 ++ ;
-: x@- t2 t0 -- ;
+: x@+ x@ dup 1+ x! ;
+: x@- x@ dup 1- x! ;
 : x>t x@ >t ;
 : t>x t> x! ;
 
 1 cells t9 + const t2 inline
 : y!  t2 ! ;
 : y@  t2 @ ;
-: y@+ t2 t0 ++ ;
-: y@- t2 t0 -- ;
+: y@+ y@ dup 1+ y! ;
+: y@- y@ dup 1- y! ;
 : y>t y@ >t ;
 : t>y t> y! ;
 
 2 cells t9 + const t2 inline
 : z!  t2 ! ;
 : z@  t2 @ ;
-: z@+ t2 t0 ++ ;
-: z@- t2 t0 -- ;
+: z@+ z@ dup 1+ z! ;
+: z@- z@ dup 1- z! ;
 : z>t z@ >t ;
 : t>z t> z! ;
-
-: tst cr 100 x! 10 for x@+ . next cr 10 for x@- . next cr
-  x>t cr 500 x! 10 for x@+ . next cr 10 for x@- . next cr t>x
-      cr        10 for x@+ . next cr 10 for x@- . next cr
-      cr 200 y! 10 for y@+ . next cr 10 for y@- . next cr
-      cr 300 z! 10 for z@+ . next cr 10 for z@- . next ;
-      cr 300 z! 10 for z@+ . next cr 10 for z@- . next ;
