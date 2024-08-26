@@ -95,7 +95,7 @@ cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
-	X(SZLEN,   "sz-len",    0, TOS = strLen((char*)TOS); ) \
+	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(0); ) \
 	X(DOTQT,   ".\"",       1, quote(0); comma(FTYPE); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
@@ -155,7 +155,6 @@ int strEq(const char *s, const char *d) {
 }
 
 void strCpy(char *d, const char *s) {
-	*(d+1) = 0;  // NULL terminator for empty counted strings
 	while (*s) { *(d++) = *(s++); }
 	*(d) = 0;
 }

@@ -64,7 +64,8 @@ void sys_load() {
     outer(": @a- a@- c@ ;    : !a- a@- c! ;");
     outer(": a+  a@+ drop ;  : a-  a@- drop ;");
 
-    outer(": adrop a> drop ; : atdrop adrop tdrop ;");
+    outer(": adrop a@ drop ; : atdrop adrop tdrop ;");
+    outer(": a>t a@ >t ;     : t>a t> a! ;");
 
     outer(": @t  t@  c@ ;    : !t  t@  c! ;");
     outer(": @t+ t@+ c@ ;    : !t+ t@+ c! ;");

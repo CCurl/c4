@@ -1,36 +1,32 @@
 : ->file ( fh-- ) (output-fp) ! ;  : ->stdout 0 ->file ;
-: write-row  p1 i 0 >pos s-cpy sz-rtrim ztype 10 emit ;
+: write-row  p1 i 0 >pos s-cpy s-rtrim ztype 10 emit ;
 : write-block rows for write-row next ;
 : save-block  dirty? 0= if exit then
     block-fn fopen-wb ?dup
     if >t t@ ->file write-block t> fclose clean ->stdout then ;
 : bs 8 emit ;
 : printable? ( c--f ) dup 31 > swap 127 < and ;
---- d: ??, x: ?? ---
-: del-ch d> c@ if d> c-- 0 x>- 1- c! bs space bs then ;
---- d: ??, x: ?? ---
-: app-ch d> c++ a@ x>+ c! 0 x> c! a@ emit ;
---- d: ??, x: ?? ---
-: clr-buf d> >x 0 x>+ w! ;
---- d: ??, x: ?? ---
-: accept ( str-- ) +regs >d clr-buf
+: del-ch ( -- ) y@ x@ < if 0 x@ 1- c! bs space bs then ;
+: app-ch ( ch-- ) dup x@+ c! 0 x@ c! emit ;
+: clr-buf y@ x! 0 x@ w! ;
+: t5 a>t x>t y>t ;  : t6 t>y t>x t>a ;
+: accept ( str-- ) t5 y! clr-buf
   begin
     key a!
-    a@  13 = if -exit then
-    a@  27 = if clr-buf -exit then
-    a@   3 = if clr-buf -exit then
+    a@  13 = if t6 exit then
+    a@  27 = if clr-buf t6 exit then
+    a@   3 = if clr-buf t6 exit then
     a@   8 = if del-ch then
     a@ 127 = if del-ch then
-    a@ printable? if app-ch then
+    a@ printable? if a@ app-ch then
   again ;
 : ?quit dirty? if ." (use q! to quit without saving)" exit then quit! ;
 : do-cmd ->cmd ':' emit clr-eol cur-on
     p1 accept ->cmd clr-eol
-    p1 s" q"  s-eq if  ?quit exit  then
-    p1 s" q!" s-eq if  quit! exit  then
-    p1 s" wq" s-eq if  save-block quit!  exit   then
-    p1 s" w"  s-eq if  save-block clean  exit   then
-    p1 s" rl" s-eq if  ed-load then ;
+    p1 z" q"  s-eq if  ?quit exit  then
+    p1 z" q!" s-eq if  quit! exit  then
+    p1 z" wq" s-eq if  save-block quit!  exit   then
+    p1 z" w"  s-eq if  save-block clean  exit   then
+    p1 z" rl" s-eq if  ed-load then ;
 : put-line      row 0 >pos p2 s-cpy drop dirty ;
 : yank-line  p2 row 0 >pos    s-cpy drop ;
-

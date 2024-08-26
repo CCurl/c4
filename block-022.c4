@@ -15,10 +15,10 @@
     then  row clear-line  dirty ;
 : delete-line ( -- ) row max-row < if
         row 0 >pos >t  t@ cols + >r  t@ r@  rows 0 >pos r> - cmove
-    then  max-row clear-line  dirty -regs ;
+    then  max-row clear-line  dirty ;
 : join-lines ( -- ) row max-row >= if exit then
-    p1 row 0 >pos s-cpy sz-rtrim
-    row 1+ 0 >pos sz-cat cols 1- + 0 swap c!
+    p1 row 0 >pos s-cpy s-rtrim
+    row 1+ 0 >pos s-cat cols 1- + 0 swap c!
     row 0 >pos p1 s-cpy drop
     row 1+ >row delete-line ;
 
