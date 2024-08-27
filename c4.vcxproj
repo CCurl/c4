@@ -155,7 +155,6 @@
     <None Include="block-025.c4" />
     <None Include="block-026.c4" />
     <None Include="block-999.c4" />
-    <None Include="c4.ino" />
     <None Include="LICENSE" />
     <None Include="makefile" />
     <None Include="README.md" />

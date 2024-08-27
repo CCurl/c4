@@ -299,7 +299,6 @@ void quote() {
 
 void inner(ushort start) {
 	cell t, n;
-	char *y;
 	ushort pc = start, wc;
 	next:
 	wc = code[pc++];
@@ -349,7 +348,7 @@ int parseWord(char *w) {
 		cell n = pop();
 		if (btwi(n, 0, 0x1fff)) {
 			comma((ushort)(n | 0xE000));
-		} else if (btwi(n, 0, 0xffff)) {
+		} else if ((n & 0xffff) == n) {
 			comma(LIT1); comma((ushort)n);
 		} else {
 			comma(LIT2);
