@@ -1,6 +1,6 @@
 find fill loaded?
 
-: p1 vhere ->vars $100 + ;    : p2 p1 $100 + ;
+: p1 vhere $100 + ;    : p2 p1 $100 + ;
 
 : fill ( start ch num-- ) >t swap t>
     ?dup if for over over c! 1+ next then 2drop ;

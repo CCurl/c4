@@ -87,5 +87,6 @@ extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
 extern void fileLoad(const char *name);
 extern void blockLoad(int blk);
+extern void sys_load();
 
 #endif //  __C4_H__

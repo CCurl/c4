@@ -1,6 +1,5 @@
 #include "c4.h"
 
-#define LASTPRIM      BYE
 #define NCASE         goto next; case
 #define BCASE         break; case
 #define sp            code[SPA]
@@ -62,8 +61,6 @@ cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
 	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RSTO,    "r!",        0, rstk[rsp] = pop(); ) \
-	X(RINC,    "r+",        0, rstk[rsp]++; ) \
-	X(RDEC,    "r-",        0, rstk[rsp]--; ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
 	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
@@ -85,7 +82,7 @@ cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
 	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=2; } ) \
-	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
+	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(SEE,     "see",       1, execIt(); doSee(); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
@@ -97,7 +94,6 @@ cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); comma(FTYPE); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
-	X(DOTS,    ".s",        0, dotS(); ) \
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
 	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
@@ -123,7 +119,6 @@ enum _PRIM  {
 
 PRIM_T prims[] = { PRIMS {0, 0, 0} };
 
-void sys_load();
 void push(cell x) { if (sp < STK_SZ) { stk[++sp] = x; } }
 cell pop() { return (0<sp) ? stk[sp--] : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
@@ -199,7 +194,6 @@ DE_T *findWord(const char *w) {
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
-		// zTypeF("-%d,(%s)-", cw, dp->nm);
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += sizeof(DE_T);
 	}
@@ -210,7 +204,6 @@ int findXT(int xt) {
 	int cw = last;
 	while (cw < DICT_SZ) {
 		DE_T *dp = (DE_T*)&dict[cw];
-		// zTypeF("-%d,(%s)-", cw, dp->nm);
 		if (dp->xt == xt) { return cw; }
 		cw += sizeof(DE_T);
 	}
@@ -220,7 +213,7 @@ int findXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0), *lastWord = (DE_T*)&dict[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
-	if (dp->xt <= LASTPRIM) { zTypeF("%s is a primitive (%hX).\r\n", wd, dp->xt); return; }
+	if (dp->xt <= BYE) { zTypeF("%s is a primitive (%hX).\r\n", wd, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int i= dp->xt, stop = (dp>lastWord) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04hX: %s (%04hX to %04X)", (ushort)x, dp->nm, dp->xt, stop);
@@ -266,7 +259,6 @@ char *iToA(cell N, int b) {
 }
 
 void fType(const char *s) {
-	// s is a NULL terminated string (NOT counted)
 	while (*s) {
 		char c = *(s++);
 		if (c=='%') {
@@ -289,22 +281,17 @@ void fType(const char *s) {
 	}
 }
 
-void dotS() {
-	zType("( ");
-	for (int i = 1; i <= sp; i++) { zType(iToA(stk[i], base)+1); emit(32); }
-	zType(")");
-}
-
 void quote() {
 	comma(LIT2);
-	commaCell((cell)&vars[vhere]);
-	cell vh=vhere;
+	commaCell(vhere);
+	char *vh=(char*)vhere;
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
-		vars[vhere++] = *(toIn++);
+		*(vh++) = *(toIn++);
 	}
-	vars[vhere++] = 0; // NULL terminator
+	*(vh++) = 0; // NULL terminator
+	vhere = (cell)vh;
 }
 
 #undef X
@@ -357,7 +344,6 @@ int isNum(const char *w, int b) {
 
 int parseWord(char *w) {
 	if (!w) { w = &wd[0]; }
-	// zTypeF("-pw:%s-",w);
 
 	if (isNum(w, base)) {
 		cell n = pop();
@@ -417,7 +403,6 @@ void outerF(const char *fmt, ...) {
 	va_start(args, fmt);
 	vsnprintf(buf, 128, fmt, args);
 	va_end(args);
-    // zType(buf); zType("\r\n");
 	outer(buf);
 }
 
@@ -432,7 +417,6 @@ void zTypeF(const char *fmt, ...) {
 
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
-        // zTypeF("[%s]",prims[i].name); if (i%10==0) { zType("\r\n"); }
 		DE_T *w = addWord(prims[i].name);
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
@@ -482,10 +466,10 @@ void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
-	here = LASTPRIM+1;
+	here = BYE+1;
 	last = DICT_SZ;
 	base = 10;
-	vhere = 0;
+	vhere = (cell)&vars[0];
 	fileInit();
 	baseSys();
 }

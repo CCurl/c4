@@ -12,7 +12,6 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 - Linux 64-bit (-m64): a CELL is 64-bits.
 - Windows 32-bit (x86): a CELL is 32-bits.
 - Windows 64-bit (x64): a CELL is 64-bits.
-- Development boards: a CELL is 32-bits.
 
 ## C4 memory areas
 C4 provides three memory areas:
@@ -23,11 +22,11 @@ C4 provides three memory areas:
   - **NOTE**: These are free for the application to use as desired.
   - **NOTE**: Use `@c` and `!c` to get and set values in the code area.
 - The `vars` area can store up to CELL bytes, CELL index (see `vars-sz`).
+- - `vhere` is the address of the first free byte the vars area.
 - The `dict` area can store up to 65536 bytes, 16-bit index (see `dict-sz`).
 - `here` is an offset into the code area.
-- `vhere` is an offset into the vars area.
 - `last` is an offset into the dict area.
-- Use `->code`, `->vars`, and `->dict` to turn an offset into an address.
+- Use `->code` and `->dict` to turn an offset into an address.
 
 | WORD       | STACK   | DESCRIPTION |
 |:--         |:--      |:--          |
@@ -39,8 +38,6 @@ C4 provides three memory areas:
 | state      | (--N)   | Offset of the STATE variable |
 | (lsp)      | (--N)   | Offset of the loop stack pointer |
 | (tsp)      | (--N)   | Offset of the third stack pointer |
-| (reg-base) | (--N)   | Offset of the register base |
-| (frame-sz) | (--N)   | Offset of the frame-sz value |
 
 ## C4 Strings
 Strings in C4 are both counted and NULL terminated.<br/>
@@ -64,30 +61,8 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %x     | (N--) | Print TOS in base 16. |
 | %[x]   | (--)  | EMIT [x]. |
 
-## Registers
-C4 includes an array of "registers" (pre-defined cells). <br/>
-The number of registers is configurable (see `reg-sz`). Default is 255 on PCs.<br/>
-There is a `reg-base` that can be used to provide a "stack frame" if desired.<br/>
-You can create words to reference them `frame-sz` at a time in a pseudo "stack frame".<br/>
-Or you can leave `reg-base` at 0, and reference them individually.<br/>
-For example: `123 42 reg-s`. <br/>
-Use `frame-sz` to control stack frame size. Default is 5.<br/>
-The default bootstrap file creates 5 "registers" for stack frame (see a@, s>, d>, x>, and y>).<br/>
-C4 provides 8 words to manage C4 registers. They are:<br/>
-
-| WORD     | STACK   | DESCRIPTION |
-|:--       |:--      |:-- |
-| `+regs`  | (--)    | Create new frame; add `frame-sz` to `reg-base`. |
-| `-regs`  | (--)    | Destroy frame; subtract `frame-sz` from `reg-base`. |
-| `reg-r`  | (R--N)  | Push register (R + `reg-base`). |
-| `reg-s`  | (N R--) | Set register (R + `reg-base`) to N. |
-| `reg-i`  | (R--)   | Increment register (R + `reg-base`). |
-| `reg-d`  | (R--)   | Decrement register (R + `reg-base`). |
-| `reg-ri` | (R--N)  | Push register (R + `reg-base`), then increment it. |
-| `reg-rd` | (R--N)  | Push register (R + `reg-base`), then decrement it. |
-
 ## The Third Stack
-C4 includes a third stack, with same ops as the return stack. (`>t`, `t@`, `t>`). <br/>
+C4 includes a third stack, with same ops as the return stack. (`>t`, `t@`, `t!`, `t>`). <br/>
 The size of the third stack is configurable (see `tstk-sz`).<br/>
 This third stack can be used for any purpose. Words are:<br/>
 
@@ -95,6 +70,7 @@ This third stack can be used for any purpose. Words are:<br/>
 |:--    |:--     |:-- |
 | `>t`  | (N--)  | Move N to the third stack. |
 | `t@`  | (--N)  | Copy TOS from the third stack. |
+| `t!`  | (N--)  | Set the third stack TOS to N. |
 | `t>`  | (--N)  | Move N from the third stack. |
 
 ## C4 WORD-CODE primitives
@@ -157,14 +133,6 @@ The primitives:
 | i         | (--I)        | N: Current FOR loop index. |
 | next      | (--)         | Increment I. If I < N, start loop again, else exit. |
 | unloop    | (--)         | Unwind the loop stack. NOTE: this does NOT exit the loop. |
-| +regs     | (--)         | Increment `reg-base` by `frame-sz` |
-| -regs     | (--)         | Decrement `reg-base` by `frame-sz` |
-| reg-r     | (R--N)       | Push register (`reg-base`+R) |
-| reg-s     | (N R--)      | Set register (`reg-base`+R) to N |
-| reg-i     | (R--)        | Increment register (`reg-base`+R) |
-| reg-d     | (R--)        | Decrement register (`reg-base`+R) |
-| reg-ri    | (R--N)       | Push register (`reg-base`+R), then increment it |
-| reg-rd    | (R--N)       | Push register (`reg-base`+R), then decrement it |
 | >r        | (N--R:N)     | Move TOS to the return stack |
 | r@        | (--N)        | N: return stack TOS |
 | r!        | (N--)        | Set return stack TOS to N |
@@ -203,7 +171,6 @@ The primitives:
 | load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
 | loaded?   | (W A--)      | Stops current load if A <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
-| .s        | (--)         | Display the stack |
 | @c        | (N--W)       | Fetch unsigned 16-bit W from CODE slot N |
 | !c        | (W N--)      | Store unsigned 16-bit W to CODE slot N |
 | find      | (--W A)      | W: Execution Token, A: Dict Entry address (0 0 if not found) |
