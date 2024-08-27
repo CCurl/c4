@@ -31,15 +31,15 @@
 : base@ base @ ;
 : base! base ! ;
 
-: <# ( -- ) dict 64 + >t 0 t@ c! ;
-: #c ( c-- ) t@ 1- dup t! c! ;
-: #n ( n-- ) dup 9 > if 7 + then '0' + #c ;
-: # ( n1--n2 ) base@ /mod swap #n ;
-: #s ( n-- ) begin # -while drop ;
-: #> t> ztype ;
+: <# ( -- )     dict 64 + >t 0 t@ c! ;
+: #c ( c-- )    t@ 1- dup t! c! ;
+: #n ( n-- )    dup 9 > if 7 + then '0' + #c ;
+: #  ( n1--n2 ) base@ /mod swap #n ;
+: #s ( n-- )    begin # -while drop ;
+: #> ( --str )  t> ;
 : space 32 emit ;
-: . <# #s #> space ;
-: .2 <# # #s #> space ;
+: .  ( N-- ) <# #s #>  ztype space ;
+: .2 ( N-- ) <# # #s #> ztype space ;
 
 : hex     $10 base! ;
 : binary  %10 base! ;

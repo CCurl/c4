@@ -88,18 +88,15 @@ cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere+(cell)vars); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(SEE,     "see",       1, execIt(); doSee(); ) \
-	X(COUNT,   "count",     0, t=pop(); push(t+1); push(*(byte *)t); ) \
-	X(TYPE,    "type",      0, t=pop(); y=(char*)pop(); for (int i=0; i<t; i++) emit(y[i]); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
-	X(ZQUOTE,  "z\"",       1, quote(0); ) \
-	X(DOTQT,   ".\"",       1, quote(0); comma(FTYPE); ) \
+	X(ZQUOTE,  "z\"",       1, quote(); ) \
+	X(DOTQT,   ".\"",       1, quote(); comma(FTYPE); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
-	X(ITOA,    "to-string", 0, t=pop(); push((cell)iToA(t, base)); ) \
 	X(DOTS,    ".s",        0, dotS(); ) \
 	X(FETC,    "@c",        0, TOS = code[(ushort)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(ushort)t] = (ushort)n; ) \
@@ -298,16 +295,14 @@ void dotS() {
 	zType(")");
 }
 
-void quote(int counted) {
+void quote() {
 	comma(LIT2);
 	commaCell((cell)&vars[vhere]);
 	cell vh=vhere;
-	if (counted) { vars[vhere++] = 0; } // Length byte
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
 		vars[vhere++] = *(toIn++);
-		if (counted) { ++vars[vh]; }
 	}
 	vars[vhere++] = 0; // NULL terminator
 }

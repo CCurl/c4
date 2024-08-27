@@ -182,20 +182,16 @@ The primitives:
 |           | (--A)        | -RUN: A: current VHERE address |
 | timer     | (--N)        | N: Current time |
 | see X     | (--)         | Output the definition of word X |
-| count     | (SC--A N)    | A,N: address and count of chars in string SC |
-| type      | (A N--)      | Print string at A (counted, unformatted) |
 | ztype     | (SZ--)       | Print string at SZ (uncounted, unformatted) |
 | ftype     | (SZ--)       | Print string at SZ (uncounted, formatted) |
 | s-cpy     | (D S--D)     | Copy string S to D, counted |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
+| s-len     | (S--N)       | N: Length of string S |
 | z"        | (--)         | -COMPILE: Create uncounted string SZ to next `"` |
 |           | (--SZ)       | -RUN: push address SZ of string |
-| s"        | (--)         | -COMPILE: Create counted string SC to next `"` |
-|           | (--SC)       | -RUN: push address SC of string |
 | ."        | (--)         | -COMPILE: execute `z"`, compile `ftype` |
 |           | (--)         | -RUN: `ftype` on string |
-| rand      | (--N)        | N: a pseudo-random number (uses XOR shift) |
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
 |           |              |     NOTE: NM and MD are uncounted, use `z"` |
 | fclose    | (FH--)       | FH: File Handle to close |
