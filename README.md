@@ -40,8 +40,7 @@ C4 provides three memory areas:
 | (tsp)      | (--N)   | Offset of the third stack pointer |
 
 ## C4 Strings
-Strings in C4 are both counted and NULL terminated.<br/>
-C4 also supports NULL-terminated strings with no count byte (ztype).<br/>
+Strings in C4 are NULL-terminated strings with no count byte (ztype).<br/>
 
 ## Format specifiers in `ftype` and `."`
 Similar to the printf() function in C, C4 supports formatted output using '%'. <br/>
@@ -74,8 +73,6 @@ This third stack can be used for any purpose. Words are:<br/>
 | `t>`  | (--N)  | Move N from the third stack. |
 
 ## C4 WORD-CODE primitives
-To add custom primitives, fill in macro `USER_PRIMS` with X() macros in file `c4.cpp`.
-
 Stack effect notation conventions:
 
 | TERM     | DESCRIPTION |
@@ -178,5 +175,5 @@ The primitives:
 | bye       | (--)         | PC ONLY: Exit C4 |
 
 ## C4 default words
-Default words are defined in `sys_load()`, in file `sys-load.cpp`.
+Default words are defined in `sys_load()`, in file `sys-load.c`.
 To add default words, add more calls to `outer()`.
