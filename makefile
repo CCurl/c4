@@ -5,7 +5,7 @@ CXX := clang
 CXXFLAGS := -m64 -O3
 C32FLAGS := -m32 -O3
 
-srcfiles := $(shell find . -name "*.cpp")
+srcfiles := $(shell find . -name "*.c")
 incfiles := $(shell find . -name "*.h")
 LDLIBS   := -lm
 
