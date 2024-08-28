@@ -19,18 +19,17 @@
 
 #define VERSION   240823
 
-#ifdef IS_PC
-    #define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
-    #define VARS_SZ     0x100000
-    #define DICT_SZ       (2500*sizeof(DE_T))
-    #define STK_SZ            63
-    #define RSTK_SZ           63
-    #define LSTK_SZ           60
-    #define TSTK_SZ           63
-    #define FSTK_SZ           15
-    #define NAME_LEN          20
-    #define btwi(n,l,h)   ((l<=n) && (n<=h))
-#endif
+#define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
+#define VARS_SZ     0x100000
+#define DICT_SZ       (2500*sizeof(DE_T))
+#define STK_SZ            63
+#define RSTK_SZ           63
+#define LSTK_SZ           60
+#define TSTK_SZ           63
+#define FSTK_SZ           15
+#define btwi(n,l,h)   ((l<=n) && (n<=h))
+#define WC_SZ sizeof(wc_t)
+#define NAME_LEN          22
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T    int64_t
@@ -48,10 +47,10 @@
 
 typedef CELL_T cell;
 typedef UCELL_T ucell;
-typedef unsigned short ushort;
+typedef uint32_t wc_t;
 typedef unsigned char byte;
-typedef struct { ushort xt; byte fl, ln; char nm[NAME_LEN]; } DE_T;
-typedef struct { short op; const char* name; byte fl; } PRIM_T;
+typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN]; } DE_T;
+typedef struct { wc_t op; const char* name; byte fl; } PRIM_T;
 
 // These are defined by c4.cpp
 extern void push(cell x);
@@ -63,7 +62,7 @@ extern int  strLen(const char *s);
 extern int  lower(const char c);
 extern char *iToA(cell N, int b);
 extern void zTypeF(const char *fmt, ...);
-extern void inner(ushort start);
+extern void inner(wc_t start);
 extern int  outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void Init();

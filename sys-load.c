@@ -87,10 +87,10 @@ void sys_load() {
     outer(": cr 13 emit 10 emit ;");
     outer(": tab 9 emit ;");
     outer(": ?  @ . ;");
-    outer(": ->xt     w@ ;");
-    outer(": ->flags  2 + c@ ;");
-    outer(": ->len    3 + c@ ;");
-    outer(": ->name   4 + ;");
+    outer(": ->xt     wc@ ;");
+    outer(": ->flags  wc-sz + c@ ;");
+    outer(": ->len    wc-sz + 1+ c@ ;");
+    outer(": ->name   wc-sz + 2+ ;");
     outer(": dict-end dict dict-sz + 1- ;");
     outer(": words last ->dict >a 0 >t 0 >r");
     outer("    begin");
@@ -105,7 +105,7 @@ void sys_load() {
     outer("      next drop adrop ;");
     outer(": does> (jmp) , r> , ;");
     outer(": create addword ; immediate");
-    outer(": const  addword here cell 2/ - 2* ->code ! (exit) , ; immediate");
+    outer(": const  addword here cell wc-sz / - wc-sz * ->code ! (exit) , ; immediate");
     outer(": var    addword allot (exit) , ; immediate");
     outer("cell var vh");
     outer(": marker here 20 !c last 21 !c vhere vh ! ;");
