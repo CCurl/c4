@@ -17,37 +17,41 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240823
+#define VERSION   240827
 
-#define CODE_SZ       0xDFFF    // 0xE000 and above are numbers
+#define WC_T           uint32_t
+#define WC_SZ           4
+#define NAME_LEN      (32-(WC_SZ+2))
+#define NUM_BITS       0xE0000000
+#define NUM_MASK       0x1FFFFFFF
+#define CODE_SZ        0x00020000
+#define DICT_SZ       (10000*sizeof(DE_T))
+// #define CODE_SZ        0xDFFF    // in 16-bit land, 0xE000 and above are numbers
+// #define DICT_SZ       (2500*sizeof(DE_T))
+
 #define VARS_SZ     0x100000
-#define DICT_SZ       (2500*sizeof(DE_T))
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60
 #define TSTK_SZ           63
 #define FSTK_SZ           15
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
-#define WC_SZ sizeof(wc_t)
-#define NAME_LEN          22
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T    int64_t
     #define UCELL_T   uint64_t
     #define CELL_SZ   8
-    #define FLT_T     double
     #define addrFmt ": %s $%llx ;"
 #else
     #define CELL_T    int32_t
     #define UCELL_T   uint32_t
     #define CELL_SZ   4
-    #define FLT_T     float
     #define addrFmt ": %s $%lx ;"
 #endif
 
 typedef CELL_T cell;
 typedef UCELL_T ucell;
-typedef uint32_t wc_t;
+typedef WC_T wc_t;
 typedef unsigned char byte;
 typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN]; } DE_T;
 typedef struct { wc_t op; const char* name; byte fl; } PRIM_T;

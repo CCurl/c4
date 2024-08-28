@@ -17,6 +17,12 @@ void sys_load() {
     outer(": 0sp  0 (sp)   !c ;");
     outer(": 0rsp 0 (rsp)  !c ;");
     outer(": , here  dup 1+ (here) !c !c ;");
+
+    outer(": create addword ; immediate");
+    outer(": const  addword here cell wc-sz / - wc-sz * ->code ! (exit) , ; immediate");
+    outer(": does> (jmp) , r> , ;");
+    outer(": var    addword allot (exit) , ; immediate");
+
     outer(": begin here ; immediate");
     outer(": again (jmp)   , , ; immediate");
     outer(": while (jmpnz) , , ; immediate");
@@ -103,10 +109,6 @@ void sys_load() {
     outer(": words-n ( n-- )  0 >a last ->dict swap for");
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
-    outer(": does> (jmp) , r> , ;");
-    outer(": create addword ; immediate");
-    outer(": const  addword here cell wc-sz / - wc-sz * ->code ! (exit) , ; immediate");
-    outer(": var    addword allot (exit) , ; immediate");
     outer("cell var vh");
     outer(": marker here 20 !c last 21 !c vhere vh ! ;");
     outer(": forget 20 @c (here) !c 21 @c (last) !c vh @ (vhere) ! ;");

@@ -222,26 +222,26 @@ int findXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0), *lastWord = (DE_T*)&dict[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
-	if (dp->xt <= BYE) { zTypeF("%s is a primitive (%hX).\r\n", wd, dp->xt); return; }
+	if (dp->xt <= BYE) { zTypeF("%s is a primitive (%lX).\r\n", wd, (long)dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
-	int i= dp->xt, stop = (dp>lastWord) ? (dp-1)->xt : here;
-	zTypeF("\r\n%04hX: %s (%04hX to %04X)", (wc_t)x, dp->nm, dp->xt, stop);
+	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
+	zTypeF("\r\n%04lX: %s (%04lX to %0lX)", (long)x, dp->nm, (long)dp->xt, (long)stop);
 	while (i < stop) {
 		int op = code[i++];
 		x = code[i];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
-		if (op & 0xE000) { zTypeF("lit %d", (int)(op & 0x1FFF)); continue; }
+		if (op & NUM_BITS) { zTypeF("lit %d", (int)(op & NUM_MASK)); continue; }
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT1: zTypeF("lit1 %hu (%hX)", (wc_t)x, (wc_t)x); i++;
+			BCASE LIT1: zTypeF("lit1 %lu (%lX)", (long)x, (long)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
 				zTypeF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
-				i += CELL_SZ / 2;
-			BCASE JMP:    zTypeF("jmp %04hX", (wc_t)x);             i++;
-			BCASE JMPZ:   zTypeF("jmpz %04hX (IF)", (wc_t)x);       i++;
-			BCASE NJMPZ:  zTypeF("njmpz %04hX (-IF)", (wc_t)x);     i++;
-			BCASE JMPNZ:  zTypeF("jmpnz %04hX (WHILE)", (wc_t)x);   i++; break;
-			BCASE NJMPNZ: zTypeF("njmpnz %04hX (-WHILE)", (wc_t)x); i++; break;
+				i += (CELL_SZ/WC_SZ);
+			BCASE JMP:    zTypeF("jmp %04lX", (long)x);             i++;
+			BCASE JMPZ:   zTypeF("jmpz %04lX (IF)", (long)x);       i++;
+			BCASE NJMPZ:  zTypeF("njmpz %04lX (-IF)", (long)x);     i++;
+			BCASE JMPNZ:  zTypeF("jmpnz %04lX (WHILE)", (long)x);   i++; break;
+			BCASE NJMPNZ: zTypeF("njmpnz %04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
 				zType(x ? ((DE_T*)&dict[(wc_t)x])->nm : "??");
 		}
@@ -322,7 +322,7 @@ void inner(wc_t start) {
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
 		PRIMS
 		default:
-			if (wc & 0xE000) { push(wc & 0x1FFF); goto next; }
+			if (wc & NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
 			pc = wc;
 			goto next;
@@ -355,8 +355,8 @@ int parseWord(char *w) {
 
 	if (isNum(w, base)) {
 		cell n = pop();
-		if (btwi(n, 0, 0x1fff)) {
-			comma((wc_t)(n | 0xE000));
+		if (btwi(n, 0, NUM_MASK)) {
+			comma((wc_t)(n | NUM_BITS));
 		} else if ((n & 0xffff) == n) {
 			comma(LIT1); comma((wc_t)n);
 		} else {
