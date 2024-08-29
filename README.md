@@ -37,7 +37,8 @@ C4 provides three memory areas:
 | base       | (--N)   | Offset of the BASE variable |
 | state      | (--N)   | Offset of the STATE variable |
 | (lsp)      | (--N)   | Offset of the loop stack pointer |
-| (tsp)      | (--N)   | Offset of the third stack pointer |
+| (tsp)      | (--N)   | Offset of the T stack pointer |
+| (asp)      | (--N)   | Offset of the A stack pointer |
 
 ## C4 Strings
 Strings in C4 are NULL-terminated strings with no count byte (ztype).<br/>
@@ -60,17 +61,32 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %x     | (N--) | Print TOS in base 16. |
 | %[x]   | (--)  | EMIT [x]. |
 
-## The Third Stack
-C4 includes a third stack, with same ops as the return stack. (`>t`, `t@`, `t!`, `t>`). <br/>
-The size of the third stack is configurable (see `tstk-sz`).<br/>
-This third stack can be used for any purpose. Words are:<br/>
+## The A stack
+C4 includes an `a` stack. <br/>
+This is somewhat similar to ColorForth's operations for 'a', but it is a stack instead.<br/>
+The size of the `a` stack is configurable (see `tstk-sz`).<br/>
 
 | WORD  | STACK  | DESCRIPTION |
 |:--    |:--     |:-- |
-| `>t`  | (N--)  | Move N to the third stack. |
-| `t@`  | (--N)  | Copy TOS from the third stack. |
-| `t!`  | (N--)  | Set the third stack TOS to N. |
-| `t>`  | (--N)  | Move N from the third stack. |
+| `>a`  | (N--)  | Push N onto the A stack. |
+| `a!`  | (N--)  | Set A-TOS to N. |
+| `a@`  | (--N)  | N: copy of A-TOS. |
+| `a@+` | (--N)  | N: copy of A-TOS, then increment A-TOS. |
+| `a@-` | (--N)  | N: copy of A-TOS, then decrement A-TOS. |
+| `a>`  | (--N)  | Pop N from the A stack. |
+
+## The T Stack
+C4 includes a `t` stack, with same ops as the `a` stack. <br/>
+Note that there are also additional words for the return stack. <br/>
+
+| WORD  | STACK  | DESCRIPTION |
+|:--    |:--     |:-- |
+| `>t`  | (N--)  | Push N onto the T stack. |
+| `t!`  | (N--)  | Set T-TOS to N. |
+| `t@`  | (--N)  | N: copy of T-TOS. |
+| `t@+` | (--N)  | N: copy of T-TOS, then increment T-TOS. |
+| `t@-` | (--N)  | N: copy of T-TOS, then decrement T-TOS. |
+| `t>`  | (--N)  | Pop N from the T stack. |
 
 ## C4 WORD-CODE primitives
 Stack effect notation conventions:
@@ -130,15 +146,25 @@ The primitives:
 | i         | (--I)        | N: Current FOR loop index. |
 | next      | (--)         | Increment I. If I < N, start loop again, else exit. |
 | unloop    | (--)         | Unwind the loop stack. NOTE: this does NOT exit the loop. |
-| >r        | (N--R:N)     | Move TOS to the return stack |
-| r@        | (--N)        | N: return stack TOS |
-| r!        | (N--)        | Set return stack TOS to N |
-| r>        | (R:N--N)     | Move return TOS to the stack |
-| rdrop     | (R:N--)      | Drop return stack TOS |
-| >t        | (N--T:N)     | Move TOS to the third stack |
-| t@        | (--N)        | N: third stack TOS |
-| t!        | (N--)        | Set third stack TOS to N |
-| t>        | (T:N--N)     | Move third TOS to the stack |
+| >r        | (N--)        | Push N onto the return stack |
+| r!        | (N--)        | Set R-TOS to N |
+| r@        | (--N)        | N: copy of R-TOS |
+| r@+       | (--N)        | N: copy of R-TOS, then increment it |
+| r@-       | (--N)        | N: copy of R-TOS, then decrement it |
+| r>        | (--N)        | Pop N from the return stack |
+| rdrop     | (--)         | Drop R-TOS |
+| >t        | (N--)        | Push N onto the T stack |
+| t!        | (N--)        | Set T-TOS to N |
+| t@        | (--N)        | N: copy of T-TOS |
+| t@+       | (--N)        | N: copy of T-TOS, then increment T-TOS |
+| t@-       | (--N)        | N: copy of T-TOS, then decrement T-TOS |
+| t>        | (--N)        | Pop N from the T stack |
+| >a        | (N--)        | Push N onto the A stack |
+| a!        | (N--)        | Set A-TOS to N |
+| a@        | (--N)        | N: copy of A-TOS |
+| a@+       | (--N)        | N: copy of A-TOS, then increment A-TOS |
+| a@-       | (--N)        | N: copy of A-TOS, then decrement A-TOS |
+| a>        | (--N)        | Pop N from the A stack |
 | emit      | (C--)        | Output char C |
 | :         | (--)         | Create a new word, set STATE=1 |
 | ;         | (--)         | Compile EXIT, set STATE=0 |
