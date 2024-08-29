@@ -225,7 +225,7 @@ void doSee() {
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (%lX).\r\n", wd, (long)dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
-	zTypeF("\r\n%04lX: %s (%04lX to %0lX)", (long)x, dp->nm, (long)dp->xt, (long)stop);
+	zTypeF("\r\n%04lX: %s (%04lX to %0lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
 		int op = code[i++];
 		x = code[i];
