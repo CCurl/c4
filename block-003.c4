@@ -2,16 +2,14 @@ find fill loaded?
 
 : p1 vhere $100 + ;    : p2 p1 $100 + ;
 
-: fill ( start ch num-- ) >t swap t>
-    ?dup if for over over c! 1+ next then 2drop ;
-: fill-c ( start n num-- ) >t swap t>
-    ?dup if for over over ! cell + next then 2drop ;
+: fill   ( dst b num-- )  ?dup if >t swap t> for over over c! 1+    next then 2drop ;
+: fill-c ( dst n num-- )  ?dup if >t swap t> for over over ! cell + next then 2drop ;
 
 : cmove ( src dst n-- ) >r >t >a
-    r> ?dup if for a@+ c@ t@+ c! next then
+    r> ?dup if for @a+ !t+ next then
     atdrop ;
 : cmove> ( src dst n-- ) >r  r@ + >t  r@ + >a
-    r> ?dup if 1+ for a@- c@ t@- c! next then
+    r> ?dup if 1+ for @a- !t- next then
     atdrop ;
 
 : s-trunc ( dst--dst )     0 over c! ;
@@ -23,10 +21,12 @@ find fill loaded?
 : s-scatc ( ch dst--dst )  swap s-catc ;
 : s-scatn ( n dst--dst )   swap s-catn ;
 : s-rtrim ( str--str )     >r r@ s-end 1- >t
-    begin
-        t@ r@ <  @t 32 > or
-        if tdrop r> exit then
-        0 !t-
-    again ;
+    begin  t@ r@ <  @t 32 > or  if tdrop r> exit then  0 !t-  again ;
+
+
+
+
+
+
 
 

@@ -3,8 +3,8 @@
 : w2 atdrop nt-lines ;
 : work->block work >a  block >t  0 dup >row >col
     begin  @a+ ?dup  if0 w2 exit then  w1  row rows < while w2 ;
-: clear-block 32 block-sz fill ;
-: ed-load  work clear-block  block clear-block
+: clear-block ( addr-- ) 32 block-sz fill ;
+: ed-load work clear-block  block clear-block
     block-fn fopen-rb ?dup if
         >t work block-sz t@ fread drop t> fclose
     then work->block clean show! 0 0 ->edRC ;
@@ -21,6 +21,9 @@
     normal-mode? if insert-mode!  exit then
     insert-mode? if replace-mode! exit then
     normal-mode! ;
+
+
+
 
 
 

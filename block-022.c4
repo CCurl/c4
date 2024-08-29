@@ -25,7 +25,7 @@
     p1 row 0 >pos s-cpy s-rtrim 32 s-catc
     row 1+ 0 >pos s-cat cols 1- + 0 swap c!
     row 0 >pos p1 s-cpy drop
-    row 1+ delete-line ;
+    row 1+ delete-row ;
 
 
 
