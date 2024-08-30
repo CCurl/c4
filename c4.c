@@ -222,10 +222,10 @@ int findXT(int xt) {
 void doSee() {
 	DE_T *dp = findWord(0), *lastWord = (DE_T*)&dict[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
-	if (dp->xt <= BYE) { zTypeF("%s is a primitive (%lX).\r\n", wd, (long)dp->xt); return; }
+	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
 	cell x = (cell)dp-(cell)dict;
 	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
-	zTypeF("\r\n%04lX: %s (%04lX to %0lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
+	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
 		int op = code[i++];
 		x = code[i];
