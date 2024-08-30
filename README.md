@@ -1,9 +1,9 @@
 # c4: a portable Forth system inspired by MachineForth and Tachyon
 In C4, a program is a sequence of WORD-CODEs. <br/>
-A `WORD-CODE` is a 16-bit unsigned number (0..65535). <br/>
+A `WORD-CODE` is a 32-bit unsigned number. <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
-If the top 3 bits are set ($Exxx), it is a 13-bit unsigned literal (0-$1FFF). <br/>
+If the top 3 bits are set ($Exxxxxxx), it is a 29-bit unsigned literal. <br/>
 If it is greater than `BYE`, it is the code address of a word to execute. <br/>
 
 ## CELLs in C4
@@ -15,30 +15,29 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 
 ## C4 memory areas
 C4 provides three memory areas:
-- The `code` area can store up to $DFFF 16-bit WORD-CODEs, 16-bit index. (see `code-sz`).
-  - **NOTE**: This is because word-code values $Exxx are considered to be literals (0 .. $1FFF).
+- The `code` area can store up to $DFFFFFFF 32-bit WORD-CODEs, 32-bit index. (see `code-sz`).
   - **NOTE**: CODE slots 0-25 (`0 @c .. 25 @c`) are reserved for C4 system values.
   - **NOTE**: CODE slots 25-75 (`25 @c` .. `75 @c`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
-  - **NOTE**: Use `@c` and `!c` to get and set values in the code area.
+  - **NOTE**: Use `@c` and `!c` to get and set 32-bit values in the code area.
 - The `vars` area can store up to CELL bytes, CELL index (see `vars-sz`).
 - - `vhere` is the address of the first free byte the vars area.
-- The `dict` area can store up to 65536 bytes, 16-bit index (see `dict-sz`).
+- The `dict` area can can be any size, 32-bit index (see `dict-sz`).
 - `here` is an offset into the code area.
 - `last` is an offset into the dict area.
 - Use `->code` and `->dict` to turn an offset into an address.
 
 | WORD       | STACK   | DESCRIPTION |
 |:--         |:--      |:--          |
-| (sp)       | (--N)   | Offset of the parameter stack pointer |
+| (dsp)      | (--N)   | Offset of the data stack pointer |
 | (rsp)      | (--N)   | Offset of the return stack pointer |
+| (lsp)      | (--N)   | Offset of the loop stack pointer |
+| (tsp)      | (--N)   | Offset of the T stack pointer |
+| (asp)      | (--N)   | Offset of the A stack pointer |
 | (here)     | (--N)   | Offset of the HERE variable |
 | (last)     | (--N)   | Offset of the LAST variable |
 | base       | (--N)   | Offset of the BASE variable |
 | state      | (--N)   | Offset of the STATE variable |
-| (lsp)      | (--N)   | Offset of the loop stack pointer |
-| (tsp)      | (--N)   | Offset of the T stack pointer |
-| (asp)      | (--N)   | Offset of the A stack pointer |
 
 ## C4 Strings
 Strings in C4 are NULL-terminated strings with no count byte (ztype).<br/>
@@ -97,7 +96,7 @@ Stack effect notation conventions:
 | SC/D/S   | String, counted, NULL terminated |
 | A        | Address |
 | C        | Number, 8-bits |
-| W        | Number, 16-bits |
+| W        | Number, 32-bits |
 | N/X/Y    | Number, CELL sized |
 | F        | Flag: 0 mean0 false, <>0 means true |
 | R        | Register number |
@@ -169,6 +168,7 @@ The primitives:
 | :         | (--)         | Create a new word, set STATE=1 |
 | ;         | (--)         | Compile EXIT, set STATE=0 |
 | immediate | (--)         | Mark the last created word as IMMEDIATE |
+| inline    | (--)         | Mark the last created word as INLINE |
 | addword   | (--)         | -COMPILE: Add the next word to the dictionary |
 |           | (--A)        | -RUN: A: current VHERE address |
 | timer     | (--N)        | N: Current time |
@@ -194,12 +194,12 @@ The primitives:
 | load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
 | loaded?   | (W A--)      | Stops current load if A <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
-| @c        | (N--W)       | Fetch unsigned 16-bit W from CODE slot N |
-| !c        | (W N--)      | Store unsigned 16-bit W to CODE slot N |
+| @c        | (N--W)       | Fetch 32-bit value W from CODE slot N |
+| !c        | (W N--)      | Store 32-bit value W to CODE slot N |
 | find      | (--W A)      | W: Execution Token, A: Dict Entry address (0 0 if not found) |
 | system    | (SC--)       | PC ONLY: SC: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |
 
 ## C4 default words
-Default words are defined in `sys_load()`, in file `sys-load.c`.
-To add default words, add more calls to `outer()`.
+Default words are defined in 
+To add or change the default words, modify function `sys_load()` in file `sys-load.c`.

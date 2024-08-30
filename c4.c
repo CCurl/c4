@@ -2,7 +2,7 @@
 
 #define NCASE         goto next; case
 #define BCASE         break; case
-#define sp            code[SPA]
+#define sp            code[DSPA]
 #define rsp           code[RSPA]
 #define lsp           code[LSPA]
 #define tsp           code[TSPA]
@@ -11,18 +11,18 @@
 #define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
-#define TOS           stk[sp]
-#define NOS           stk[sp-1]
+#define TOS           dstk[sp]
+#define NOS           dstk[sp-1]
 #define ATOS          astk[asp]
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { SPA=0, RSPA, HA, LA, BA, SA, LSPA, TSPA, ASPA };
+enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
 wc_t code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1], stk[STK_SZ+1];
+cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
 char wd[32], *toIn;
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 
@@ -124,8 +124,8 @@ enum _PRIM  {
 
 PRIM_T prims[] = { PRIMS {0, 0, 0} };
 
-void push(cell x) { if (sp < STK_SZ) { stk[++sp] = x; } }
-cell pop() { return (0<sp) ? stk[sp--] : 0; }
+void push(cell x) { if (sp < STK_SZ) { dstk[++sp] = x; } }
+cell pop() { return (0<sp) ? dstk[sp--] : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void tpush(cell x) { if (tsp < TSTK_SZ) { tstk[++tsp] = x; } }
@@ -440,7 +440,7 @@ void baseSys() {
 	outerF(": (lit2)    #%d ;", LIT2);
 	outerF(": (exit)    #%d ;", EXIT);
 
-	outerF(": (sp)       #%d ;", SPA);
+	outerF(": (dsp)      #%d ;", DSPA);
 	outerF(": (rsp)      #%d ;", RSPA);
 	outerF(": (lsp)      #%d ;", LSPA);
 	outerF(": (tsp)      #%d ;", TSPA);
@@ -450,22 +450,23 @@ void baseSys() {
 	outerF(": base       #%d ;", BA);
 	outerF(": state      #%d ;", SA);
 
+	outerF(addrFmt, "dstk", &dstk[0]);
+	outerF(addrFmt, "rstk", &rstk[0]);
+	outerF(addrFmt, "tstk", &tstk[0]);
+	outerF(addrFmt, "astk", &astk[0]);
 	outerF(addrFmt, "code", &code[0]);
 	outerF(addrFmt, "vars", &vars[0]);
 	outerF(addrFmt, "dict", &dict[0]);
 	outerF(addrFmt, ">in",  &toIn);
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
-	outerF(addrFmt, "stk",  &stk[0]);
-	outerF(addrFmt, "rstk", &rstk[0]);
-	outerF(addrFmt, "tstk", &tstk[0]);
 
 	outerF(": wc-sz   #%d ;", WC_SZ);
 	outerF(": code-sz #%d ;", CODE_SZ);
 	outerF(": vars-sz #%d ;", VARS_SZ);
 	outerF(": dict-sz #%d ;", DICT_SZ);
 	outerF(": de-sz   #%d ;", sizeof(DE_T));
-	outerF(": stk-sz  #%d ;", STK_SZ+1);
+	outerF(": dstk-sz #%d ;", STK_SZ+1);
 	outerF(": tstk-sz #%d ;", TSTK_SZ+1);
 	outerF(": cell    #%d ;", CELL_SZ);
 	sys_load();

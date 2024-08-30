@@ -55,7 +55,7 @@ int key() {
 #endif // IS_LINUX
 
 cell timer() { return (cell)clock(); }
-void zType(const char* str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
+void zType(const char *str) { fputs(str, outputFp ? (FILE*)outputFp : stdout); }
 void emit(const char ch) { fputc(ch, outputFp ? (FILE*)outputFp : stdout); }
 
 // REP - Read/Execute/Print (no Loop)

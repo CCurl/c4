@@ -17,16 +17,20 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240827
+#define VERSION   240829
 
 #define WC_T           uint32_t
 #define WC_SZ           4
-#define NAME_LEN      (32-(WC_SZ+2))
 #define NUM_BITS       0xE0000000
 #define NUM_MASK       0x1FFFFFFF
 #define CODE_SZ        0x00020000
 #define DICT_SZ       (10000*sizeof(DE_T))
-// #define CODE_SZ        0xDFFF    // in 16-bit land, 0xE000 and above are numbers
+// For 16-bit word-codes, use these
+// #define WC_T           uint16_t
+// #define WC_SZ           2
+// #define NUM_BITS       0xE000
+// #define NUM_MASK       0x1FFF
+// #define CODE_SZ        0xDFFF
 // #define DICT_SZ       (2500*sizeof(DE_T))
 
 #define VARS_SZ     0x100000
@@ -35,6 +39,7 @@
 #define LSTK_SZ           60
 #define TSTK_SZ           63
 #define FSTK_SZ           15
+#define NAME_LEN      (32-(WC_SZ+2))
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 
 #if INTPTR_MAX > INT32_MAX
@@ -54,7 +59,7 @@ typedef UCELL_T ucell;
 typedef WC_T wc_t;
 typedef unsigned char byte;
 typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN]; } DE_T;
-typedef struct { wc_t op; const char* name; byte fl; } PRIM_T;
+typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 
 // These are defined by c4.cpp
 extern void push(cell x);

@@ -14,7 +14,7 @@ void sys_load() {
     outer(": base! base    !c ;");
     outer(": vhere (vhere) @ ;");
     outer(": allot vhere + (vhere) ! ;");
-    outer(": 0sp  0 (sp)   !c ;");
+    outer(": 0sp  0 (dsp)  !c ;");
     outer(": 0rsp 0 (rsp)  !c ;");
     outer(": , here  dup 1+ (here) !c !c ;");
 
@@ -74,21 +74,20 @@ void sys_load() {
     outer(": @t- t@- c@ ;    : !t- t@- c! ;");
     outer(": t+  t@+ drop ;  : t-  t@- drop ;");
 
-    outer(": #neg ( n1--n2 )   0 >a dup 0 < if 1 a! negate then ;");
-    outer(": <# ( n--n )   dict 64 + >t 0 t@ c! #neg ;");
-    outer(": #c ( c-- )    t@ 1- dup t! c! ;");
-    outer(": #n ( n-- )    dup 9 > if 7 + then '0' + #c ;");
-    outer(": #  ( n1--n2 ) base@ /mod swap #n ;");
-    outer(": #s ( n-- )    begin # -while drop a> if '-' #c then ;");
-    outer(": #> ( --str )  t> ;");
+    outer(": <#   ( n1--n2 )  dict 64 + >t 0 t@ c! dup 0 < >a abs ;");
+    outer(": #c   ( c-- )     t@ 1- dup t! c! ;");
+    outer(": #n   ( n-- )     dup 9 > if 7 + then '0' + #c ;");
+    outer(": #    ( n1--n2 )  base@ /mod swap #n ;");
+    outer(": #s   ( n-- )     begin # -while drop a> if '-' #c then ;");
+    outer(": #>   ( --str )   t> ;");
     outer(": space 32 emit ;");
 
     outer(": bl 32 ; inline : space bl emit ; inline");
     outer(": (.) <# #s #> ztype ;");
     outer(": . (.) space ;");
 
-    outer(": .s '(' emit space (sp) @c 1- ?dup");
-    outer("    if for i 1+ cells stk + @ . next then ')' emit ;");
+    outer(": .s '(' emit space (dsp) @c 1- ?dup");
+    outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");
 
     outer(": cr 13 emit 10 emit ;");
     outer(": tab 9 emit ;");
