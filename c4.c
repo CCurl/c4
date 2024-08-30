@@ -249,21 +249,15 @@ void doSee() {
 }
 
 char *iToA(cell N, int b) {
-	static char buf[65];
-	ucell X = (ucell)N;
-	int isNeg = 0, len = 0;
-	if (b == 0) { b = (int)base; }
-	if ((b == 10) && (N < 0)) { isNeg = 1; X = -N; }
-	char c, *cp = &buf[64];
+	cell X = (N<0) ? -N : N;
+	char c, *cp = (char*)&dict[64];
 	*(cp) = 0;
 	do {
 		c = (char)(X % b) + '0';
-		X /= b;
 		*(--cp) = (c>'9') ? c+7 : c;
-		++len;
+		X /= b;
 	} while (X);
-	if (isNeg) { *(--cp) = '-'; ++len; }
-	*(--cp) = len;
+	if (N<0) { *(--cp) = '-'; }
 	return cp;
 }
 
@@ -273,16 +267,16 @@ void fType(const char *s) {
 		if (c=='%') {
 			c = *(s++);
 			switch (c) {
-				case  'b': zType(iToA(pop(),2)+1);
+				case  'b': zType(iToA(pop(),2));
 				BCASE 'c': emit((char)pop());
-				BCASE 'd': zType(iToA(pop(),10)+1);
+				BCASE 'd': zType(iToA(pop(),10));
 				BCASE 'e': emit(27);
-				BCASE 'i': zType(iToA(pop(),base)+1);
+				BCASE 'i': zType(iToA(pop(),base));
 				BCASE 'n': emit(13); emit(10);
 				BCASE 'q': emit('"');
 				BCASE 's': fType((char*)pop());
 				BCASE 'S': zType((char*)pop());
-				BCASE 'x': zType(iToA(pop(),16)+1); break;
+				BCASE 'x': zType(iToA(pop(),16)); break;
 				default: emit(c); break;
 			}
 		}
