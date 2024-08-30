@@ -71,7 +71,6 @@ extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
 extern int  strLen(const char *s);
 extern int  lower(const char c);
-extern char *iToA(cell N, int b);
 extern void zTypeF(const char *fmt, ...);
 extern void inner(wc_t start);
 extern int  outer(const char *src);
