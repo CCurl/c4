@@ -75,16 +75,17 @@ void sys_load() {
     outer(": t+  t@+ drop ;  : t-  t@- drop ;");
 
     outer(": <#   ( n1--n2 )  dict 64 + >t 0 t@ c! dup 0 < >a abs ;");
-    outer(": #c   ( c-- )     t@ 1- dup t! c! ;");
+    outer(": #c   ( c-- )     t- t@ c! ;");
+    outer(": #.   ( -- )      '.' #c ;");
     outer(": #n   ( n-- )     dup 9 > if 7 + then '0' + #c ;");
     outer(": #    ( n1--n2 )  base@ /mod swap #n ;");
-    outer(": #s   ( n-- )     begin # -while drop a> if '-' #c then ;");
-    outer(": #>   ( --str )   t> ;");
-    outer(": space 32 emit ;");
+    outer(": #s   ( n-- )     begin # -while drop ;");
+    outer(": #>   ( --str )   a> if '-' #c then t> ;");
 
     outer(": bl 32 ; inline : space bl emit ; inline");
     outer(": (.) <# #s #> ztype ;");
     outer(": . (.) space ;");
+    outer(": .version version <# # # #. # # #. #s #> ztype ;");
 
     outer(": .s '(' emit space (dsp) @c 1- ?dup");
     outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");

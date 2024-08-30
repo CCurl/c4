@@ -62,7 +62,7 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 
 ## The A stack
 C4 includes an `a` stack. <br/>
-This is somewhat similar to ColorForth's operations for 'a', but it is a stack instead.<br/>
+This is somewhat similar to ColorForth's operations for 'a', but in C4, it is a stack.<br/>
 The size of the `a` stack is configurable (see `tstk-sz`).<br/>
 
 | WORD  | STACK  | DESCRIPTION |
@@ -201,5 +201,5 @@ The primitives:
 | bye       | (--)         | PC ONLY: Exit C4 |
 
 ## C4 default words
-Default words are defined in 
-To add or change the default words, modify function `sys_load()` in file `sys-load.c`.
+Default words are defined in function `sys_load()` in file sys-load.c.<br/>
+For details, or to add or change the default words, modify that function.

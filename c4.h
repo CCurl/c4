@@ -17,14 +17,16 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240829
+#define VERSION   240830
 
+// For 32-bit word-codes, use these
 #define WC_T           uint32_t
 #define WC_SZ           4
 #define NUM_BITS       0xE0000000
 #define NUM_MASK       0x1FFFFFFF
 #define CODE_SZ        0x00020000
 #define DICT_SZ       (10000*sizeof(DE_T))
+
 // For 16-bit word-codes, use these
 // #define WC_T           uint16_t
 // #define WC_SZ           2
