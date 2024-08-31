@@ -155,17 +155,16 @@
     <None Include="block-025.c4" />
     <None Include="block-026.c4" />
     <None Include="block-999.c4" />
-    <None Include="c4.ino" />
     <None Include="LICENSE" />
     <None Include="makefile" />
     <None Include="README.md" />
     <None Include="block-200.c4" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="c4.cpp" />
-    <ClCompile Include="file.cpp" />
-    <ClCompile Include="sys-load.cpp" />
-    <ClCompile Include="system.cpp" />
+    <ClCompile Include="c4.c" />
+    <ClCompile Include="file.c" />
+    <ClCompile Include="sys-load.c" />
+    <ClCompile Include="system.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c4.h" />

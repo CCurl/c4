@@ -1,0 +1,27 @@
+( Global variables )
+
+find x! loaded?
+
+cell var t0 inline
+: x!  t0 ! ;
+: x@  t0 @ ;
+: x@+ x@ dup 1+ x! ;
+: x@- x@ dup 1- x! ;
+: x>t x@ >t ;
+: t>x t> x! ;
+
+cell var t0 inline
+: y!  t0 ! ;
+: y@  t0 @ ;
+: y@+ y@ dup 1+ y! ;
+: y@- y@ dup 1- y! ;
+: y>t y@ >t ;
+: t>y t> y! ;
+
+cell var t0 inline
+: z!  t0 ! ;
+: z@  t0 @ ;
+: z@+ z@ dup 1+ z! ;
+: z@- z@ dup 1- z! ;
+: z>t z@ >t ;
+: t>z t> z! ;

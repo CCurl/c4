@@ -1,16 +1,13 @@
-: block-fn ( --fn ) p1 s" block-" s-cpy blk 10 /mod 10 /mod
-    3 for p1 swap '0' + s-catc drop next
-    s" .c4" s-cat 1+ ;
-: w1 a> 10 = if x+ x> 0 >pos >d exit then a> 32 max d>+ c! ;
-: w2 -regs nt-lines ;
-: work->block  +regs work >s block >d 0 >x
-    begin  s>+ c@ >a a> 0= if w2 exit then w1 x> rows <  while w2 ;
-: clear-block 32 block-sz fill ;
-: ed-load  work clear-block  block clear-block
+: block-fn ( --fn ) p1 z" block-" s-cpy blk <# # # #s #> s-cat z" .c4" s-cat ;
+: w1 ( ch-- ) dup 10 = if drop row++ 0 >col rc>pos t! exit then 32 max !t+ ;
+: w2 atdrop nt-lines ;
+: work->block work >a  block >t  0 dup >row >col
+    begin  @a+ ?dup  if0 w2 exit then  w1  row rows < while w2 ;
+: clear-block ( addr-- ) 32 block-sz fill ;
+: ed-load work clear-block  block clear-block
     block-fn fopen-rb ?dup if
         >t work block-sz t@ fread drop t> fclose
     then work->block clean show! 0 0 ->edRC ;
-: printable? ( c--c 1 | 0 ) dup 32 126 btwi if 1 else drop 0 then ;
 : normal-mode  0 ;  : insert-mode  1 ;  : replace-mode  2 ;  : quit-mode 99 ;
 : normal-mode?  normal-mode  ed-mode = ;  : normal-mode!  normal-mode  >ed-mode ;
 : insert-mode?  insert-mode  ed-mode = ;  : insert-mode!  insert-mode  >ed-mode ;
@@ -24,6 +21,9 @@
     normal-mode? if insert-mode!  exit then
     insert-mode? if replace-mode! exit then
     normal-mode! ;
+
+
+
 
 
 

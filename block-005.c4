@@ -1,7 +1,6 @@
 ( block 5 - screen )
 
 find cls loaded?
-5 >lex
 
 : cur-on    ( -- )   ." %e[?25h" ;
 : cur-off   ( -- )   ." %e[?25l" ;
