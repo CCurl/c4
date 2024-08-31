@@ -85,8 +85,8 @@ cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 	X(COLON,   ":",         1, addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(COMMA,   ",",         0, t=pop(); comma((wc_t)t); ) \
-	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=1; } ) \
-	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=2; } ) \
+	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
+	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(SEE,     "see",       1, execIt(); doSee(); ) \
@@ -228,20 +228,20 @@ void doSee() {
 	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
 		int op = code[i++];
-		x = code[i];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
-		if (op & NUM_BITS) { zTypeF("lit %d", (int)(op & NUM_MASK)); continue; }
+		if (op & NUM_BITS) { zTypeF("lit #%d", (int)(op & NUM_MASK)); continue; }
+		x = code[i];
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT1: zTypeF("lit1 %lu (%lX)", (long)x, (long)x); i++;
+			BCASE LIT1: zTypeF("lit1 #%lu ($%lX)", (long)x, (long)x); i++;
 			BCASE LIT2: x = fetchCell((cell)&code[i]);
-				zTypeF("lit2 %zd (%zX)", (size_t)x, (size_t)x);
+				zTypeF("lit2 #%zd ($%zX)", (size_t)x, (size_t)x);
 				i += (CELL_SZ/WC_SZ);
-			BCASE JMP:    zTypeF("jmp %04lX", (long)x);             i++;
-			BCASE JMPZ:   zTypeF("jmpz %04lX (IF)", (long)x);       i++;
-			BCASE NJMPZ:  zTypeF("njmpz %04lX (-IF)", (long)x);     i++;
-			BCASE JMPNZ:  zTypeF("jmpnz %04lX (WHILE)", (long)x);   i++; break;
-			BCASE NJMPNZ: zTypeF("njmpnz %04lX (-WHILE)", (long)x); i++; break;
+			BCASE JMP:    zTypeF("jmp $%04lX", (long)x);             i++;
+			BCASE JMPZ:   zTypeF("jmpz $%04lX (IF)", (long)x);       i++;
+			BCASE NJMPZ:  zTypeF("njmpz $%04lX (-IF)", (long)x);     i++;
+			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++; break;
+			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
 				zType(x ? ((DE_T*)&dict[(wc_t)x])->nm : "??");
 		}
@@ -339,29 +339,22 @@ int isNum(const char *w, int b) {
 }
 
 int parseWord(char *w) {
-	if (!w) { w = &wd[0]; }
-
 	if (isNum(w, base)) {
 		cell n = pop();
-		if (btwi(n, 0, NUM_MASK)) {
-			comma((wc_t)(n | NUM_BITS));
-		} else if ((n & 0xffff) == n) {
-			comma(LIT1); comma((wc_t)n);
-		} else {
-			comma(LIT2);
-			commaCell(n);
-		}
+		if (btwi(n, 0, NUM_MASK)) { comma((wc_t)(n | NUM_BITS)); }
+		else if ((n & 0xffff) == n) { comma(LIT1); comma((wc_t)n); }
+		else { comma(LIT2); commaCell(n); }
 		return 1;
 	}
 
 	DE_T *de = findWord(w);
 	if (de) {
-		if (de->fl == 1) {   // IMMEDIATE
+		if (de->fl == _IMMED) {
 			int h = here+100;
 			code[h]   = de->xt;
 			code[h+1] = EXIT;
 			inner(h);
-		} else if (de->fl == 2) {   // INLINE
+		} else if (de->fl == _INLINE) {
 			wc_t x = de->xt;
 			do { comma(code[x++]); } while (code[x] != EXIT);
 		} else {
@@ -418,25 +411,18 @@ void baseSys() {
 		w->fl = prims[i].fl;
 	}
 
-	outerF(": version   #%d ;", VERSION);
-	outerF(": (jmp)     #%d ;", JMP);
-	outerF(": (jmpz)    #%d ;", JMPZ);
-	outerF(": (jmpnz)   #%d ;", JMPNZ);
-	outerF(": (njmpz)   #%d ;", NJMPZ);
-	outerF(": (njmpnz)  #%d ;", NJMPNZ);
-	outerF(": (lit1)    #%d ;", LIT1);
-	outerF(": (lit2)    #%d ;", LIT2);
-	outerF(": (exit)    #%d ;", EXIT);
-
-	outerF(": (dsp)      #%d ;", DSPA);
-	outerF(": (rsp)      #%d ;", RSPA);
-	outerF(": (lsp)      #%d ;", LSPA);
-	outerF(": (tsp)      #%d ;", TSPA);
-	outerF(": (asp)      #%d ;", ASPA);
-	outerF(": (here)     #%d ;", HA);
-	outerF(": (last)     #%d ;", LA);
-	outerF(": base       #%d ;", BA);
-	outerF(": state      #%d ;", SA);
+	outerF(": code-sz   #%d ;", CODE_SZ);
+	outerF(": vars-sz   #%d ;", VARS_SZ);
+	outerF(": dict-sz   #%d ;", DICT_SZ);
+	outerF(": de-sz     #%d ;", sizeof(DE_T));
+	outerF(": dstk-sz   #%d ;", STK_SZ+1);
+	outerF(": tstk-sz   #%d ;", TSTK_SZ+1);
+	outerF(": wc-sz     #%d ;", WC_SZ);
+	outerF(": (dsp)     #%d ;", DSPA);
+	outerF(": (rsp)     #%d ;", RSPA);
+	outerF(": (lsp)     #%d ;", LSPA);
+	outerF(": (tsp)     #%d ;", TSPA);
+	outerF(": (asp)     #%d ;", ASPA);
 
 	outerF(addrFmt, "dstk", &dstk[0]);
 	outerF(addrFmt, "rstk", &rstk[0]);
@@ -449,14 +435,20 @@ void baseSys() {
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
 
-	outerF(": wc-sz   #%d ;", WC_SZ);
-	outerF(": code-sz #%d ;", CODE_SZ);
-	outerF(": vars-sz #%d ;", VARS_SZ);
-	outerF(": dict-sz #%d ;", DICT_SZ);
-	outerF(": de-sz   #%d ;", sizeof(DE_T));
-	outerF(": dstk-sz #%d ;", STK_SZ+1);
-	outerF(": tstk-sz #%d ;", TSTK_SZ+1);
-	outerF(": cell    #%d ;", CELL_SZ);
+	outerF(": version   #%d ;", VERSION);
+	outerF(": (jmp)     #%d ;", JMP);
+	outerF(": (jmpz)    #%d ;", JMPZ);
+	outerF(": (jmpnz)   #%d ;", JMPNZ);
+	outerF(": (njmpz)   #%d ;", NJMPZ);
+	outerF(": (njmpnz)  #%d ;", NJMPNZ);
+	outerF(": (lit1)    #%d ;", LIT1);
+	outerF(": (lit2)    #%d ;", LIT2);
+	outerF(": (exit)    #%d ;", EXIT);
+	outerF(": (here)    #%d ;", HA);
+	outerF(": (last)    #%d ;", LA);
+	outerF(": base      #%d ;", BA);
+	outerF(": state     #%d ;", SA);
+	outerF(": cell      #%d ;", CELL_SZ);
 	sys_load();
 }
 

@@ -43,6 +43,8 @@
 #define FSTK_SZ           15
 #define NAME_LEN      (32-(WC_SZ+2))
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
+#define _IMMED              1
+#define _INLINE             2
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T    int64_t
