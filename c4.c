@@ -249,9 +249,9 @@ void doSee() {
 }
 
 void iToA(cell n, cell b) {
-	if (n<0) { emit('-'); n=-n; }
-	if (n>(b-1)) { iToA(n/b, b); }
-	n %= b; if (9<n) { n+=7; }
+	if (n<0) { emit('-'); n = -n; }
+	if (b<=n) { iToA(n/b, b); }
+	n %= b; if (9<n) { n += 7; }
 	emit('0'+n);
 }
 
