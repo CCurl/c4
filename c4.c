@@ -20,11 +20,12 @@
 
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
-wc_t code[CODE_SZ+1], cH, cL, cS;
+wc_t code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
-cell vhere, cV, lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
-char wd[32], *toIn;
+cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
+cell vhere, cH, cL, cS, cV;
+char wd[32], *toIn;
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
@@ -183,7 +184,7 @@ DE_T *addWord(const char *w) {
 	if (!w) {
 		execIt();
 		nextWord();
-		if (NAME_LEN <= strLen(wd)) { wd[NAME_LEN-1]=0; }
+		if (NAME_LEN < strLen(wd)) { wd[NAME_LEN]=0; }
 		w = wd;
 		// cL = last; - crash, why?
 	}
