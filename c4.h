@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240831
+#define VERSION   240901
 
 // For 32-bit word-codes, use these
 #define WC_T           uint32_t
