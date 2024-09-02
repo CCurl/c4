@@ -3,10 +3,10 @@
 : block-fn ( blk--fn ) >t t1 z" block-" s-cpy t> <# # # #s #> s-cat z" .c4" s-cat ;
 
 : copy-block ( from to--sz )
-   swap block-fn fopen-rb >t ( from-file )
-   t@ if0 ." can't open from." drop tdrop exit then
-   block-fn fopen-wb >r ( to-file )
-   r@ if0 ." can't open to." t> fclose rdrop exit then
+   swap block-fn fopen-rb  ( from-file )
+   ?dup if0 ." can't open from." drop exit then >t
+   block-fn fopen-wb       ( to-file )
+   ?dup if0 ." can't open to." t> fclose exit then >r
    t1 99999 t@ fread t1 swap r@ fwrite ." %d chars."
    r> fclose t> fclose ;
 
