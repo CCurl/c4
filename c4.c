@@ -20,11 +20,11 @@
 
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
-wc_t code[CODE_SZ+1];
+wc_t code[CODE_SZ+1], cH, cL, cS;
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
-cell vhere, cH, cL, cS, cV;
+cell vhere, cV;
 char wd[32], *toIn;
 
 #define PRIMS \
@@ -253,7 +253,7 @@ void iToA(cell n, cell b) {
 	if (n<0) { emit('-'); n = -n; }
 	if (b<=n) { iToA(n/b, b); }
 	n %= b; if (9<n) { n += 7; }
-	emit('0'+n);
+	emit('0'+(char)n);
 }
 
 void fType(const char *s) {
