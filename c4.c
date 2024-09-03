@@ -63,9 +63,11 @@ char wd[32], *toIn;
 	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(wc_t)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
-	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
-	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RSTO,    "r!",        0, rstk[rsp] = pop(); ) \
+	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
+	X(RATI,    "r@+",       0, push(rstk[rsp]++); ) \
+	X(RATD,    "r@-",       0, push(rstk[rsp]--); ) \
+	X(RFROM,   "r>",        0, push(rpop()); ) \
 	X(RDROP,   "rdrop",     0, rpop(); ) \
 	X(TTO,     ">t",        0, t=pop(); if (tsp < TSTK_SZ) { tstk[++tsp]=t; }; ) \
 	X(TSTO,    "t!",        0, tstk[tsp] = pop(); ) \
@@ -274,8 +276,7 @@ void fType(const char *s) {
 				BCASE 'x': iToA(pop(),16); break;
 				default: emit(c); break;
 			}
-		}
-		else { emit(c); }
+		} else { emit(c); }
 	}
 }
 
