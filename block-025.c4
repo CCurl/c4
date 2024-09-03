@@ -1,5 +1,3 @@
-: next-blk save-block blk 1- 0 max >blk ed-load ;
-: prev-blk save-block blk 1+       >blk ed-load ;
 : ed-ctrl-key ( -- )
     a@ key-up    = if mv-up    exit then   a@ key-left  = if mv-lt  exit then
     a@ key-down  = if mv-dn    exit then   a@ key-right = if mv-rt  exit then
@@ -11,6 +9,7 @@
     a@  8        = if mv-lt    exit then   a@ 127       = if mv-lt exit then
     a@  3 =  if normal-mode!   exit then   a@ key-cend  = if max-row 0 ->edRC exit then
     a@ 24 =  if mv-lt delete-char  exit then ;
+
 : ed-key ( a@ )   a@ 32 126 btwi 0= if ed-ctrl-key  exit then
     insert-mode?  if a@ insert-char   exit then
     replace-mode? if a@ replace-char  exit then
@@ -30,3 +29,4 @@
     a@ 'b' = if 32 insert-char mv-lt  exit then
     a@ 'o' = if mv-dn insert-line replace-mode!  exit then
     a@ 'O' = if       insert-line replace-mode!  exit then ;
+
