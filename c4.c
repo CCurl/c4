@@ -246,7 +246,7 @@ void doSee() {
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++; break;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
-				zType(x ? ((DE_T*)&dict[(wc_t)x])->nm : "??");
+				zType(x ? ((DE_T*)&dict[x])->nm : "??");
 		}
 	}
 }
