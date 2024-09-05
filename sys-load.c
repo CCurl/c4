@@ -1,9 +1,10 @@
 #include "c4.h"
 
-// void sys_load() {
-//     fileLoad("bootstrap.c4");
-// }
-
+#ifndef _SYS_LOAD_
+void sys_load() {
+    fileLoad("bootstrap.c4");
+}
+#else
 void sys_load() {
     outer(": \\ 0 >in @ w! ; immediate");
     outer(": ->code code + ;");
@@ -118,3 +119,4 @@ void sys_load() {
     outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
     outer("marker");
 }
+#endif // _SYS_LOAD_

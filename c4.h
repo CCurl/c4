@@ -17,11 +17,12 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240901
+#define VERSION   240905
+#define _SYS_LOAD_
 
 // For 16-bit word-codes, use these
 // #define WC_T           uint16_t
-// #define WC_SZ           2
+// #define WC_SZ          0x02
 // #define NUM_BITS       0xE000
 // #define NUM_MASK       0x1FFF
 // #define CODE_SZ        0xDFFF
@@ -29,13 +30,13 @@
 // #define VARS_SZ        1*1024*1024
 
 // For 32-bit word-codes, use these
-#define WC_T           uint32_t
-#define WC_SZ             4
-#define NUM_BITS        0xE0000000
-#define NUM_MASK        0x1FFFFFFF
-#define CODE_SZ         0x00020000
-#define DICT_SZ        (10000*sizeof(DE_T))
-#define VARS_SZ         4*1024*1024
+#define WC_T              uint32_t
+#define WC_SZ             0x04
+#define NUM_BITS          0xE0000000
+#define NUM_MASK          0x1FFFFFFF
+#define CODE_SZ           0x00020000
+#define DICT_SZ          (10000*sizeof(DE_T))
+#define VARS_SZ           4*1024*1024
 
 #define STK_SZ            63
 #define RSTK_SZ           63
