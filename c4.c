@@ -76,18 +76,20 @@ char wd[32], *toIn;
 	X(TATD,    "t@-",       0, push(tstk[tsp]--); ) \
 	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
 	X(TDROP,   "tdrop",     0, if (0 < tsp) { tsp--; } ) \
-	X(TOA,     ">a",        0, apush(pop()); ) \
+	X(TOA,     ">a",        0, t=pop(); if (asp < TSTK_SZ) { astk[++asp] = t; } ) \
 	X(ASET,    "a!",        0, ATOS=pop(); ) \
 	X(AGET,    "a@",        0, push(ATOS); ) \
 	X(AGETI,   "a@+",       0, push(ATOS++); ) \
 	X(AGETD,   "a@-",       0, push(ATOS--); ) \
-	X(AFROM,   "a>",        0, push(apop()); ) \
+	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
+	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(COLON,   ":",         1, addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(COMMA,   ",",         0, t=pop(); comma((wc_t)t); ) \
+	X(OUTER,   "outer",     0, t=pop(); outer((char*)t); ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
 	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere); ) \
@@ -131,10 +133,6 @@ void push(cell x) { if (sp < STK_SZ) { dstk[++sp] = x; } }
 cell pop() { return (0<sp) ? dstk[sp--] : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
-void tpush(cell x) { if (tsp < TSTK_SZ) { tstk[++tsp] = x; } }
-cell tpop() { return (0<tsp) ? tstk[tsp--] : 0; }
-void apush(cell x) { if (asp < TSTK_SZ) { astk[++asp] = x; } }
-cell apop() { return (0<asp) ? astk[asp--] : 0; }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 void store16(cell a, cell v) { *(uint16_t*)(a) = (uint16_t)v; }
