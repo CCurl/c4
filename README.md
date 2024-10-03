@@ -158,12 +158,14 @@ The primitives:
 | t@+       | (--N)        | N: copy of T-TOS, then increment T-TOS |
 | t@-       | (--N)        | N: copy of T-TOS, then decrement T-TOS |
 | t>        | (--N)        | Pop N from the T stack |
+| tdrop     | (--)         | Drop T-TOS |
 | >a        | (N--)        | Push N onto the A stack |
 | a!        | (N--)        | Set A-TOS to N |
 | a@        | (--N)        | N: copy of A-TOS |
 | a@+       | (--N)        | N: copy of A-TOS, then increment A-TOS |
 | a@-       | (--N)        | N: copy of A-TOS, then decrement A-TOS |
 | a>        | (--N)        | Pop N from the A stack |
+| adrop     | (--)         | Drop A-TOS |
 | emit      | (C--)        | Output char C |
 | :         | (--)         | Create a new word, set STATE=1 |
 | ;         | (--)         | Compile EXIT, set STATE=0 |
