@@ -78,7 +78,10 @@ void loadArgument(const char *arg) {
     char fn[32];
     strCpy(fn, arg);
     cell tmp = fileOpen(fn, "rb");
-    if (tmp) { inputFp = tmp; }
+    if (tmp) {
+        if (inputFp) { filePush(tmp); }
+        else { inputFp = tmp;  }
+    }
 }
 
 int main(int argc, char *argv[]) {

@@ -17,32 +17,37 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240831
-
-// For 32-bit word-codes, use these
-#define WC_T           uint32_t
-#define WC_SZ             4
-#define NUM_BITS        0xE0000000
-#define NUM_MASK        0x1FFFFFFF
-#define CODE_SZ         0x00020000
-#define DICT_SZ        (10000*sizeof(DE_T))
+#define VERSION   240930
+#define _SYS_LOAD_
 
 // For 16-bit word-codes, use these
 // #define WC_T           uint16_t
-// #define WC_SZ           2
+// #define WC_SZ          0x02
 // #define NUM_BITS       0xE000
 // #define NUM_MASK       0x1FFF
 // #define CODE_SZ        0xDFFF
 // #define DICT_SZ       (2500*sizeof(DE_T))
+// #define VARS_SZ        1*1024*1024
 
-#define VARS_SZ         4*1024*1024
+// For 32-bit word-codes, use these
+#define WC_T              uint32_t
+#define WC_SZ             0x04
+#define NUM_BITS          0xE0000000
+#define NUM_MASK          0x1FFFFFFF
+#define CODE_SZ           0x00020000
+#define DICT_SZ          (10000*sizeof(DE_T))
+#define VARS_SZ           4*1024*1024
+
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60
 #define TSTK_SZ           63
 #define FSTK_SZ           15
-#define NAME_LEN      (32-(WC_SZ+2))
+#define NAME_LEN      (32-(WC_SZ+3))
+
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
+#define _IMMED              1
+#define _INLINE             2
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T    int64_t
@@ -60,7 +65,7 @@ typedef CELL_T cell;
 typedef UCELL_T ucell;
 typedef WC_T wc_t;
 typedef unsigned char byte;
-typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN]; } DE_T;
+typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 
 // These are defined by c4.cpp

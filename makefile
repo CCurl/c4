@@ -1,35 +1,19 @@
-app := c4
-app32 := c4-32
-
-CXX := clang
-CXXFLAGS := -m64 -O3
-C32FLAGS := -m32 -O3
-
+ARCH ?= 64
+CFLAGS = -O3 -m$(ARCH)
 srcfiles := $(shell find . -name "*.c")
 incfiles := $(shell find . -name "*.h")
-LDLIBS   := -lm
 
-all: $(app)
+c4: $(srcfiles) $(incfiles)
+	$(CC) $(CFLAGS) $(srcfiles) -o $@
 
-$(app): $(srcfiles) $(incfiles)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(app) $(srcfiles) $(LDLIBS)
-	ls -l $(app)
-
-$(app32): $(srcfiles) $(incfiles)
-	$(CXX) $(C32FLAGS) $(LDFLAGS) -o $(app32) $(srcfiles) $(LDLIBS)
-	ls -l $(app32)
+run: c4
+	./c4
 
 clean:
-	rm -f $(app) $(app32)
+	rm -f c4
 
-test: $(app)
-	./$(app) block-200.c4
+test: c4
+	./c4 block-200.c4
 
-run: $(app)
-	./$(app)
-
-run32: $(app32)
-	./$(app32)
-
-bin: $(app)
-	cp -u -p $(app) ~/bin/
+bin: c4
+	cp -u -p c4 ~/bin/
