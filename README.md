@@ -15,12 +15,12 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 
 ## C4 memory areas
 C4 provides three memory areas:
-- The `code` area can store up to $DFFFFFFF 32-bit WORD-CODEs, 32-bit index. (see `code-sz`).
+- The `code` area can store up to $1FFFFFFF 32-bit WORD-CODEs, 32-bit index. (see `code-sz`).
   - **NOTE**: CODE slots 0-25 (`0 @c .. 25 @c`) are reserved for C4 system values.
   - **NOTE**: CODE slots 25-75 (`25 @c` .. `75 @c`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
   - **NOTE**: Use `@c` and `!c` to get and set 32-bit values in the code area.
-- The `vars` area can store up to CELL bytes, CELL index (see `vars-sz`).
+- The `vars` area can store up to CELL bytes (see `vars-sz`).
 - - `vhere` is the address of the first free byte the vars area.
 - The `dict` area can can be any size, 32-bit index (see `dict-sz`).
 - `here` is an offset into the code area.
@@ -29,15 +29,15 @@ C4 provides three memory areas:
 
 | WORD       | STACK   | DESCRIPTION |
 |:--         |:--      |:--          |
-| (dsp)      | (--N)   | Offset of the data stack pointer |
-| (rsp)      | (--N)   | Offset of the return stack pointer |
-| (lsp)      | (--N)   | Offset of the loop stack pointer |
-| (tsp)      | (--N)   | Offset of the T stack pointer |
-| (asp)      | (--N)   | Offset of the A stack pointer |
-| (here)     | (--N)   | Offset of the HERE variable |
-| (last)     | (--N)   | Offset of the LAST variable |
-| base       | (--N)   | Offset of the BASE variable |
-| state      | (--N)   | Offset of the STATE variable |
+| (dsp)      | (--N)   | CODE slot for the data stack pointer |
+| (rsp)      | (--N)   | CODE slot for the return stack pointer |
+| (lsp)      | (--N)   | CODE slot for the loop stack pointer |
+| (tsp)      | (--N)   | CODE slot for the T stack pointer |
+| (asp)      | (--N)   | CODE slot for the A stack pointer |
+| (here)     | (--N)   | CODE slot for the HERE variable |
+| (last)     | (--N)   | CODE slot for the LAST variable |
+| base       | (--N)   | CODE slot for the BASE variable |
+| state      | (--N)   | CODE slot for the STATE variable |
 
 ## C4 Strings
 Strings in C4 are NULL-terminated strings with no count byte (ztype).<br/>
