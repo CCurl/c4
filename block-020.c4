@@ -25,7 +25,7 @@ block-sz var work
 : norm-col ( x-- )  col + 0 max max-col 1- min >col ;
 : mv      ( r c-- ) norm-col norm-row row nt-line ;
 : mv-lt 0 -1 mv ;  : mv-rt 0 1 mv ;  : mv-up -1 0 mv ;  : mv-dn 1 0 mv ;
-: ->edRC ( r c-- ) >col >row ;
+: >row/col ( r c-- ) >col >row ;
 21 26 thru
 : ed ( -- ) ed-init ed-load cls ed-loop ;
 : edit ( blk-- ) >blk ed ;
