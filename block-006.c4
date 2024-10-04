@@ -1,4 +1,6 @@
-( utility words )
+( Block 6 - Utility words )
+
+find dump loaded?
 
 : .2 <# # #s #> ztype ;
 : .hex base@ >t hex .2 t> base! ;
@@ -9,8 +11,6 @@
    for 0 t@ = if a@ ." %n%x: " then
        @a+ .hex space t@+ $0f = if ."    " 0 t! a@ $10 - t2 then
    next atdrop ;
-
-
 
 
 
