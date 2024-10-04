@@ -26,6 +26,7 @@ cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 cell vhere, cV;
 char wd[32], *toIn;
+DE_T tmpWords[10];
 
 #define PRIMS \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
@@ -179,7 +180,6 @@ void execIt() {
 	}
 }
 
-DE_T tmpWords[10];
 int isTemp(const char *w) {
 	return ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) ? 1 : 0;
 }
