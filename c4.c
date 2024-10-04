@@ -179,8 +179,12 @@ void execIt() {
 	}
 }
 
+DE_T tmpWords[10];
+int isTemp(const char *w) {
+	return ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) ? 1 : 0;
+}
+
 DE_T *addWord(const char *w) {
-	last -= sizeof(DE_T);
 	if (!w) {
 		execIt();
 		nextWord();
@@ -188,6 +192,11 @@ DE_T *addWord(const char *w) {
 		w = wd;
 		// cL = last; - crash, why?
 	}
+	if (isTemp(w)) {
+		tmpWords[w[1]-'0'].xt = here;
+		return &tmpWords[w[1]-'0'];
+	}
+	last -= sizeof(DE_T);
 	int ln = strLen(w);
 	DE_T *dp = (DE_T*)&dict[last];
 	dp->xt = here;
@@ -200,6 +209,7 @@ DE_T *addWord(const char *w) {
 
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
+	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
 	int len = strLen(w);
 	int cw = last;
 	while (cw < DICT_SZ) {
