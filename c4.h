@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240930
+#define VERSION   241004
 #define _SYS_LOAD_
 
 // For 16-bit word-codes, use these
