@@ -5,7 +5,7 @@ int fileSp;
 
 void filePush(cell fh) { if (fileSp < FSTK_SZ) { fileStk[++fileSp] = fh; } }
 cell filePop() { return (0<fileSp) ? fileStk[fileSp--]: 0; }
-static char *blockFn(char *fn, int blk) { sprintf(fn, "block-%03d.c4", blk); return fn; }
+static char *blockFn(char *fn, int blk) { sprintf(fn, "block-%03d.f", blk); return fn; }
 static char fn[32];
 
 void fileInit() { fileSp = 0; inputFp = 0; }

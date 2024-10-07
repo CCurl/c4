@@ -193,7 +193,7 @@ The primitives:
 | fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
 | fgets     | (A N FH--X)  | A: Buffer, N: Size, X: num chars read (0 if EOF/Error) |
 | include X | (--)         | Load file named X (X: next word) |
-| load      | (N--)        | N: Block number to load (file named "block-NNN.c4") |
+| load      | (N--)        | N: Block number to load (file named "block-NNN.f") |
 | load-next | (N--)        | Close the current block and load block N next |
 | loaded?   | (W A--)      | Stops current load if A <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
