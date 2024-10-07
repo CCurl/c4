@@ -144,21 +144,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="block-003.c4" />
-    <None Include="block-005.c4" />
-    <None Include="block-004.c4" />
-    <None Include="block-020.c4" />
-    <None Include="block-021.c4" />
-    <None Include="block-022.c4" />
-    <None Include="block-023.c4" />
-    <None Include="block-024.c4" />
-    <None Include="block-025.c4" />
-    <None Include="block-026.c4" />
-    <None Include="block-999.c4" />
+    <None Include=".gitignore" />
+    <None Include="block-003.f" />
+    <None Include="block-004.f" />
+    <None Include="block-005.f" />
+    <None Include="block-006.f" />
+    <None Include="block-010.f" />
+    <None Include="block-014.f" />
+    <None Include="block-015.f" />
+    <None Include="block-020.f" />
+    <None Include="block-021.f" />
+    <None Include="block-022.f" />
+    <None Include="block-023.f" />
+    <None Include="block-024.f" />
+    <None Include="block-025.f" />
+    <None Include="block-026.f" />
+    <None Include="block-200.f" />
+    <None Include="block-999.f" />
+    <None Include="bootstrap.f" />
     <None Include="LICENSE" />
     <None Include="makefile" />
     <None Include="README.md" />
-    <None Include="block-200.c4" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c4.c" />
