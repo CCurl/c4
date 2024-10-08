@@ -87,7 +87,7 @@ void loadArgument(const char *arg) {
 int main(int argc, char *argv[]) {
 	Init();
     if (argc > 1) { loadArgument(argv[1]); }
-    else { loadArgument("block-999.f"); }
+    else { loadArgument("block-999.fth"); }
     while (1) { REP(); };
 	return 0;
 }
