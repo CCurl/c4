@@ -90,7 +90,7 @@ DE_T tmpWords[10];
 	X(COLON,   ":",         1, addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(COMMA,   ",",         0, t=pop(); comma((wc_t)t); ) \
-	X(OUTER,   "outer",     0, t=pop(); outer((char*)t); ) \
+	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
 	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere); ) \
@@ -443,6 +443,7 @@ void baseSys() {
 	outerF(addrFmt, "vars", &vars[0]);
 	outerF(addrFmt, "dict", &dict[0]);
 	outerF(addrFmt, ">in",  &toIn);
+	outerF(addrFmt, "wd",   &wd[0]);
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
 

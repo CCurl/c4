@@ -1,5 +1,6 @@
 ( benchmarks / tests )
 
+find bm1 loaded?
 : test-if 'n' swap if drop 'y' then emit '.' emit ;
 : if-else if z" yes" else z" no" then ztype '.' emit ;
 cr 0 test-if 1 test-if    see test-if cr
@@ -27,6 +28,5 @@ yyy ." -yyy created, (%d)-" cr
 see yyy cr
 xxx @ yyy =   if ." PASS: const/var." then
 xxx @ yyy <>  if ." FAIL: const/var!" then
-
 
 
