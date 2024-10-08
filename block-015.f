@@ -3,7 +3,7 @@
 find blk-mv loaded?
 3 load ( strings )
 
-: blk-fn ( blk--fn ) >t p1 z" block-" s-cpy t> <# # # #s #> s-cat z" .c4" s-cat ;
+: blk-fn ( blk--fn ) >t p1 z" block-" s-cpy t> <# # # #s #> s-cat z" .f" s-cat ;
 : blk-read ( blkNum buf bufSize--numRead ) >t >a  a@ 0 t@ fill
     blk-fn fopen-rb ?dup if >r a@ t@ r@ fread  r> fclose else 0 then atdrop ;
 : blk-write ( blkNum buf bufSize--numWritten ) >t >a

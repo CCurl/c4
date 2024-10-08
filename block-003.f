@@ -4,8 +4,8 @@ find fill loaded?
 
 : p1 vhere $100 + ;    : p2 p1 $100 + ;
 
-: fill   ( dst b num-- )  ?dup if >t swap t> for over over c! 1+    next then 2drop ;
-: fill-c ( dst n num-- )  ?dup if >t swap t> for over over ! cell + next then 2drop ;
+: fill   ( dst cnt ch-- )  swap ?dup if >t swap t> for over over c! 1+    next then 2drop ;
+: fill-c ( dst cnt n-- )   swap ?dup if >t swap t> for over over ! cell + next then 2drop ;
 
 : cmove ( src dst n-- ) >r >t >a
     r> ?dup if for @a+ !t+ next then
