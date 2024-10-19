@@ -20,11 +20,11 @@
 
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
-wc_t code[CODE_SZ+1], cH, cL, cS;
+wc_t code[CODE_SZ+1];
 byte dict[DICT_SZ+1], vars[VARS_SZ+1];
 cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
-cell vhere, cV;
+cell vhere;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
@@ -87,15 +87,15 @@ DE_T tmpWords[10];
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
-	X(COLON,   ":",         1, addWord(0); state = 1; ) \
-	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
+	X(COLON,   ":",         0, addWord(0); state = 1; ) \
+	X(SEMI,    ";",         1, comma(EXIT); state=0; ) \
 	X(COMMA,   ",",         0, t=pop(); comma((wc_t)t); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
-	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
+	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
+	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
-	X(SEE,     "see",       1, execIt(); doSee(); ) \
+	X(SEE,     "see",       0, doSee(); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
 	X(SCPY,    "s-cpy",     0, t=pop(); strCpy((char*)TOS, (char*)t); ) \
@@ -103,18 +103,18 @@ DE_T tmpWords[10];
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
-	X(DOTQT,   ".\"",       1, quote(); comma(FTYPE); ) \
+	X(DOTQT,   ".\"",       1, quote(); state ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(FETC,    "@c",        0, TOS = code[(wc_t)TOS]; ) \
 	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
-	X(FIND,    "find",      1, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
 	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
 	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
 	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
-	X(INCL,    "include",   1, t=nextWord(); if (t) fileLoad(wd); ) \
+	X(INCL,    "include",   0, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
 	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); ) \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
@@ -171,27 +171,15 @@ int nextWord() {
 	return len;
 }
 
-void execIt() {
-	// zTypeF("-cH:%d,here:%d-\n",cH, here);
-	if (cH < here) {
-		comma(0);
-		here=cH;
-		vhere=cV;
-		inner(cH);
-	}
-}
-
 int isTemp(const char *w) {
 	return ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) ? 1 : 0;
 }
 
 DE_T *addWord(const char *w) {
 	if (!w) {
-		execIt();
 		nextWord();
 		if (NAME_LEN < strLen(wd)) { wd[NAME_LEN]=0; }
 		w = wd;
-		// cL = last; - crash, why?
 	}
 	if (isTemp(w)) {
 		tmpWords[w[1]-'0'].xt = here;
@@ -290,8 +278,6 @@ void fType(const char *s) {
 }
 
 void quote() {
-	comma(LIT2);
-	commaCell(vhere);
 	char *vh=(char*)vhere;
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
@@ -299,7 +285,13 @@ void quote() {
 		*(vh++) = *(toIn++);
 	}
 	*(vh++) = 0; // NULL terminator
-	vhere = (cell)vh;
+	if (state) {
+		comma(LIT2);
+		commaCell(vhere);
+		vhere = (cell)vh;
+	} else {
+		push(vhere);
+	}
 }
 
 #undef X
@@ -349,28 +341,33 @@ int isNum(const char *w, int b) {
 	return 1;
 }
 
+void compileNum(cell num) {
+	if (btwi(num, 0, NUM_MASK)) { comma((wc_t)(num | NUM_BITS)); }
+	else { comma(LIT2); commaCell(num); }
+}
+
+void executeWord(DE_T *de) {
+	int h = here+100;
+	code[h]   = de->xt;
+	code[h+1] = EXIT;
+	inner(h);
+}
+
+void compileWord(DE_T *de) {
+	if (de->fl & _IMMED) { executeWord(de); }
+	else { comma(de->xt); }
+}
+
 int parseWord(char *w) {
 	if (isNum(w, base)) {
-		cell n = pop();
-		if (btwi(n, 0, NUM_MASK)) { comma((wc_t)(n | NUM_BITS)); }
-		else if ((n & 0xffff) == n) { comma(LIT1); comma((wc_t)n); }
-		else { comma(LIT2); commaCell(n); }
+		if (state) { compileNum(pop()); }
 		return 1;
 	}
 
 	DE_T *de = findWord(w);
 	if (de) {
-		if (de->fl == _IMMED) {
-			int h = here+100;
-			code[h]   = de->xt;
-			code[h+1] = EXIT;
-			inner(h);
-		} else if (de->fl == _INLINE) {
-			wc_t x = de->xt;
-			do { comma(code[x++]); } while (code[x] != EXIT);
-		} else {
-			comma(de->xt);
-		}
+		if (state) { compileWord(de); }
+		else { executeWord(de); }
 		return 1;
 	}
 
@@ -379,21 +376,16 @@ int parseWord(char *w) {
 
 int outer(const char *ln) {
 	// zTypeF("-outer:%s-\n",ln);
-	cH=here, cL=last, cS=state, cV=vhere;
 	toIn = (char *)ln;
 	while (nextWord()) {
 		if (!parseWord(wd)) {
 			zTypeF("-%s?-", wd);
 			if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
-			here=cH;
-			vhere=cV;
-			last=cL;
 			state=0;
 			while (inputFp) { fileClose(inputFp); inputFp=filePop(); }
 			return 0;
 		}
 	}
-	if ((cL==last) && (cS==0) && (state==0)) execIt();
 	return 1;
 }
 
