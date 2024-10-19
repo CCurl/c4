@@ -2,7 +2,7 @@
 
 #define NCASE         goto next; case
 #define BCASE         break; case
-#define sp            code[DSPA]
+#define dsp           code[DSPA]
 #define rsp           code[RSPA]
 #define lsp           code[LSPA]
 #define tsp           code[TSPA]
@@ -11,8 +11,8 @@
 #define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
-#define TOS           dstk[sp]
-#define NOS           dstk[sp-1]
+#define TOS           dstk[dsp]
+#define NOS           dstk[dsp-1]
 #define ATOS          astk[asp]
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
@@ -131,8 +131,8 @@ enum _PRIM  {
 
 PRIM_T prims[] = { PRIMS {0, 0, 0} };
 
-void push(cell x) { if (sp < STK_SZ) { dstk[++sp] = x; } }
-cell pop() { return (0<sp) ? dstk[sp--] : 0; }
+void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
+cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
