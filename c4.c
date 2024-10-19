@@ -90,7 +90,7 @@ DE_T tmpWords[10];
 	X(COLON,   ":",         1, addWord(0); state = 1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; cH=here; cL=last; ) \
 	X(COMMA,   ",",         0, t=pop(); comma((wc_t)t); ) \
-	X(OUTER,   "outer",     0, t=pop(); outer((char*)t); ) \
+	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
 	X(IMMED,   "immediate", 1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
 	X(INLINE,  "inline",    1, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere); ) \
@@ -116,6 +116,7 @@ DE_T tmpWords[10];
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(INCL,    "include",   1, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
+	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); ) \
 	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
 	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
 
@@ -442,6 +443,7 @@ void baseSys() {
 	outerF(addrFmt, "vars", &vars[0]);
 	outerF(addrFmt, "dict", &dict[0]);
 	outerF(addrFmt, ">in",  &toIn);
+	outerF(addrFmt, "wd",   &wd[0]);
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
 

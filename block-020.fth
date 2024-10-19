@@ -2,6 +2,7 @@
  3 load ( strings/fill/cmove/cmove> )
  5 load ( screen )
 10 load ( vars )
+15 load ( blocks )
 : blk        40 @c ;  : >blk          40 !c ;
 : rows       41 @c ;  : >rows         41 !c ;  : max-row  rows 1- ;
 : cols       42 @c ;  : >cols         42 !c ;  : max-col  cols 1- ;
@@ -29,4 +30,3 @@ block-sz var work
 21 26 thru
 : ed ( -- ) ed-init ed-load cls ed-loop ;
 : edit ( blk-- ) >blk ed ;
-

@@ -25,8 +25,8 @@ mb-ssz cells var mb-si  ( slot-info )
 : mb-init ( -- )
     mb >mb-here
     mb mb-sz 0 fill
-    mb-sa 0 mb-ssz fill-c
-    mb-si 0 mb-ssz fill-c ;
+    mb-sa mb-ssz 0 fill-c
+    mb-si mb-ssz 0 fill-c ;
 
 : mb-end ( --a )     mb mb-sz + ;
 : mb-ru  ( sz--sz2 ) mb-ruv /mod swap if 1+ then mb-ruv * ;

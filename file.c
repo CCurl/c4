@@ -5,7 +5,7 @@ int fileSp;
 
 void filePush(cell fh) { if (fileSp < FSTK_SZ) { fileStk[++fileSp] = fh; } }
 cell filePop() { return (0<fileSp) ? fileStk[fileSp--]: 0; }
-static char *blockFn(char *fn, int blk) { sprintf(fn, "block-%03d.c4", blk); return fn; }
+static char *blockFn(char *fn, int blk) { sprintf(fn, "block-%03d.fth", blk); return fn; }
 static char fn[32];
 
 void fileInit() { fileSp = 0; inputFp = 0; }
@@ -15,6 +15,12 @@ void fileDelete(const char *name) { remove(name); }
 cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh); }
 cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
 void blockLoad(int blk) { fileLoad(blockFn(fn, blk)); }
+
+void blockLoadNext(int blk) {
+    if (inputFp) { fileClose(inputFp); inputFp = 0; }
+    fileLoad(blockFn(fn, blk));
+    if (inputFp == 0) { inputFp = filePop(); }
+}
 
 int fileGets(char *buf, int sz, cell fh) {
     buf[0] = 0;

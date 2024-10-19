@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   240930
+#define VERSION   241007
 #define _SYS_LOAD_
 
 // For 16-bit word-codes, use these
@@ -101,6 +101,7 @@ extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
 extern void fileLoad(const char *name);
 extern void blockLoad(int blk);
+extern void blockLoadNext(int blk);
 extern void sys_load();
 
 #endif //  __C4_H__

@@ -1,9 +1,9 @@
-: block-fn ( --fn ) p1 z" block-" s-cpy blk <# # # #s #> s-cat z" .c4" s-cat ;
+: block-fn ( --fn ) p1 z" block-" s-cpy blk <# # # #s #> s-cat z" .fth" s-cat ;
 : t1 ( ch-- ) dup 10 = if drop row++ 0 >col rc>pos t! exit then 32 max !t+ ;
 : t2 atdrop nt-lines ;
 : work->block work >a  block >t  0 dup >row/col
     begin  @a+ ?dup  if0 t2 exit then  t1  row rows < while t2 ;
-: clear-block ( addr-- ) 32 block-sz fill ;
+: clear-block ( addr-- ) block-sz 32 fill ;
 : ed-load work clear-block  block clear-block
     block-fn fopen-rb ?dup if
         >t work block-sz t@ fread drop t> fclose

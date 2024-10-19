@@ -20,9 +20,9 @@
 : until (jmpz)  , , ; immediate
 : -while (njmpnz) , , ; immediate
 : -until (njmpz)  , , ; immediate
-: -if (njmpz) , here 0 , ; immediate
 : if  (jmpz)  , here 0 , ; immediate
 : if0 (jmpnz) , here 0 , ; immediate
+: -if (njmpz) , here 0 , ; immediate
 : else (jmp) , here swap 0 , here swap !c ; immediate
 : then here swap !c ; immediate
 : ( begin
@@ -49,18 +49,16 @@
 : abs  dup 0< if negate then ;
 : -abs dup 0> if negate then ;
 : mod /mod drop ;
-: +! tuck  @ +  swap  ! ;  : c+! tuck c@ +  swap c! ;
-: ++  dup  @ 1+ swap  ! ;  : --  dup   @ 1- swap  ! ;
-: c++ dup c@ 1+ swap c! ;  : c-- dup  c@ 1- swap c! ;
+: +! tuck  @ +  swap  ! ;
 : @a  a@  c@ ;    : !a  a@  c! ;
 : @a+ a@+ c@ ;    : !a+ a@+ c! ;
 : @a- a@- c@ ;    : !a- a@- c! ;
 : a+  a@+ drop ;  : a-  a@- drop ;
-: adrop a> drop ; : atdrop adrop tdrop ;
 : @t  t@  c@ ;    : !t  t@  c! ;
 : @t+ t@+ c@ ;    : !t+ t@+ c! ;
 : @t- t@- c@ ;    : !t- t@- c! ;
 : t+  t@+ drop ;  : t-  t@- drop ;
+: atdrop adrop tdrop ;
 : <#   ( n1--n2 )  dict 64 + >t 0 t@ c! dup 0 < >a abs ;
 : #c   ( c-- )     t- t@ c! ;
 : #.   ( -- )      '.' #c ;

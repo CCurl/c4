@@ -4,7 +4,7 @@ find x! loaded?
 
 cell var (x) inline
 : x!  (x) ! ;         : x@  (x) @ ;
-: x+  x@ 1+ x! ;      : x-  x@ x- x! ;
+: x+  x@ 1+ x! ;      : x-  x@ 1- x! ;
 : x@+ x@ dup 1+ x! ;  : x@- x@ dup 1- x! ;
 : !x  x@ c! ;         : @x  x@ c@ ;
 : !x+ x@+ c! ;        : !x- x@- c! ;
@@ -12,7 +12,7 @@ cell var (x) inline
 
 cell var (y) inline
 : y!  (y) ! ;         : y@  (y) @ ;
-: y+  y@ 1+ y! ;      : y-  y@ y- x! ;
+: y+  y@ 1+ y! ;      : y-  y@ 1- x! ;
 : y@+ y@ dup 1+ y! ;  : y@- y@ dup 1- y! ;
 : !y  y@ c! ;         : @y  y@ c@ ;
 : !y+ y@+ c! ;        : !y- y@- c! ;
@@ -20,7 +20,7 @@ cell var (y) inline
 
 cell var (z) inline
 : z!  (z) ! ;         : z@  (z) @ ;
-: z+  z@ 1+ z! ;      : z-  z@ z- z! ;
+: z+  z@ 1+ z! ;      : z-  z@ 1- z! ;
 : z@+ z@ dup 1+ z! ;  : z@- z@ dup 1- z! ;
 : !z  z@ c! ;         : @z  z@ c@ ;
 : !z+ z@+ c! ;        : !z- z@- c! ;
