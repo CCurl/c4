@@ -35,6 +35,9 @@ void sys_load() {
     outer(": if0 (jmpnz) , here 0 , ; immediate");
     outer(": else (jmp) , here swap 0 , here swap !c ; immediate");
     outer(": then here swap !c ; immediate");
+    outer(": [ 0 state !c ; immediate");
+    outer(": ] 1 state !c ;");
+
     outer(": ( begin");
     outer("    >in @ c@");
     outer("    dup  0= if drop exit then");
@@ -60,14 +63,13 @@ void sys_load() {
     outer(": -abs dup 0> if negate then ;");
     outer(": mod /mod drop ;");
     outer(": +! tuck  @ +  swap  ! ;");
+    outer(": execute ( a-- ) >r ;");
 
     outer(": @a  a@  c@ ;    : !a  a@  c! ;");
     outer(": @a+ a@+ c@ ;    : !a+ a@+ c! ;");
     outer(": @a- a@- c@ ;    : !a- a@- c! ;");
     outer(": a+  a@+ drop ;  : a-  a@- drop ;");
-
     outer(": atdrop adrop tdrop ;");
-
     outer(": @t  t@  c@ ;    : !t  t@  c! ;");
     outer(": @t+ t@+ c@ ;    : !t+ t@+ c! ;");
     outer(": @t- t@- c@ ;    : !t- t@- c! ;");
@@ -80,23 +82,27 @@ void sys_load() {
     outer(": #    ( n1--n2 )  base@ /mod swap #n ;");
     outer(": #s   ( n-- )     begin # -while drop ;");
     outer(": #>   ( --str )   a> if '-' #c then t> ;");
-
-    outer(": bl 32 ; inline : space bl emit ; inline");
     outer(": (.) <# #s #> ztype ;");
-    outer(": . (.) space ;");
+    outer(": . (.) 32 emit ;");
+
+    outer(": bl 32 ; : space 32 emit ;");
+    outer(": cr 13 emit 10 emit ;");
+    outer(": tab 9 emit ;");
     outer(": .version version <# # # #. # # #. #s #> ztype ;");
+    outer(": ?  @ . ;");
 
     outer(": .s '(' emit space (dsp) @c 1- ?dup");
     outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");
 
-    outer(": cr 13 emit 10 emit ;");
-    outer(": tab 9 emit ;");
-    outer(": ?  @ . ;");
+    outer(": [[ vhere >t here >t 1 state !c ;");
+    outer(": ]] (exit) , 0 state !c t@ (here) !c t> >r t> (vhere) ! ; immediate");
+
     outer(": ->xt     wc@ ;");
     outer(": ->flags  wc-sz + c@ ;");
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
     outer(": dict-end dict dict-sz + 1- ;");
+
     outer(": words last ->dict >a 0 >t 0 >r");
     outer("    begin");
     outer("      a@ ->name ztype r@ 1+ r!");
@@ -108,9 +114,11 @@ void sys_load() {
     outer(": words-n ( n-- )  0 >a last ->dict swap for");
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
+
     outer("cell var vh");
     outer(": marker here 20 !c last 21 !c vhere vh ! ;");
     outer(": forget 20 @c (here) !c 21 @c (last) !c vh @ (vhere) ! ;");
+    outer(": fgl last dup de-sz + (last) !c dict + wc@ (here) !c ;");
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
