@@ -1,4 +1,4 @@
-: block-fn ( --fn ) p1 z" block-" s-cpy blk <# # # #s #> s-cat z" .fth" s-cat ;
+: block-fn ( --fn ) p2 z" block-" s-cpy blk <# # # #s #> s-cat z" .fth" s-cat ;
 : t1 ( ch-- ) dup 10 = if drop row++ 0 >col rc>pos t! exit then 32 max !t+ ;
 : t2 atdrop nt-lines ;
 : work->block work >a  block >t  0 dup >row/col
@@ -8,6 +8,7 @@
     block-fn fopen-rb ?dup if
         >t work block-sz t@ fread drop t> fclose
     then work->block clean show! 0 dup >row/col ;
+: ed-goto ( blk-- ) >blk ed-load ;
 : normal-mode  0 ;  : insert-mode  1 ;  : replace-mode  2 ;  : quit-mode 99 ;
 : normal-mode?  normal-mode  ed-mode = ;  : normal-mode!  normal-mode  >ed-mode ;
 : insert-mode?  insert-mode  ed-mode = ;  : insert-mode!  insert-mode  >ed-mode ;
@@ -21,7 +22,6 @@
     normal-mode? if insert-mode!  exit then
     insert-mode? if replace-mode! exit then
     normal-mode! ;
-
 
 
 

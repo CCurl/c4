@@ -6,9 +6,9 @@ find bm1 loaded?
 cr 0 test-if 1 test-if    see test-if cr
 cr 0 if-else 1 if-else    see if-else cr
 : .. dup . ;
-cr 5 for i . ." [[ " 4 for i . next ." ]] " next
-cr 10 begin .. 1- dup      while drop
-cr  0 begin .. 1+ dup 10 = until drop
+[[ cr 5 for i . ." [[ " 4 for i . next ." ]] " next ]]
+[[ cr 10 begin .. 1- dup      while drop ]]
+[[ cr  0 begin .. 1+ dup 10 = until drop ]]
 : elapsed timer swap - ."  (%d usec)" ;   : mil 1000 dup * * ;
 : t0 a@ drop ;                            : t1 t0 ;
 : fib 1- dup 2 < if drop 1 exit then dup fib swap 1- fib + ;
@@ -26,7 +26,7 @@ xxx @ ." -xxx created, (%d)-%n"
 xxx @ const yyy
 yyy ." -yyy created, (%d)-" cr
 see yyy cr
-xxx @ yyy =   if ." PASS: const/var." then
-xxx @ yyy <>  if ." FAIL: const/var!" then
+[[ xxx @ yyy = ." const/var: " if ." PASS" exit then  ." FAIL!" ]]
+
 
 

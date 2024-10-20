@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   241007
+#define VERSION   20241019
 #define _SYS_LOAD_
 
 // For 16-bit word-codes, use these
@@ -43,7 +43,7 @@
 #define LSTK_SZ           60
 #define TSTK_SZ           63
 #define FSTK_SZ           15
-#define NAME_LEN      (32-(WC_SZ+3))
+#define NAME_LEN          21
 
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define _IMMED              1

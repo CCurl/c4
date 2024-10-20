@@ -1,4 +1,5 @@
-# c4: a portable Forth system inspired by MachineForth and Tachyon
+# c4: a Forth system inspired by MachineForth and Tachyon
+
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is a 32-bit unsigned number. <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
