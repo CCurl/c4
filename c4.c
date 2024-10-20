@@ -93,6 +93,7 @@ DE_T tmpWords[10];
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
 	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
 	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
+	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); comma(LIT2); commaCell(vhere); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
 	X(SEE,     "see",       0, doSee(); ) \
@@ -349,13 +350,16 @@ void compileNum(cell num) {
 void executeWord(DE_T *de) {
 	int h = here+100;
 	code[h]   = de->xt;
-	code[h+1] = EXIT;
+	code[h+1] = STOP;
 	inner(h);
 }
 
 void compileWord(DE_T *de) {
 	if (de->fl & _IMMED) { executeWord(de); }
-	else { comma(de->xt); }
+	else if (de->fl & _INLINE) {
+		wc_t x = de->xt;
+		do { comma(code[x++]); } while (code[x]!=EXIT);
+	} else { comma(de->xt); }
 }
 
 int parseWord(char *w) {
@@ -376,16 +380,19 @@ int parseWord(char *w) {
 
 int outer(const char *ln) {
 	// zTypeF("-outer:%s-\n",ln);
-	toIn = (char *)ln;
+	char *curIn = toIn;
+	toIn = (char*)ln;
 	while (nextWord()) {
 		if (!parseWord(wd)) {
 			zTypeF("-%s?-", wd);
 			if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
 			state=0;
 			while (inputFp) { fileClose(inputFp); inputFp=filePop(); }
+			toIn = curIn;
 			return 0;
 		}
 	}
+	toIn = curIn;
 	return 1;
 }
 
