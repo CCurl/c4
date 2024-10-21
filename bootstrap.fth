@@ -75,7 +75,7 @@
 : cr 13 emit 10 emit ;
 : tab 9 emit ;
 : ?  @ . ;
-: ->xt     wc@ ;
+: ->xt     l@ ;
 : ->flags  wc-sz + c@ ;
 : ->len    wc-sz + 1+ c@ ;
 : ->name   wc-sz + 2+ ;

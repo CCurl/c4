@@ -35,15 +35,13 @@ DE_T tmpWords[10];
 	X(DROP,    "drop",      0, pop(); ) \
 	X(OVER,    "over",      0, t=NOS; push(t); ) \
 	X(FET,     "@",         0, TOS = fetchCell(TOS); ) \
-	X(CFET,    "c@",        0, TOS = *(byte *)TOS; ) \
-	X(WFET,    "w@",        0, TOS = fetch16(TOS); ) \
-	X(LFET,    "l@",        0, TOS = fetch32(TOS); ) \
-	X(WCFET,   "wc@",       0, TOS = fetchWC(TOS); ) \
+	X(FET1,    "c@",        0, TOS = *(byte *)TOS; ) \
+	X(LFET32,  "l@",        0, TOS = fetch32(TOS); ) \
+	X(FETC,    "@c",        0, TOS = code[(wc_t)TOS]; ) \
 	X(STO,     "!",         0, t=pop(); n=pop(); storeCell(t, n); ) \
-	X(CSTO,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
-	X(WSTO,    "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
-	X(LSTO,    "l!",        0, t=pop(); n=pop(); store32(t, n); ) \
-	X(WCSTO,   "wc!",       0, t=pop(); n=pop(); storeWC(t, n); ) \
+	X(STO1,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
+	X(STO32,   "l!",        0, t=pop(); n=pop(); store32(t, n); ) \
+	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
 	X(SUB,     "-",         0, t=pop(); TOS -= t; ) \
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
@@ -61,7 +59,6 @@ DE_T tmpWords[10];
 	X(COM,     "com",       0, TOS = ~TOS; ) \
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
-	X(UNLOOP,  "unloop",    0, if (lsp>2) { lsp-=3; } ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(wc_t)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RSTO,    "r!",        0, rstk[rsp] = pop(); ) \
@@ -90,6 +87,7 @@ DE_T tmpWords[10];
 	X(COLON,   ":",         0, addWord(0); state=1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; ) \
 	X(COMMA,   ",",         0, t=pop(); comma((wc_t)t); ) \
+	X(LITC,    "LIT,",      0, t=pop(); compileNum(t); ) \
 	X(LCOMMA,  "l,",        0, commaCell(pop()); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
 	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
@@ -107,8 +105,6 @@ DE_T tmpWords[10];
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); state ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
-	X(FETC,    "@c",        0, TOS = code[(wc_t)TOS]; ) \
-	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
@@ -125,7 +121,7 @@ DE_T tmpWords[10];
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-	STOP, LIT1, LIT2, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS
+	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS
 };
 
 #undef X
@@ -139,12 +135,8 @@ void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
-void store16(cell a, cell v) { *(uint16_t*)(a) = (uint16_t)v; }
-cell fetch16(cell a) { return *(uint16_t*)(a); }
 void store32(cell a, cell v) { *(uint32_t*)(a) = (uint32_t)v; }
 cell fetch32(cell a) { return *(uint32_t*)(a); }
-void storeWC(cell a, cell v) { *(wc_t*)(a) = (wc_t)v; }
-cell fetchWC(cell a) { return *(wc_t*)(a); }
 void storeCell(cell a, cell v) { *(cell*)(a) = v; }
 cell fetchCell(cell a) { return *(cell*)(a); }
 void comma(cell x) { code[here++] = (wc_t)x; }
@@ -229,15 +221,14 @@ void doSee() {
 	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
-		int op = code[i++];
+		long op = code[i++];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
-		if (op & NUM_BITS) { zTypeF("lit #%d", (int)(op & NUM_MASK)); continue; }
+		if (op & NUM_BITS) { op &= NUM_MASK; zTypeF("num #%ld ($%lx)", op, op); continue; }
 		x = code[i];
 		switch (op) {
 			case  STOP: zType("stop"); i++;
-			BCASE LIT1: zTypeF("lit1 #%lu ($%lX)", (long)x, (long)x); i++;
-			BCASE LIT2: x = fetchCell((cell)&code[i]);
-				zTypeF("lit2 #%zd ($%zX)", (size_t)x, (size_t)x);
+			BCASE LIT: x = fetchCell((cell)&code[i]);
+				zTypeF("lit #%zd ($%zX)", (size_t)x, (size_t)x);
 				i += (CELL_SZ/WC_SZ);
 			BCASE JMP:    zTypeF("jmp $%04lX", (long)x);             i++;
 			BCASE JMPZ:   zTypeF("jmpz $%04lX (IF)", (long)x);       i++;
@@ -279,6 +270,11 @@ void fType(const char *s) {
 	}
 }
 
+void compileNum(cell num) {
+	if (btwi(num, 0, NUM_MASK)) { comma((wc_t)(num | NUM_BITS)); }
+	else { comma(LIT); commaCell(num); }
+}
+
 void quote() {
 	char *vh=(char*)vhere;
 	if (*toIn) { ++toIn; }
@@ -288,8 +284,7 @@ void quote() {
 	}
 	*(vh++) = 0; // NULL terminator
 	if (state) {
-		comma(LIT2);
-		commaCell(vhere);
+		compileNum(vhere);
 		vhere = (cell)vh;
 	} else {
 		push(vhere);
@@ -306,8 +301,7 @@ void inner(wc_t start) {
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
-		NCASE LIT1:   push(code[pc++]);
-		NCASE LIT2:   push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
+		NCASE LIT:   push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
 		NCASE JMP:    pc=code[pc];
 		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
@@ -341,11 +335,6 @@ int isNum(const char *w, int b) {
 	if (isNeg) { n = -n; }
 	push(n);
 	return 1;
-}
-
-void compileNum(cell num) {
-	if (btwi(num, 0, NUM_MASK)) { comma((wc_t)(num | NUM_BITS)); }
-	else { comma(LIT2); commaCell(num); }
 }
 
 void executeWord(DE_T *de) {
@@ -448,13 +437,12 @@ void baseSys() {
 	outerF(addrFmt, "(output-fp)", &outputFp);
 
 	outerF(": version   #%d ;", VERSION);
+	outerF(": (lit)     #%d ;", LIT);
 	outerF(": (jmp)     #%d ;", JMP);
 	outerF(": (jmpz)    #%d ;", JMPZ);
-	outerF(": (jmpnz)   #%d ;", JMPNZ);
 	outerF(": (njmpz)   #%d ;", NJMPZ);
+	outerF(": (jmpnz)   #%d ;", JMPNZ);
 	outerF(": (njmpnz)  #%d ;", NJMPNZ);
-	outerF(": (lit1)    #%d ;", LIT1);
-	outerF(": (lit2)    #%d ;", LIT2);
 	outerF(": (exit)    #%d ;", EXIT);
 	outerF(": (here)    #%d ;", HA);
 	outerF(": (last)    #%d ;", LA);

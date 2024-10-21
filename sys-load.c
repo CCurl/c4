@@ -6,7 +6,7 @@ void sys_load() {
 }
 #else
 void sys_load() {
-    outer(": \\ 0 >in @ w! ; immediate");
+    outer(": \\ 0 >in @ c! ; immediate");
     outer(": ->code code + ;");
     outer(": ->dict dict + ;");
     outer(": here  (here)  @c ;");
@@ -19,8 +19,8 @@ void sys_load() {
     outer(": 0rsp 0 (rsp)  !c ;");
     outer(": , here  dup 1+ (here) !c !c ;");
 
-    outer(": const  addword inline (lit2) , l, (exit) , ;");
-    outer(": create vhere addword inline (lit2) , vhere l, ;");
+    outer(": const  addword inline lit, (exit) , ;");
+    outer(": create vhere addword inline vhere lit, ;");
     outer(": does> (jmp) , r> , ;");
     outer(": var   vhere const allot ;");
 
@@ -97,7 +97,7 @@ void sys_load() {
     outer(": [[ vhere >t here >t 1 state !c ;");
     outer(": ]] (exit) , 0 state !c t@ (here) !c t> >r t> (vhere) ! ; immediate");
 
-    outer(": ->xt     wc@ ;");
+    outer(": ->xt     l@ ;");
     outer(": ->flags  wc-sz + c@ ;");
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
@@ -118,7 +118,7 @@ void sys_load() {
     outer("cell var vh");
     outer(": marker here 20 !c last 21 !c vhere vh ! ;");
     outer(": forget 20 @c (here) !c 21 @c (last) !c vh @ (vhere) ! ;");
-    outer(": fgl last dup de-sz + (last) !c dict + wc@ (here) !c ;");
+    outer(": fgl last dup de-sz + (last) !c dict + l@ (here) !c ;");
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
