@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241020
+#define VERSION   20241021
 #define _SYS_LOAD_
 
 #define WC_T              uint32_t
