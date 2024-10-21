@@ -19,10 +19,10 @@ void sys_load() {
     outer(": 0rsp 0 (rsp)  !c ;");
     outer(": , here  dup 1+ (here) !c !c ;");
 
-    outer(": create addword ; immediate");
-    outer(": const  addword here cell wc-sz / - wc-sz * ->code ! (exit) , ; immediate");
+    outer(": const  addword inline (lit2) , l, (exit) , ;");
+    outer(": create vhere addword inline (lit2) , vhere l, ;");
     outer(": does> (jmp) , r> , ;");
-    outer(": var    addword allot (exit) , ; immediate");
+    outer(": var   vhere const allot ;");
 
     outer(": begin here ; immediate");
     outer(": again (jmp)   , , ; immediate");
