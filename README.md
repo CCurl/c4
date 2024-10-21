@@ -1,4 +1,5 @@
-# c4: a portable Forth system inspired by MachineForth and Tachyon
+# c4: a Forth system inspired by MachineForth and Tachyon
+
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A `WORD-CODE` is a 32-bit unsigned number. <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
@@ -107,8 +108,7 @@ The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
-| (lit1)    | (--W)        | W: WORD-CODE for LIT1 primitive |
-| (lit2)    | (--W)        | W: WORD-CODE for LIT2 primitive |
+| (lit)     | (--W)        | W: WORD-CODE for LIT primitive |
 | (jmp)     | (--W)        | W: WORD-CODE for JMP primitive |
 | (jmpz)    | (--W)        | W: WORD-CODE for JMPZ primitive |
 | (jmpnz)   | (--W)        | W: WORD-CODE for JMPNZ primitive |
@@ -122,10 +122,12 @@ The primitives:
 | over      | (N X--N X N) | Push NOS |
 | @         | (A--N)       | N: the CELL at absolute address A |
 | c@        | (A--C)       | C: the CHAR at absolute address A |
-| w@        | (A--W)       | W: the WORD at absolute address A |
+| l@        | (A--L)       | L: the DWORD at absolute address A |
+| @c        | (N--W)       | Fetch 32-bit value W from CODE slot N |
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
-| w!        | (W A--)      | Store WORD W to absolute address A |
+| l!        | (L A--)      | Store DWORD L to absolute address A |
+| !c        | (W N--)      | Store 32-bit value W to CODE slot N |
 | +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |
 | *         | (X Y--N)     | N: X * Y |
@@ -144,7 +146,6 @@ The primitives:
 | for       | (N--)        | Begin FOR loop with bounds 0 and N. |
 | i         | (--I)        | N: Current FOR loop index. |
 | next      | (--)         | Increment I. If I < N, start loop again, else exit. |
-| unloop    | (--)         | Unwind the loop stack. NOTE: this does NOT exit the loop. |
 | >r        | (N--)        | Push N onto the return stack |
 | r!        | (N--)        | Set R-TOS to N |
 | r@        | (--N)        | N: copy of R-TOS |
@@ -197,8 +198,6 @@ The primitives:
 | load-next | (N--)        | Close the current block and load block N next |
 | loaded?   | (W A--)      | Stops current load if A <> 0 (see `find`) |
 | to-string | (N--SC)      | Convert N to string SC in the current BASE |
-| @c        | (N--W)       | Fetch 32-bit value W from CODE slot N |
-| !c        | (W N--)      | Store 32-bit value W to CODE slot N |
 | find      | (--W A)      | W: Execution Token, A: Dict Entry address (0 0 if not found) |
 | system    | (SC--)       | PC ONLY: SC: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |

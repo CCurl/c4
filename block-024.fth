@@ -23,10 +23,10 @@
     p1 z" q!" s-eq  if  quit! exit  then
     p1 z" wq" s-eq  if  save-block quit!  exit   then
     p1 z" w"  s-eq  if  save-block clean  exit   then
+    p1 c@ '!' = if p1 1+ outer exit then
     p1 z" rl" s-eq  if  ed-load then ;
 : yank-line  p2 row 0 >pos  s-cpy drop ;
 : put-line   insert-line  row 0 >pos p2 s-cpy drop dirty ;
 : next-blk   save-block  blk 1- 0 max >blk  ed-load ;
 : prev-blk   save-block  blk 1+       >blk  ed-load ;
-
 
