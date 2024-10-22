@@ -18,7 +18,7 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 C4 provides two memory areas:
 - The CODE area can store up to $1FFFFFFF 32-bit WORD-CODEs. (see `code-sz`).
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
-  - **NOTE**: CODE slots 25-75 (`25 wc@` .. `75 wc@`) are unused by C4.
+  - **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
   - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
   - `here` is an offset into the code area.
@@ -75,7 +75,7 @@ The size of the A stack is configurable (see `tstk-sz`).<br/>
 | `a>`  | (--N)  | Pop N from the A stack. |
 
 ## The T Stack
-C4 includes a T stack, with same ops as the T stack. <br/>
+C4 includes a T stack, with same ops as the A stack. <br/>
 Note that there are also additional words for the return stack. <br/>
 
 | WORD  | STACK  | DESCRIPTION |
@@ -180,7 +180,7 @@ The primitives:
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
 | s-len     | (S--N)       | N: Length of string S |
-| z"        | (--)         | -COMPILE: Create string SZ to next `"` |
+| z"        | (--)         | -COMPILE: Create string S to next `"` |
 |           | (--S)        | -RUN: push address S of string |
 | ."        | (--)         | -COMPILE: execute `z"`, compile `ftype` |
 |           | (--)         | -RUN: `ftype` on string |
