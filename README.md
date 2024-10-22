@@ -106,13 +106,13 @@ The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
-| (lit)     | (--W)        | W: WORD-CODE for LIT primitive |
-| (jmp)     | (--W)        | W: WORD-CODE for JMP primitive |
-| (jmpz)    | (--W)        | W: WORD-CODE for JMPZ primitive |
-| (jmpnz)   | (--W)        | W: WORD-CODE for JMPNZ primitive |
-| (njmpz)   | (--W)        | W: WORD-CODE for NJMPZ primitive |
-| (njmpnz)  | (--W)        | W: WORD-CODE for NJMPNZ primitive |
-| (exit)    | (--W)        | W: WORD-CODE for EXIT primitive |
+| (lit)     | (--WC)       | WC: WORD-CODE for LIT primitive |
+| (jmp)     | (--WC)       | WC: WORD-CODE for JMP primitive |
+| (jmpz)    | (--WC)       | WC: WORD-CODE for JMPZ primitive |
+| (jmpnz)   | (--WC)       | WC: WORD-CODE for JMPNZ primitive |
+| (njmpz)   | (--WC)       | WC: WORD-CODE for NJMPZ primitive |
+| (njmpnz)  | (--WC)       | WC: WORD-CODE for NJMPNZ primitive |
+| (exit)    | (--WC)       | WC: WORD-CODE for EXIT primitive |
 | exit      | (--)         | EXIT word |
 | dup       | (X--X X)     | Duplicate TOS (Top-Of-Stack) |
 | swap      | (X Y--Y X)   | Swap TOS and NOS (Next-On-Stack) |
