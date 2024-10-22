@@ -3,14 +3,14 @@
  5 load ( screen )
 10 load ( vars )
 15 load ( blocks )
-: blk        40 @c ;  : >blk          40 !c ;
-: rows       41 @c ;  : >rows         41 !c ;  : max-row  rows 1- ;
-: cols       42 @c ;  : >cols         42 !c ;  : max-col  cols 1- ;
-: row        43 @c ;  : >row          43 !c ;  : row++ row 1+ >row ;
-: col        44 @c ;  : >col          44 !c ;  : col++ col 1+ >col ;
-: ed-mode    45 @c ;  : >ed-mode      45 !c ;
-: show?      46 @c ;  : show!       1 46 !c ;  : shown   0 46 !c ;
-: dirty?     47 @c ;  : dirty show! 1 47 !c ;  : clean   0 47 !c ;
+: blk        40 wc@ ;  : >blk          40 wc! ;
+: rows       41 wc@ ;  : >rows         41 wc! ;  : max-row  rows 1- ;
+: cols       42 wc@ ;  : >cols         42 wc! ;  : max-col  cols 1- ;
+: row        43 wc@ ;  : >row          43 wc! ;  : row++ row 1+ >row ;
+: col        44 wc@ ;  : >col          44 wc! ;  : col++ col 1+ >col ;
+: ed-mode    45 wc@ ;  : >ed-mode      45 wc! ;
+: show?      46 wc@ ;  : show!       1 46 wc! ;  : shown   0 46 wc! ;
+: dirty?     47 wc@ ;  : dirty show! 1 47 wc! ;  : clean   0 47 wc! ;
 : block-sz rows cols * ;
 32 >rows   100 >cols
 block-sz var block

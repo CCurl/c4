@@ -36,12 +36,12 @@ DE_T tmpWords[10];
 	X(OVER,    "over",      0, t=NOS; push(t); ) \
 	X(FET,     "@",         0, TOS = fetchCell(TOS); ) \
 	X(FET1,    "c@",        0, TOS = *(byte *)TOS; ) \
-	X(LFET32,  "l@",        0, TOS = fetch32(TOS); ) \
-	X(FETC,    "@c",        0, TOS = code[(wc_t)TOS]; ) \
+	X(LFET32,  "d@",        0, TOS = fetch32(TOS); ) \
+	X(FETC,    "wc@",       0, TOS = code[(wc_t)TOS]; ) \
 	X(STO,     "!",         0, t=pop(); n=pop(); storeCell(t, n); ) \
 	X(STO1,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
-	X(STO32,   "l!",        0, t=pop(); n=pop(); store32(t, n); ) \
-	X(STOC,    "!c",        0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
+	X(STO32,   "d!",        0, t=pop(); n=pop(); store32(t, n); ) \
+	X(STOC,    "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
 	X(SUB,     "-",         0, t=pop(); TOS -= t; ) \
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \

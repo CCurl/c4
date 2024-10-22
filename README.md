@@ -17,10 +17,10 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 ## C4 memory areas
 C4 provides three memory areas:
 - The `code` area can store up to $1FFFFFFF 32-bit WORD-CODEs, 32-bit index. (see `code-sz`).
-  - **NOTE**: CODE slots 0-25 (`0 @c .. 25 @c`) are reserved for C4 system values.
-  - **NOTE**: CODE slots 25-75 (`25 @c` .. `75 @c`) are unused by C4.
+  - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
+  - **NOTE**: CODE slots 25-75 (`25 wc@` .. `75 wc@`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
-  - **NOTE**: Use `@c` and `!c` to get and set 32-bit values in the code area.
+  - **NOTE**: Use `wc@` and `wc!` to get and set 32-bit values in the code area.
 - The `vars` area can store up to CELL bytes (see `vars-sz`).
 - - `vhere` is the address of the first free byte the vars area.
 - The `dict` area can can be any size, 32-bit index (see `dict-sz`).
