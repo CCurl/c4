@@ -16,13 +16,13 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 
 ## C4 memory areas
 C4 provides two memory areas:
-- The `code` area can store up to $1FFFFFFF 32-bit WORD-CODEs. (see `code-sz`).
+- The CODE area can store up to $1FFFFFFF 32-bit WORD-CODEs. (see `code-sz`).
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
   - **NOTE**: CODE slots 25-75 (`25 wc@` .. `75 wc@`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
   - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
   - `here` is an offset into the code area.
-- The `vars` area can store up to CELL bytes (see `vars-sz`).
+- The VARS area can store up to CELL bytes (see `vars-sz`).
   - `vhere` is the address of the first free byte the vars area.
   - `last` is an offset into the vars area.
 - Use `->code` and `->vars` to turn an offset into an address.
@@ -174,22 +174,21 @@ The primitives:
 | addword   | (--)         | Add the next word to the dictionary |
 | timer     | (--N)        | N: Current time |
 | see X     | (--)         | Output the definition of word X |
-| ztype     | (SZ--)       | Print string at SZ (uncounted, unformatted) |
-| ftype     | (SZ--)       | Print string at SZ (uncounted, formatted) |
-| s-cpy     | (D S--D)     | Copy string S to D, counted |
+| ztype     | (SZ--)       | Print string at SZ (unformatted) |
+| ftype     | (SZ--)       | Print string at SZ (formatted) |
+| s-cpy     | (D S--D)     | Copy string S to D |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
 | s-len     | (S--N)       | N: Length of string S |
-| z"        | (--)         | -COMPILE: Create uncounted string SZ to next `"` |
+| z"        | (--)         | -COMPILE: Create string SZ to next `"` |
 |           | (--S)        | -RUN: push address S of string |
 | ."        | (--)         | -COMPILE: execute `z"`, compile `ftype` |
 |           | (--)         | -RUN: `ftype` on string |
 | find      | (--XT A)     | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
 | loaded?   | (XT A--)     | Stops current load if A <> 0 (see `find`) |
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
-|           |              |     NOTE: NM and MD are uncounted, use `z"` |
 | fclose    | (FH--)       | FH: File Handle to close |
-| fdelete   | (NM--)       | NM: File Name to delere |
+| fdelete   | (NM--)       | NM: File Name to delete |
 | fread     | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars read |
 | fwrite    | (A N FH--X)  | A: Buffer, N: Size, FH: File Handle, X: num chars written |
 | fgets     | (A N FH--X)  | A: Buffer, N: Size, X: num chars read (0 if EOF/Error) |
