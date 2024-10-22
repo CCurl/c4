@@ -80,8 +80,8 @@ void sys_load() {
     outer(": #.   ( -- )      '.' #c ;");
     outer(": #n   ( n-- )     dup 9 > if 7 + then '0' + #c ;");
     outer(": #    ( n1--n2 )  base@ /mod swap #n ;");
-    outer(": #s   ( n-- )     begin # -while drop ;");
-    outer(": #>   ( --str )   a> if '-' #c then t> ;");
+    outer(": #s   ( n-- )     begin # -while ;");
+    outer(": #>   ( --str )   drop a> if '-' #c then t> ;");
     outer(": (.) <# #s #> ztype ;");
     outer(": . (.) 32 emit ;");
 
