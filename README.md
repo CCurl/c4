@@ -127,7 +127,7 @@ The primitives:
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
 | l!        | (L A--)      | Store DWORD L to absolute address A |
-| !c        | (W N--)      | Store 32-bit value W to CODE slot N |
+| wc!       | (W N--)      | Store 32-bit value W to CODE slot N |
 | +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |
 | *         | (X Y--N)     | N: X * Y |
