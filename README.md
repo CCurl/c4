@@ -5,7 +5,7 @@ A `WORD-CODE` is a 32-bit unsigned number. <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
 If the top 3 bits are set ($Exxxxxxx), it is a 29-bit unsigned literal. <br/>
-If it is greater than `BYE`, it is the code address of a word to execute. <br/>
+If it is between `BYE`, and $E0000000, it is the code address of a word to execute. <br/>
 
 ## CELLs in C4
 A `CELL` is either 32-bits or 64-bits, depending on the target system.
@@ -15,18 +15,17 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 - Windows 64-bit (x64): a CELL is 64-bits.
 
 ## C4 memory areas
-C4 provides three memory areas:
-- The `code` area can store up to $1FFFFFFF 32-bit WORD-CODEs, 32-bit index. (see `code-sz`).
+C4 provides two memory areas:
+- The `code` area can store up to $1FFFFFFF 32-bit WORD-CODEs. (see `code-sz`).
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
   - **NOTE**: CODE slots 25-75 (`25 wc@` .. `75 wc@`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
-  - **NOTE**: Use `wc@` and `wc!` to get and set 32-bit values in the code area.
+  - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
+  - `here` is an offset into the code area.
 - The `vars` area can store up to CELL bytes (see `vars-sz`).
-- - `vhere` is the address of the first free byte the vars area.
-- The `dict` area can can be any size, 32-bit index (see `dict-sz`).
-- `here` is an offset into the code area.
-- `last` is an offset into the dict area.
-- Use `->code` and `->dict` to turn an offset into an address.
+  - `vhere` is the address of the first free byte the vars area.
+  - `last` is an offset into the vars area.
+- Use `->code` and `->vars` to turn an offset into an address.
 
 | WORD       | STACK   | DESCRIPTION |
 |:--         |:--      |:--          |
@@ -62,9 +61,9 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %[x]   | (--)  | EMIT [x]. |
 
 ## The A stack
-C4 includes an `a` stack. <br/>
-This is somewhat similar to ColorForth's operations for 'a', but in C4, it is a stack.<br/>
-The size of the `a` stack is configurable (see `tstk-sz`).<br/>
+C4 includes an A stack. <br/>
+This is somewhat similar to MachineForth's operations for 'a', but in C4, it is a stack.<br/>
+The size of the A stack is configurable (see `tstk-sz`).<br/>
 
 | WORD  | STACK  | DESCRIPTION |
 |:--    |:--     |:-- |
@@ -76,7 +75,7 @@ The size of the `a` stack is configurable (see `tstk-sz`).<br/>
 | `a>`  | (--N)  | Pop N from the A stack. |
 
 ## The T Stack
-C4 includes a `t` stack, with same ops as the `a` stack. <br/>
+C4 includes a T stack, with same ops as the T stack. <br/>
 Note that there are also additional words for the return stack. <br/>
 
 | WORD  | STACK  | DESCRIPTION |
@@ -94,10 +93,9 @@ Stack effect notation conventions:
 | TERM     | DESCRIPTION |
 |:--       |:-- |
 | SZ/NM/MD | String, uncounted, NULL terminated |
-| SC/D/S   | String, counted, NULL terminated |
 | A        | Address |
 | C        | Number, 8-bits |
-| W        | Number, 32-bits |
+| WC       | WORD-CODE, 32-bits |
 | N/X/Y    | Number, CELL sized |
 | F        | Flag: 0 mean0 false, <>0 means true |
 | R        | Register number |
@@ -123,11 +121,11 @@ The primitives:
 | @         | (A--N)       | N: the CELL at absolute address A |
 | c@        | (A--C)       | C: the CHAR at absolute address A |
 | d@        | (A--D)       | D: the DWORD at absolute address A |
-| wc@       | (N--W)       | Fetch word-code W from CODE slot N |
+| wc@       | (N--WC)      | Fetch word-code WC from CODE slot N |
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
 | d!        | (D A--)      | Store DWORD D to absolute address A |
-| wc!       | (W N--)      | Store word-code W to CODE slot N |
+| wc!       | (WC N--)     | Store word-code WC to CODE slot N |
 | +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |
 | *         | (X Y--N)     | N: X * Y |
@@ -172,8 +170,8 @@ The primitives:
 | ;         | (--)         | Compile EXIT, set STATE=0 |
 | immediate | (--)         | Mark the last created word as IMMEDIATE |
 | inline    | (--)         | Mark the last created word as INLINE |
-| addword   | (--)         | -COMPILE: Add the next word to the dictionary |
-|           | (--A)        | -RUN: A: current VHERE address |
+| outer     | (S--)        | Send string S to the C4 outer interpreter |
+| addword   | (--)         | Add the next word to the dictionary |
 | timer     | (--N)        | N: Current time |
 | see X     | (--)         | Output the definition of word X |
 | ztype     | (SZ--)       | Print string at SZ (uncounted, unformatted) |
@@ -183,9 +181,11 @@ The primitives:
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
 | s-len     | (S--N)       | N: Length of string S |
 | z"        | (--)         | -COMPILE: Create uncounted string SZ to next `"` |
-|           | (--SZ)       | -RUN: push address SZ of string |
+|           | (--S)        | -RUN: push address S of string |
 | ."        | (--)         | -COMPILE: execute `z"`, compile `ftype` |
 |           | (--)         | -RUN: `ftype` on string |
+| find      | (--XT A)     | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
+| loaded?   | (XT A--)     | Stops current load if A <> 0 (see `find`) |
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |
 |           |              |     NOTE: NM and MD are uncounted, use `z"` |
 | fclose    | (FH--)       | FH: File Handle to close |
@@ -196,10 +196,7 @@ The primitives:
 | include X | (--)         | Load file named X (X: next word) |
 | load      | (N--)        | N: Block number to load (file named "block-NNN.fth") |
 | load-next | (N--)        | Close the current block and load block N next |
-| loaded?   | (W A--)      | Stops current load if A <> 0 (see `find`) |
-| to-string | (N--SC)      | Convert N to string SC in the current BASE |
-| find      | (--W A)      | W: Execution Token, A: Dict Entry address (0 0 if not found) |
-| system    | (SC--)       | PC ONLY: SC: String to send to `system()` |
+| system    | (S--)        | PC ONLY: S: String to send to `system()` |
 | bye       | (--)         | PC ONLY: Exit C4 |
 
 ## C4 default words

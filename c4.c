@@ -21,7 +21,7 @@
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
 wc_t code[CODE_SZ+1];
-byte dict[DICT_SZ+1], vars[VARS_SZ+1];
+byte vars[VARS_SZ+1];
 cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 cell vhere;
@@ -90,8 +90,8 @@ DE_T tmpWords[10];
 	X(LITC,    "LIT,",      0, t=pop(); compileNum(t); ) \
 	X(LCOMMA,  "l,",        0, commaCell(pop()); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_IMMED; } ) \
-	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&dict[last]; dp->fl=_INLINE; } ) \
+	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&vars[last]; dp->fl=_IMMED; } ) \
+	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&vars[last]; dp->fl=_INLINE; } ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
@@ -104,8 +104,8 @@ DE_T tmpWords[10];
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); state ? comma(FTYPE) : fType((char*)pop()); ) \
-	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
 	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
@@ -181,7 +181,7 @@ DE_T *addWord(const char *w) {
 	}
 	last -= sizeof(DE_T);
 	int ln = strLen(w);
-	DE_T *dp = (DE_T*)&dict[last];
+	DE_T *dp = (DE_T*)&vars[last];
 	dp->xt = here;
 	dp->fl = 0;
 	dp->ln = ln;
@@ -195,8 +195,8 @@ DE_T *findWord(const char *w) {
 	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
 	int len = strLen(w);
 	int cw = last;
-	while (cw < DICT_SZ) {
-		DE_T *dp = (DE_T*)&dict[cw];
+	while (cw < VARS_SZ) {
+		DE_T *dp = (DE_T*)&vars[cw];
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += sizeof(DE_T);
 	}
@@ -205,8 +205,8 @@ DE_T *findWord(const char *w) {
 
 int findXT(int xt) {
 	int cw = last;
-	while (cw < DICT_SZ) {
-		DE_T *dp = (DE_T*)&dict[cw];
+	while (cw < VARS_SZ) {
+		DE_T *dp = (DE_T*)&vars[cw];
 		if (dp->xt == xt) { return cw; }
 		cw += sizeof(DE_T);
 	}
@@ -214,10 +214,10 @@ int findXT(int xt) {
 }
 
 void doSee() {
-	DE_T *dp = findWord(0), *lastWord = (DE_T*)&dict[last];
+	DE_T *dp = findWord(0), *lastWord = (DE_T*)&vars[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
-	cell x = (cell)dp-(cell)dict;
+	cell x = (cell)dp-(cell)vars;
 	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
@@ -236,7 +236,7 @@ void doSee() {
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++; break;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
-				zType(x ? ((DE_T*)&dict[x])->nm : "??");
+				zType(x ? ((DE_T*)&vars[x])->nm : "??");
 		}
 	}
 }
@@ -353,6 +353,7 @@ void compileWord(DE_T *de) {
 }
 
 int parseWord(char *w) {
+	// printf("-%s-",w);
 	if (isNum(w, base)) {
 		if (state) { compileNum(pop()); }
 		return 1;
@@ -413,7 +414,6 @@ void baseSys() {
 
 	outerF(": code-sz   #%d ;", CODE_SZ);
 	outerF(": vars-sz   #%d ;", VARS_SZ);
-	outerF(": dict-sz   #%d ;", DICT_SZ);
 	outerF(": de-sz     #%d ;", sizeof(DE_T));
 	outerF(": dstk-sz   #%d ;", STK_SZ+1);
 	outerF(": tstk-sz   #%d ;", TSTK_SZ+1);
@@ -430,7 +430,6 @@ void baseSys() {
 	outerF(addrFmt, "astk", &astk[0]);
 	outerF(addrFmt, "code", &code[0]);
 	outerF(addrFmt, "vars", &vars[0]);
-	outerF(addrFmt, "dict", &dict[0]);
 	outerF(addrFmt, ">in",  &toIn);
 	outerF(addrFmt, "wd",   &wd[0]);
 	outerF(addrFmt, "(vhere)", &vhere);
@@ -455,9 +454,8 @@ void baseSys() {
 void Init() {
 	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
 	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
-	for (int t=0; t<DICT_SZ; t++) { dict[t]=0; }
 	here = BYE+1;
-	last = DICT_SZ;
+	last = VARS_SZ;
 	base = 10;
 	vhere = (cell)&vars[0];
 	fileInit();
