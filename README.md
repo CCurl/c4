@@ -122,12 +122,12 @@ The primitives:
 | over      | (N X--N X N) | Push NOS |
 | @         | (A--N)       | N: the CELL at absolute address A |
 | c@        | (A--C)       | C: the CHAR at absolute address A |
-| l@        | (A--L)       | L: the DWORD at absolute address A |
-| @c        | (N--W)       | Fetch 32-bit value W from CODE slot N |
+| d@        | (A--D)       | D: the DWORD at absolute address A |
+| wc@       | (N--W)       | Fetch word-code W from CODE slot N |
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
-| l!        | (L A--)      | Store DWORD L to absolute address A |
-| wc!       | (W N--)      | Store 32-bit value W to CODE slot N |
+| d!        | (D A--)      | Store DWORD D to absolute address A |
+| wc!       | (W N--)      | Store word-code W to CODE slot N |
 | +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |
 | *         | (X Y--N)     | N: X * Y |
