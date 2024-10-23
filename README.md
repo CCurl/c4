@@ -1,7 +1,7 @@
 # c4: a Forth system inspired by MachineForth and Tachyon
 
 In C4, a program is a sequence of WORD-CODEs. <br/>
-A `WORD-CODE` is a 32-bit unsigned number. <br/>
+A WORD-CODE is a 32-bit unsigned number. <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
 If the top 3 bits are set ($Exxxxxxx), it is a 29-bit unsigned literal. <br/>
@@ -55,8 +55,8 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %i     | (N--) | Print TOS in the current base. |
 | %n     | (--)  | Print CR/LF (13/10). |
 | %q     | (--)  | EMIT `"` (#34). |
-| %s     | (A--) | Print TOS as a string (uncounted, formatted). |
-| %S     | (A--) | Print TOS as a string (uncounted, unformatted). |
+| %s     | (A--) | Print TOS as a string (formatted). |
+| %S     | (A--) | Print TOS as a string (unformatted). |
 | %x     | (N--) | Print TOS in base 16. |
 | %[x]   | (--)  | EMIT [x]. |
 
@@ -73,6 +73,7 @@ The size of the A stack is configurable (see `tstk-sz`).<br/>
 | `a@+` | (--N)  | N: copy of A-TOS, then increment A-TOS. |
 | `a@-` | (--N)  | N: copy of A-TOS, then decrement A-TOS. |
 | `a>`  | (--N)  | Pop N from the A stack. |
+| adrop | ( -- ) | Drop A-TOS |
 
 ## The T Stack
 C4 includes a T stack, with same ops as the A stack. <br/>
@@ -86,6 +87,7 @@ Note that there are also additional words for the return stack. <br/>
 | `t@+` | (--N)  | N: copy of T-TOS, then increment T-TOS. |
 | `t@-` | (--N)  | N: copy of T-TOS, then decrement T-TOS. |
 | `t>`  | (--N)  | Pop N from the T stack. |
+| tdrop | ( -- ) | Drop T-TOS |
 
 ## C4 WORD-CODE primitives
 Stack effect notation conventions:
@@ -121,11 +123,11 @@ The primitives:
 | @         | (A--N)       | N: the CELL at absolute address A |
 | c@        | (A--C)       | C: the CHAR at absolute address A |
 | d@        | (A--D)       | D: the DWORD at absolute address A |
-| wc@       | (N--WC)      | Fetch word-code WC from CODE slot N |
+| wc@       | (N--WC)      | WC: the WORD-CODE in CODE slot N |
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
 | d!        | (D A--)      | Store DWORD D to absolute address A |
-| wc!       | (WC N--)     | Store word-code WC to CODE slot N |
+| wc!       | (WC N--)     | Store WORD-CODE WC to CODE slot N |
 | +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |
 | *         | (X Y--N)     | N: X * Y |
@@ -141,9 +143,9 @@ The primitives:
 | or        | (X Y--N)     | N: X OR  Y |
 | xor       | (X Y--N)     | N: X XOR Y |
 | com       | (X--Y)       | Y: X with all bits flipped (complement) |
-| for       | (N--)        | Begin FOR loop with bounds 0 and N. |
+| for       | (N--)        | Begin FOR loop with bounds 0 and N-1. |
 | i         | (--I)        | N: Current FOR loop index. |
-| next      | (--)         | Increment I. If I < N, start loop again, else exit. |
+| next      | (--)         | Increment I. If I >= N, exit, else start loop again. |
 | >r        | (N--)        | Push N onto the return stack |
 | r!        | (N--)        | Set R-TOS to N |
 | r@        | (--N)        | N: copy of R-TOS |
@@ -174,8 +176,8 @@ The primitives:
 | addword   | (--)         | Add the next word to the dictionary |
 | timer     | (--N)        | N: Current time |
 | see X     | (--)         | Output the definition of word X |
-| ztype     | (SZ--)       | Print string at SZ (unformatted) |
-| ftype     | (SZ--)       | Print string at SZ (formatted) |
+| ztype     | (S--)        | Print string at S (unformatted) |
+| ftype     | (S--)        | Print string at S (formatted) |
 | s-cpy     | (D S--D)     | Copy string S to D |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
