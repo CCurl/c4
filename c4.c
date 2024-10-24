@@ -86,7 +86,6 @@ DE_T tmpWords[10];
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(COLON,   ":",         0, addWord(0); state=1; ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=0; ) \
-	X(COMMA,   ",",         0, t=pop(); comma((wc_t)t); ) \
 	X(LITC,    "LIT,",      0, t=pop(); compileNum(t); ) \
 	X(LCOMMA,  "l,",        0, commaCell(pop()); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
