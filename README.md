@@ -170,6 +170,8 @@ The primitives:
 | emit      | (C--)        | Output char C |
 | :         | (--)         | Create a new word, set STATE=1 |
 | ;         | (--)         | Compile EXIT, set STATE=0 |
+| lit,      | (N--)        | Compile a push of number N |
+| next-wd   | (--L)        | L: length of the next word from the input stream |
 | immediate | (--)         | Mark the last created word as IMMEDIATE |
 | inline    | (--)         | Mark the last created word as INLINE |
 | outer     | (S--)        | Send string S to the C4 outer interpreter |
