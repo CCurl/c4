@@ -28,5 +28,5 @@ block-sz var work
 : mv-lt 0 -1 mv ;  : mv-rt 0 1 mv ;  : mv-up -1 0 mv ;  : mv-dn 1 0 mv ;
 : >row/col ( r c-- ) >col >row ;
 21 26 thru
-: ed ( -- ) ed-init ed-load cls ed-loop ;
+: ed ( -- ) ed-init rl cls ed-loop ;
 : edit ( blk-- ) >blk ed ;
