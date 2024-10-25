@@ -18,7 +18,7 @@
     a@  32 = if mv-rt exit then            a@ '_' = if 0 >col exit then
     a@ 'q' = if 0  8 mv exit then          a@ 'R' = if replace-mode! exit then
     a@ 'Q' = if 0 -8 mv exit then          a@ 'i' = if insert-mode!  exit then
-    a@ ':' = if do-cmd  exit then          a@ '!' = if show!         exit then
+    a@ ':' = if do-cmd  exit then          a@ '!' = if cls show!     exit then
     a@ 'r' = if replace-one exit then      a@ 'C' = if row col clear-eol exit then
     a@ 'x' = if delete-char exit then      a@ 'X' = if mv-lt delete-char exit then
     a@ 'J' = if join-lines  exit then      a@ 'Y' = if yank-line       exit then
