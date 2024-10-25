@@ -21,7 +21,7 @@ block-sz var work
 : nt-lines rows for i nt-line next ;
 : ->cur   col 2+ row 2+ ->cr cur-on ;
 : ->foot  1 rows 3 + ->cr ;
-: ->cmd   ->foot cr ;
+: ->cmd   ->foot cr clr-eol ;
 : norm-row ( x-- )  row + 0 max max-row    min >row ;
 : norm-col ( x-- )  col + 0 max max-col 1- min >col ;
 : mv      ( r c-- ) norm-col norm-row row nt-line ;
@@ -29,4 +29,4 @@ block-sz var work
 : >row/col ( r c-- ) >col >row ;
 21 26 thru
 : ed ( -- ) ed-init rl cls ed-loop ;
-: edit ( blk-- ) >blk ed ;
+

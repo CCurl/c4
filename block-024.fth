@@ -17,13 +17,14 @@
   again ;
 : q dirty? if ." (use q! to quit without saving)" exit then q! ;
 : wq w q! ;
-: do-cmd ->cmd ':' emit clr-eol cur-on
-    p1 accept ->cmd clr-eol
-    p1 c@ if p1 outer then ;
+: do-cmd ->cmd ':' emit cur-on p1 accept ->cmd p1 outer ;
 : yank-line  p2 row 0 >pos  s-cpy drop ;
 : put-line   insert-line  row 0 >pos p2 s-cpy drop dirty ;
 : next-blk   w  blk 1- 0 max >ed ;
 : prev-blk   w  blk 1+       >ed ;
+
+
+
 
 
 
