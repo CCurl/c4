@@ -29,4 +29,4 @@ block-sz var work
 : >row/col ( r c-- ) >col >row ;
 21 26 thru
 : ed ( -- ) ed-init rl cls ed-loop ;
-
+: edit ( blk-- ) >blk ed ;
