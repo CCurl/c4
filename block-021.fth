@@ -8,7 +8,7 @@
     block-fn fopen-rb ?dup if
         >t work block-sz t@ fread drop t> fclose
     then work->block clean show! 0 dup >row/col ;
-: >ed ( blk-- ) >blk rl ;
+: ed! ( blk-- ) >blk rl ;
 : normal-mode  0 ;  : insert-mode  1 ;  : replace-mode  2 ;  : quit-mode 99 ;
 : normal-mode?  normal-mode  ed-mode = ;  : normal-mode!  normal-mode  >ed-mode ;
 : insert-mode?  insert-mode  ed-mode = ;  : insert-mode!  insert-mode  >ed-mode ;

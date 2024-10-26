@@ -20,8 +20,8 @@
 : do-cmd ->cmd ':' emit cur-on p1 accept ->cmd p1 outer ;
 : yank-line  p2 row 0 >pos  s-cpy drop ;
 : put-line   insert-line  row 0 >pos p2 s-cpy drop dirty ;
-: next-blk   w  blk 1- 0 max >ed ;
-: prev-blk   w  blk 1+       >ed ;
+: next-blk   w  blk 1- 0 max ed! ;
+: prev-blk   w  blk 1+       ed! ;
 
 
 
