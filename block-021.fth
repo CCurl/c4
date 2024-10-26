@@ -4,16 +4,16 @@
 : work->block work >a  block >t  0 dup >row/col
     begin  @a+ ?dup  if0 t2 exit then  t1  row rows < while t2 ;
 : clear-block ( addr-- ) block-sz 32 fill ;
-: ed-load work clear-block  block clear-block
+: rl ( reload block ) work clear-block  block clear-block
     block-fn fopen-rb ?dup if
         >t work block-sz t@ fread drop t> fclose
     then work->block clean show! 0 dup >row/col ;
-: ed-goto ( blk-- ) >blk ed-load ;
+: >ed ( blk-- ) >blk rl ;
 : normal-mode  0 ;  : insert-mode  1 ;  : replace-mode  2 ;  : quit-mode 99 ;
 : normal-mode?  normal-mode  ed-mode = ;  : normal-mode!  normal-mode  >ed-mode ;
 : insert-mode?  insert-mode  ed-mode = ;  : insert-mode!  insert-mode  >ed-mode ;
 : replace-mode? replace-mode ed-mode = ;  : replace-mode! replace-mode >ed-mode ;
-: quit?         quit-mode    ed-mode = ;  : quit!         quit-mode    >ed-mode ;
+: quit?         quit-mode    ed-mode = ;  : q!            quit-mode    >ed-mode ;
 : .mode space normal-mode? if ." -normal-" exit then
     red insert-mode?  if ." -insert-" then
     replace-mode? if ." -replace-" then

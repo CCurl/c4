@@ -18,14 +18,14 @@
     a@  32 = if mv-rt exit then            a@ '_' = if 0 >col exit then
     a@ 'q' = if 0  8 mv exit then          a@ 'R' = if replace-mode! exit then
     a@ 'Q' = if 0 -8 mv exit then          a@ 'i' = if insert-mode!  exit then
-    a@ ':' = if do-cmd  exit then          a@ '!' = if show!         exit then
+    a@ ':' = if do-cmd  exit then          a@ '#' = if cls show!     exit then
     a@ 'r' = if replace-one exit then      a@ 'C' = if row col clear-eol exit then
     a@ 'x' = if delete-char exit then      a@ 'X' = if mv-lt delete-char exit then
     a@ 'J' = if join-lines  exit then      a@ 'Y' = if yank-line       exit then
     a@ 'p' = if put-line    exit then      a@ 'P' = if mv-dn put-line  exit then
     a@ '$' = if mv-eol exit then           a@ 'A' = if mv-eol insert-mode! exit then
     a@ '-' = if next-blk exit then         a@ '+' = if prev-blk exit then
-    a@ 'D' = if yank-line delete-line exit then
+    a@ 'D' = if yank-line delete-line exit then   a@ '!' = if ->cmd p1 outer exit then
     a@ 'b' = if 32 insert-char mv-lt  exit then
     a@ 'o' = if mv-dn insert-line replace-mode!  exit then
     a@ 'O' = if       insert-line replace-mode!  exit then ;

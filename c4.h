@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241021
+#define VERSION   20241024
 #define _SYS_LOAD_
 
 #define WC_T              uint32_t
@@ -25,7 +25,6 @@
 #define NUM_BITS          0xE0000000
 #define NUM_MASK          0x1FFFFFFF
 #define CODE_SZ           0x00020000
-#define DICT_SZ          (10000*sizeof(DE_T))
 #define VARS_SZ           4*1024*1024
 
 #define STK_SZ            63
