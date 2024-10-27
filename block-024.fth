@@ -17,13 +17,13 @@
   again ;
 : q dirty? if ." (use q! to quit without saving)" exit then q! ;
 : wq w q! ;
-: do-cmd ->cmd ':' emit cur-on p1 accept ->cmd p1 outer ;
-: yank-line  p2 row 0 >pos  s-cpy drop ;
-: put-line   insert-line  row 0 >pos p2 s-cpy drop dirty ;
-: next-blk   w  blk 1- 0 max >ed ;
-: prev-blk   w  blk 1+       >ed ;
-
-
+cols var cmd-buf
+cols var yank-buf
+: do-cmd ->cmd ':' emit cur-on cmd-buf accept ->cmd cmd-buf outer ;
+: yank-line  yank-buf row 0 >pos  s-cpy drop ;
+: put-line   insert-line  row 0 >pos yank-buf s-cpy drop dirty ;
+: next-blk   w  blk 1- 0 max ed! ;
+: prev-blk   w  blk 1+       ed! ;
 
 
 
