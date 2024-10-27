@@ -8,8 +8,8 @@
 #256  #81 or const key-pgdn  ( 27 91 54 126 )
 #256  #82 or const key-ins   ( 27 91 50 126 )
 #256  #83 or const key-del   ( 27 91 51 126 )
-#256 #119 or const key-chome ( 27 91 ?? ??? )
-#256 #117 or const key-cend  ( 27 91 ?? ??? )
+#256 #119 or const key-chome ( 27 91 49 59 53 72 )
+#256 #117 or const key-cend  ( 27 91 49 59 53 70 )
 
 : win-key ( --k ) key #256 or ;
 : vk2 ( --k ) key 126 <> if 3 exit then
