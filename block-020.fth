@@ -13,8 +13,9 @@
 : show?      46 wc@ ;  : show!       1 46 wc! ;  : shown   0 46 wc! ;
 : dirty?     47 wc@ ;  : dirty show! 1 47 wc! ;  : clean   0 47 wc! ;
 : block-sz rows cols * ;
- 32 >rows        block-sz var block
-100 >cols        block-sz var work
+32 >rows    100 >cols
+block-sz var block
+block-sz var work
 : >row/col ( r c-- ) >col >row ;
 : >pos ( r c--a ) swap cols * + block + ;
 : rc>pos ( --a ) row col >pos ;
@@ -28,5 +29,4 @@
 : mv      ( r c-- ) norm-col norm-row row nt-line ;
 : mv-lt 0 -1 mv ;  : mv-rt 0 1 mv ;  : mv-up -1 0 mv ;  : mv-dn 1 0 mv ;
 21 26 thru
-
 
