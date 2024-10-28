@@ -18,6 +18,8 @@ void sys_load() {
     outer(": 0sp  0 (dsp)  wc! ;");
     outer(": 0rsp 0 (rsp)  wc! ;");
     outer(": , here  dup 1+ (here) wc! wc! ;");
+    outer(": v, vhere dup cell + (vhere) ! ! ;");
+    outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
     outer(": const  addword inline lit, (exit) , ;");
     outer(": create vhere addword inline vhere lit, ;");
