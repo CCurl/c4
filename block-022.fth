@@ -8,9 +8,10 @@
 : delete-char ( -- ) rc>pos >t  row max-col >pos >r
     begin  t@ 1+ c@  !t+  t@ r@ < while
     32 r> 1- c! dirty tdrop ;
+: delete-prev mv-lt delete-char ;
 : eol-offset ( row--offset ) >t max-col >a
     begin t@ a@ >pos c@ 32 > if a@ 1+ atdrop exit then a@- while 0 atdrop  ;
-: mv-eol ( -- ) row eol-offset >col ;
+: mv-end ( -- ) row eol-offset >col ;
 : clear-line ( r-- ) 0 >pos max-col for 32 over c! 1+ next 0 swap c! dirty ;
 : clear-eol  ( r c-- ) max-col over - >t >pos t> for 32 over c! 1+ next drop dirty ;
 : insert-line ( -- )  row max-row < if
@@ -26,7 +27,6 @@
     row 1+ 0 >pos s-cat cols 1- + 0 swap c!
     row 0 >pos p1 s-cpy drop
     row 1+ delete-row ;
-
-
+: open-line ( flg-- ) if mv-dn then insert-line insert-mode! ;
 
 
