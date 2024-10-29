@@ -9,7 +9,7 @@
 : ?show ( -- ) show? if show then footer ;
 : ed-init ( -- ) 0 dup >row/col normal-mode! clean cur-block ;
 : ed-loop ( -- ) begin
-    begin ?show ->cur vkey cur-off ed-key quit?
+    ?show ->cur vkey cur-off ed-key quit?
   until  ->cmd cur-on ;
 : ed ( -- ) ed-init rl cls ed-loop ;
 : edit ( blk-- ) >blk ed ;

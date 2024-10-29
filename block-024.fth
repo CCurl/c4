@@ -26,7 +26,7 @@ cols var yank-buf
 : prev-blk   w  blk 1+       ed! ;
 : mv-tab-l  0 -8 mv ;      : mv-tab-r 0 8 mv ;
 : mv-cr 1 -99 mv ;         : mv-end!  max-row 0 >row/col ;
-: del-char ;
 : yank/del yank-line delete-line ;
+
 
 

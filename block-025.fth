@@ -4,7 +4,7 @@ vhere const ctrl-cases
   key-end  case mv-end         key-cend  case mv-end!       9 case mv-tab-r
   key-home case mv-home        key-chome case mv-home!     17 case mv-tab-l
   key-pgup case next-blk       key-pgdn  case prev-blk     13 case mv-cr
-  key-del  case insert-toggle  key-del   case delete-char  24 case delete-prev
+  key-ins  case insert-toggle  key-del   case delete-char  24 case delete-prev
   3   case normal-mode!
 end-cases
 
@@ -21,10 +21,10 @@ vhere const ed-cases
   'o' case! 1 open-line ;  'O' case! 0 open-line ;
 end-cases
 
-: ed-key ( ch-- ) >a a@ 32 126 btwi if0 a> ctrl-cases switch exit then
-    insert-mode?  if a> insert-char   exit then
-    replace-mode? if a> replace-char  exit then
-    a> ed-cases switch ;
+: ed-key ( ch-- ) dup 32 126 btwi if0 ctrl-cases switch exit then
+    insert-mode?  if insert-char   exit then
+    replace-mode? if replace-char  exit then
+    ed-cases switch ;
 
 
 

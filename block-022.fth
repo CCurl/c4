@@ -1,4 +1,4 @@
-: printable? ( c--c 1 | 0 ) dup 32 126 btwi if 1 else drop 0 then ;
+: printable? ( ch--ch 1 | 0 ) dup 32 126 btwi if 1 else drop 0 then ;
 : replace-char ( ch-- ) printable? if rc>pos c! dirty mv-rt then show! ;
 : replace-one  ( -- )   cur-off red '?' emit key white replace-char ;
 : insert-char  ( ch-- ) printable? if0 exit then
@@ -27,6 +27,6 @@
     row 1+ 0 >pos s-cat cols 1- + 0 swap c!
     row 0 >pos p1 s-cpy drop
     row 1+ delete-row ;
-: open-line ( flg-- ) if mv-dn then insert-line insert-mode! ;
+: open-line ( flg-- ) if mv-dn then insert-line insert-mode! mv-home ;
 
 
