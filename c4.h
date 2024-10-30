@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241029
+#define VERSION   20241030
 #define _SYS_LOAD_
 
 #define WC_T              uint32_t
@@ -39,15 +39,15 @@
 #define _INLINE             2
 
 #if INTPTR_MAX > INT32_MAX
-    #define CELL_T    int64_t
-    #define UCELL_T   uint64_t
-    #define CELL_SZ   8
-    #define addrFmt ": %s $%llx ;"
+    #define CELL_T     int64_t
+    #define UCELL_T    uint64_t
+    #define CELL_SZ    8
+    #define addressFmt ": %s $%llx ;"
 #else
-    #define CELL_T    int32_t
-    #define UCELL_T   uint32_t
-    #define CELL_SZ   4
-    #define addrFmt ": %s $%lx ; inline"
+    #define CELL_T     int32_t
+    #define UCELL_T    uint32_t
+    #define CELL_SZ    4
+    #define addressFmt ": %s $%lx ; inline"
 #endif
 
 typedef CELL_T cell;

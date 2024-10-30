@@ -299,7 +299,7 @@ void inner(wc_t start) {
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
-		NCASE LIT:   push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
+		NCASE LIT:    push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
 		NCASE JMP:    pc=code[pc];
 		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
@@ -307,7 +307,7 @@ void inner(wc_t start) {
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
 		PRIMS
 		default:
-			if (wc & NUM_BITS) { push(wc & NUM_MASK); goto next; }
+			if ((wc & NUM_BITS) == NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
 			pc = wc;
 			goto next;
@@ -409,7 +409,7 @@ void baseSys() {
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
 	}
-
+	char *addrFmt = addressFmt;
 	outerF(addrFmt, "code-sz", CODE_SZ);
 	outerF(addrFmt, "vars-sz", VARS_SZ);
 	outerF(addrFmt, "de-sz  ", sizeof(DE_T));
