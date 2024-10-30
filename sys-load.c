@@ -100,18 +100,17 @@ void sys_load() {
     outer(": [[ vhere >t here >t 1 state wc! ;");
     outer(": ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate");
 
+    outer("vars-sz 1- ->vars const dict-end");
     outer(": ->xt     d@ ;");
     outer(": ->flags  wc-sz + c@ ;");
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
-    outer(": dict-end vars vars-sz + 1- ;");
 
     outer(": words last ->vars >a 0 >t 0 >r");
     outer("    begin");
     outer("      a@ ->name ztype r@ 1+ r!");
-    outer("      a@ ->len  7 > if t+ then");
-    outer("      a@ ->len 12 > if t+ then");
-    outer("      t@+ 8 > if cr 0 t! else tab then");
+    outer("      a@ ->len dup 7 > t@ + t! 14 > t@ + t!");
+    outer("      t@+ 9 > if cr 0 t! else tab then");
     outer("      a@ de-sz + a! a@ dict-end <");
     outer("    while tdrop adrop r> .\"  (%d words)\" ;");
     outer(": words-n ( n-- )  0 >a last ->vars swap for");

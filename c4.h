@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241028
+#define VERSION   20241029
 #define _SYS_LOAD_
 
 #define WC_T              uint32_t
@@ -47,7 +47,7 @@
     #define CELL_T    int32_t
     #define UCELL_T   uint32_t
     #define CELL_SZ   4
-    #define addrFmt ": %s $%lx ;"
+    #define addrFmt ": %s $%lx ; inline"
 #endif
 
 typedef CELL_T cell;
