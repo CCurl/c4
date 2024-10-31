@@ -18,6 +18,7 @@ cr 0 if-else 1 if-else    see if-else cr
 : bm4 cr ." bm4: 2 call loop: "     timer swap for t1 next elapsed ;
 : bm5 cr dup ." bm5: fib (%d) ... " timer swap fib . elapsed ;
 : go  250 mil dup dup dup bm1 bm2 bm3 bm4  37 bm5 cr ;
+: bmk 1000 mil bm1 ;
 go cr
 cell var xxx
 see xxx cr cr
@@ -27,6 +28,5 @@ xxx @ const yyy
 yyy ." -yyy created, (%d)-" cr
 see yyy cr
 [[ xxx @ yyy = ." const/var: " if ." PASS" exit then  ." FAIL!" ]]
-
 
 

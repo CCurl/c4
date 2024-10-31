@@ -67,7 +67,7 @@ extern int  strLen(const char *s);
 extern int  lower(const char c);
 extern void zTypeF(const char *fmt, ...);
 extern void inner(wc_t start);
-extern int  outer(const char *src);
+extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void Init();
 
