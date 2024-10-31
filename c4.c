@@ -372,8 +372,7 @@ void outer(const char *ln) {
 		if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
 		state=0;
 		while (inputFp) { fileClose(inputFp); inputFp = filePop(); }
-		toIn = curIn;
-		return;
+		break;
 	}
 	toIn = curIn;
 }
