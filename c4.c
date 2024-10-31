@@ -420,7 +420,7 @@ void baseSys() {
 	outerF(addrFmt, "astk", &astk[0]);
 	outerF(addrFmt, "code", &code[0]);
 	outerF(addrFmt, "vars", &vars[0]);
-	outerF(addrFmt, ">in", &toIn);
+	outerF(addrFmt, ">in",  &toIn);
 	outerF(addrFmt, "wd",   &wd[0]);
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
