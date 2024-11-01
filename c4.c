@@ -299,7 +299,7 @@ void inner(wc_t start) {
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
-		NCASE LIT:   push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
+		NCASE LIT:    push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
 		NCASE JMP:    pc=code[pc];
 		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
@@ -307,7 +307,7 @@ void inner(wc_t start) {
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
 		PRIMS
 		default:
-			if (wc & NUM_BITS) { push(wc & NUM_MASK); goto next; }
+			if ((wc & NUM_BITS) == NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
 			pc = wc;
 			goto next;
@@ -350,39 +350,31 @@ void compileWord(DE_T *de) {
 	} else { comma(de->xt); }
 }
 
-int parseWord(char *w) {
-	// printf("-%s-",w);
-	if (isNum(w, base)) {
-		if (state) { compileNum(pop()); }
-		return 1;
-	}
-
-	DE_T *de = findWord(w);
-	if (de) {
-		if (state) { compileWord(de); }
-		else { executeWord(de); }
-		return 1;
-	}
-
-	return 0;
-}
-
-int outer(const char *ln) {
+void outer(const char *ln) {
 	// zTypeF("-outer:%s-\n",ln);
 	char *curIn = toIn;
 	toIn = (char*)ln;
 	while (nextWord()) {
-		if (!parseWord(wd)) {
-			zTypeF("-%s?-", wd);
-			if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
-			state=0;
-			while (inputFp) { fileClose(inputFp); inputFp=filePop(); }
-			toIn = curIn;
-			return 0;
+		// zTypeF("-word:%s-",wd);
+		if (isNum(wd, base)) {
+			if (state) { compileNum(pop()); }
+			continue;
 		}
+
+		DE_T *de = findWord(wd);
+		if (de) {
+			if (state) { compileWord(de); }
+			else { executeWord(de); }
+			continue;
+		}
+
+		zTypeF("-%s?-", wd);
+		if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
+		state=0;
+		while (inputFp) { fileClose(inputFp); inputFp = filePop(); }
+		break;
 	}
 	toIn = curIn;
-	return 1;
 }
 
 void outerF(const char *fmt, ...) {
@@ -409,18 +401,18 @@ void baseSys() {
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
 	}
-
-	outerF(": code-sz   #%d ;", CODE_SZ);
-	outerF(": vars-sz   #%d ;", VARS_SZ);
-	outerF(": de-sz     #%d ;", sizeof(DE_T));
-	outerF(": dstk-sz   #%d ;", STK_SZ+1);
-	outerF(": tstk-sz   #%d ;", TSTK_SZ+1);
-	outerF(": wc-sz     #%d ;", WC_SZ);
-	outerF(": (dsp)     #%d ;", DSPA);
-	outerF(": (rsp)     #%d ;", RSPA);
-	outerF(": (lsp)     #%d ;", LSPA);
-	outerF(": (tsp)     #%d ;", TSPA);
-	outerF(": (asp)     #%d ;", ASPA);
+	char *addrFmt = addressFmt;
+	outerF(addrFmt, "code-sz", CODE_SZ);
+	outerF(addrFmt, "vars-sz", VARS_SZ);
+	outerF(addrFmt, "de-sz",   sizeof(DE_T));
+	outerF(addrFmt, "dstk-sz", STK_SZ+1);
+	outerF(addrFmt, "tstk-sz", TSTK_SZ+1);
+	outerF(addrFmt, "wc-sz",   WC_SZ);
+	outerF(addrFmt, "(dsp)",   DSPA);
+	outerF(addrFmt, "(rsp)",   RSPA);
+	outerF(addrFmt, "(lsp)",   LSPA);
+	outerF(addrFmt, "(tsp)",   TSPA);
+	outerF(addrFmt, "(asp)",   ASPA);
 
 	outerF(addrFmt, "dstk", &dstk[0]);
 	outerF(addrFmt, "rstk", &rstk[0]);
@@ -433,19 +425,19 @@ void baseSys() {
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
 
-	outerF(": version   #%d ;", VERSION);
-	outerF(": (lit)     #%d ;", LIT);
-	outerF(": (jmp)     #%d ;", JMP);
-	outerF(": (jmpz)    #%d ;", JMPZ);
-	outerF(": (njmpz)   #%d ;", NJMPZ);
-	outerF(": (jmpnz)   #%d ;", JMPNZ);
-	outerF(": (njmpnz)  #%d ;", NJMPNZ);
-	outerF(": (exit)    #%d ;", EXIT);
-	outerF(": (here)    #%d ;", HA);
-	outerF(": (last)    #%d ;", LA);
-	outerF(": base      #%d ;", BA);
-	outerF(": state     #%d ;", SA);
-	outerF(": cell      #%d ;", CELL_SZ);
+	outerF(addrFmt, "version",  VERSION);
+	outerF(addrFmt, "(lit)",    LIT);
+	outerF(addrFmt, "(jmp)",    JMP);
+	outerF(addrFmt, "(jmpz)",   JMPZ);
+	outerF(addrFmt, "(njmpz)",  NJMPZ);
+	outerF(addrFmt, "(jmpnz)",  JMPNZ);
+	outerF(addrFmt, "(njmpnz)", NJMPNZ);
+	outerF(addrFmt, "(exit)",   EXIT);
+	outerF(addrFmt, "(here)",   HA);
+	outerF(addrFmt, "(last)",   LA);
+	outerF(addrFmt, "base",     BA);
+	outerF(addrFmt, "state",    SA);
+	outerF(addrFmt, "cell",     CELL_SZ);
 	sys_load();
 }
 
