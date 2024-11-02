@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241030
+#define VERSION   20241102
 #define _SYS_LOAD_
 
 #define WC_T              uint32_t
@@ -49,6 +49,8 @@
     #define CELL_SZ    4
     #define addressFmt ": %s $%lx ; inline"
 #endif
+
+enum {COMPILE=1, INTERP=2, COMMENT=3};
 
 typedef CELL_T cell;
 typedef UCELL_T ucell;

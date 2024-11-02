@@ -13,7 +13,6 @@
 #define state         code[SA]
 #define TOS           dstk[dsp]
 #define NOS           dstk[dsp-1]
-#define ATOS          astk[asp]
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
@@ -75,10 +74,10 @@ DE_T tmpWords[10];
 	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
 	X(TDROP,   "tdrop",     0, if (0 < tsp) { tsp--; } ) \
 	X(TOA,     ">a",        0, t=pop(); if (asp < TSTK_SZ) { astk[++asp] = t; } ) \
-	X(ASET,    "a!",        0, ATOS=pop(); ) \
-	X(AGET,    "a@",        0, push(ATOS); ) \
-	X(AGETI,   "a@+",       0, push(ATOS++); ) \
-	X(AGETD,   "a@-",       0, push(ATOS--); ) \
+	X(ASET,    "a!",        0, astk[asp]=pop(); ) \
+	X(AGET,    "a@",        0, push(astk[asp]); ) \
+	X(AGETI,   "a@+",       0, push(astk[asp]++); ) \
+	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
@@ -156,8 +155,11 @@ void strCpy(char *d, const char *s) {
 }
 
 int nextWord() {
-	int len = 0;
-	while (btwi(*toIn, 1, 32)) { ++toIn; }
+	int len = 0, ch;
+	while (btwi(*toIn, 1, 32)) {
+		ch = *(toIn++);
+		if (btwi(ch,COMPILE,COMMENT)) { state = ch; }
+	}
 	while (btwi(*toIn, 33, 126)) { wd[len++] = *(toIn++); }
 	wd[len] = 0;
 	return len;
@@ -349,6 +351,8 @@ void compileWord(DE_T *de) {
 		do { comma(code[x++]); } while (code[x]!=EXIT);
 	} else { comma(de->xt); }
 }
+
+// int is
 
 void outer(const char *ln) {
 	// zTypeF("-outer:%s-\n",ln);
