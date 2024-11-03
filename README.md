@@ -1,4 +1,4 @@
-# c4: a Forth system inspired by MachineForth and Tachyon
+# c4: a Forth system inspired by ColorForth and Tachyon
 
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A WORD-CODE is a 32-bit unsigned number. <br/>
@@ -6,6 +6,18 @@ Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
 If the top 3 bits are set ($Exxxxxxx), it is a 29-bit unsigned literal. <br/>
 If it is between `BYE`, and $E0000000, it is the code address of a word to execute. <br/>
+
+## ColorForth's influence on C4
+C4 has 4 states: Interpret, Compile, Define, and Comment,<br/>
+C4 supports control characters in the whitespace that change the state.<br/>
+C4 also supports the standar state-change words<br/>
+
+|Ascii|Word|State|Description|
+|  1  | ]  |  1  | Compile |
+|  2  | :  |  2  | Define |
+|  3  | [  |  3  | Interpret/execute |
+|  4  | (  |  4  | Commment, save currrent state |
+|  5  | )  |     | End commment, restores saved state |
 
 ## CELLs in C4
 A `CELL` is either 32-bits or 64-bits, depending on the target system.

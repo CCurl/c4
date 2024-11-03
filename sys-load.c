@@ -6,6 +6,7 @@ void sys_load() {
 }
 #else
 void sys_load() {
+    outer("( Comments are free/built-in )");
     outer(": \\ 0 >in @ c! ; immediate");
     outer(": ->code code + ;");
     outer(": ->vars vars + ;");
@@ -40,12 +41,6 @@ void sys_load() {
     outer(": [ 0 state wc! ; immediate");
     outer(": ] 1 state wc! ;");
 
-    outer(": ( begin");
-    outer("    >in @ c@");
-    outer("    dup  0= if drop exit then");
-    outer("    >in @ 1+ >in !");
-    outer("    ')' = if exit then");
-    outer("  again ; immediate");
     outer(": hex     $10 base! ;");
     outer(": binary  %10 base! ;");
     outer(": decimal #10 base! ;");
