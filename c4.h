@@ -50,7 +50,7 @@
     #define addressFmt ": %s $%lx ; inline"
 #endif
 
-enum {COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4};
+enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 
 typedef CELL_T cell;
 typedef UCELL_T ucell;

@@ -38,8 +38,6 @@ void sys_load() {
     outer(": if0 (jmpnz) , here 0 , ; immediate");
     outer(": else (jmp) , here swap 0 , here swap wc! ; immediate");
     outer(": then here swap wc! ; immediate");
-    outer(": [ 0 state wc! ; immediate");
-    outer(": ] 1 state wc! ;");
 
     outer(": hex     $10 base! ;");
     outer(": binary  %10 base! ;");

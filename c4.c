@@ -159,7 +159,7 @@ int nextWord() {
 	int len = 0, ch;
 	while (btwi(*toIn, 1, 32)) {
 		ch = *(toIn++);
-		if (btwi(ch,COMPILE,DEFINE)) { state = (ch-1); }
+		if (btwi(ch,COMPILE,COMMENT)) { state = ch; }
 	}
 	while (btwi(*toIn, 33, 126)) { wd[len++] = *(toIn++); }
 	wd[len] = 0;

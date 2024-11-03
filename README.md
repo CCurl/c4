@@ -13,13 +13,13 @@ C4 has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
 C4 supports control characters in the whitespace that change the state.<br/>
 C4 also supports the standard state-change words<br/>
 
-|Ascii|Word|State|Description|
-| :-- | :-- | :-- | :-- |
-|  1  | ]   |  1  | Compile |
-|  2  | :   |  2  | Define |
-|  3  | [   |  3  | Interpret/execute/immediate |
-|  4  | (   |  4  | Commment, save currrent state |
-|     | )   |     | End commment, restores saved state |
+| Ascii | Word  | State | Description|
+|:--    |:--    |:--    |:-- |
+|   1   |  ]    |   1   | Compile |
+|   2   |  :    |   2   | Define |
+|   3   |  [    |   3   | Interpret/execute/immediate |
+|   4   |  (    |   4   | Commment, save currrent state |
+|       |  )    |       | End commment, restores saved state |
 
 **NOTE**: In the DEFINE state, C4 sets the state to COMPILE after adding the word.<br/>
 **NOTE**: ';' compiles EXIT and then sets the state to INTERPRET.<br/>
@@ -30,7 +30,7 @@ A `CELL` is either 32-bits or 64-bits, depending on the target system.
 - Linux 64-bit (-m64): a CELL is 64-bits.
 - Windows 32-bit (x86): a CELL is 32-bits.
 - Windows 64-bit (x64): a CELL is 64-bits.
-0
+
 ## C4 memory areas
 C4 provides two memory areas:
 - The CODE area can store up to $1FFFFFFF 32-bit WORD-CODEs. (see `code-sz`).
@@ -44,17 +44,17 @@ C4 provides two memory areas:
   - `last` is an offset into the vars area.
 - Use `->code` and `->vars` to turn an offset into an address.
 
-| WORD    | STACK  | DESCRIPTION |
-|:--      |:--     |:-- |
-| (dsp)   | (--N)  | CODE slot for the data stack pointer |
-| (rsp)   | (--N)  | CODE slot for the return stack pointer |
-| (lsp)   | (--N)  | CODE slot for the loop stack pointer |
-| (tsp)   | (--N)  | CODE slot for the T stack pointer |
-| (asp)   | (--N)  | CODE slot for the A stack pointer |
-| (here)  | (--N)  | CODE slot for the HERE variable |
-| (last)  | (--N)  | CODE slot for the LAST variable |
-| base    | (--N)  | CODE slot for the BASE variable |
-| state   | (--N)  | CODE slot for the STATE variable |
+| WORD   | STACK | DESCRIPTION |
+|:--     |:--    |:-- |
+| (dsp)  | (--N) | CODE slot for the data stack pointer |
+| (rsp)  | (--N) | CODE slot for the return stack pointer |
+| (lsp)  | (--N) | CODE slot for the loop stack pointer |
+| (tsp)  | (--N) | CODE slot for the T stack pointer |
+| (asp)  | (--N) | CODE slot for the A stack pointer |
+| (here) | (--N) | CODE slot for the HERE variable |
+| (last) | (--N) | CODE slot for the LAST variable |
+| base   | (--N) | CODE slot for the BASE variable |
+| state  | (--N) | CODE slot for the STATE variable |
 
 ## C4 Strings
 Strings in C4 are NULL-terminated with no count byte.<br/>
@@ -82,29 +82,29 @@ C4 includes an A stack. <br/>
 This is somewhat similar to MachineForth's operations for 'a', but in C4, it is a stack.<br/>
 The size of the A stack is configurable (see `tstk-sz`).<br/>
 
-| WORD  | STACK  | DESCRIPTION |
-|:--    |:--     |:-- |
-| `>a`  | (N--)  | Push N onto the A stack. |
-| `a!`  | (N--)  | Set A-TOS to N. |
-| `a@`  | (--N)  | N: copy of A-TOS. |
-| `a@+` | (--N)  | N: copy of A-TOS, then increment A-TOS. |
-| `a@-` | (--N)  | N: copy of A-TOS, then decrement A-TOS. |
-| `a>`  | (--N)  | Pop N from the A stack. |
-| adrop | (--)   | Drop A-TOS |
+| WORD  | STACK | DESCRIPTION |
+|:--    |:--    |:-- |
+| `>a`  | (N--) | Push N onto the A stack. |
+| `a!`  | (N--) | Set A-TOS to N. |
+| `a@`  | (--N) | N: copy of A-TOS. |
+| `a@+` | (--N) | N: copy of A-TOS, then increment A-TOS. |
+| `a@-` | (--N) | N: copy of A-TOS, then decrement A-TOS. |
+| `a>`  | (--N) | Pop N from the A stack. |
+| adrop | (--)  | Drop A-TOS |
 
 ## The T Stack
 C4 includes a T stack, with same ops as the A stack. <br/>
 Note that there are also additional words for the return stack. <br/>
 
-| WORD  | STACK  | DESCRIPTION |
-|:--    |:--     |:-- |
-| `>t`  | (N--)  | Push N onto the T stack. |
-| `t!`  | (N--)  | Set T-TOS to N. |
-| `t@`  | (--N)  | N: copy of T-TOS. |
-| `t@+` | (--N)  | N: copy of T-TOS, then increment T-TOS. |
-| `t@-` | (--N)  | N: copy of T-TOS, then decrement T-TOS. |
-| `t>`  | (--N)  | Pop N from the T stack. |
-| tdrop | (--)   | Drop T-TOS |
+| WORD  | STACK | DESCRIPTION |
+|:--    |:--    |:-- |
+| `>t`  | (N--) | Push N onto the T stack. |
+| `t!`  | (N--) | Set T-TOS to N. |
+| `t@`  | (--N) | N: copy of T-TOS. |
+| `t@+` | (--N) | N: copy of T-TOS, then increment T-TOS. |
+| `t@-` | (--N) | N: copy of T-TOS, then decrement T-TOS. |
+| `t>`  | (--N) | Pop N from the T stack. |
+| tdrop | (--)  | Drop T-TOS |
 
 ## C4 WORD-CODE primitives
 Stack effect notation conventions:
