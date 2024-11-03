@@ -63,7 +63,7 @@ void REP() {
     char tib[128];
 	if (inputFp == 0) {
 		ttyMode(0);
-		zType(" ok\r\n");
+		ok();
 	}
 	if (fileGets(tib, sizeof(tib), inputFp)) {
 		outer(tib);

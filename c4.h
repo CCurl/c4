@@ -72,6 +72,7 @@ extern void inner(wc_t start);
 extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void Init();
+extern void ok();
 
 // c4.cpp needs these to be defined
 extern cell inputFp, outputFp;

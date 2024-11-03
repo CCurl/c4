@@ -83,7 +83,7 @@ DE_T tmpWords[10];
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
-	X(SEMI,    ";",         1, comma(EXIT); state = INTERP; ) \
+	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
 	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&vars[last]; dp->fl=_IMMED; } ) \
@@ -138,6 +138,7 @@ cell fetchCell(cell a) { return *(cell*)(a); }
 void comma(cell x) { code[here++] = (wc_t)x; }
 void commaCell(cell n) { storeCell((cell)&code[here], n); here += (CELL_SZ / WC_SZ); }
 int changeState(int x) { state = x; return x; }
+void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -457,11 +458,10 @@ void baseSys() {
 }
 
 void Init() {
-	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
-	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
 	here = BYE+1;
 	last = VARS_SZ;
 	base = 10;
+	state = INTERP;
 	vhere = (cell)&vars[0];
 	fileInit();
 	baseSys();

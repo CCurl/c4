@@ -1,15 +1,15 @@
-# c4: a Forth system inspired by ColorForth and Tachyon
+# c4: a Forth system inspired by Tachyon and ColorForth
 
 ## Tachyon's influence on C4
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A WORD-CODE is a 32-bit unsigned number. <br/>
 Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
 If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
-If the top 3 bits are set ($Exxxxxxx), it is a 29-bit unsigned literal. <br/>
+If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
 If it is between `BYE`, and $E0000000, it is the code address of a word to execute. <br/>
 
 ## ColorForth's influence on C4
-C4 has 4 states: Interpret, Compile, Define, and Comment,<br/>
+C4 has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
 C4 supports control characters in the whitespace that change the state.<br/>
 C4 also supports the standard state-change words<br/>
 
@@ -21,13 +21,16 @@ C4 also supports the standard state-change words<br/>
 |  4  | (   |  4  | Commment, save currrent state |
 |     | )   |     | End commment, restores saved state |
 
+**NOTE**: In the DEFINE state, C4 sets the state to COMPILE after adding the word.<br/>
+**NOTE**: ';' compiles EXIT and then sets the state to INTERPRET.<br/>
+
 ## CELLs in C4
 A `CELL` is either 32-bits or 64-bits, depending on the target system.
 - Linux 32-bit (-m32): a CELL is 32-bits.
 - Linux 64-bit (-m64): a CELL is 64-bits.
 - Windows 32-bit (x86): a CELL is 32-bits.
 - Windows 64-bit (x64): a CELL is 64-bits.
-
+0
 ## C4 memory areas
 C4 provides two memory areas:
 - The CODE area can store up to $1FFFFFFF 32-bit WORD-CODEs. (see `code-sz`).
@@ -41,20 +44,20 @@ C4 provides two memory areas:
   - `last` is an offset into the vars area.
 - Use `->code` and `->vars` to turn an offset into an address.
 
-| WORD       | STACK   | DESCRIPTION |
-|:--         |:--      |:--          |
-| (dsp)      | (--N)   | CODE slot for the data stack pointer |
-| (rsp)      | (--N)   | CODE slot for the return stack pointer |
-| (lsp)      | (--N)   | CODE slot for the loop stack pointer |
-| (tsp)      | (--N)   | CODE slot for the T stack pointer |
-| (asp)      | (--N)   | CODE slot for the A stack pointer |
-| (here)     | (--N)   | CODE slot for the HERE variable |
-| (last)     | (--N)   | CODE slot for the LAST variable |
-| base       | (--N)   | CODE slot for the BASE variable |
-| state      | (--N)   | CODE slot for the STATE variable |
+| WORD    | STACK  | DESCRIPTION |
+|:--      |:--     |:-- |
+| (dsp)   | (--N)  | CODE slot for the data stack pointer |
+| (rsp)   | (--N)  | CODE slot for the return stack pointer |
+| (lsp)   | (--N)  | CODE slot for the loop stack pointer |
+| (tsp)   | (--N)  | CODE slot for the T stack pointer |
+| (asp)   | (--N)  | CODE slot for the A stack pointer |
+| (here)  | (--N)  | CODE slot for the HERE variable |
+| (last)  | (--N)  | CODE slot for the LAST variable |
+| base    | (--N)  | CODE slot for the BASE variable |
+| state   | (--N)  | CODE slot for the STATE variable |
 
 ## C4 Strings
-Strings in C4 are NULL-terminated strings with no count byte (ztype).<br/>
+Strings in C4 are NULL-terminated with no count byte.<br/>
 
 ## Format specifiers in `ftype` and `."`
 Similar to the printf() function in C, C4 supports formatted output using '%'. <br/>
@@ -87,7 +90,7 @@ The size of the A stack is configurable (see `tstk-sz`).<br/>
 | `a@+` | (--N)  | N: copy of A-TOS, then increment A-TOS. |
 | `a@-` | (--N)  | N: copy of A-TOS, then decrement A-TOS. |
 | `a>`  | (--N)  | Pop N from the A stack. |
-| adrop | ( -- ) | Drop A-TOS |
+| adrop | (--)   | Drop A-TOS |
 
 ## The T Stack
 C4 includes a T stack, with same ops as the A stack. <br/>
@@ -101,7 +104,7 @@ Note that there are also additional words for the return stack. <br/>
 | `t@+` | (--N)  | N: copy of T-TOS, then increment T-TOS. |
 | `t@-` | (--N)  | N: copy of T-TOS, then decrement T-TOS. |
 | `t>`  | (--N)  | Pop N from the T stack. |
-| tdrop | ( -- ) | Drop T-TOS |
+| tdrop | (--)   | Drop T-TOS |
 
 ## C4 WORD-CODE primitives
 Stack effect notation conventions:
@@ -182,8 +185,7 @@ The primitives:
 | a>        | (--N)        | Pop N from the A stack |
 | adrop     | (--)         | Drop A-TOS |
 | emit      | (C--)        | Output char C |
-| :         | (--)         | Create a new word, set STATE=1 |
-| ;         | (--)         | Compile EXIT, set STATE=0 |
+| ;         | (--)         | Compile EXIT, set STATE=INTERPRET |
 | lit,      | (N--)        | Compile a push of number N |
 | next-wd   | (--L)        | L: length of the next word from the input stream |
 | immediate | (--)         | Mark the last created word as IMMEDIATE |
