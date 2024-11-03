@@ -5,9 +5,9 @@
  5 load ( screen )
 10 load ( vars )
 
-32 const rows            100 const cols          rows cols * const block-sz
-block-sz var block       block-sz var work
-rows 1- const max-row    cols 1- const max-col
+32 const rows            100 const cols          rows cols * const block-sz
+block-sz var block       block-sz var work
+rows 1- const max-row    cols 1- const max-col
 
 : blk      40 wc@ ;   : >blk          40 wc! ;
 : row      43 wc@ ;   : >row          43 wc! ;  : row++ row 1+ >row ;

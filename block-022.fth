@@ -1,5 +1,6 @@
 : printable? ( ch--ch 1 | 0 ) dup 32 126 btwi if 1 else drop 0 then ;
-: replace-char ( ch-- ) printable? if rc>pos c! dirty mv-rt then show! ;
+: put-char ( ch-- ) rc>pos c! dirty mv-rt show! ;
+: replace-char ( ch-- ) printable? if put-char then ;
 : replace-one  ( -- )   cur-off red '?' emit key white replace-char ;
 : insert-char  ( ch-- ) printable? if0 exit then
     >a rc>pos >r  row max-col >pos >t
@@ -28,5 +29,4 @@
     row 0 >pos p1 s-cpy drop
     row 1+ delete-row ;
 : open-line ( flg-- ) if mv-dn then insert-line insert-mode! mv-home ;
-
 

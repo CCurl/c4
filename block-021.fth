@@ -1,5 +1,5 @@
 : block-fn ( --fn ) p2 z" block-" s-cpy blk <# # # #s #> s-cat z" .fth" s-cat ;
-: t1 ( ch-- ) dup 10 = if drop row++ 0 >col rc>pos t! exit then 32 max !t+ ;
+: t1 ( ch-- ) dup 10 = if drop row++ 0 >col rc>pos t! exit then dup 4 > if 32 max then !t+ ;
 : t2 atdrop nt-lines ;
 : work->block work >a  block >t  0 dup >row/col
     begin  @a+ ?dup  if0 t2 exit then  t1  row rows < while t2 ;

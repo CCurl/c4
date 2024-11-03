@@ -19,14 +19,14 @@ vhere const ed-cases
   'p' case  put-line       'P' case! mv-dn put-line ;   'A' case! mv-end insert-mode! ;
   '-' case  next-blk       '+' case  prev-blk           'C' case! row col clear-eol ;
   'o' case! 1 open-line ;  'O' case! 0 open-line ;
+  '1' case! 1 put-char ;   '2' case! 2 put-char ;
+  '3' case! 3 put-char ;   '4' case! 4 put-char ;
 end-cases
 
 : ed-key ( ch-- ) dup 32 126 btwi if0 ctrl-cases switch exit then
     insert-mode?  if insert-char   exit then
     replace-mode? if replace-char  exit then
     ed-cases switch ;
-
-
 
 
 
