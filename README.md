@@ -15,10 +15,10 @@ C4 also supports the standard state-change words<br/>
 
 | Ascii | Word  | State | Description|
 |:--    |:--    |:--    |:-- |
-|   1   |  ]    |   1   | Compile |
-|   2   |  :    |   2   | Define |
-|   3   |  [    |   3   | Interpret/execute/immediate |
-|   4   |  (    |   4   | Commment, save currrent state |
+|  $01  |  ]    |   1   | Compile |
+|  $02  |  :    |   2   | Define |
+|  $03  |  [    |   3   | Interpret/execute/immediate |
+|  $04  |  (    |   4   | Commment, save currrent state |
 |       |  )    |       | End commment, restores saved state |
 
 **NOTE**: In the DEFINE state, C4 sets the state to COMPILE after adding the word.<br/>
