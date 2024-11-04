@@ -3,10 +3,10 @@
 ## Tachyon's influence on C4
 In C4, a program is a sequence of WORD-CODEs. <br/>
 A WORD-CODE is a 32-bit unsigned number. <br/>
-Primitives are assigned numbers sequentially from 0 to `BYE`. <br/>
-If a WORD-CODE is less than or equal to `BYE`, it is a primitive. <br/>
+Primitives are assigned numbers sequentially from 0 to **BYE**. <br/>
+If a WORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
 If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
-If it is between `BYE`, and $E0000000, it is the code address of a word to execute. <br/>
+If it is between **BYE**, and $E0000000, it is the code address of a word to execute. <br/>
 
 ## ColorForth's influence on C4
 C4 has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
@@ -18,15 +18,15 @@ C4 also supports the standard state-change words<br/>
 |  $01  |  ]    |   1   | Compile |
 |  $02  |  :    |   2   | Define |
 |  $03  |  [    |   3   | Interpret/execute/immediate |
-|  $04  |       |   4   | Commment |
-|       |  (    |   4   | Commment, save current state |
-|       |  )    |       | End commment, restores saved state |
+|  $04  |       |   4   | Comment |
+|       |  (    |   4   | Comment, save current state |
+|       |  )    |       | End comment, restores saved state |
 
-**NOTE**: In the DEFINE state, C4 sets the state to COMPILE after adding the word.<br/>
-**NOTE**: ';' compiles EXIT and then sets the state to INTERPRET.<br/>
+**NOTE**: In the DEFINE state, C4 changes the state to COMPILE after adding the word.<br/>
+**NOTE**: ';' compiles EXIT and then changes the state to INTERPRET.<br/>
 
 ## CELLs in C4
-A `CELL` is either 32-bits or 64-bits, depending on the target system.
+A **CELL** is either 32-bits or 64-bits, depending on the target system.
 - Linux 32-bit (-m32): a CELL is 32-bits.
 - Linux 64-bit (-m64): a CELL is 64-bits.
 - Windows 32-bit (x86): a CELL is 32-bits.
