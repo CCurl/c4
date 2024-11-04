@@ -12,11 +12,11 @@
 #256 #117 or const key-cend  ( 27 91 49 59 53 70 )
 
 : win-key ( --k ) key #256 or ;
-: vk2 ( --k ) key 126 <> if 3 exit then
+: vk2 ( --k ) key 126 <> if 27 exit then
     a@ 50 = if key-ins   exit then
     a@ 51 = if key-del   exit then
     a@ 53 = if key-pgup  exit then
-    a@ 54 = if key-pgdn  exit then    3 ;
+    a@ 54 = if key-pgdn  exit then   27 ;
 : vk1 ( --k ) key a!
     a@ 65 = if key-up    exit then
     a@ 66 = if key-down  exit then
@@ -24,8 +24,8 @@
     a@ 68 = if key-left  exit then
     a@ 70 = if key-end   exit then
     a@ 72 = if key-home  exit then
-    a@ 50 55 btwi if vk2 exit then    3 ;
-: vt-key ( --k )  key 91 = if vk1 exit then 3 ;
+    a@ 50 55 btwi if vk2 exit then   27 ;
+: vt-key ( --k )  key 91 = if vk1 exit then 27 ;
 : vkey ( --k ) key
     dup 224 = if drop win-key exit then
     dup  27 = if drop vt-key  exit then ;

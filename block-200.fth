@@ -10,15 +10,15 @@ cr 0 if-else 1 if-else    see if-else cr
 [[ cr 10 begin .. 1- dup      while drop ]]
 [[ cr  0 begin .. 1+ dup 10 = until drop ]]
 : elapsed timer swap - ."  (%d usec)" ;   : mil 1000 dup * * ;
-: t0 a@ drop ;                            : t1 t0 ;
+: t0 1 drop ;                             : t1 1 drop t0 ;
 : fib 1- dup 2 < if drop 1 exit then dup fib swap 1- fib + ;
-: bm1 cr ." bm1: empty loop: "      timer swap for next elapsed ;
-: bm2 cr ." bm2: decrement loop: "  timer swap begin 1- -while drop elapsed ;
-: bm3 cr ." bm3: call loop: "       timer swap for t0 next elapsed ;
-: bm4 cr ." bm4: 2 call loop: "     timer swap for t1 next elapsed ;
+: bm1 cr dup ." bm1: empty loop: (%d)"     timer swap for next elapsed ;
+: bm2 cr dup ." bm2: decrement loop: (%d)" timer swap begin 1- -while drop elapsed ;
+: bm3 cr dup ." bm3: call loop: (%d)"      timer swap for t0 next elapsed ;
+: bm4 cr dup ." bm4: 2 call loop: (%d)"    timer swap for t1 next elapsed ;
 : bm5 cr dup ." bm5: fib (%d) ... " timer swap fib . elapsed ;
-: go  250 mil dup dup dup bm1 bm2 bm3 bm4  37 bm5 cr ;
 : bmk 1000 mil bm1 ;
+: go  250 mil dup dup bmk bm2 bm3 bm4  38 bm5 cr ;
 go cr
 cell var xxx
 see xxx cr cr
