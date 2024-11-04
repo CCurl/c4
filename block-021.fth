@@ -22,7 +22,7 @@
     normal-mode? if insert-mode!  exit then
     insert-mode? if replace-mode! exit then
     normal-mode! ;
-
+: ks ( -- ) yellow ." %n(press a key ...)" white key drop cls show! ;
 
 
 

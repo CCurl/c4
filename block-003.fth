@@ -1,6 +1,6 @@
 ( Block 3 - Strings )
 
-find fill loaded?
+ find fill loaded?
 
 : p1 vhere $100 + ;    : p2 p1 $100 + ;
 

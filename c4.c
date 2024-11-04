@@ -358,8 +358,8 @@ int isStateChange(const char *wd) {
 	if (strEq(wd,":")) { return changeState(DEFINE); }
 	if (strEq(wd,"[")) { return changeState(INTERP); }
 	if (strEq(wd,"]")) { return changeState(COMPILE); }
-	if (strEq(wd,"(")) { prevState=state; return changeState(COMMENT); }
-	if (strEq(wd,")")) { return changeState(prevState); }
+	if (strEq(wd,"(")) { prevState = state; return changeState(COMMENT); }
+	if (strEq(wd,")")) { return changeState((prevState==COMMENT) ? INTERP : prevState); }
 	return 0;
 }
 
@@ -369,11 +369,9 @@ void outer(const char *ln) {
 	toIn = (char*)ln;
 	while (nextWord()) {
 		// zTypeF("-word:(%s,%d)-",wd,state);
-		if (isStateChange(wd) || (state==COMMENT)) { continue; }
-		if (state == DEFINE) {
-			addWord(wd); state = COMPILE;
-			continue;
-		}
+		if (isStateChange(wd)) { continue; }
+		if (state == COMMENT) { continue; }
+		if (state == DEFINE) { addWord(wd); state = COMPILE; continue; }
 		if (isNum(wd, base)) {
 			if (state == COMPILE) { compileNum(pop()); }
 			continue;

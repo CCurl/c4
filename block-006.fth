@@ -1,6 +1,6 @@
 ( Block 6 - Utility words )
 
-find dump loaded?
+[ find dump loaded?
 
 : .X ( num width-- ) >r <# r> 1- for # next #s #> ztype ;
 : .2 2 .X ;   : .3 3 .X ;   : .4 4 .X ;

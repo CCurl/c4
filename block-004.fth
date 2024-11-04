@@ -1,6 +1,6 @@
 ( Block 4 - case / case!/ switch  )
 
-find switch loaded?
+ find switch loaded?
 
 : case  ( N-- ) v, find drop v, ;
 : case! ( N-- ) v, here v, 1 state wc! ;
