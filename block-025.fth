@@ -13,13 +13,13 @@
   'k' case  mv-up          'h' case  mv-lt    'j' case mv-dn     'l' case  mv-rt
   32  case  mv-rt          '_' case  mv-home  'q' case mv-tab-r  'Q' case  mv-tab-l
   'R' case  replace-mode!  'r' case  replace-one                 '$' case  mv-end
-  'i' case  insert-mode!   'b' case!32 insert-char mv-lt ;     '#' case!cls show! ;
+  'i' case  insert-mode!   'b' case!32 insert-char mv-lt ;
   ':' case  do-cmd         '!' case!->cmd cmd-buf outer ;      'D' case  yank/del
   'x' case  delete-char    'X' case  delete-prev
   'J' case  join-lines     'Y' case  yank-line
   'p' case  put-line       'P' case!mv-dn put-line ;  'A' case!mv-end insert-mode! ;
   '-' case  next-blk       '+' case  prev-blk           'C' case!row col clear-eol ;
-  'o' case!1 open-line ; 'O' case!0 open-line ;
+  'o' case!1 open-line ; 'O' case!0 open-line ;     '#' case!cur-block cls show! ;
   '1' case!1 put-char ;  '2' case!2 put-char ;
   '3' case!3 put-char ;  '4' case!4 put-char ;
 end-cases
