@@ -1,7 +1,7 @@
 ( Editor main loop )
 
 ( ANSI colors ...        COMPILE  DEFINE   INTERPRET  COMMENT )
-[vhere const ed-colors  40 vc,   203 vc,  226 vc,    250 vc,
+[vhere const ed-colors  40 vc,   203 vc,  226 vc,    255 vc,
 
 :ed-col@( state--color )-if1- ed-colors + c@then;
 :ed-col!( color state-- )1- ed-colors + c! ;
