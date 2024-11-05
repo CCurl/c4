@@ -2,16 +2,16 @@
 
 ## Tachyon's influence on C4
 In C4, a program is a sequence of WORD-CODEs. <br/>
-A WORD-CODE is a 32-bit unsigned number. <br/>
+A WORD-CODE is a 32-bit unsigned number (a DWORD). <br/>
 Primitives are assigned numbers sequentially from 0 to **BYE**. <br/>
 If a WORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
 If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
 If it is between **BYE**, and $E0000000, it is the code address of a word to execute. <br/>
 
 ## ColorForth's influence on C4
-C4 has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
 C4 supports control characters in the whitespace that change the state.<br/>
-C4 also supports the standard state-change words<br/>
+C4 has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
+C4 also supports the standard state-change words.<br/>
 
 | Ascii | Word  | State | Description|
 |:--    |:--    |:--    |:-- |
@@ -39,23 +39,31 @@ C4 provides two memory areas:
   - **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
   - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
-  - `here` is an offset into the code area.
+  - `here` is an offset into the CODE area.
 - The VARS area can store up to CELL bytes (see `vars-sz`).
   - `vhere` is the address of the first free byte the vars area.
-  - `last` is an offset into the vars area.
+  - `last` is an offset into the VARS area.
 - Use `->code` and `->vars` to turn an offset into an address.
 
-| WORD   | STACK | DESCRIPTION |
-|:--     |:--    |:-- |
-| (dsp)  | (--N) | CODE slot for the data stack pointer |
-| (rsp)  | (--N) | CODE slot for the return stack pointer |
-| (lsp)  | (--N) | CODE slot for the loop stack pointer |
-| (tsp)  | (--N) | CODE slot for the T stack pointer |
-| (asp)  | (--N) | CODE slot for the A stack pointer |
-| (here) | (--N) | CODE slot for the HERE variable |
-| (last) | (--N) | CODE slot for the LAST variable |
-| base   | (--N) | CODE slot for the BASE variable |
-| state  | (--N) | CODE slot for the STATE variable |
+| WORD    | STACK | DESCRIPTION |
+|:--      |:--    |:-- |
+| code    | (--A) | A: starting address of the CODE area |
+| vars    | (--A) | A: starting address of the VARS area |
+| code-sz | (--N) | N: size in WORD-CODEs of the CODE area |
+| vars-sz | (--N) | N: size in BYTEs of the VARS area |
+| dstk-sz | (--N) | N: size in CELLs of the DATA and RETURN stacks |
+| tstk-sz | (--N) | N: size in CELLs of the A and T stacks |
+| wc-sz   | (--N) | N: size in BYTEs of a WORD-CODE |
+| de-sz   | (--N) | N: size in BYTEs of a dictionary entry |
+| (dsp)   | (--N) | N: CODE slot for the data stack pointer |
+| (rsp)   | (--N) | N: CODE slot for the return stack pointer |
+| (lsp)   | (--N) | N: CODE slot for the loop stack pointer |
+| (tsp)   | (--N) | N: CODE slot for the T stack pointer |
+| (asp)   | (--N) | N: CODE slot for the A stack pointer |
+| (here)  | (--N) | N: CODE slot for the HERE variable |
+| (last)  | (--N) | N: CODE slot for the LAST variable |
+| base    | (--N) | N: CODE slot for the BASE variable |
+| state   | (--N) | N: CODE slot for the STATE variable |
 
 ## C4 Strings
 Strings in C4 are NULL-terminated with no count byte.<br/>
