@@ -22,8 +22,8 @@ C4 also supports the standard state-change words.<br/>
 |       |  (    |   4   | Comment, save current state |
 |       |  )    |       | End comment, restores saved state |
 
-**NOTE**: In the DEFINE state, C4 changes the state to COMPILE after adding the word.<br/>
-**NOTE**: ';' compiles EXIT and then changes the state to INTERPRET.<br/>
+**NOTE**: In the DEFINE state, C4 changes the state to COMPILE after adding the next word.<br/>
+**NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET.<br/>
 
 ## CELLs in C4
 A **CELL** is either 32-bits or 64-bits, depending on the target system.
