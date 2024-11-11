@@ -19,8 +19,8 @@
 
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
-wc_t code[CODE_SZ+1];
-byte vars[VARS_SZ+1];
+byte memory[MEM_SZ+1];
+wc_t *code = (wc_t*)&memory[0];
 cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
 cell vhere;
@@ -86,8 +86,8 @@ DE_T tmpWords[10];
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
 	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&vars[last]; dp->fl=_IMMED; } ) \
-	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&vars[last]; dp->fl=_INLINE; } ) \
+	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_IMMED; } ) \
+	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_INLINE; } ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
@@ -182,7 +182,7 @@ DE_T *addWord(const char *w) {
 	}
 	last -= sizeof(DE_T);
 	int ln = strLen(w);
-	DE_T *dp = (DE_T*)&vars[last];
+	DE_T *dp = (DE_T*)&memory[last];
 	dp->xt = here;
 	dp->fl = 0;
 	dp->ln = ln;
@@ -196,8 +196,8 @@ DE_T *findWord(const char *w) {
 	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
 	int len = strLen(w);
 	int cw = last;
-	while (cw < VARS_SZ) {
-		DE_T *dp = (DE_T*)&vars[cw];
+	while (cw < MEM_SZ) {
+		DE_T *dp = (DE_T*)&memory[cw];
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += sizeof(DE_T);
 	}
@@ -206,8 +206,8 @@ DE_T *findWord(const char *w) {
 
 int findXT(int xt) {
 	int cw = last;
-	while (cw < VARS_SZ) {
-		DE_T *dp = (DE_T*)&vars[cw];
+	while (cw < MEM_SZ) {
+		DE_T *dp = (DE_T*)&memory[cw];
 		if (dp->xt == xt) { return cw; }
 		cw += sizeof(DE_T);
 	}
@@ -215,10 +215,10 @@ int findXT(int xt) {
 }
 
 void doSee() {
-	DE_T *dp = findWord(0), *lastWord = (DE_T*)&vars[last];
+	DE_T *dp = findWord(0), *lastWord = (DE_T*)&memory[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
-	cell x = (cell)dp-(cell)vars;
+	cell x = (cell)dp-(cell)memory;
 	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
@@ -237,7 +237,7 @@ void doSee() {
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++; break;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
-				zType(x ? ((DE_T*)&vars[x])->nm : "??");
+				zType(x ? ((DE_T*)&memory[x])->nm : "??");
 		}
 	}
 }
@@ -284,11 +284,10 @@ void quote() {
 		*(vh++) = *(toIn++);
 	}
 	*(vh++) = 0; // NULL terminator
+	push(vhere);
 	if (state == COMPILE) {
-		compileNum(vhere);
+		compileNum(pop());
 		vhere = (cell)vh;
-	} else {
-		push(vhere);
 	}
 }
 
@@ -416,8 +415,7 @@ void baseSys() {
 		w->fl = prims[i].fl;
 	}
 	char *addrFmt = addressFmt;
-	outerF(addrFmt, "code-sz", CODE_SZ);
-	outerF(addrFmt, "vars-sz", VARS_SZ);
+	outerF(addrFmt, "mem-sz",  MEM_SZ);
 	outerF(addrFmt, "de-sz",   sizeof(DE_T));
 	outerF(addrFmt, "dstk-sz", STK_SZ+1);
 	outerF(addrFmt, "tstk-sz", TSTK_SZ+1);
@@ -428,14 +426,13 @@ void baseSys() {
 	outerF(addrFmt, "(tsp)",   TSPA);
 	outerF(addrFmt, "(asp)",   ASPA);
 
-	outerF(addrFmt, "dstk", &dstk[0]);
-	outerF(addrFmt, "rstk", &rstk[0]);
-	outerF(addrFmt, "tstk", &tstk[0]);
-	outerF(addrFmt, "astk", &astk[0]);
-	outerF(addrFmt, "code", &code[0]);
-	outerF(addrFmt, "vars", &vars[0]);
-	outerF(addrFmt, ">in",  &toIn);
-	outerF(addrFmt, "wd",   &wd[0]);
+	outerF(addrFmt, "dstk",    &dstk[0]);
+	outerF(addrFmt, "rstk",    &rstk[0]);
+	outerF(addrFmt, "tstk",    &tstk[0]);
+	outerF(addrFmt, "astk",    &astk[0]);
+	outerF(addrFmt, "memory",  &memory[0]);
+	outerF(addrFmt, ">in",     &toIn);
+	outerF(addrFmt, "wd",      &wd[0]);
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
 
@@ -456,11 +453,12 @@ void baseSys() {
 }
 
 void Init() {
+	code = (wc_t*)&memory[0];
 	here = BYE+1;
-	last = VARS_SZ;
+	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
-	vhere = (cell)&vars[0];
+	vhere = (cell)&memory[0];
 	fileInit();
 	baseSys();
 }

@@ -17,16 +17,10 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241102
+#define VERSION   20241110
 #define _SYS_LOAD_
 
-#define WC_T              uint32_t
-#define WC_SZ             0x04
-#define NUM_BITS          0xE0000000
-#define NUM_MASK          0x1FFFFFFF
-#define CODE_SZ           0x00020000
-#define VARS_SZ           4*1024*1024
-
+#define MEM_SZ        4*1024*1024
 #define STK_SZ            63
 #define RSTK_SZ           63
 #define LSTK_SZ           60
@@ -39,15 +33,23 @@
 #define _INLINE             2
 
 #if INTPTR_MAX > INT32_MAX
-    #define CELL_T     int64_t
-    #define UCELL_T    uint64_t
-    #define CELL_SZ    8
-    #define addressFmt ": %s $%llx ;"
+    #define CELL_T        int64_t
+    #define UCELL_T       uint64_t
+    #define CELL_SZ       8
+    #define addressFmt    ": %s $%llx ;"
+    #define WC_T          uint32_t
+    #define WC_SZ         0x04
+    #define NUM_BITS      0xE0000000
+    #define NUM_MASK      0x1FFFFFFF
 #else
-    #define CELL_T     int32_t
-    #define UCELL_T    uint32_t
-    #define CELL_SZ    4
-    #define addressFmt ": %s $%lx ; inline"
+    #define CELL_T        int32_t
+    #define UCELL_T       uint32_t
+    #define CELL_SZ       4
+    #define addressFmt    ": %s $%lx ; inline"
+    #define WC_T          uint32_t
+    #define WC_SZ         0x04
+    #define NUM_BITS      0xE0000000
+    #define NUM_MASK      0x1FFFFFFF
 #endif
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };

@@ -8,8 +8,7 @@ void sys_load() {
 void sys_load() {
     outer("( Comments are free/built-in )");
     outer(": \\ 0 >in @ c! ; immediate");
-    outer(": ->code code + ;");
-    outer(": ->vars vars + ;");
+    outer(": ->memory memory + ;");
     outer(": here  (here)  wc@ ;");
     outer(": last  (last)  wc@ ;");
     outer(": base@ base    wc@ ;");
@@ -22,10 +21,11 @@ void sys_load() {
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
+    outer("memory 200000 + (vhere) !");
     outer(": const  addword inline lit, (exit) , ;");
+    outer(": var    vhere const allot ;");
     outer(": create vhere addword inline vhere lit, ;");
     outer(": does> (jmp) , r> , ;");
-    outer(": var   vhere const allot ;");
 
     outer(": begin here ; immediate");
     outer(": again (jmp)   , , ; immediate");
@@ -93,27 +93,27 @@ void sys_load() {
     outer(": [[ vhere >t here >t 1 state wc! ;");
     outer(": ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate");
 
-    outer("vars-sz 1- ->vars const dict-end");
+    outer("mem-sz 1- ->memory const dict-end");
     outer(": ->xt     d@ ;");
     outer(": ->flags  wc-sz + c@ ;");
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
 
-    outer(": words last ->vars >a 0 >t 0 >r");
+    outer(": words last ->memory >a 0 >t 0 >r");
     outer("    begin");
     outer("      a@ ->name ztype r@ 1+ r!");
     outer("      a@ ->len dup 7 > t@ + t! 14 > t@ + t!");
     outer("      t@+ 9 > if cr 0 t! else tab then");
     outer("      a@ de-sz + a! a@ dict-end <");
     outer("    while tdrop adrop r> .\"  (%d words)\" ;");
-    outer(": words-n ( n-- )  0 >a last ->vars swap for");
+    outer(": words-n ( n-- )  0 >a last ->memory swap for");
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
 
     outer("cell var vh");
     outer(": marker here 20 wc! last 21 wc! vhere vh ! ;");
     outer(": forget 20 wc@ (here) wc! 21 wc@ (last) wc! vh @ (vhere) ! ;");
-    outer(": fgl last dup de-sz + (last) wc! vars + d@ (here) wc! ;");
+    outer(": fgl last dup de-sz + (last) wc! ->memory d@ (here) wc! ;");
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");

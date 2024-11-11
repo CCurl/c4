@@ -33,24 +33,25 @@ A **CELL** is either 32-bits or 64-bits, depending on the target system.
 - Windows 64-bit (x64): a CELL is 64-bits.
 
 ## C4 memory areas
-C4 provides two memory areas:
-- The CODE area can store up to $1FFFFFFF 32-bit WORD-CODEs. (see `code-sz`).
+C4 provides a single memory area. See 'mem-sz' for its size.
+- It is broken into 3 areas: CODE, VARS, and DICT.
+- The CODE area is an aray of WORD-CODEs starting at the beginning of the memory.
+  - `here` is an offset into the CODE area.
   - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
   - **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by C4.
   - **NOTE**: These are free for the application to use as desired.
   - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
-  - `here` is an offset into the CODE area.
-- The VARS area can store up to CELL bytes (see `vars-sz`).
-  - `vhere` is the address of the first free byte the vars area.
-  - `last` is an offset into the VARS area.
-- Use `->code` and `->vars` to turn an offset into an address.
+- The VARS area is arbitrarily defined to begin at address &memory[200000].
+  - This value can be changed for any reason. See sys-load.c.
+  - `vhere` is the absolute address of the first free byte the VARS area.
+- The DICT is at the end of the memory. 'last' grows toward the beginning of the memory.
+  - `last` is an offset into the memory area.
+- Use `->memory` to turn an offset into an address.
 
 | WORD    | STACK | DESCRIPTION |
 |:--      |:--    |:-- |
-| code    | (--A) | A: starting address of the CODE area |
-| vars    | (--A) | A: starting address of the VARS area |
-| code-sz | (--N) | N: size in WORD-CODEs of the CODE area |
-| vars-sz | (--N) | N: size in BYTEs of the VARS area |
+| memory  | (--A) | A: starting address of the C4 memory |
+| mem-sz  | (--N) | N: size in BYTEs of the C4 memory |
 | dstk-sz | (--N) | N: size in CELLs of the DATA and RETURN stacks |
 | tstk-sz | (--N) | N: size in CELLs of the A and T stacks |
 | wc-sz   | (--N) | N: size in BYTEs of a WORD-CODE |
