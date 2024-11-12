@@ -452,7 +452,7 @@ void baseSys() {
 	sys_load();
 }
 
-void Init() {
+void c4Init() {
 	code = (wc_t*)&memory[0];
 	here = BYE+1;
 	last = MEM_SZ;

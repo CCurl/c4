@@ -1,5 +1,7 @@
 #include "c4.h"
 
+#ifdef IS_PC
+
 #ifdef IS_WINDOWS
 
 #include <conio.h>
@@ -85,9 +87,11 @@ void loadArgument(const char *arg) {
 }
 
 int main(int argc, char *argv[]) {
-	Init();
+	c4Init();
     if (argc > 1) { loadArgument(argv[1]); }
     else { loadArgument("block-999.fth"); }
     while (1) { REP(); };
 	return 0;
 }
+
+#endif // IS_PC
