@@ -21,7 +21,7 @@ void sys_load() {
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
-    outer("memory 200000 + (vhere) !");
+    outer("50000 wc-sz * memory + (vhere) !");
     outer(": const  addword inline lit, (exit) , ;");
     outer(": var    vhere const allot ;");
     outer(": create vhere addword inline vhere lit, ;");

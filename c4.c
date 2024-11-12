@@ -27,7 +27,7 @@ cell vhere;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
-#define PRIMS \
+#define PRIMS1 \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
 	X(DUP,     "dup",       0, t=TOS; push(t); ) \
 	X(SWAP,    "swap",      0, t=TOS; TOS=NOS; NOS=t; ) \
@@ -100,7 +100,9 @@ DE_T tmpWords[10];
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
-	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
+
+#define PRIMS2 \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
@@ -110,20 +112,37 @@ DE_T tmpWords[10];
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(INCL,    "include",   0, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
-	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); ) \
-	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
-	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
+	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); )
+
+#ifdef IS_PC
+#define PRIMS_BOARD
+#define PRIMS_PC \
+	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \
+	X(BYE,     "bye",    0, ttyMode(0); exit(0); )
+#else
+#define PRIMS_PC // Must be a dev board ...
+#define PRIMS_BOARD \
+	X(POPENI,  "pin-input",  0, pinMode(pop(), INPUT); ) \
+	X(POPENO,  "pin-output", 0, pinMode(pop(), OUTPUT); ) \
+	X(POPENU,  "pin-pullup", 0, pinMode(pop(), INPUT_PULLUP); ) \
+	X(PREADD,  "dpin@",      0, TOS = digitalRead(TOS); ) \
+	X(PWRITED, "dpin!",      0, t=pop(); n=pop(); digitalWrite(t, n); ) \
+	X(PREADA,  "apin@",      0, TOS = analogRead(TOS); ) \
+	X(PWRITEA, "apin!",      0, t=pop(); n=pop(); analogWrite(t, n); ) \
+	X(BYE,     "bye",        0, ttyMode(0); )
+#endif // IS_PC
+
 
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS
+	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS1 PRIMS2 PRIMS_PC PRIMS_BOARD
 };
 
 #undef X
 #define X(op, name, imm, code) { op, name, imm },
 
-PRIM_T prims[] = { PRIMS {0, 0, 0} };
+PRIM_T prims[] = { PRIMS1 PRIMS2 PRIMS_PC PRIMS_BOARD {0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
@@ -307,8 +326,8 @@ void inner(wc_t start) {
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
 		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
-		PRIMS
-		default:
+		PRIMS1 PRIMS2 PRIMS_PC PRIMS_BOARD
+		goto next; default:
 			if ((wc & NUM_BITS) == NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
 			pc = wc;

@@ -7,7 +7,7 @@
 #ifdef mySerial
     void serialInit() { while (!mySerial) ; }
     void emit(char c) { mySerial.print(c); }
-    void printString(const char *s) { mySerial.print(s); }
+    void zType(const char *s) { mySerial.print(s); }
     int qKey() { return mySerial.available(); }
     int key() { 
         while (!qKey()) {}
@@ -15,13 +15,13 @@
     }
 #else
     void serialInit() { }
-    void printChar(char c) {}
-    void printString(char *s) {}
+    void emit(char c) {}
+    void zType(char *s) {}
     int qKey() { return 0; }
     int key() { return 0; }
 #endif
 
-cell sysTime() { return micros(); }
+cell timer() { return micros(); }
 
 // Cells are always 32-bit on dev boards (no 64-bit)
 #define S1(x, y) (*(x)=((y)&0xFF))
@@ -38,16 +38,13 @@ cell Fetch(const char *l) {
     return (*l) | G1(l+1,8) | G1(l+2,16) | G1(l+3,24);
 }
 
-void loadUserWords() {
-}
-
 char *in, tib[128];
 void setup() {
   serialInit();
-  // printString("Hello.");
+  // zType("Hello.");
   fileInit();
   c4Init();
-  printString(" ok\r\n");
+  ok();
   in = (char*)0;
 }
 
@@ -67,7 +64,7 @@ void loop() {
   if (c==13) {
       *(in) = 0;
       outer(tib);
-      printString(" ok\r\n");
+      ok();
       in = 0;
   } else if ((c==8) || (c==127)) {
       if ((--in) < tib) { in = tib; }
