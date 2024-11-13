@@ -1,12 +1,12 @@
 vhere const ctrl-cases
-  key-up   case  mv-up          key-down  case  mv-dn         127 case  mv-lt
-  key-left case  mv-lt          key-right case  mv-rt         8   case  mv-lt
-  key-end  case  mv-end         key-cend  case  mv-end!       9   case  mv-tab-r
-  key-home case  mv-home        key-chome case  mv-home!      17  case  mv-tab-l
-  key-pgup case  next-blk       key-pgdn  case  prev-blk      13  case  mv-cr
-  key-ins  case  insert-toggle  key-del   case  delete-char   24  case  delete-prev
-  1        case!1 put-char ;  2         case!2 put-char ; 3   case!3 put-char ;
-  4        case!4 put-char ;  27        case  normal-mode!
+  key-up   case  mv-up           key-down  case  mv-dn          127 case  mv-lt
+  key-left case  mv-lt           key-right case  mv-rt          8   case  mv-lt
+  key-end  case  mv-end          key-cend  case  mv-end!        9   case  mv-tab-r
+  key-home case  mv-home         key-chome case  mv-home!       17  case  mv-tab-l
+  key-pgup case  next-blk        key-pgdn  case  prev-blk       13  case  mv-cr
+  key-ins  case  insert-toggle   key-del   case  delete-char    24  case  delete-prev
+  1 case!1 put-char ;  2 case!2 put-char ;  3 case!3 put-char ;  4 case! 4 put-char ;
+  27 case  normal-mode!
 end-cases
 
 vhere const ed-cases

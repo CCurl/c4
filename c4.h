@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241110
+#define VERSION   20241112
 #define _SYS_LOAD_
 
 #define MEM_SZ        4*1024*1024
