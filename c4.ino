@@ -4,6 +4,9 @@
 
 #define mySerial Serial // Teensy and Pico
 
+// #include "file-teensy.ipp"
+// #include "file-pico.ipp"
+
 #ifdef mySerial
     void serialInit() { while (!mySerial) ; }
     void emit(char c) { mySerial.print(c); }

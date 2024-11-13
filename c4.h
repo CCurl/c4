@@ -1,5 +1,7 @@
 #ifndef __C4_H__
 
+#define __C4_H__
+
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #define IS_WINDOWS 1
@@ -10,6 +12,12 @@
 #define IS_LINUX   1
 #define IS_PC      1
 #endif
+
+#ifndef IS_PC
+//#define FILE_NONE
+//#define FILE_PICO
+//#define FILE_TEENSY
+#endif // IS_PC
 
 #include <stdio.h>
 #include <stdlib.h>

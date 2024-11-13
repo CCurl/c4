@@ -21,6 +21,8 @@ void sys_load() {
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
+    // NOTE: change this to control where the variables start 
+    // This reserves 50k CODE slots, the variables start after that
     outer("50000 wc-sz * memory + (vhere) !");
     outer(": const  addword inline lit, (exit) , ;");
     outer(": var    vhere const allot ;");
@@ -114,10 +116,14 @@ void sys_load() {
     outer(": marker here 20 wc! last 21 wc! vhere vh ! ;");
     outer(": forget 20 wc@ (here) wc! 21 wc@ (last) wc! vh @ (vhere) ! ;");
     outer(": fgl last dup de-sz + (last) wc! ->memory d@ (here) wc! ;");
+
+#ifndef FILE_NONE
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
     outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
+#endif // FILE_NONE
+
     outer("marker");
 }
 #endif // _SYS_LOAD_
