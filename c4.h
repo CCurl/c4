@@ -38,7 +38,7 @@
     #define CELL_SZ       8
     #define addressFmt    ": %s $%llx ;"
     #define WC_T          uint32_t
-    #define WC_SZ         0x04
+    #define WC_SZ         4
     #define NUM_BITS      0xE0000000
     #define NUM_MASK      0x1FFFFFFF
 #else
@@ -47,7 +47,7 @@
     #define CELL_SZ       4
     #define addressFmt    ": %s $%lx ; inline"
     #define WC_T          uint32_t
-    #define WC_SZ         0x04
+    #define WC_SZ         4
     #define NUM_BITS      0xE0000000
     #define NUM_MASK      0x1FFFFFFF
 #endif

@@ -27,7 +27,7 @@ cell vhere;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
-#define PRIMS1 \
+#define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
 	X(DUP,     "dup",       0, t=TOS; push(t); ) \
 	X(SWAP,    "swap",      0, t=TOS; TOS=NOS; NOS=t; ) \
@@ -102,7 +102,7 @@ DE_T tmpWords[10];
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
 
-#define PRIMS2 \
+#define PRIMS_FILE \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
@@ -136,13 +136,13 @@ DE_T tmpWords[10];
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS1 PRIMS2 PRIMS_PC PRIMS_BOARD
+	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS_BASE PRIMS_FILE PRIMS_PC PRIMS_BOARD
 };
 
 #undef X
 #define X(op, name, imm, code) { op, name, imm },
 
-PRIM_T prims[] = { PRIMS1 PRIMS2 PRIMS_PC PRIMS_BOARD {0, 0, 0}};
+PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_PC PRIMS_BOARD {0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
@@ -326,7 +326,7 @@ void inner(wc_t start) {
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
 		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
-		PRIMS1 PRIMS2 PRIMS_PC PRIMS_BOARD
+		PRIMS_BASE PRIMS_FILE PRIMS_PC PRIMS_BOARD
 		goto next; default:
 			if ((wc & NUM_BITS) == NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
