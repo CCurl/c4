@@ -115,13 +115,11 @@ DE_T tmpWords[10];
 	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); )
 
 #ifdef IS_PC
-#define PRIMS_BOARD
-#define PRIMS_PC \
+  #define PRIMS_SYSTEM \
 	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \
 	X(BYE,     "bye",    0, ttyMode(0); exit(0); )
-#else
-#define PRIMS_PC // Must be a dev board ...
-#define PRIMS_BOARD \
+#else // Must be a dev board ...
+  #define PRIMS_SYSTEM \
 	X(POPENI,  "pin-input",  0, pinMode(pop(), INPUT); ) \
 	X(POPENO,  "pin-output", 0, pinMode(pop(), OUTPUT); ) \
 	X(POPENU,  "pin-pullup", 0, pinMode(pop(), INPUT_PULLUP); ) \
@@ -132,17 +130,16 @@ DE_T tmpWords[10];
 	X(BYE,     "bye",        0, ttyMode(0); )
 #endif // IS_PC
 
-
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS_BASE PRIMS_FILE PRIMS_PC PRIMS_BOARD
+	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM
 };
 
 #undef X
 #define X(op, name, imm, code) { op, name, imm },
 
-PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_PC PRIMS_BOARD {0, 0, 0}};
+PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM {0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
@@ -326,7 +323,7 @@ void inner(wc_t start) {
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
 		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
-		PRIMS_BASE PRIMS_FILE PRIMS_PC PRIMS_BOARD
+		PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM
 		goto next; default:
 			if ((wc & NUM_BITS) == NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
