@@ -16,7 +16,7 @@
   'i' case  insert-mode!   'b' case!32 insert-char mv-lt ;
   ':' case  do-cmd         '!' case!->cmd cmd-buf outer ;      'D' case  yank/del
   'x' case  delete-char    'X' case  delete-prev
-  'J' case  join-lines     'Y' case  yank-line
+  'J' case  join-lines     'Y' case  yank-line          'E' case  exec-line
   'p' case  put-line       'P' case!mv-dn put-line ;  'A' case!mv-end insert-mode! ;
   '-' case  next-blk       '+' case  prev-blk           'C' case!row col clear-eol ;
   'o' case!1 open-line ; 'O' case!0 open-line ;     '#' case!cur-block cls show! ;
