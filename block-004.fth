@@ -15,7 +15,7 @@
   again;
 
 ( Example usage ... )
-find switch loaded?( keep the example from being loaded )
+find switch loaded?( this keeps the example from being loaded )
 
 case-a." (case a)" ;
 case-b." (case b)" ;
