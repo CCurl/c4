@@ -13,6 +13,27 @@
 #define IS_PC      1
 #endif
 
+#ifdef IS_PC
+  #define MEM_SZ        4*1024*1024
+  #define STK_SZ            63
+  #define RSTK_SZ           63
+  #define LSTK_SZ           60
+  #define TSTK_SZ           63
+  #define FSTK_SZ           15
+  #define NAME_LEN          25
+  #define CODE_SLOTS   48*1024
+#else // Dev board - change these as appropriate for the board
+  #define MEM_SZ        6*1024
+  #define STK_SZ            32
+  #define RSTK_SZ           32
+  #define LSTK_SZ           15
+  #define TSTK_SZ           32
+  #define FSTK_SZ            4
+  #define NAME_LEN          13 // To make dict-entry size 20 (13+1+1+1+4)
+  #define CODE_SLOTS    1*1024
+#endif // IS_PC
+
+
 #ifndef IS_PC
 //#define FILE_NONE
 //#define FILE_PICO
@@ -28,21 +49,12 @@
 #define VERSION   20241112
 #define _SYS_LOAD_
 
-#define MEM_SZ        4*1024*1024
-#define STK_SZ            63
-#define RSTK_SZ           63
-#define LSTK_SZ           60
-#define TSTK_SZ           63
-#define FSTK_SZ           15
-#define NAME_LEN          25
-
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define _IMMED              1
 #define _INLINE             2
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T        int64_t
-    #define UCELL_T       uint64_t
     #define CELL_SZ       8
     #define addressFmt    ": %s $%llx ;"
     #define WC_T          uint32_t
@@ -51,7 +63,6 @@
     #define NUM_MASK      0x1FFFFFFF
 #else
     #define CELL_T        int32_t
-    #define UCELL_T       uint32_t
     #define CELL_SZ       4
     #define addressFmt    ": %s $%lx ; inline"
     #define WC_T          uint32_t
@@ -63,7 +74,6 @@
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
 
 typedef CELL_T cell;
-typedef UCELL_T ucell;
 typedef WC_T wc_t;
 typedef unsigned char byte;
 typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN+1]; } DE_T;
