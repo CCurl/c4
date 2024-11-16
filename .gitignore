@@ -1,10 +1,9 @@
 c4
 c4-32
-block-099.fth
+/block-99?.fth
 /x64
 /Debug
 /Release
 /c4.vcxproj.user
 .vscode
-/block-999.fth
 /enc_temp_folder/
