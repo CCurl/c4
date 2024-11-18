@@ -34,23 +34,25 @@ A **CELL** is either 32-bits or 64-bits, depending on the target system.
 
 ## C4 memory areas
 C4 provides a single memory area. See 'mem-sz' for its size.
-- It is broken into 3 areas: CODE, VARS, and DICT.
-- The CODE area is an aray of WORD-CODEs starting at the beginning of the memory.
-  - `here` is an offset into the CODE area.
-  - **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
-  - **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by C4.
-  - **NOTE**: These are free for the application to use as desired.
-  - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the code area.
-- The VARS area is arbitrarily defined to begin at address &memory[200000].
-  - This value can be changed for any reason. See sys-load.c.
-  - `vhere` is the absolute address of the first free byte the VARS area.
-- The DICT is at the end of the memory. 'last' grows toward the beginning of the memory.
-  - `last` is an offset into the memory area.
-- Use `->memory` to turn an offset into an address.
+- The total size of this memory is **MEM_SZ** (c4.h)
+- It is broken into 3 areas as follows **[CODE][VARS][Dictionary]**.
+- The **CODE** area is an aray of WORD-CODEs starting at the beginning of the memory.
+- The **VARS** area is defined to begin at address **&memory[CODE_SLOTS*WC_SZ]**.
+- The **Dictionary** starts at the end and grows downward.
+- The size of the CODE area is **CODE_SLOTS** (c4.h)
+- `here` is an offset into the **CODE** area, the next slot to be allocated.
+- `last` is an also offset into the memory area.
+- `vhere` is the absolute address of the first free byte the **VARS** area.
+- Use `->memory` to turn an offset into an address into the memory area.
+- **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
+- **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by C4.
+- **NOTE**: These are free for the application to use as desired.
+- **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the **CODE** area.
 
 | WORD    | STACK | DESCRIPTION |
 |:--      |:--    |:-- |
 | memory  | (--A) | A: starting address of the C4 memory |
+| vars    | (--A) | A: starting address of the VARS area |
 | mem-sz  | (--N) | N: size in BYTEs of the C4 memory |
 | dstk-sz | (--N) | N: size in CELLs of the DATA and RETURN stacks |
 | tstk-sz | (--N) | N: size in CELLs of the A and T stacks |
@@ -62,6 +64,7 @@ C4 provides a single memory area. See 'mem-sz' for its size.
 | (tsp)   | (--N) | N: CODE slot for the T stack pointer |
 | (asp)   | (--N) | N: CODE slot for the A stack pointer |
 | (here)  | (--N) | N: CODE slot for the HERE variable |
+| (vhere) | (--A) | A: storage location for the VHERE variable |
 | (last)  | (--N) | N: CODE slot for the LAST variable |
 | base    | (--N) | N: CODE slot for the BASE variable |
 | state   | (--N) | N: CODE slot for the STATE variable |

@@ -22,8 +22,7 @@ enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
-cell vhere;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
@@ -441,6 +440,7 @@ void baseSys() {
 	outerF(addrFmt, "tstk",    &tstk[0]);
 	outerF(addrFmt, "astk",    &astk[0]);
 	outerF(addrFmt, "memory",  &memory[0]);
+	outerF(addrFmt, "vars",    vhere);
 	outerF(addrFmt, ">in",     &toIn);
 	outerF(addrFmt, "wd",      &wd[0]);
 	outerF(addrFmt, "(vhere)", &vhere);
@@ -468,7 +468,7 @@ void c4Init() {
 	last = MEM_SZ;
 	base = 10;
 	state = INTERP;
-	vhere = (cell)&memory[0];
+	vhere = (cell)&memory[CODE_SLOTS*WC_SZ];
 	fileInit();
 	baseSys();
 }

@@ -8,9 +8,6 @@ void sys_load() {
 }
 #else
 void sys_load() {
-    // NOTE: change this to control where the variables start 
-    // This reserves the desired CODE slots, the variables start after that
-    outerF(": vbase %d wc-sz * memory + ; vbase (vhere) !", CODE_SLOTS);
     outer("( Comments are free/built-in )");
     outer(": \\ 0 >in @ c! ; immediate");
     outer(": ->memory memory + ;");
