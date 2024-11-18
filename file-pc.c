@@ -1,6 +1,6 @@
 #include "c4.h"
 
-#ifdef IS_PC
+#ifndef FILE_NONE
 
 // Support for files
 cell inputFp, outputFp, fileStk[FSTK_SZ + 1];
@@ -39,4 +39,4 @@ void fileLoad(const char* name) {
     inputFp = fh;
 }
 
-#endif // IS_PC
+#endif // FILE_NONE

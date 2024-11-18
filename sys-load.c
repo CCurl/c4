@@ -1,11 +1,16 @@
 #include "c4.h"
 
+#define _SYS_LOAD_
+
 #ifndef _SYS_LOAD_
 void sys_load() {
-    fileLoad("bootstrap.c4");
+    fileLoad("block-000.fth");
 }
 #else
 void sys_load() {
+    // NOTE: change this to control where the variables start 
+    // This reserves the desired CODE slots, the variables start after that
+    outerF(": vbase %d wc-sz * memory + ; vbase (vhere) !", CODE_SLOTS);
     outer("( Comments are free/built-in )");
     outer(": \\ 0 >in @ c! ; immediate");
     outer(": ->memory memory + ;");
@@ -21,9 +26,6 @@ void sys_load() {
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
-    // NOTE: change this to control where the variables start 
-    // This reserves the desired CODE slots, the variables start after that
-    outerF("%d wc-sz * memory + (vhere) !", CODE_SLOTS);
     outer(": const  addword inline lit, (exit) , ;");
     outer(": var    vhere const allot ;");
     outer(": create vhere addword inline vhere lit, ;");

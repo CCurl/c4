@@ -5,40 +5,20 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #define IS_WINDOWS 1
-#define IS_PC      1
 #endif
 
 #ifdef __linux__
 #define IS_LINUX   1
-#define IS_PC      1
 #endif
 
-#ifdef IS_PC
-  #define MEM_SZ        4*1024*1024
-  #define STK_SZ            63
-  #define RSTK_SZ           63
-  #define LSTK_SZ           60
-  #define TSTK_SZ           63
-  #define FSTK_SZ           15
-  #define NAME_LEN          25
-  #define CODE_SLOTS   48*1024
-#else // Dev board - change these as appropriate for the board
-  #define MEM_SZ        6*1024
-  #define STK_SZ            32
-  #define RSTK_SZ           32
-  #define LSTK_SZ           15
-  #define TSTK_SZ           32
-  #define FSTK_SZ            4
-  #define NAME_LEN          13 // To make dict-entry size 20 (13+1+1+1+4)
-  #define CODE_SLOTS    1*1024
-#endif // IS_PC
-
-
-#ifndef IS_PC
-//#define FILE_NONE
-//#define FILE_PICO
-//#define FILE_TEENSY
-#endif // IS_PC
+#define MEM_SZ           4*1024*1024
+#define STK_SZ          63
+#define RSTK_SZ         63
+#define LSTK_SZ         60
+#define TSTK_SZ         63
+#define FSTK_SZ         15
+#define NAME_LEN        25
+#define CODE_SLOTS      48*1024
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,8 +26,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241112
-#define _SYS_LOAD_
+#define VERSION   20241117
 
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define _IMMED              1
@@ -79,7 +58,7 @@ typedef unsigned char byte;
 typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 
-// These are defined by c4.cpp
+// These are defined by c4.c
 extern void push(cell x);
 extern cell pop();
 extern void strCpy(char *d, const char *s);
@@ -94,7 +73,7 @@ extern void outerF(const char *fmt, ...);
 extern void c4Init();
 extern void ok();
 
-// c4.cpp needs these to be defined
+// c4.c needs these to be defined
 extern cell inputFp, outputFp;
 extern void zType(const char *str);
 extern void emit(const char ch);

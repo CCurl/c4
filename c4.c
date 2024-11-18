@@ -116,21 +116,9 @@ DE_T tmpWords[10];
 	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); )
 #endif // FILE_NONE
 
-#ifdef IS_PC
-  #define PRIMS_SYSTEM \
+#define PRIMS_SYSTEM \
 	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \
 	X(BYE,     "bye",    0, ttyMode(0); exit(0); )
-#else // Must be a dev board ...
-  #define PRIMS_SYSTEM \
-	X(POPENI,  "pin-input",  0, pinMode(pop(), INPUT); ) \
-	X(POPENO,  "pin-output", 0, pinMode(pop(), OUTPUT); ) \
-	X(POPENU,  "pin-pullup", 0, pinMode(pop(), INPUT_PULLUP); ) \
-	X(PREADD,  "dpin@",      0, TOS = digitalRead(TOS); ) \
-	X(PWRITED, "dpin!",      0, t=pop(); n=pop(); digitalWrite(t, n); ) \
-	X(PREADA,  "apin@",      0, TOS = analogRead(TOS); ) \
-	X(PWRITEA, "apin!",      0, t=pop(); n=pop(); analogWrite(t, n); ) \
-	X(BYE,     "bye",        0, ttyMode(0); )
-#endif // IS_PC
 
 #define X(op, name, imm, cod) op,
 
@@ -319,7 +307,7 @@ void inner(wc_t start) {
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
-		NCASE LIT:    push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
+		NCASE LIT:    push(fetchCell((cell)&code[pc])); pc += (CELL_SZ/WC_SZ);
 		NCASE JMP:    pc=code[pc];
 		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
@@ -372,11 +360,15 @@ void compileWord(DE_T *de) {
 
 int isStateChange(const char *wd) {
 	static int prevState = INTERP;
+	if (strEq(wd,")")) { return changeState(prevState); }
+	if (state==COMMENT) { return 0; }
 	if (strEq(wd,":")) { return changeState(DEFINE); }
 	if (strEq(wd,"[")) { return changeState(INTERP); }
 	if (strEq(wd,"]")) { return changeState(COMPILE); }
-	if (strEq(wd,"(")) { prevState = state; return changeState(COMMENT); }
-	if (strEq(wd,")")) { return changeState((prevState==COMMENT) ? INTERP : prevState); }
+	if (strEq(wd,"(")) {
+		if (state!=COMMENT) { prevState=state; }
+		return changeState(COMMENT);
+	}
 	return 0;
 }
 
