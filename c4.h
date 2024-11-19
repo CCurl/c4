@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241117
+#define VERSION   20241118
 
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define _IMMED              1
