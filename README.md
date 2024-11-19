@@ -64,7 +64,7 @@ C4 provides a single memory area. See 'mem-sz' for its size.
 | (tsp)   | (--N) | N: CODE slot for the T stack pointer |
 | (asp)   | (--N) | N: CODE slot for the A stack pointer |
 | (here)  | (--N) | N: CODE slot for the HERE variable |
-| (vhere) | (--A) | A: storage location for the VHERE variable |
+| (vhere) | (--A) | A: address of the VHERE variable |
 | (last)  | (--N) | N: CODE slot for the LAST variable |
 | base    | (--N) | N: CODE slot for the BASE variable |
 | state   | (--N) | N: CODE slot for the STATE variable |
@@ -118,6 +118,11 @@ Note that there are also additional words for the return stack. <br/>
 | `t@-` | (--N) | N: copy of T-TOS, then decrement T-TOS. |
 | `t>`  | (--N) | Pop N from the T stack. |
 | tdrop | (--)  | Drop T-TOS |
+
+## Inline words
+In c4, an "INLINE" word is like a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance.
+
+**Note that if a word might have an embedded 7 (EXIT) in its implementation (like a byte in an address for example), then it should not be marked as INLINE.**
 
 ## C4 WORD-CODE primitives
 Stack effect notation conventions:
@@ -200,7 +205,7 @@ The primitives:
 | emit      | (C--)        | Output char C |
 | ;         | (--)         | Compile EXIT, set STATE=INTERPRET |
 | lit,      | (N--)        | Compile a push of number N |
-| next-wd   | (--L)        | L: length of the next word from the input stream |
+| next-wd   | (--A L)      | L: length of the next word (**wd**) from the input stream |
 | immediate | (--)         | Mark the last created word as IMMEDIATE |
 | inline    | (--)         | Mark the last created word as INLINE |
 | outer     | (S--)        | Send string S to the C4 outer interpreter |

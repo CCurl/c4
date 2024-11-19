@@ -84,7 +84,7 @@ DE_T tmpWords[10];
 	X(QKEY,    "?key",      0, push(qKey()); ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
-	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
+	X(NEXTWD,  "next-wd",   0, push((cell)wd); push(nextWord()); ) \
 	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_IMMED; } ) \
 	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_INLINE; } ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
