@@ -3,12 +3,10 @@
 #define __C4_H__
 
 #ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#define IS_WINDOWS 1
-#endif
-
-#ifdef __linux__
-#define IS_LINUX   1
+  #define _CRT_SECURE_NO_WARNINGS
+  #define IS_WINDOWS 1
+#else
+  #define IS_LINUX   1
 #endif
 
 #define MEM_SZ           4*1024*1024
