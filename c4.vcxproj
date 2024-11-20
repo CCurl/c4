@@ -149,6 +149,7 @@
     <None Include="block-004.fth" />
     <None Include="block-005.fth" />
     <None Include="block-006.fth" />
+    <None Include="block-007.fth" />
     <None Include="block-010.fth" />
     <None Include="block-014.fth" />
     <None Include="block-015.fth" />
@@ -161,19 +162,22 @@
     <None Include="block-026.fth" />
     <None Include="block-200.fth" />
     <None Include="block-999.fth" />
-    <None Include="bootstrap.fth" />
     <None Include="LICENSE" />
     <None Include="makefile" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c4.c" />
-    <ClCompile Include="file.c" />
     <ClCompile Include="sys-load.c" />
     <ClCompile Include="system.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c4.h" />
+    <ClCompile Include="file-pc.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <FileType>CppCode</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

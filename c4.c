@@ -13,22 +13,20 @@
 #define state         code[SA]
 #define TOS           dstk[dsp]
 #define NOS           dstk[dsp-1]
-#define ATOS          astk[asp]
 #define L0            lstk[lsp]
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
 enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
-wc_t code[CODE_SZ+1];
-byte vars[VARS_SZ+1];
+byte memory[MEM_SZ+1];
+wc_t *code = (wc_t*)&memory[0];
 cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1];
-cell vhere;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
-#define PRIMS \
+#define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
 	X(DUP,     "dup",       0, t=TOS; push(t); ) \
 	X(SWAP,    "swap",      0, t=TOS; TOS=NOS; NOS=t; ) \
@@ -75,21 +73,20 @@ DE_T tmpWords[10];
 	X(TFROM,   "t>",        0, push((0 < tsp) ? tstk[tsp--] : 0); ) \
 	X(TDROP,   "tdrop",     0, if (0 < tsp) { tsp--; } ) \
 	X(TOA,     ">a",        0, t=pop(); if (asp < TSTK_SZ) { astk[++asp] = t; } ) \
-	X(ASET,    "a!",        0, ATOS=pop(); ) \
-	X(AGET,    "a@",        0, push(ATOS); ) \
-	X(AGETI,   "a@+",       0, push(ATOS++); ) \
-	X(AGETD,   "a@-",       0, push(ATOS--); ) \
+	X(ASET,    "a!",        0, astk[asp]=pop(); ) \
+	X(AGET,    "a@",        0, push(astk[asp]); ) \
+	X(AGETI,   "a@+",       0, push(astk[asp]++); ) \
+	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
-	X(COLON,   ":",         0, addWord(0); state=1; ) \
-	X(SEMI,    ";",         1, comma(EXIT); state=0; ) \
+	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
-	X(NEXTWD,  "next-wd",   0, push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&vars[last]; dp->fl=_IMMED; } ) \
-	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&vars[last]; dp->fl=_INLINE; } ) \
+	X(NEXTWD,  "next-wd",   0, push((cell)wd); push(nextWord()); ) \
+	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_IMMED; } ) \
+	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_INLINE; } ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
@@ -101,8 +98,10 @@ DE_T tmpWords[10];
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
-	X(DOTQT,   ".\"",       1, quote(); state ? comma(FTYPE) : fType((char*)pop()); ) \
-	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
+	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
+
+#define PRIMS_FILE \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
@@ -112,20 +111,22 @@ DE_T tmpWords[10];
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(INCL,    "include",   0, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
-	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); ) \
-	X(SYSTEM,  "system",    0, t=pop(); ttyMode(0); system((char*)t); ) \
-	X(BYE,     "bye",       0, ttyMode(0); exit(0); )
+	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); )
+
+#define PRIMS_SYSTEM \
+	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \
+	X(BYE,     "bye",    0, ttyMode(0); exit(0); )
 
 #define X(op, name, imm, cod) op,
 
 enum _PRIM  {
-	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS
+	STOP, LIT, JMP, JMPZ, NJMPZ, JMPNZ, NJMPNZ, PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM
 };
 
 #undef X
 #define X(op, name, imm, code) { op, name, imm },
 
-PRIM_T prims[] = { PRIMS {0, 0, 0} };
+PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM {0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
@@ -138,7 +139,9 @@ cell fetch32(cell a) { return *(uint32_t*)(a); }
 void storeCell(cell a, cell v) { *(cell*)(a) = v; }
 cell fetchCell(cell a) { return *(cell*)(a); }
 void comma(cell x) { code[here++] = (wc_t)x; }
-void commaCell(cell n) { storeCell((cell)&code[here], n); here += CELL_SZ / WC_SZ; }
+void commaCell(cell n) { storeCell((cell)&code[here], n); here += (CELL_SZ / WC_SZ); }
+int changeState(int x) { state = x; return x; }
+void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -156,14 +159,17 @@ void strCpy(char *d, const char *s) {
 }
 
 int nextWord() {
-	int len = 0;
-	while (btwi(*toIn, 1, 32)) { ++toIn; }
+	int len = 0, ch;
+	while (btwi(*toIn, 1, 32)) {
+		ch = *(toIn++);
+		if (btwi(ch,COMPILE,COMMENT)) { state = ch; }
+	}
 	while (btwi(*toIn, 33, 126)) { wd[len++] = *(toIn++); }
 	wd[len] = 0;
 	return len;
 }
 
-int isTemp(const char *w) {
+int isTempWord(const char *w) {
 	return ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) ? 1 : 0;
 }
 
@@ -173,28 +179,28 @@ DE_T *addWord(const char *w) {
 		if (NAME_LEN < strLen(wd)) { wd[NAME_LEN]=0; }
 		w = wd;
 	}
-	if (isTemp(w)) {
+	if (isTempWord(w)) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
 	}
 	last -= sizeof(DE_T);
 	int ln = strLen(w);
-	DE_T *dp = (DE_T*)&vars[last];
+	DE_T *dp = (DE_T*)&memory[last];
 	dp->xt = here;
 	dp->fl = 0;
 	dp->ln = ln;
 	strCpy(dp->nm, w);
-	// zTypeF("-add:%d,[%s],%d (%d)-\n", newLast, dp->nm, dp->lx, dp->xt);
+	// zTypeF("\n-add:%d,[%s],(%d)-\n", last, dp->nm, dp->xt);
 	return dp;
 }
 
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
-	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
+	if (isTempWord(w)) { return &tmpWords[w[1]-'0']; }
 	int len = strLen(w);
 	int cw = last;
-	while (cw < VARS_SZ) {
-		DE_T *dp = (DE_T*)&vars[cw];
+	while (cw < MEM_SZ) {
+		DE_T *dp = (DE_T*)&memory[cw];
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += sizeof(DE_T);
 	}
@@ -203,8 +209,8 @@ DE_T *findWord(const char *w) {
 
 int findXT(int xt) {
 	int cw = last;
-	while (cw < VARS_SZ) {
-		DE_T *dp = (DE_T*)&vars[cw];
+	while (cw < MEM_SZ) {
+		DE_T *dp = (DE_T*)&memory[cw];
 		if (dp->xt == xt) { return cw; }
 		cw += sizeof(DE_T);
 	}
@@ -212,10 +218,10 @@ int findXT(int xt) {
 }
 
 void doSee() {
-	DE_T *dp = findWord(0), *lastWord = (DE_T*)&vars[last];
+	DE_T *dp = findWord(0), *lastWord = (DE_T*)&memory[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
-	cell x = (cell)dp-(cell)vars;
+	cell x = (cell)dp-(cell)memory;
 	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
@@ -234,7 +240,7 @@ void doSee() {
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++; break;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
-				zType(x ? ((DE_T*)&vars[x])->nm : "??");
+				zType(x ? ((DE_T*)&memory[x])->nm : "??");
 		}
 	}
 }
@@ -281,11 +287,10 @@ void quote() {
 		*(vh++) = *(toIn++);
 	}
 	*(vh++) = 0; // NULL terminator
-	if (state) {
-		compileNum(vhere);
+	push(vhere);
+	if (state == COMPILE) {
+		compileNum(pop());
 		vhere = (cell)vh;
-	} else {
-		push(vhere);
 	}
 }
 
@@ -299,14 +304,14 @@ void inner(wc_t start) {
 	wc = code[pc++];
 	switch(wc) {
 		case  STOP:   return;
-		NCASE LIT:    push(fetchCell((cell)&code[pc])); pc += CELL_SZ/WC_SZ;
+		NCASE LIT:    push(fetchCell((cell)&code[pc])); pc += (CELL_SZ/WC_SZ);
 		NCASE JMP:    pc=code[pc];
 		NCASE JMPZ:   if (pop()==0) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPZ:  if (TOS==0) { pc=code[pc]; } else { ++pc; }
 		NCASE JMPNZ:  if (pop()) { pc=code[pc]; } else { ++pc; }
 		NCASE NJMPNZ: if (TOS) { pc=code[pc]; } else { ++pc; }
-		PRIMS
-		default:
+		PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM
+		goto next; default:
 			if ((wc & NUM_BITS) == NUM_BITS) { push(wc & NUM_MASK); goto next; }
 			if (code[pc] != EXIT) { rpush(pc); }
 			pc = wc;
@@ -350,27 +355,42 @@ void compileWord(DE_T *de) {
 	} else { comma(de->xt); }
 }
 
+int isStateChange(const char *wd) {
+	static int prevState = INTERP;
+	if (strEq(wd,")")) { return changeState(prevState); }
+	if (state==COMMENT) { return 0; }
+	if (strEq(wd,":")) { return changeState(DEFINE); }
+	if (strEq(wd,"[")) { return changeState(INTERP); }
+	if (strEq(wd,"]")) { return changeState(COMPILE); }
+	if (strEq(wd,"(")) {
+		if (state!=COMMENT) { prevState=state; }
+		return changeState(COMMENT);
+	}
+	return 0;
+}
+
 void outer(const char *ln) {
 	// zTypeF("-outer:%s-\n",ln);
 	char *curIn = toIn;
 	toIn = (char*)ln;
 	while (nextWord()) {
-		// zTypeF("-word:%s-",wd);
+		// zTypeF("-word:(%s,%d)-",wd,state);
+		if (isStateChange(wd)) { continue; }
+		if (state == COMMENT) { continue; }
+		if (state == DEFINE) { addWord(wd); state = COMPILE; continue; }
 		if (isNum(wd, base)) {
-			if (state) { compileNum(pop()); }
+			if (state == COMPILE) { compileNum(pop()); }
 			continue;
 		}
-
 		DE_T *de = findWord(wd);
 		if (de) {
-			if (state) { compileWord(de); }
+			if (state == COMPILE) { compileWord(de); }
 			else { executeWord(de); }
 			continue;
 		}
-
 		zTypeF("-%s?-", wd);
 		if (inputFp) { zTypeF(" at\r\n\t%s", ln); }
-		state=0;
+		state = INTERP;
 		while (inputFp) { fileClose(inputFp); inputFp = filePop(); }
 		break;
 	}
@@ -402,8 +422,7 @@ void baseSys() {
 		w->fl = prims[i].fl;
 	}
 	char *addrFmt = addressFmt;
-	outerF(addrFmt, "code-sz", CODE_SZ);
-	outerF(addrFmt, "vars-sz", VARS_SZ);
+	outerF(addrFmt, "mem-sz",  MEM_SZ);
 	outerF(addrFmt, "de-sz",   sizeof(DE_T));
 	outerF(addrFmt, "dstk-sz", STK_SZ+1);
 	outerF(addrFmt, "tstk-sz", TSTK_SZ+1);
@@ -414,14 +433,14 @@ void baseSys() {
 	outerF(addrFmt, "(tsp)",   TSPA);
 	outerF(addrFmt, "(asp)",   ASPA);
 
-	outerF(addrFmt, "dstk", &dstk[0]);
-	outerF(addrFmt, "rstk", &rstk[0]);
-	outerF(addrFmt, "tstk", &tstk[0]);
-	outerF(addrFmt, "astk", &astk[0]);
-	outerF(addrFmt, "code", &code[0]);
-	outerF(addrFmt, "vars", &vars[0]);
-	outerF(addrFmt, ">in",  &toIn);
-	outerF(addrFmt, "wd",   &wd[0]);
+	outerF(addrFmt, "dstk",    &dstk[0]);
+	outerF(addrFmt, "rstk",    &rstk[0]);
+	outerF(addrFmt, "tstk",    &tstk[0]);
+	outerF(addrFmt, "astk",    &astk[0]);
+	outerF(addrFmt, "memory",  &memory[0]);
+	outerF(addrFmt, "vars",    vhere);
+	outerF(addrFmt, ">in",     &toIn);
+	outerF(addrFmt, "wd",      &wd[0]);
 	outerF(addrFmt, "(vhere)", &vhere);
 	outerF(addrFmt, "(output-fp)", &outputFp);
 
@@ -441,13 +460,13 @@ void baseSys() {
 	sys_load();
 }
 
-void Init() {
-	for (int t=0; t<CODE_SZ; t++) { code[t]=0; }
-	for (int t=0; t<VARS_SZ; t++) { vars[t]=0; }
+void c4Init() {
+	code = (wc_t*)&memory[0];
 	here = BYE+1;
-	last = VARS_SZ;
+	last = MEM_SZ;
 	base = 10;
-	vhere = (cell)&vars[0];
+	state = INTERP;
+	vhere = (cell)&memory[CODE_SLOTS*WC_SZ];
 	fileInit();
 	baseSys();
 }

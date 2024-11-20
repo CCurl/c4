@@ -13,7 +13,7 @@ clean:
 	rm -f c4
 
 test: c4
-	./c4 block-200.c4
+	./c4 block-200.fth
 
 bin: c4
 	cp -u -p c4 ~/bin/

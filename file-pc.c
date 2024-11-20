@@ -1,10 +1,11 @@
 #include "c4.h"
 
-cell inputFp, outputFp, fileStk[FSTK_SZ+1];
+// Support for files
+cell inputFp, outputFp, fileStk[FSTK_SZ + 1];
 int fileSp;
 
 void filePush(cell fh) { if (fileSp < FSTK_SZ) { fileStk[++fileSp] = fh; } }
-cell filePop() { return (0<fileSp) ? fileStk[fileSp--]: 0; }
+cell filePop() { return (0 < fileSp) ? fileStk[fileSp--] : 0; }
 static char *blockFn(char *fn, int blk) { sprintf(fn, "block-%03d.fth", blk); return fn; }
 static char fn[32];
 

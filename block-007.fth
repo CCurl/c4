@@ -1,11 +1,12 @@
-( Locals: example ... )
-( : mx+b [ m x b--n ] +locs  s3 s2 s1  r1 r2 * r3 +  -locs ; )
+( Locals: example ... )
+( mx+b (m x b--n) +locs  s3 s2 s1  r1 r2 * r3 +  -locs )
 
-20 cells var ls-stk
-vhere const ls-basemax
-5 cells allot
-cell var ls-base
-: t0   ( index--addr ) [ cell lit, ] * ls-base @ + ;
+20 cells var ls-stk
+vhere const ls-basemax
+5 cells allot
+cell var ls-base
+
+t0   ( index--addr ) cell lit, * ls-base @ + ;
 : ls!  ( num index-- ) t0 ! ;
 : ls@  ( index--num )  t0 @ ;
 : ls@+ ( index--num )  t0 dup >r @ dup 1+ r> ! ;
@@ -21,7 +22,6 @@ cell var ls-base
 : s5 4 ls! ;  : r5 4 ls@ ;  : r5+ 4 ls@+ ;  : r5- 4 ls@- ;
 
 ls-reset
-
 
 
 
