@@ -423,6 +423,7 @@ void baseSys() {
 	}
 	char *addrFmt = addressFmt;
 	outerF(addrFmt, "mem-sz",  MEM_SZ);
+	outerF(addrFmt, "code-sz", CODE_SLOTS);
 	outerF(addrFmt, "de-sz",   sizeof(DE_T));
 	outerF(addrFmt, "dstk-sz", STK_SZ+1);
 	outerF(addrFmt, "tstk-sz", TSTK_SZ+1);
