@@ -12,7 +12,7 @@
 #define MEM_SZ           4*1024*1024
 #define STK_SZ          63
 #define RSTK_SZ         63
-#define LSTK_SZ         60
+#define LSTK_SZ         60 // 20 nested loops
 #define TSTK_SZ         63
 #define FSTK_SZ         15
 #define NAME_LEN        25
@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define VERSION   20241118
+#define VERSION   20241119
 
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define _IMMED              1

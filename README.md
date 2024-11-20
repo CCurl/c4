@@ -25,26 +25,26 @@ C4 also supports the standard state-change words.<br/>
 **NOTE**: In the DEFINE state, C4 changes the state to COMPILE after adding the next word.<br/>
 **NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET.<br/>
 
-## CELLs in C4
-A **CELL** is either 32-bits or 64-bits, depending on the target system.
-- Linux 32-bit (-m32): a CELL is 32-bits.
-- Linux 64-bit (-m64): a CELL is 64-bits.
-- Windows 32-bit (x86): a CELL is 32-bits.
-- Windows 64-bit (x64): a CELL is 64-bits.
+## Building C4
+### Windows
+- There is a .SLN file (either 32- or 64-bit)
+### Linux
+- 32-bit: There is a makefile; use 'ARCH=32 make'
+- 64-bit: There is a makefile; use 'make'
 
-## C4 memory areas
+## C4 memory usage
 C4 provides a single memory area. See 'mem-sz' for its size.
-- The total size of this memory is **MEM_SZ** (c4.h)
+- The total size of this memory is **MEM_SZ** (see c4.h)
 - It is broken into 3 areas as follows **[CODE][VARS][Dictionary]**.
 - The **CODE** area is an aray of WORD-CODEs starting at the beginning of the memory.
 - The **VARS** area is defined to begin at address **&memory[CODE_SLOTS*WC_SZ]**.
 - The **Dictionary** starts at the end and grows downward.
-- The size of the CODE area is **CODE_SLOTS** (c4.h)
+- The size of the CODE area is **CODE_SLOTS** (see c4.h). Modify this as desired.
 - `here` is an offset into the **CODE** area, the next slot to be allocated.
 - `last` is an also offset into the memory area.
 - `vhere` is the absolute address of the first free byte the **VARS** area.
 - Use `->memory` to turn an offset into an address into the memory area.
-- **NOTE**: CODE slots 0-25 (`0 wc@ .. 25 wc@`) are reserved for C4 system values.
+- **NOTE**: CODE slots 0-25 (`0 wc@` .. `25 wc@`) are reserved for C4 system values.
 - **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by C4.
 - **NOTE**: These are free for the application to use as desired.
 - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the **CODE** area.
@@ -120,9 +120,9 @@ Note that there are also additional words for the return stack. <br/>
 | tdrop | (--)  | Drop T-TOS |
 
 ## Inline words
-In c4, an "INLINE" word is like a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance.
+In c4, an "INLINE" word is similar to a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance, but uses extra space.
 
-**Note that if a word might have an embedded 7 (EXIT) in its implementation (like a byte in an address for example), then it should not be marked as INLINE.**
+**Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a byte in an address for example), then it should not be marked as INLINE.**
 
 ## C4 WORD-CODE primitives
 Stack effect notation conventions:
@@ -134,8 +134,7 @@ Stack effect notation conventions:
 | C        | Number, 8-bits |
 | WC       | WORD-CODE, 32-bits |
 | N/X/Y    | Number, CELL sized |
-| F        | Flag: 0 mean0 false, <>0 means true |
-| R        | Register number |
+| F        | Flag: 0 means false, <>0 means true |
 | FH       | File handle: 0 means no file |
 | I        | For loop index counter |
 
@@ -205,7 +204,8 @@ The primitives:
 | emit      | (C--)        | Output char C |
 | ;         | (--)         | Compile EXIT, set STATE=INTERPRET |
 | lit,      | (N--)        | Compile a push of number N |
-| next-wd   | (--A L)      | L: length of the next word (**wd**) from the input stream |
+| next-wd   | (--A L)      | L: length of the next word (A) from the input stream |
+|           |              | - If L=0, then A is an empty string (end of input) |
 | immediate | (--)         | Mark the last created word as IMMEDIATE |
 | inline    | (--)         | Mark the last created word as INLINE |
 | outer     | (S--)        | Send string S to the C4 outer interpreter |
@@ -218,10 +218,12 @@ The primitives:
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
 | s-len     | (S--N)       | N: Length of string S |
-| z"        | (--)         | -COMPILE: Create string S to next `"` |
-|           | (--S)        | -RUN: push address S of string |
-| ."        | (--)         | -COMPILE: execute `z"`, compile `ftype` |
-|           | (--)         | -RUN: `ftype` on string |
+| z" str"   | (--)         | - COMPILE: generate code to push address of `str` (vhere) |
+|           | (--A)        | - RUN: A=address of `str` |
+|           | (--A)        | - INTERPRET: A=address of `str` (only 1 string supported) |
+| ." msg"   | (--)         | - COMPILE: execute `z"`, compile `ftype` |
+|           | (--)         | - RUN: perform `ftype` on `msg` |
+|           | (--)         | - INTERPRET: output `msg` using `ftype` |
 | find      | (--XT A)     | XT: Execution Token, A: Dict Entry address (0 0 if not found) |
 | loaded?   | (XT A--)     | Stops current load if A <> 0 (see `find`) |
 | fopen     | (NM MD--FH)  | NM: File Name, MD: Mode, FH: File Handle (0 if error/not found) |

@@ -169,7 +169,7 @@ int nextWord() {
 	return len;
 }
 
-int isTemp(const char *w) {
+int isTempWord(const char *w) {
 	return ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) ? 1 : 0;
 }
 
@@ -179,7 +179,7 @@ DE_T *addWord(const char *w) {
 		if (NAME_LEN < strLen(wd)) { wd[NAME_LEN]=0; }
 		w = wd;
 	}
-	if (isTemp(w)) {
+	if (isTempWord(w)) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
 	}
@@ -196,7 +196,7 @@ DE_T *addWord(const char *w) {
 
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
-	if (isTemp(w)) { return &tmpWords[w[1]-'0']; }
+	if (isTempWord(w)) { return &tmpWords[w[1]-'0']; }
 	int len = strLen(w);
 	int cw = last;
 	while (cw < MEM_SZ) {
