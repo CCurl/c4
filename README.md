@@ -54,6 +54,7 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 | memory  | (--A) | A: starting address of the c4 memory |
 | vars    | (--A) | A: starting address of the VARS area |
 | mem-sz  | (--N) | N: size in BYTEs of the c4 memory |
+| code-sz | (--N) | N: size in WORD-CODEs of the c4 CODE area |
 | dstk-sz | (--N) | N: size in CELLs of the DATA and RETURN stacks |
 | tstk-sz | (--N) | N: size in CELLs of the A and T stacks |
 | wc-sz   | (--N) | N: size in BYTEs of a WORD-CODE |
