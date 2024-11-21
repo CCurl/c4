@@ -2,6 +2,8 @@
 
 #define __C4_H__
 
+#define VERSION   20241121
+
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
   #define IS_WINDOWS 1
@@ -22,8 +24,6 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <time.h>
-
-#define VERSION   20241119
 
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define _IMMED              1

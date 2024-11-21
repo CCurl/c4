@@ -170,6 +170,7 @@ The primitives:
 | for       | (N--)        | Begin FOR loop with bounds 0 and N-1. |
 | i         | (--I)        | N: Current FOR loop index. |
 | next      | (--)         | Increment I. If I >= N, exit, else start loop again. |
+| unloop    | (--)         | Unwind the loop stack. **DOES NOT EXIT THE LOOP**. |
 | >r        | (N--)        | Push N onto the return stack |
 | r!        | (N--)        | Set R-TOS to N |
 | r@        | (--N)        | N: copy of R-TOS |

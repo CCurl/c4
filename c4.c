@@ -60,6 +60,7 @@ DE_T tmpWords[10];
 	X(FOR,     "for",       0, lsp+=3; L2=pc; L0=0; L1=pop(); ) \
 	X(INDEX,   "i",         0, push(L0); ) \
 	X(NEXT,    "next",      0, if (++L0<L1) { pc=(wc_t)L2; } else { lsp=(lsp<3) ? 0 : lsp-3; } ) \
+	X(UNLOOP,  "unloop",    0, lsp = (lsp<3) ? 0 : lsp-3; ) \
 	X(TOR,     ">r",        0, rpush(pop()); ) \
 	X(RSTO,    "r!",        0, rstk[rsp] = pop(); ) \
 	X(RAT,     "r@",        0, push(rstk[rsp]); ) \
