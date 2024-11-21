@@ -126,19 +126,6 @@ In c4, an "INLINE" word is similar to a macro. When compiling a word that is INL
 **Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a byte in an address for example), then it should not be marked as INLINE.**
 
 ## c4 WORD-CODE primitives
-Stack effect notation conventions:
-
-| TERM     | DESCRIPTION |
-|:--       |:-- |
-| SZ/NM/MD | String, uncounted, NULL terminated |
-| A        | Address |
-| C        | Number, 8-bits |
-| WC       | WORD-CODE, 32-bits |
-| N/X/Y    | Number, CELL sized |
-| F        | Flag: 0 means false, <>0 means true |
-| FH       | File handle: 0 means no file |
-| I        | For loop index counter |
-
 The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
@@ -151,17 +138,19 @@ The primitives:
 | (njmpnz)  | (--WC)       | WC: WORD-CODE for NJMPNZ primitive |
 | (exit)    | (--WC)       | WC: WORD-CODE for EXIT primitive |
 | exit      | (--)         | EXIT word |
-| dup       | (X--X X)     | Duplicate TOS (Top-Of-Stack) |
+| dup       | (N--N N)     | Duplicate TOS (Top-Of-Stack) |
 | swap      | (X Y--Y X)   | Swap TOS and NOS (Next-On-Stack) |
 | drop      | (N--)        | Drop TOS |
 | over      | (N X--N X N) | Push NOS |
 | @         | (A--N)       | N: the CELL at absolute address A |
 | c@        | (A--C)       | C: the CHAR at absolute address A |
-| d@        | (A--D)       | D: the DWORD at absolute address A |
+| w@        | (A--W)       | W: the 16-bit WORD at absolute address A |
+| d@        | (A--D)       | D: the 32-bit DWORD at absolute address A |
 | wc@       | (N--WC)      | WC: the WORD-CODE in CODE slot N |
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
-| d!        | (D A--)      | Store DWORD D to absolute address A |
+| w!        | (W A--)      | Store 16-bit WORD W to absolute address A |
+| d!        | (D A--)      | Store 32-bit DWORD D to absolute address A |
 | wc!       | (WC N--)     | Store WORD-CODE WC to CODE slot N |
 | +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |

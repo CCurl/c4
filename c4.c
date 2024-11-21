@@ -21,7 +21,7 @@ enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
-cell lstk[LSTK_SZ+1], rstk[STK_SZ+1], dstk[STK_SZ+1];
+cell dstk[STK_SZ+1], rstk[STK_SZ+1], lstk[LSTK_SZ+1];
 cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere;
 char wd[32], *toIn;
 DE_T tmpWords[10];
@@ -34,10 +34,12 @@ DE_T tmpWords[10];
 	X(OVER,    "over",      0, t=NOS; push(t); ) \
 	X(FET,     "@",         0, TOS = fetchCell(TOS); ) \
 	X(FET1,    "c@",        0, TOS = *(byte *)TOS; ) \
+	X(LFET16,  "w@",        0, TOS = fetch16(TOS); ) \
 	X(LFET32,  "d@",        0, TOS = fetch32(TOS); ) \
 	X(FETC,    "wc@",       0, TOS = code[(wc_t)TOS]; ) \
 	X(STO,     "!",         0, t=pop(); n=pop(); storeCell(t, n); ) \
 	X(STO1,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
+	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
 	X(STO32,   "d!",        0, t=pop(); n=pop(); store32(t, n); ) \
 	X(STOC,    "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
@@ -86,7 +88,7 @@ DE_T tmpWords[10];
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
 	X(NEXTWD,  "next-wd",   0, push((cell)wd); push(nextWord()); ) \
 	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_IMMED; } ) \
-	X(INLINE,  "inline",    0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_INLINE; } ) \
+	X(INLINE,  "inline",    0, makeInline(); ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
@@ -132,8 +134,8 @@ void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
 void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
-int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
-int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
+void store16(cell a, cell v) { *(uint16_t*)(a) = (uint16_t)v; }
+cell fetch16(cell a) { return *(uint16_t*)(a); }
 void store32(cell a, cell v) { *(uint32_t*)(a) = (uint32_t)v; }
 cell fetch32(cell a) { return *(uint32_t*)(a); }
 void storeCell(cell a, cell v) { *(cell*)(a) = v; }
@@ -141,7 +143,10 @@ cell fetchCell(cell a) { return *(cell*)(a); }
 void comma(cell x) { code[here++] = (wc_t)x; }
 void commaCell(cell n) { storeCell((cell)&code[here], n); here += (CELL_SZ / WC_SZ); }
 int changeState(int x) { state = x; return x; }
+void makeInline() { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_INLINE; }
 void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
+int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
+int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
 
 int strEqI(const char *s, const char *d) {
 	while (lower(*s) == lower(*d)) { if (*s == 0) { return 1; } s++; d++; }
@@ -457,7 +462,7 @@ void baseSys() {
 	outerF(addrFmt, "(last)",   LA);
 	outerF(addrFmt, "base",     BA);
 	outerF(addrFmt, "state",    SA);
-	outerF(addrFmt, "cell",     CELL_SZ);
+	outerF(addrFmt, "cell",     CELL_SZ);  makeInline();
 	sys_load();
 }
 
