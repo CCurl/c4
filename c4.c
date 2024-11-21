@@ -132,7 +132,7 @@ PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM {0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
-void rpush(cell x) { if (rsp < RSTK_SZ) { rstk[++rsp] = x; } }
+void rpush(cell x) { if (rsp < STK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void store16(cell a, cell v) { *(uint16_t*)(a) = (uint16_t)v; }
 cell fetch16(cell a) { return *(uint16_t*)(a); }

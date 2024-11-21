@@ -10,13 +10,12 @@
 #endif
 
 #define MEM_SZ           4*1024*1024
-#define STK_SZ          63
-#define RSTK_SZ         63
-#define LSTK_SZ         60 // 20 nested loops
-#define TSTK_SZ         63
-#define FSTK_SZ         15
-#define NAME_LEN        25
 #define CODE_SLOTS      48*1024
+#define STK_SZ          63  // Both data and return stacks
+#define LSTK_SZ         60  // 20 nested loops
+#define TSTK_SZ         63  // A and T stacks
+#define FSTK_SZ         15  // File stack
+#define NAME_LEN        25
 
 #include <stdio.h>
 #include <stdlib.h>
