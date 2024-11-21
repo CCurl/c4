@@ -363,7 +363,8 @@ void compileWord(DE_T *de) {
 
 int isStateChange(const char *wd) {
 	static int prevState = INTERP;
-	if (strEq(wd,")")) { return changeState(prevState); }
+	if (prevState == COMMENT) { prevState = INTERP; }
+	if (strEq(wd, ")")) { return changeState(prevState); }
 	if (state==COMMENT) { return 0; }
 	if (strEq(wd,":")) { return changeState(DEFINE); }
 	if (strEq(wd,"[")) { return changeState(INTERP); }
