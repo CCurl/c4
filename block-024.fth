@@ -18,7 +18,7 @@
 again;
 q( quit )dirty?if." (use q! to quit without saving)" exitthenq! ;
 wq( write and quit )w q! ;
-do-cmd->cmd ':' emit cur-on cmd-buf accept ->cmd cmd-buf outer ;
+do-cmd->cmd ':' emit cur-on cmd-buf accept ->cmd 3 state wc! cmd-buf outer ;
 yank-line yank-buf row 0 >pos  s-cpy drop ;
 put-line  insert-line  row 0 >pos yank-buf s-cpy drop dirty ;
 next-blk  w  blk 1- 0 max ed! ;
