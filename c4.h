@@ -17,7 +17,7 @@
 #define LSTK_SZ         60  // 20 nested loops
 #define TSTK_SZ         63  // A and T stacks
 #define FSTK_SZ         15  // File stack
-#define NAME_LEN        25
+#define NAME_LEN        25  // 25+1+1+1+cell = 32 or 36
 
 #include <stdio.h>
 #include <stdlib.h>
