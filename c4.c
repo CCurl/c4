@@ -33,15 +33,15 @@ DE_T tmpWords[10];
 	X(DROP,    "drop",      0, pop(); ) \
 	X(OVER,    "over",      0, t=NOS; push(t); ) \
 	X(FET,     "@",         0, TOS = fetchCell(TOS); ) \
-	X(FET1,    "c@",        0, TOS = *(byte *)TOS; ) \
-	X(LFET16,  "w@",        0, TOS = fetch16(TOS); ) \
-	X(LFET32,  "d@",        0, TOS = fetch32(TOS); ) \
-	X(FETC,    "wc@",       0, TOS = code[(wc_t)TOS]; ) \
+	X(FET8,    "c@",        0, TOS = *(byte *)TOS; ) \
+	X(FET16,   "w@",        0, TOS = fetch16(TOS); ) \
+	X(FET32,   "d@",        0, TOS = fetch32(TOS); ) \
+	X(FETWC,   "wc@",       0, TOS = code[(wc_t)TOS]; ) \
 	X(STO,     "!",         0, t=pop(); n=pop(); storeCell(t, n); ) \
-	X(STO1,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
+	X(STO8,    "c!",        0, t=pop(); n=pop(); *(byte*)t=(byte)n; ) \
 	X(STO16,   "w!",        0, t=pop(); n=pop(); store16(t, n); ) \
 	X(STO32,   "d!",        0, t=pop(); n=pop(); store32(t, n); ) \
-	X(STOC,    "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
+	X(STOWC,   "wc!",       0, t=pop(); n=pop(); code[(wc_t)t] = (wc_t)n; ) \
 	X(ADD,     "+",         0, t=pop(); TOS += t; ) \
 	X(SUB,     "-",         0, t=pop(); TOS -= t; ) \
 	X(MUL,     "*",         0, t=pop(); TOS *= t; ) \
