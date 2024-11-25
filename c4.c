@@ -361,6 +361,7 @@ void compileWord(DE_T *de) {
 	} else { comma(de->xt); }
 }
 
+extern void editBlock(int blk);
 int isStateChange(const char *wd) {
 	static int prevState = INTERP;
 	if (prevState == COMMENT) { prevState = INTERP; }
@@ -373,6 +374,7 @@ int isStateChange(const char *wd) {
 		if (state!=COMMENT) { prevState=state; }
 		return changeState(COMMENT);
 	}
+	if (strEqI(wd,"bedit")) { editBlock(pop()); return 1; }
 	return 0;
 }
 
