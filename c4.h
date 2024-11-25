@@ -2,6 +2,8 @@
 
 #define __C4_H__
 
+#define VERSION   20241123
+
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
   #define IS_WINDOWS 1
@@ -10,21 +12,18 @@
 #endif
 
 #define MEM_SZ           4*1024*1024
-#define STK_SZ          63
-#define RSTK_SZ         63
-#define LSTK_SZ         60 // 20 nested loops
-#define TSTK_SZ         63
-#define FSTK_SZ         15
-#define NAME_LEN        25
 #define CODE_SLOTS      48*1024
+#define STK_SZ          63  // Both data and return stacks
+#define LSTK_SZ         60  // 20 nested loops
+#define TSTK_SZ         63  // A and T stacks
+#define FSTK_SZ         15  // File stack
+#define NAME_LEN        25  // 25+1+1+1+cell = 32 or 36
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <time.h>
-
-#define VERSION   20241119
 
 #define btwi(n,l,h)   ((l<=n) && (n<=h))
 #define _IMMED              1

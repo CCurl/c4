@@ -5,7 +5,7 @@
   key-home case  mv-home         key-chome case  mv-home!       17  case  mv-tab-l
   key-pgup case  next-blk        key-pgdn  case  prev-blk       13  case  mv-cr
   key-ins  case  insert-toggle   key-del   case  delete-char    24  case  delete-prev
-  5 case!->cmd exec-line ;     19        case  w             27  case  normal-mode!
+  5 case   exec-line            19        case  w             27  case  normal-mode!
   1 case!1 put-char ;  2 case!2 put-char ;  3 case!3 put-char ;  4 case!4 put-char ;
 end-cases
 
@@ -14,9 +14,9 @@
   32  case  mv-rt          '_' case  mv-home  'q' case mv-tab-r  'Q' case  mv-tab-l
   'R' case  replace-mode!  'r' case  replace-one                 '$' case  mv-end
   'i' case  insert-mode!   'b' case!32 insert-char mv-lt ;
-  ':' case  do-cmd         '!' case!->cmd cmd-buf outer ;      'D' case  yank/del
+  ':' case  do-cmd         '!' case!cmd-buf ed-exec ;    'D' case  yank/del
   'x' case  delete-char    'X' case  delete-prev
-  'J' case  join-lines     'Y' case  yank-line          'E' case!->cmd exec-line ;
+  'J' case  join-lines     'Y' case  yank-line          'E' case  exec-line
   'p' case  put-line       'P' case!mv-dn put-line ;  'A' case!mv-end insert-mode! ;
   '-' case  next-blk       '+' case  prev-blk           'C' case!row col clear-eol ;
   'o' case!1 open-line ; 'O' case!0 open-line ;     '#' case!cur-block cls show! ;
