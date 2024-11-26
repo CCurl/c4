@@ -2,7 +2,7 @@
 
 The c4 editor is an editor inspired by, and similar to, a stripped-down version of VI.
 
-Enable the edirot using `#define __EDITOR__`
+Enable the editor using `#define EDITOR` (editor.c)
 
 ## Modes
 There are 4 modes in the editor:
@@ -41,8 +41,16 @@ The movement keys are similar to those in VI:
 | l    | Right 1 char |
 | $    | Goto the end of the line |
 | _    | Goto the beginning of the line |
-| [SP] | Right 1 char |
 | [CR] | Goto the beginning of the next line |
+| [SP] | Right 1 char |
+| 1    | Set tag: COMPILE |
+| 2    | Set tag: DEFINE |
+| 3    | Set tag: INTERP |
+| 4    | Set tag: COMMENT |
+| :    | Change to COMMAND mode |
+| +    | Save the current block and goto the next block |
+| -    | Save the current block and goto the previous block |
+| #    | Redraw the screen |
 | a    | Append: move right 1 char and change to INSERT mode |
 | A    | Append: goto the end of the line and change to INSERT mode |
 | b    | Insert a BLANK/SPACE into the current line |
@@ -68,10 +76,7 @@ The movement keys are similar to those in VI:
 | x    | Delete the char under the cursor to the end of the line |
 | X    | Delete the char under the cursor to the end of the block |
 | Y    | Copy the current line into the YANK buffer |
-| z    | Delete the char to the left of the cursor |
-| :    | Change to COMMAND mode |
-| +    | Save the current block and goto the next block |
-| -    | Save the current block and goto the previous block |
+| z    | Delete the char to the left of the cursor (same as 'hx') |
 
 ### INSERT mode
 
@@ -94,6 +99,7 @@ COMMAND mode is invoked when pressing ':' in NORMAL mode.
 | rl      | ReLoad: discard all changes and reload the current block |
 | w       | Write the current block if it has changed |
 | w!      | Write the current block, even if it has NOT changed |
+| wq      | Write the current block and quit (same as ':w' ':q') |
 | q       | Quit, if the current block has NOT changed |
 | q!      | Quit, even if the current block has changed |
-| wq      | Write the current block and quit (same as ':w' ':q') |
+| ![any]  | Send [any] to the c4 outer interpreter |

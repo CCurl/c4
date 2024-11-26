@@ -3,14 +3,14 @@
 #include "c4.h"
 #include <string.h>
 
-#define __EDITOR__
+#define EDITOR
 
-#ifndef __EDITOR__
-void editBlock(cell Blk) { zType("-noEdit-"); }
+#ifndef EDITOR
+void editBlock(cell Blk) { zType("-no bedit-"); }
 #else
 
-#define NUM_LINES     30
-#define NUM_COLS      80
+#define NUM_LINES     16
+#define NUM_COLS      64
 #define MAX_LINE      (NUM_LINES-1)
 #define MAX_COL       (NUM_COLS-1)
 #define BLOCK_SZ      (NUM_LINES*NUM_COLS)
@@ -27,7 +27,7 @@ enum { NORMAL=1, INSERT, REPLACE, QUIT };
 enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     End=7247, Ins=7250, Del=7251 };
 
-static int line, off, blkNum, edMode, isDirty, isShow;
+static cell line, off, blkNum, edMode, isDirty, isShow;
 static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
@@ -101,18 +101,6 @@ static void showState(char ch) {
     int cols[4] = { 40, 203, 226, 255 };
     if (ch == 0) { ch = lastState ? lastState : INTERP; }
     if (btwi(ch,1,5)) { FG(cols[ch-1]); lastState = ch; }
-}
-
-void showStatus() {
-    char *x[3] = { "-normal-","-insert-","-replace-" };
-    char ch = EDCH(line,off);
-    toFooter(); FG(255);
-    zTypeF("Block# %03d%s", blkNum, isDirty ? " *" : "");
-    if (edMode != NORMAL) { FG(203); }
-    zTypeF(" %s", x[edMode-1]);
-    if (edMode != NORMAL) { FG(255); }
-    zTypeF(" (%d:%d - #%d/$%02x)", line+1, off+1, ch, ch);
-    ClearEOL();
 }
 
 static void gotoEOL() {
@@ -278,10 +266,11 @@ static void edCommand() {
     toCmd(); emit(':'); ClearEOL();
     edReadLine(buf, sizeof(buf));
     toCmd(); ClearEOL();
-    if (strEq(buf,"w")) { edSvBlk(0); }
+    if (strEq(buf,"rl")) { edRdBlk(1); }
+    else if (buf[0]=='!') { outer(&buf[1]); }
+    else if (strEq(buf,"w")) { edSvBlk(0); }
     else if (strEq(buf,"w!")) { edSvBlk(1); }
     else if (strEq(buf,"wq")) { edSvBlk(0); edMode=QUIT; }
-    else if (strEq(buf,"rl")) { edRdBlk(1); }
     else if (strEq(buf,"q!")) { edMode=QUIT; }
     else if (strEq(buf,"q")) {
         if (isDirty) { zType("(use 'q!' to quit without saving)"); }
@@ -334,12 +323,16 @@ static int processEditorChar(int c) {
 
     switch (c) {
         BCASE ' ': mv(0, 1);
-        BCASE 'h': mv(0,-1);
-        BCASE 'l': mv(0, 1);
-        BCASE 'j': mv(1, 0);
-        BCASE 'k': mv(-1,0);
+        BCASE '#': CLS(); isShow=1;
         BCASE '$': gotoEOL();
         BCASE '_': mv(0,-NUM_COLS);
+        BCASE '1': replaceChar(1,1,0); // COMPILE
+        BCASE '2': replaceChar(2,1,0); // DEFINE
+        BCASE '3': replaceChar(3,1,0); // INTERP
+        BCASE '4': replaceChar(4,1,0); // COMMENT
+        BCASE '+': edSvBlk(0); ++blkNum; edRdBlk(0); line=off=0;
+        BCASE '-': edSvBlk(0); blkNum = MAX(0, blkNum-1); edRdBlk(0); line=off=0;
+        BCASE ':': edCommand();
         BCASE 'a': mv(0, 1); insertMode();
         BCASE 'A': gotoEOL(); insertMode();
         BCASE 'b': insertSpace(0);
@@ -350,28 +343,37 @@ static int processEditorChar(int c) {
         BCASE 'D': edDelX('$');
         BCASE 'g': mv(-NUM_LINES,-NUM_COLS);
         BCASE 'G': mv(NUM_LINES,-NUM_COLS);
+        BCASE 'h': mv(0,-1);
         BCASE 'i': insertMode();
         BCASE 'I': mv(0, -NUM_COLS); insertMode();
+        BCASE 'j': mv(1, 0);
         BCASE 'J': joinLines();
+        BCASE 'k': mv(-1,0);
+        BCASE 'l': mv(0, 1);
         BCASE 'o': mv(1, -NUM_COLS); insertLine(line); insertMode();
         BCASE 'O': mv(0, -NUM_COLS); insertLine(line); insertMode();
+        BCASE 'p': mv(1,-NUM_COLS); insertLine(line); putLine(line);
+        BCASE 'P': mv(0,-NUM_COLS); insertLine(line); putLine(line);
         BCASE 'r': replace1();
         BCASE 'R': replaceMode();
         BCASE 'x': deleteChar(0);
         BCASE 'X': deleteChar(1);
-        BCASE 'z': edDelX('z');
-        BCASE '1': replaceChar(1,1,0); // COMPILE
-        BCASE '2': replaceChar(2,1,0); // DEFINE
-        BCASE '3': replaceChar(3,1,0); // INTERP
-        BCASE '4': replaceChar(4,1,0); // COMMENT
         BCASE 'Y': yankLine(line);
-        BCASE 'p': mv(1,-NUM_COLS); insertLine(line); putLine(line);
-        BCASE 'P': mv(0,-NUM_COLS); insertLine(line); putLine(line);
-        BCASE '+': edSvBlk(0); ++blkNum; edRdBlk(0); line=off=0;
-        BCASE '-': edSvBlk(0); blkNum = MAX(0, blkNum-1); edRdBlk(0); line=off=0;
-        BCASE ':': edCommand();
+        BCASE 'z': edDelX('z');
     }
     return 1;
+}
+
+static void showFooter() {
+    char *x[3] = { "-normal-","-insert-","-replace-" };
+    char ch = EDCH(line,off);
+    toFooter(); FG(255);
+    zTypeF("Block# %03d%s", blkNum, isDirty ? " *" : "");
+    if (edMode != NORMAL) { FG(203); }
+    zTypeF(" %s", x[edMode-1]);
+    if (edMode != NORMAL) { FG(255); }
+    zTypeF(" (%d:%d - #%d/$%02x)", line+1, off+1, ch, ch);
+    ClearEOL();
 }
 
 static void showEditor() {
@@ -392,7 +394,7 @@ static void showEditor() {
 }
 
 void editBlock(cell Blk) {
-    blkNum = MAX((int)Blk, 0);
+    blkNum = MAX(Blk, 0);
     line = off = 0;
     CLS();
     edRdBlk(0);
@@ -400,7 +402,7 @@ void editBlock(cell Blk) {
     normalMode();
     while (edMode != QUIT) {
         showEditor();
-        showStatus();
+        showFooter();
         showCursor();
         processEditorChar(edKey());
     }
@@ -408,4 +410,4 @@ void editBlock(cell Blk) {
     CursorOn(); FG(255);
 }
 
-#endif //  __EDITOR__
+#endif //  EDITOR
