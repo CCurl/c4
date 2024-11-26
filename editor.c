@@ -9,8 +9,8 @@
 void editBlock(cell Blk) { zType("-noEdit-"); }
 #else
 
-#define NUM_LINES     16
-#define NUM_COLS      64
+#define NUM_LINES     30
+#define NUM_COLS      80
 #define MAX_LINE      (NUM_LINES-1)
 #define MAX_COL       (NUM_COLS-1)
 #define BLOCK_SZ      (NUM_LINES*NUM_COLS)
@@ -28,13 +28,15 @@ enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     End=7247, Ins=7250, Del=7251 };
 
 static int line, off, blkNum, edMode, isDirty, isShow;
-static char edBuf[BLOCK_SZ], yanked[NUM_COLS];
+static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
 static void ClearEOL() { zType("\x1B[K"); }
-static void CursorOn() { zType("\x1B[?25h"); zType("\x1B[2 q"); }
+static void CursorBlock() { zType("\x1B[2 q"); }
+static void CursorOn() { zType("\x1B[?25h"); }
 static void CursorOff() { zType("\x1B[?25l"); }
+static void showCursor() { GotoXY(off+2, line+2); CursorOn(); CursorBlock(); }
 static void Color(int fg, int bg) { zTypeF("\x1B[%d;%dm", (30+fg), bg?bg:40); }
 static void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
 static void toFooter() { GotoXY(1, NUM_LINES+3); }
@@ -80,7 +82,6 @@ static int vtKey() {
 
 static int edKey() {
     int x = key();
-    // if (x ==   3) { return 27; }         // ctrl-c => escape
     if (x ==  27) { return vtKey(); }    // Possible VT control sequence
     if (x == 224) { return winKey(); }   // Windows: start char
     return x;
@@ -98,22 +99,15 @@ static void mv(int r, int c) {
 static void showState(char ch) {
     static int lastState = INTERP;
     int cols[4] = { 40, 203, 226, 255 };
-    if (ch == 0) { ch = lastState; }
-    else { lastState = ch; }
-    if (ch<5) { FG(cols[ch-1]); }
-    char *x = "%c[38;5;%dm]";
-}
-
-static void showCursor() {
-    GotoXY(off+2, line+2);
-    CursorOn();
+    if (ch == 0) { ch = lastState ? lastState : INTERP; }
+    if (btwi(ch,1,5)) { FG(cols[ch-1]); lastState = ch; }
 }
 
 void showStatus() {
     char *x[3] = { "-normal-","-insert-","-replace-" };
     char ch = EDCH(line,off);
     toFooter(); FG(255);
-    zTypeF("Block# %03d %s", blkNum, isDirty ? "*" : " ");
+    zTypeF("Block# %03d%s", blkNum, isDirty ? " *" : "");
     if (edMode != NORMAL) { FG(203); }
     zTypeF(" %s", x[edMode-1]);
     if (edMode != NORMAL) { FG(255); }
@@ -154,28 +148,44 @@ static void edSvBlk(int force) {
     }
 }
 
-static void deleteChar() {
-    int o = off;
-    while (o < MAX_COL) { EDCH(line,o) = EDCH(line, o+1); o++; }
-    EDCH(line, MAX_COL) = 32;
+static void deleteChar(int toEnd) {
+    char *f = &EDCH(line, off);
+    char *t = toEnd ? &EDCH(MAX_LINE, MAX_COL) : &EDCH(line, MAX_COL);
+    while (f < t) { *(f) = *(f+1); f++; }
+    *f = 32;
     DIRTY;
 }
 
 static void deleteWord() {
-    while (EDCH(line,off) > 32) { deleteChar(); }
-    for (int i=0; i<20; i++) { if (EDCH(line,off)<33) { deleteChar(); } }
+    while (EDCH(line,off) > 32) { deleteChar(0); }
+    for (int i=0; i<20; i++) { if (EDCH(line,off)<33) { deleteChar(0); } }
 }
 
 static void clrToEOL(int l, int o) {
     while (o<NUM_COLS) { EDCH(l,o)=32; o++; }
+    DIRTY;
 }
 
-static void deleteLine() {
-    if (line < (MAX_LINE)) {
-        // TODO
+static void deleteLine(int l) {
+    for (int r=l; r<MAX_LINE; r++) {
+        char *f = &EDCH(r+1, 0);
+        char *t = &EDCH(r, 0);
+        for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
     }
     clrToEOL(MAX_LINE, 0);
-    DIRTY;
+}
+
+static void yankLine(int l) {
+    char *f = &EDCH(l, 0);
+    char *t = &yanked[0];
+    for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
+    *t = 0;
+}
+
+static void putLine(int l) {
+    char *f = &yanked[0];
+    char *t = &EDCH(l, 0);
+    for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
 }
 
 static void insertSpace(int toEnd) {
@@ -192,17 +202,23 @@ static void insertSpace(int toEnd) {
     DIRTY;
 }
 
-static void insertLine() {
-    if (line < (MAX_LINE)) {
-        // TODO
+static void insertLine(int l) {
+    for (int r=MAX_LINE; r>l; r--) {
+        char *f = &EDCH(r-1, 0);
+        char *t = &EDCH(r, 0);
+        for (int c=0; c<NUM_COLS; c++) { *(t++) = *(f++); }
     }
-    clrToEOL(line, 0);
-    DIRTY;
+    clrToEOL(l, 0);
 }
 
 static void joinLines() {
+    if (line == MAX_LINE) { return; }
     gotoEOL();
-    DIRTY;
+    int o = off+1;
+    char *t = &EDCH(line, o);
+    char *f = &EDCH(line+1, 0);
+    while ((o++) < NUM_COLS) { *(t++) = *(f++); }
+    deleteLine(line+1);
 }
 
 static void replaceChar(char c, int force, int mov) {
@@ -213,10 +229,17 @@ static void replaceChar(char c, int force, int mov) {
     }
 }
 
+static void replace1() {
+    FG(117); zType("?\x08"); CursorOn();
+    int ch = key(); CursorOff();
+    replaceChar(ch, 0, 1);
+    isShow = 1;
+}
+
 static int doInsertReplace(char c) {
     if (c==13) {
         mv(1, -NUM_COLS);
-        if (edMode == INSERT) { insertLine(); }
+        if (edMode == INSERT) { insertLine(line); }
         return 1;
     }
     if (!btwi(c,1,5) && !btwi(c,32,126)) { return 1; }
@@ -227,14 +250,11 @@ static int doInsertReplace(char c) {
 
 static void edDelX(int c) {
     if (c==0) { c = key(); }
-    if (c=='d') { deleteLine(); }
+    if (c=='d') { yankLine(line); deleteLine(line); }
     else if (c=='w') { deleteWord(); }
-    else if (c=='.') { deleteChar(); }
-    else if (c=='X') { if (0<off) { --off; deleteChar(); } }
-    else if (c=='$') {
-        clrToEOL(line, off);
-        DIRTY;
-    }
+    else if (c=='.') { deleteChar(0); }
+    else if (c=='z') { if (0<off) { --off; deleteChar(0); } }
+    else if (c=='$') { clrToEOL(line, off); }
 }
 
 static int edReadLine(char *buf, int sz) {
@@ -245,7 +265,7 @@ static int edReadLine(char *buf, int sz) {
         if (c ==  3) { len=0; break; }
         if (c == 27) { len=0; break; }
         if (c == 13) { break; }
-        if ((c==127) || ((c==8) && (len))) { --len; zTypeF("%c %c",8,8); }
+        if ((c==127) || ((c==8) && (len))) { --len; zType("\x08 \x08"); }
         if (btwi(c,32,126)) { buf[len++]=c; emit(c); }
     }
     CursorOff();
@@ -255,8 +275,7 @@ static int edReadLine(char *buf, int sz) {
 
 static void edCommand() {
     char buf[32];
-    toCmd(); ClearEOL();
-    emit(':');
+    toCmd(); emit(':'); ClearEOL();
     edReadLine(buf, sizeof(buf));
     toCmd(); ClearEOL();
     if (strEq(buf,"w")) { edSvBlk(0); }
@@ -275,11 +294,11 @@ static void PageDn() { edSvBlk(0); ++blkNum; edRdBlk(0); line=off=0; }
 
 static void doCTL(int c) {
     if (((c == 8) || (c == 127)) && (0 < off)) {      // <backspace>
-        mv(0, -1); if (edMode == INSERT) { deleteChar(); }
+        mv(0, -1); if (edMode == INSERT) { deleteChar(0); }
         return;
     }
     if (c == 13) {      // <CR>
-        mv(1, -NUM_COLS); if (edMode == INSERT) { insertLine(); }
+        mv(1, -NUM_COLS); if (edMode == INSERT) { insertLine(line); }
         return;
     }
     switch (c) {
@@ -291,9 +310,9 @@ static void doCTL(int c) {
         BCASE 10:   mv(1, 0);               // <ctrl-j>
         BCASE 11:   mv(-1, 0);              // <ctrl-k>
         BCASE 12:   mv(0, 1);               // <ctrl-l>
-        BCASE 24:   edDelX('X');            // <ctrl-x>
-        BCASE 26:   edDelX('.');            // <ctrl-z>
-        BCASE 27:   normalMode();           // <ctrl-z>
+        BCASE 24:   edDelX('.');            // <ctrl-x>
+        BCASE 26:   edDelX('z');            // <ctrl-z>
+        BCASE 27:   normalMode();           // <escape>
         BCASE Up:   mv(-1, 0);              // Up
         BCASE Lt:   mv(0, -1);              // Left
         BCASE Rt:   mv(0, 1);               // Right
@@ -305,8 +324,6 @@ static void doCTL(int c) {
         BCASE 7251: edDelX('.');            // Delete
         BCASE 7250: toggleInsert();         // Insert
         BCASE 7287: mv(-NUM_LINES, -NUM_COLS);  // <ctrl>-Home
-        // BCASE 7309: scroll(-1);             // <ctrl>-Up
-        // BCASE 7313: scroll( 1);             // <ctrl>-Dn
     }
 }
 
@@ -321,34 +338,35 @@ static int processEditorChar(int c) {
         BCASE 'l': mv(0, 1);
         BCASE 'j': mv(1, 0);
         BCASE 'k': mv(-1,0);
+        BCASE '$': gotoEOL();
         BCASE '_': mv(0,-NUM_COLS);
         BCASE 'a': mv(0, 1); insertMode();
         BCASE 'A': gotoEOL(); insertMode();
         BCASE 'b': insertSpace(0);
         BCASE 'B': insertSpace(1);
-        BCASE 'J': joinLines();
-        BCASE '$': gotoEOL();
-        BCASE 'g': mv(-NUM_LINES,-NUM_COLS);
-        BCASE 'G': mv(NUM_LINES,-NUM_COLS);
-        BCASE 'i': insertMode();
-        BCASE 'I': mv(0, -NUM_COLS); insertMode();
-        BCASE 'o': mv(1, -NUM_COLS); insertLine(); insertMode();
-        BCASE 'O': mv(0, -NUM_COLS); insertLine(); insertMode();
-        BCASE 'r': replaceChar(edKey(), 0, 1);
-        BCASE 'R': replaceMode();
         BCASE 'c': edDelX('.'); insertMode();
         BCASE 'C': edDelX('$'); insertMode();
         BCASE 'd': edDelX(0);
         BCASE 'D': edDelX('$');
-        BCASE 'x': edDelX('.');
-        BCASE 'X': edDelX('X');
+        BCASE 'g': mv(-NUM_LINES,-NUM_COLS);
+        BCASE 'G': mv(NUM_LINES,-NUM_COLS);
+        BCASE 'i': insertMode();
+        BCASE 'I': mv(0, -NUM_COLS); insertMode();
+        BCASE 'J': joinLines();
+        BCASE 'o': mv(1, -NUM_COLS); insertLine(line); insertMode();
+        BCASE 'O': mv(0, -NUM_COLS); insertLine(line); insertMode();
+        BCASE 'r': replace1();
+        BCASE 'R': replaceMode();
+        BCASE 'x': deleteChar(0);
+        BCASE 'X': deleteChar(1);
+        BCASE 'z': edDelX('z');
         BCASE '1': replaceChar(1,1,0); // COMPILE
         BCASE '2': replaceChar(2,1,0); // DEFINE
         BCASE '3': replaceChar(3,1,0); // INTERP
         BCASE '4': replaceChar(4,1,0); // COMMENT
-        BCASE 'Y': strCpy(yanked, &EDCH(line, 0));
-        BCASE 'p': mv(1,-NUM_COLS); insertLine(); strCpy(&EDCH(line,0), yanked);
-        BCASE 'P': mv(0,-NUM_COLS); insertLine(); strCpy(&EDCH(line,0), yanked);
+        BCASE 'Y': yankLine(line);
+        BCASE 'p': mv(1,-NUM_COLS); insertLine(line); putLine(line);
+        BCASE 'P': mv(0,-NUM_COLS); insertLine(line); putLine(line);
         BCASE '+': edSvBlk(0); ++blkNum; edRdBlk(0); line=off=0;
         BCASE '-': edSvBlk(0); blkNum = MAX(0, blkNum-1); edRdBlk(0); line=off=0;
         BCASE ':': edCommand();
@@ -359,17 +377,17 @@ static int processEditorChar(int c) {
 static void showEditor() {
     if (!isShow) { return; }
     FG(40); GotoXY(1,1);
-    for (int i=0; i <= NUM_COLS; i++) { emit('-'); } zType("\r\n");
-    for (int r=0; r < NUM_LINES; r++) {
+    for (int i=-2; i<NUM_COLS; i++) { emit('-'); } zType("\r\n");
+    for (int r=0; r<NUM_LINES; r++) {
         zType("|"); showState(0);
-        for (int c = 0; c < NUM_COLS; c++) {
+        for (int c=0; c<NUM_COLS; c++) {
             char ch = EDCH(r,c);
             if (btwi(ch,1,4)) { showState(ch); }
             emit(MAX(ch,32));
         }
         FG(40); zType("|\r\n"); 
     }
-    for (int i=0; i <= NUM_COLS; i++) { emit('-'); }
+    for (int i=-2; i<NUM_COLS; i++) { emit('-'); }
     isShow = 0;
 }
 
