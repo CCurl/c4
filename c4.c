@@ -118,6 +118,7 @@ DE_T tmpWords[10];
 
 #define PRIMS_SYSTEM \
 	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \
+	X(EDIT,    "bedit",  0, t=pop(); editBlock(t); ) \
 	X(BYE,     "bye",    0, ttyMode(0); exit(0); )
 
 #define X(op, name, imm, cod) op,

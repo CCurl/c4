@@ -59,8 +59,8 @@ void REP() {
 		ttyMode(0);
 		ok();
 	}
-	if (fileGets(tib, sizeof(tib), inputFp)) {
-		outer(tib);
+	if (fileGets(tib, 127, inputFp)) {
+		tib[127]=0; outer(tib);
 		return;
 	}
 	if (inputFp == 0) { exit(0); }
