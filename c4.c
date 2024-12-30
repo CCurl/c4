@@ -345,10 +345,9 @@ int isNum(const char *w, int b) {
 }
 
 void executeWord(DE_T *de) {
-	int h = here+100;
-	code[h]   = de->xt;
-	code[h+1] = STOP;
-	inner(h);
+	code[17] = de->xt;
+	code[18] = STOP;
+	inner(17);
 }
 
 void compileWord(DE_T *de) {

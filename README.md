@@ -20,11 +20,11 @@ c4 has 'A' and 'T' stacks, inspired by ColorForth's 'a' register.<br/>
 
 ## Tachyon's influence on c4
 In c4, a program is a sequence of WORD-CODEs. <br/>
-A WORD-CODE is a 32-bit unsigned number (a DWORD). <br/>
+A WORD-CODE is a 16-bit unsigned number (a DWORD). <br/>
 Primitives are assigned numbers sequentially from 0 to **BYE**. <br/>
 If a WORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
-If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
-If it is between **BYE**, and $E0000000, it is the code address of a word to execute. <br/>
+If the top 3 bits are set, it is a 13-bit unsigned literal, 0-$1FFF. <br/>
+If it is between **BYE**, and $E000, it is the code address of a word to execute. <br/>
 
 ## Building c4
 ### Windows
@@ -66,7 +66,7 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 | (asp)   | (--N) | N: CODE slot for the A stack pointer |
 | (here)  | (--N) | N: CODE slot for the HERE variable |
 | (vhere) | (--A) | A: address of the VHERE variable |
-| (last)  | (--N) | N: CODE slot for the LAST variable |
+| (last)  | (--A) | A: address of the LAST variable |
 | base    | (--N) | N: CODE slot for the BASE variable |
 | state   | (--N) | N: CODE slot for the STATE variable |
 
@@ -85,7 +85,7 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %e     | (--)  | EMIT `escape` (#27). |
 | %i     | (N--) | Print TOS in the current base. |
 | %n     | (--)  | Print CR/LF (13/10). |
-| %q     | (--)  | EMIT `"` (#34). |
+| %q     | (--)  | EMIT a `double-quote` (#34). |
 | %s     | (A--) | Print TOS as a string (formatted). |
 | %S     | (A--) | Print TOS as a string (unformatted). |
 | %x     | (N--) | Print TOS in base 16. |
