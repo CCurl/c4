@@ -8,7 +8,6 @@
 #define tsp           code[TSPA]
 #define asp           code[ASPA]
 #define here          code[HA]
-#define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
 #define TOS           dstk[dsp]
@@ -17,12 +16,12 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
+enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA };
 
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell dstk[STK_SZ+1], rstk[STK_SZ+1], lstk[LSTK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere, last;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
@@ -203,8 +202,7 @@ DE_T *addWord(const char *w) {
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (isTempWord(w)) { return &tmpWords[w[1]-'0']; }
-	int len = strLen(w);
-	int cw = last;
+	int len = strLen(w), cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
@@ -422,49 +420,53 @@ void zTypeF(const char *fmt, ...) {
 	zType(buf);
 }
 
+void defNum(const char *name, cell val) {
+	DE_T *dp = addWord(name);
+	compileNum(val);
+	comma(EXIT);
+	if (btwi(val,0,NUM_MASK)) { dp->fl = _INLINE; }
+}
+
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
 		DE_T *w = addWord(prims[i].name);
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
 	}
-	char *addrFmt = addressFmt;
-	outerF(addrFmt, "mem-sz",  MEM_SZ);
-	outerF(addrFmt, "code-sz", CODE_SLOTS);
-	outerF(addrFmt, "de-sz",   sizeof(DE_T));
-	outerF(addrFmt, "dstk-sz", STK_SZ+1);
-	outerF(addrFmt, "tstk-sz", TSTK_SZ+1);
-	outerF(addrFmt, "wc-sz",   WC_SZ);
-	outerF(addrFmt, "(dsp)",   DSPA);
-	outerF(addrFmt, "(rsp)",   RSPA);
-	outerF(addrFmt, "(lsp)",   LSPA);
-	outerF(addrFmt, "(tsp)",   TSPA);
-	outerF(addrFmt, "(asp)",   ASPA);
-
-	outerF(addrFmt, "dstk",    &dstk[0]);
-	outerF(addrFmt, "rstk",    &rstk[0]);
-	outerF(addrFmt, "tstk",    &tstk[0]);
-	outerF(addrFmt, "astk",    &astk[0]);
-	outerF(addrFmt, "memory",  &memory[0]);
-	outerF(addrFmt, "vars",    vhere);
-	outerF(addrFmt, ">in",     &toIn);
-	outerF(addrFmt, "wd",      &wd[0]);
-	outerF(addrFmt, "(vhere)", &vhere);
-	outerF(addrFmt, "(output-fp)", &outputFp);
-
-	outerF(addrFmt, "version",  VERSION);
-	outerF(addrFmt, "(lit)",    LIT);
-	outerF(addrFmt, "(jmp)",    JMP);
-	outerF(addrFmt, "(jmpz)",   JMPZ);
-	outerF(addrFmt, "(njmpz)",  NJMPZ);
-	outerF(addrFmt, "(jmpnz)",  JMPNZ);
-	outerF(addrFmt, "(njmpnz)", NJMPNZ);
-	outerF(addrFmt, "(exit)",   EXIT);
-	outerF(addrFmt, "(here)",   HA);
-	outerF(addrFmt, "(last)",   LA);
-	outerF(addrFmt, "base",     BA);
-	outerF(addrFmt, "state",    SA);
-	outerF(addrFmt, "cell",     CELL_SZ);  makeInline();
+	defNum("mem-sz",      MEM_SZ);
+	defNum("code-sz",     CODE_SLOTS);
+	defNum("de-sz",       sizeof(DE_T));
+	defNum("dstk-sz",     STK_SZ+1);
+	defNum("tstk-sz",     TSTK_SZ+1);
+	defNum("wc-sz",       WC_SZ);
+	defNum("(dsp)",       DSPA);
+	defNum("(rsp)",       RSPA);
+	defNum("(lsp)",       LSPA);
+	defNum("(tsp)",       TSPA);
+	defNum("(asp)",       ASPA);
+	defNum("dstk",        (cell)&dstk[0]);
+	defNum("rstk",        (cell)&rstk[0]);
+	defNum("tstk",        (cell)&tstk[0]);
+	defNum("astk",        (cell)&astk[0]);
+	defNum("memory",      (cell)&memory[0]);
+	defNum("vars",        vhere);
+	defNum(">in",         (cell)&toIn);
+	defNum("wd",          (cell)&wd[0]);
+	defNum("(vhere)",     (cell)&vhere);
+	defNum("(output-fp)", (cell)&outputFp);
+	defNum("(last)",      (cell)&last);
+	defNum("version",     VERSION);
+	defNum("(lit)",       LIT);
+	defNum("(jmp)",       JMP);
+	defNum("(jmpz)",      JMPZ);
+	defNum("(njmpz)",     NJMPZ);
+	defNum("(jmpnz)",     JMPNZ);
+	defNum("(njmpnz)",    NJMPNZ);
+	defNum("(exit)",      EXIT);
+	defNum("(here)",      HA);
+	defNum("base",        BA);
+	defNum("state",       SA);
+	defNum("cell",        CELL_SZ);
 	sys_load();
 }
 

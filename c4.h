@@ -12,7 +12,7 @@
 #endif
 
 #define MEM_SZ           4*1024*1024
-#define CODE_SLOTS      48*1024
+#define CODE_SLOTS  0xE000
 #define STK_SZ          63  // Both data and return stacks
 #define LSTK_SZ         60  // 20 nested loops
 #define TSTK_SZ         63  // A and T stacks
@@ -32,19 +32,17 @@
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T        int64_t
     #define CELL_SZ       8
-    #define addressFmt    ": %s $%llx ;"
-    #define WC_T          uint32_t
-    #define WC_SZ         4
-    #define NUM_BITS      0xE0000000
-    #define NUM_MASK      0x1FFFFFFF
+    #define WC_T          uint16_t
+    #define WC_SZ         2
+    #define NUM_BITS      0xE000
+    #define NUM_MASK      0x1FFF
 #else
     #define CELL_T        int32_t
     #define CELL_SZ       4
-    #define addressFmt    ": %s $%lx ; inline"
-    #define WC_T          uint32_t
-    #define WC_SZ         4
-    #define NUM_BITS      0xE0000000
-    #define NUM_MASK      0x1FFFFFFF
+    #define WC_T          uint16_t
+    #define WC_SZ         2
+    #define NUM_BITS      0xE000
+    #define NUM_MASK      0x1FFF
 #endif
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };

@@ -12,7 +12,7 @@ void sys_load() {
     outer(": \\ 0 >in @ c! ; immediate");
     outer(": ->memory memory + ;");
     outer(": here  (here)  wc@ ;");
-    outer(": last  (last)  wc@ ;");
+    outer(": last  (last)  @ ;");
     outer(": base@ base    wc@ ;");
     outer(": base! base    wc! ;");
     outer(": vhere (vhere) @ ;");
@@ -23,9 +23,9 @@ void sys_load() {
     outer(": v, vhere dup cell + (vhere) ! ! ;");
     outer(": vc, vhere dup 1+ (vhere) ! c! ;");
 
-    outer(": const  addword inline lit, (exit) , ;");
+    outer(": const  addword lit, (exit) , ;");
     outer(": var    vhere const allot ;");
-    outer(": create vhere addword inline vhere lit, ;");
+    outer(": create vhere addword vhere lit, ;");
     outer(": does> (jmp) , r> , ;");
 
     outer(": begin here ; immediate");
@@ -95,7 +95,7 @@ void sys_load() {
     outer(": ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate");
 
     outer("mem-sz 1- ->memory const dict-end");
-    outer(": ->xt     d@ ;");
+    outer(": ->xt     w@ ; inline");
     outer(": ->flags  wc-sz + c@ ;");
     outer(": ->len    wc-sz + 1+ c@ ;");
     outer(": ->name   wc-sz + 2+ ;");
@@ -111,10 +111,10 @@ void sys_load() {
     outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
     outer("      next drop adrop ;");
 
-    outer("cell var vh");
-    outer(": marker here 20 wc! last 21 wc! vhere vh ! ;");
-    outer(": forget 20 wc@ (here) wc! 21 wc@ (last) wc! vh @ (vhere) ! ;");
-    outer(": fgl last dup de-sz + (last) wc! ->memory d@ (here) wc! ;");
+    outer("cell var t0 cell var t1");
+    outer(": marker here 20 wc!  last t0 !  vhere t1 ! ;");
+    outer(": forget 20 wc@ (here) wc! t0 @ (last) ! t1 @ (vhere) ! ;");
+    outer(": fgl last dup de-sz + (last) ! ->memory ->xt (here) wc! ;");
     outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
