@@ -113,7 +113,8 @@ DE_T tmpWords[10];
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(INCL,    "include",   0, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
-	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); )
+	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); ) \
+	X(EDITBLK, "edit",      0, editBlock(pop()); )
 
 #define PRIMS_SYSTEM \
 	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \

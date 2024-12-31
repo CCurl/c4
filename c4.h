@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20241230
+#define VERSION   20241231
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -18,6 +18,8 @@
 #define TSTK_SZ         63  // A and T stacks
 #define FSTK_SZ         15  // File stack
 #define NAME_LEN        25  // 25+1+1+1+cell = 32 or 36
+#define _SYS_LOAD_
+#define  EDITOR
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,6 +64,7 @@ extern int  strEqI(const char *d, const char *s);
 extern int  strLen(const char *s);
 extern int  lower(const char c);
 extern void zTypeF(const char *fmt, ...);
+extern int  changeState(int x);
 extern void inner(wc_t start);
 extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
@@ -86,8 +89,10 @@ extern cell fileRead(char *buf, int sz, cell fh);
 extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
 extern void fileLoad(const char *name);
+extern char *blockFn(int blk);
 extern void blockLoad(int blk);
 extern void blockLoadNext(int blk);
 extern void sys_load();
+extern void editBlock(cell blk);
 
 #endif //  __C4_H__

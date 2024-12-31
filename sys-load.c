@@ -1,7 +1,5 @@
 #include "c4.h"
 
-#define _SYS_LOAD_
-
 #ifndef _SYS_LOAD_
 void sys_load() {
     fileLoad("block-000.fth");
