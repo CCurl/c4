@@ -112,8 +112,9 @@ static void moveWord(int isRight) {
 
 static void showState(char ch) {
     static int lastState = INTERP;
+    if (ch == -1) { lastState = INTERP; return; }
     int cols[4] = { 40, 203, 226, 255 };
-    if (ch == 0) { ch = lastState ? lastState : INTERP; }
+    if (ch == 0) { ch = (lastState) ? lastState : INTERP; }
     if (btwi(ch,1,5)) { FG(cols[ch-1]); lastState = ch; }
 }
 
@@ -433,7 +434,7 @@ static void showFooter() {
 
 static void showEditor() {
     if (!isShow) { return; }
-    FG(40); GotoXY(1,1);
+    FG(40); GotoXY(1,1); showState(-1);
     for (int i=-2; i<NUM_COLS; i++) { emit('-'); } zType("\r\n");
     for (int r=0; r<NUM_LINES; r++) {
         zType("|"); showState(0);
