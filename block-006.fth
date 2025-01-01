@@ -2,9 +2,9 @@
 
 find dump loaded?
 
-t0(num width--)>r <# r> 1- for # next #s #> ztype ;
-.22 t0 ; .33 t0 ; .44 t0 ; .88 t0 ; .1616 t0 ;
-.NWB(num width base--)base@ >t base! t0 t> base! ;
+.nw(num width--)>r <# r> 1- for # next #s #> ztype ;
+.22 .nw ;  .33 .nw ;  .44 .nw ;  .88 .nw ;
+.NWB(num width base--)base@ >t base! .nw t> base! ;
 .hex(num--)#2 #16 .NWB ;    .hex4 (num--)#4 #16 .NWB ;
 .bin(num--)#8  #2 .NWB ;    .bin16(num--)#16 #2 .NWB ;
 spacesfor space next ;
