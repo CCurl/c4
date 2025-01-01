@@ -14,6 +14,7 @@ void editBlock(cell blk) { zType("-no edit-"); }
 #define MAX_COL       (NUM_COLS-1)
 #define EDCH(r,c)     edBuf[((r)*NUM_COLS)+(c)]
 #define DIRTY         isDirty=1; isShow=1
+#define CLEAN(show)   isDirty=0; isShow=show
 #define BCASE         break; case
 #define RCASE         return; case
 #define EOL_CHAR      13
@@ -44,12 +45,13 @@ static void normalMode()  { edMode=NORMAL;  }
 static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
+static void setBlock(wc_t blk) { block=MAX(MIN(blk,999),0); storeWC(BLKA, (wc_t)block); }
+static int winKey() { return (224 << 5) ^ key(); }
 static void Green() { FG(40); }
 static void Red() { FG(203); }
 static void Yellow() { FG(226); }
 static void White() { FG(255); }
-static void setBlock(int blk) { block=MAX(MIN(blk,999),0); }
-static int winKey() { return (224 << 5) ^ key(); }
+static void Purple() { FG(213); }
 
 static int vtKey() {
     int y = key();
@@ -95,10 +97,17 @@ static void mv(int r, int c) {
     line += r;
     off += c;
     if (line < 0) { line = 0; }
-    if (NUM_LINES <= line) { line = MAX_LINE; }
+    if (MAX_LINE < line) { line = MAX_LINE; }
     if (off < 0) { off=0; }
-    if (NUM_COLS <= off) { off = MAX_COL;}
+    if (MAX_COL < off) { off = MAX_COL;}
 }
+
+static void mvLeft() { mv(0,-1); }
+static void mvRight() { mv(0,1); }
+static void mvUp() { mv(-1,0); }
+static void mvDown() { mv(1,0); }
+static void mvNextLine() { mv(1,-99); }
+static void mvPrevLine() { mv(-1,-99); }
 
 static void moveWord(int isRight) {
     if (isRight) {
@@ -115,7 +124,7 @@ static void showState(char ch) {
     if (ch == -1) { lastState = INTERP; return; }
     int cols[4] = { 40, 203, 226, 255 };
     if (ch == 0) { ch = (lastState) ? lastState : INTERP; }
-    if (btwi(ch,1,5)) { FG(cols[ch-1]); lastState = ch; }
+    if (btwi(ch,1,4)) { FG(cols[ch-1]); lastState = ch; }
 }
 
 static void gotoEOL() {
@@ -146,14 +155,12 @@ static void edRdBlk() {
             if (ch==13) { continue; }
             if (ch==9) { ch=32; }
             if (ch==10) {
-                while (c < NUM_COLS) { EDCH(r,c)=32; c++; }
                 if (r == MAX_LINE) { break; }
                 r++; c=0;
             } else { EDCH(r,c)=ch; c++; }
         }
-    } else { toCmd(); zTypeF("-can't-open [%s]!-", blockFn(block)); }
-    isDirty = 0;
-    isShow = 1;
+    } else { toCmd(); zTypeF("-can't open [%s]!-", blockFn(block)); }
+    CLEAN(1);
 }
 
 static void edSvBlk(int force) {
@@ -175,7 +182,7 @@ static void edSvBlk(int force) {
         outputFp = 0;
         fileClose(fh);
     }
-    isDirty = 0;
+    CLEAN(0);
 }
 
 static void deleteChar(int toEnd) {
@@ -255,12 +262,12 @@ static void replaceChar(char c, int force, int mov) {
     if (btwi(c,32,126) || (force)) {
         EDCH(line, off)=c;
         DIRTY;
-        if (mov) { mv(0, 1); }
+        if (mov) { mvRight(); }
     }
 }
 
 static void replace1() {
-    FG(117); zType("?\x08"); CursorOn();
+    Purple(); zType("?\x08"); CursorOn();
     int ch = key(); CursorOff();
     replaceChar(ch, 0, 1);
     isShow = 1;
@@ -269,7 +276,7 @@ static void replace1() {
 static int doInsertReplace(char c) {
     if (c==EOL_CHAR) {
         if (edMode == INSERT) { insertLine(line+1, off); }
-        mv(1, -NUM_COLS);
+        mvNextLine();
         return 1;
     }
     if (!btwi(c,1,5) && !btwi(c,32,126)) { return 1; }
@@ -310,8 +317,13 @@ static void edCommand() {
     toCmd(); emit(':'); ClearEOL();
     edReadLine(buf, sizeof(buf));
     toCmd(); ClearEOL();
+    if (buf[0]=='!') {
+        wc_t curBlock = fetchWC(BLKA);
+        ttyMode(0); changeState(INTERP); outer(&buf[1]);
+        wc_t nowBlock = fetchWC(BLKA);
+        if (curBlock != nowBlock) { block=nowBlock; strCpy(buf, "rl"); }
+    }
     if (strEqI(buf,"rl")) { edRdBlk(); }
-    else if (buf[0]=='!') { ttyMode(0); changeState(INTERP); outer(&buf[1]); }
     else if (strEqI(buf,"w")) { edSvBlk(0); }
     else if (strEqI(buf,"w!")) { edSvBlk(1); }
     else if (strEqI(buf,"wq")) { edSvBlk(0); edMode=QUIT; }
@@ -329,7 +341,7 @@ static void gotoBlock(int blk) {
 
 static void doCTL(int c) {
     if (((c == 8) || (c == 127)) && (0 < off)) {      // <backspace>
-        mv(0, -1); if (edMode == INSERT) { deleteChar(0); }
+        mvLeft(); if (edMode == INSERT) { deleteChar(0); }
         return;
     }
     if (c == EOL_CHAR) {      // <CR>
@@ -342,18 +354,18 @@ static void doCTL(int c) {
         RCASE  3:   doInsertReplace(c);     // INTERP
         RCASE  4:   doInsertReplace(c);     // COMMENT
         RCASE  5:   execLine(line);         // Execute current line
-        RCASE  9:   mv(0, 8);               // <tab>
-        RCASE 10:   mv(1, 0);               // <ctrl-j>
-        RCASE 11:   mv(-1, 0);              // <ctrl-k>
-        RCASE 12:   mv(0, 1);               // <ctrl-l>
+        RCASE  9:   mvLeft();               // <tab>
+        RCASE 10:   mvDown();               // <ctrl-j>
+        RCASE 11:   mvUp();                 // <ctrl-k>
+        RCASE 12:   mvRight();              // <ctrl-l>
         RCASE 17:   mv(0, -8);              // <ctrl-q>
         RCASE 24:   edDelX('.');            // <ctrl-x>
         RCASE 20:   edSvBlk(0);             // <ctrl-s>
         RCASE 27:   normalMode();           // <escape>
-        RCASE Up:   mv(-1, 0);              // Up
-        RCASE Lt:   mv(0, -1);              // Left
-        RCASE Rt:   mv(0, 1);               // Right
-        RCASE Dn:   mv(1, 0);               // Down
+        RCASE Up:   mvUp();                 // Up
+        RCASE Lt:   mvLeft();               // Left
+        RCASE Rt:   mvRight();              // Right
+        RCASE Dn:   mvDown();               // Down
         RCASE Home: mv(0, -NUM_COLS);       // Home
         RCASE End:  gotoEOL();              // End
         RCASE PgUp: gotoBlock(block-1);     // PgUp
@@ -370,7 +382,7 @@ static int processEditorChar(int c) {
     if (btwi(edMode,INSERT,REPLACE)) { return doInsertReplace((char)c); }
 
     switch (c) {
-        BCASE ' ': mv(0, 1);
+        BCASE ' ': mvRight();
         BCASE '#': CLS(); isShow=1;
         BCASE '$': gotoEOL();
         BCASE '_': mv(0,-NUM_COLS);
@@ -381,7 +393,7 @@ static int processEditorChar(int c) {
         BCASE '+': gotoBlock(block+1); // Next block
         BCASE '-': gotoBlock(block-1); // Prev block
         BCASE ':': edCommand();
-        BCASE 'a': mv(0, 1); insertMode();
+        BCASE 'a': mvRight(); insertMode();
         BCASE 'A': gotoEOL(); insertMode();
         BCASE 'b': insertSpace(0);
         BCASE 'B': insertSpace(1);
@@ -391,25 +403,23 @@ static int processEditorChar(int c) {
         BCASE 'D': edDelX('$');
         BCASE 'g': mv(-NUM_LINES,-NUM_COLS);
         BCASE 'G': mv(NUM_LINES,-NUM_COLS);
-        BCASE 'h': mv(0,-1);
+        BCASE 'h': mvLeft();
         BCASE 'H': gotoBlock((block & 0x01) ? block+1 : block-1);
         BCASE 'i': insertMode();
         BCASE 'I': mv(0, -NUM_COLS); insertMode();
-        BCASE 'j': mv(1, 0);
+        BCASE 'j': mvDown();
         BCASE 'J': joinLines();
-        BCASE 'k': mv(-1,0);
-        BCASE 'l': mv(0, 1);
+        BCASE 'k': mvUp();
+        BCASE 'l': mvRight();
         BCASE 'n': replaceChar(10,1,0);
-        BCASE 'o': mv(1, -NUM_COLS); insertLine(line, -1); insertMode();
-        BCASE 'O': mv(0, -NUM_COLS); insertLine(line, -1); insertMode();
-        BCASE 'p': mv(1, -NUM_COLS); insertLine(line, -1); putLine(line);
-        BCASE 'P': mv(0, -NUM_COLS); insertLine(line, -1); putLine(line);
+        BCASE 'o': mvNextLine(); insertLine(line, -1); insertMode();
+        BCASE 'O': mvPrevLine(); insertLine(line, -1); insertMode();
+        BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
+        BCASE 'P': mvPrevLine(); insertLine(line, -1); putLine(line);
         BCASE 'q': mv(0,8);
         BCASE 'Q': mv(0,-8);
         BCASE 'r': replace1();
         BCASE 'R': replaceMode();
-        // BCASE 't': toText();
-        // BCASE 'T': toBlock();
         BCASE 'w': moveWord(1);
         BCASE 'W': moveWord(0);
         BCASE 'x': edDelX(c);
@@ -423,18 +433,18 @@ static int processEditorChar(int c) {
 static void showFooter() {
     const char *x[3] = { "-normal-","-insert-","-replace-" };
     char ch = EDCH(line,off);
-    toFooter(); FG(255);
+    toFooter(); White();
     zTypeF("Block# %03d%s", block, isDirty ? " *" : "");
-    if (edMode != NORMAL) { FG(203); }
+    if (edMode != NORMAL) { Red(); }
     zTypeF(" %s", x[edMode-1]);
-    if (edMode != NORMAL) { FG(255); }
+    if (edMode != NORMAL) { White(); }
     zTypeF(" (%d:%d - #%d/$%02x)", line+1, off+1, ch, ch);
     ClearEOL();
 }
 
 static void showEditor() {
     if (!isShow) { return; }
-    FG(40); GotoXY(1,1); showState(-1);
+    Green(); GotoXY(1,1); showState(-1);
     for (int i=-2; i<NUM_COLS; i++) { emit('-'); } zType("\r\n");
     for (int r=0; r<NUM_LINES; r++) {
         zType("|"); showState(0);
@@ -443,7 +453,7 @@ static void showEditor() {
             if (btwi(ch,1,4)) { showState(ch); }
             emit(MAX(ch,32));
         }
-        FG(40); zType("|\r\n"); 
+        Green(); zType("|\r\n"); 
     }
     for (int i=-2; i<NUM_COLS; i++) { emit('-'); }
     isShow = 0;
@@ -464,7 +474,7 @@ void editBlock(cell blk) {
         processEditorChar(edKey());
     }
     toCmd();
-    CursorOn(); FG(255);
+    CursorOn(); White();
 }
 
 #endif //  EDITOR

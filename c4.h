@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20241231
+#define VERSION   20250101
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -11,7 +11,7 @@
   #define IS_LINUX   1
 #endif
 
-#define MEM_SZ           4*1024*1024
+#define MEM_SZ      4*1024*1024
 #define CODE_SLOTS  0xE000
 #define STK_SZ          63  // Both data and return stacks
 #define LSTK_SZ         60  // 20 nested loops
@@ -31,33 +31,33 @@
 #define _IMMED              1
 #define _INLINE             2
 
+#define WC_T          uint16_t
+#define WC_SZ         2
+#define NUM_BITS      0xE000
+#define NUM_MASK      0x1FFF
+
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T        int64_t
     #define CELL_SZ       8
-    #define WC_T          uint16_t
-    #define WC_SZ         2
-    #define NUM_BITS      0xE000
-    #define NUM_MASK      0x1FFF
 #else
     #define CELL_T        int32_t
     #define CELL_SZ       4
-    #define WC_T          uint16_t
-    #define WC_SZ         2
-    #define NUM_BITS      0xE000
-    #define NUM_MASK      0x1FFF
 #endif
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
+enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, BLKA };
 
 typedef CELL_T cell;
 typedef WC_T wc_t;
-typedef unsigned char byte;
+typedef uint8_t byte;
 typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 
 // These are defined by c4.c
 extern void push(cell x);
 extern cell pop();
+extern void storeWC(wc_t a, wc_t v);
+extern cell fetchWC(wc_t a);
 extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);

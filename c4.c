@@ -16,8 +16,6 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA };
-
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell dstk[STK_SZ+1], rstk[STK_SZ+1], lstk[LSTK_SZ+1];
@@ -137,6 +135,8 @@ void rpush(cell x) { if (rsp < STK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void store16(cell a, cell v) { *(uint16_t*)(a) = (uint16_t)v; }
 cell fetch16(cell a) { return *(uint16_t*)(a); }
+void storeWC(wc_t a, wc_t v) { code[a] = v; }
+cell fetchWC(wc_t a) { return code[a]; }
 void store32(cell a, cell v) { *(uint32_t*)(a) = (uint32_t)v; }
 cell fetch32(cell a) { return *(uint32_t*)(a); }
 void storeCell(cell a, cell v) { *(cell*)(a) = v; }
@@ -444,6 +444,7 @@ void baseSys() {
 	defNum("(lsp)",       LSPA);
 	defNum("(tsp)",       TSPA);
 	defNum("(asp)",       ASPA);
+	defNum("(block)",     BLKA);
 	defNum("dstk",        (cell)&dstk[0]);
 	defNum("rstk",        (cell)&rstk[0]);
 	defNum("tstk",        (cell)&tstk[0]);

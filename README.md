@@ -26,12 +26,19 @@ If a WORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
 If the top 3 bits are set, it is a 13-bit unsigned literal, 0-$1FFF. <br/>
 If it is between **BYE**, and $E000, it is the code address of a word to execute. <br/>
 
+## c4's built-in editor
+c4 has a built-in editor. See **Editor.md** for details. <br/>
+The editor can be excluded from c4 by undefining **EDITOR** in c4.h. <br/>
+It is built-in so that the editor is available when running c4 from any folder. <br/>
+
 ## Building c4
 ### Windows
 - There is a Visual Studio solution file, c4.sln (either 32- or 64-bit)
-### Linux
-- 32-bit: There is a makefile; use 'ARCH=32 make'
-- 64-bit: There is a makefile; use 'make'
+### Linux and other similar systems
+- There is a makefile.
+- The default architecture is 32-bits. That is faster on my systems.
+- 32-bit: use 'make'
+- 64-bit: use 'ARCH=64 make'
 
 ## c4 memory usage
 c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
@@ -69,6 +76,7 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 | (last)  | (--A) | A: address of the LAST variable |
 | base    | (--N) | N: CODE slot for the BASE variable |
 | state   | (--N) | N: CODE slot for the STATE variable |
+| (block) | (--N) | N: CODE slot for the BLOCK variable |
 
 ## c4 Strings
 Strings in c4 are NULL-terminated with no count byte.<br/>
