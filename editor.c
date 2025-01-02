@@ -50,7 +50,7 @@ static int winKey() { return (224 << 5) ^ key(); }
 static void Green() { FG(40); }
 static void Red() { FG(203); }
 static void Yellow() { FG(226); }
-static void White() { FG(255); }
+static void White() { FG(231); }
 static void Purple() { FG(213); }
 
 static int vtKey() {
@@ -122,7 +122,7 @@ static void moveWord(int isRight) {
 static void showState(char ch) {
     static int lastState = INTERP;
     if (ch == -1) { lastState = INTERP; return; }
-    int cols[4] = { 40, 203, 226, 255 };
+    int cols[4] = { 40, 203, 226, 231 };
     if (ch == 0) { ch = (lastState) ? lastState : INTERP; }
     if (btwi(ch,1,4)) { FG(cols[ch-1]); lastState = ch; }
 }
