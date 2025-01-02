@@ -11,8 +11,10 @@ void sys_load() {
     outer(": ->memory memory + ;");
     outer(": here  (here)  wc@ ;");
     outer(": last  (last)  @ ;");
-    outer(": base@ base    wc@ ;");
-    outer(": base! base    wc! ;");
+    outer(": base@ base  wc@ ;");
+    outer(": base! base  wc! ;");
+    outer(": block@ (block) wc@ ;");
+    outer(": block! (block) wc! ;");
     outer(": vhere (vhere) @ ;");
     outer(": allot vhere + (vhere) ! ;");
     outer(": 0sp  0 (dsp)  wc! ;");
@@ -85,6 +87,7 @@ void sys_load() {
     outer(": tab 9 emit ;");
     outer(": .version version <# # # #. # # #. #s #> ztype ;");
     outer(": ?  @ . ;");
+    outer(": ed block@ edit ;");
 
     outer(": .s '(' emit space (dsp) wc@ 1- ?dup");
     outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");
@@ -117,8 +120,6 @@ void sys_load() {
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
     outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
-    outer(": block! ( n-- ) (block) wc! ; : block@ ( --n ) (block) wc@ ;");
-    outer(": ed block@ edit ;");
     outer("marker");
 }
 #endif // _SYS_LOAD_
