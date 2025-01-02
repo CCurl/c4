@@ -117,6 +117,8 @@ void sys_load() {
     outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
     outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
     outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
+    outer(": block! ( n-- ) (block) wc! ; : block@ ( --n ) (block) wc@ ;");
+    outer(": ed block@ edit ;");
     outer("marker");
 }
 #endif // _SYS_LOAD_

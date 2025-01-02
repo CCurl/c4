@@ -144,11 +144,12 @@ static void yankLine(int lineNum, char *to) {
 
 static void edRdBlk() {
     for (int i=0; i<BLOCK_SZ; i++) { edBuf[i]=32; }
+    toCmd();
     cell fh = fileOpen(blockFn(block), "rb");
     if (fh) {
         char x[BLOCK_SZ+1];
         int r=0, c=0, n=fileRead(x, BLOCK_SZ, fh);
-        toCmd(); zTypeF("%d chars", n); ClearEOL();
+        zTypeF("%d chars", n);
         fileClose(fh);
         for (int i=0; i<n; i++) {
             char ch=x[i];
@@ -159,7 +160,8 @@ static void edRdBlk() {
                 r++; c=0;
             } else { EDCH(r,c)=ch; c++; }
         }
-    } else { toCmd(); zTypeF("-can't open [%s]!-", blockFn(block)); }
+    } else { zTypeF("-can't open [%s]!-", blockFn(block)); }
+    ClearEOL();
     CLEAN(1);
 }
 
@@ -181,6 +183,7 @@ static void edSvBlk(int force) {
         }
         outputFp = 0;
         fileClose(fh);
+        toCmd(); zType("-saved-"); ClearEOL();
     }
     CLEAN(0);
 }
@@ -413,9 +416,9 @@ static int processEditorChar(int c) {
         BCASE 'l': mvRight();
         BCASE 'n': replaceChar(10,1,0);
         BCASE 'o': mvNextLine(); insertLine(line, -1); insertMode();
-        BCASE 'O': mvPrevLine(); insertLine(line, -1); insertMode();
+        BCASE 'O': insertLine(line, -1); insertMode();
         BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
-        BCASE 'P': mvPrevLine(); insertLine(line, -1); putLine(line);
+        BCASE 'P': insertLine(line, -1); putLine(line);
         BCASE 'q': mv(0,8);
         BCASE 'Q': mv(0,-8);
         BCASE 'r': replace1();
@@ -473,7 +476,7 @@ void editBlock(cell blk) {
         edBuf[BLOCK_SZ-1]=0;
         processEditorChar(edKey());
     }
-    toCmd();
+    toCmd(); ClearEOL();
     CursorOn(); White();
 }
 

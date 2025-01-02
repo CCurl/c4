@@ -1,10 +1,11 @@
 # The c4 editor
 
-The c4 editor is inspired by, and similar to, a stripped-down version of VI. <br/>
+The c4 editor is somewhat similar to a stripped-down version of VI. <br/>
 Enable the editor using `#define EDITOR` (in c4.h) <br/>
 The current block being edited is in 'block@'. <br/>
 Use '23 edit' to edit block #23. <br/>
-Switch the current block being edited with ':!5 block!'. <br/>
+Use 'ed' to re-edit the last edited block. </br>
+While in the editor, use ':!5 block!' to switch to another block. <br/>
 
 ## Modes
 There are 4 modes in the editor:
@@ -17,10 +18,10 @@ There are 4 modes in the editor:
 
 | Key       | Action |
 | :--       | :-- |
-| [ctrl]+a  | Insert tag: COMPILE |
-| [ctrl]+b  | Insert tag: DEFINE |
-| [ctrl]+c  | Insert tag: INTERP |
-| [ctrl]+d  | Insert tag: COMMENT |
+| [ctrl]+a  | Insert/replace tag: COMPILE |
+| [ctrl]+b  | Insert/replace tag: DEFINE |
+| [ctrl]+c  | Insert/replace tag: INTERP |
+| [ctrl]+d  | Insert/replace tag: COMMENT |
 | [ctrl]+e  | Send the current line to the outer interpreter |
 | [ctrl]+h  | Left 1 char (and delete it if in INSERT mode) |
 | [ctrl]+i  | Right 8 chars (also [tab]) |
