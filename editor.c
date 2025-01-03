@@ -26,7 +26,9 @@ void editBlock(cell blk) { zType("-no edit-"); }
 
 enum { NORMAL=1, INSERT, REPLACE, QUIT };
 enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
-    End=7247, Ins=7250, Del=7251, CHome=7287 };
+    End=7247, Ins=7250, Del=7251, CHome=7287, CEnd=7285,
+    STab=12333, F5=0xF05, F6=0xF06, F7=0xF07
+};
 
 static cell line, off, edMode, isDirty, isShow, block;
 static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
@@ -46,44 +48,50 @@ static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
 static void setBlock(wc_t blk) { block=MAX(MIN(blk,999),0); storeWC(BLKA, (wc_t)block); }
-static int winKey() { return (224 << 5) ^ key(); }
 static void Green() { FG(40); }
 static void Red() { FG(203); }
 static void Yellow() { FG(226); }
 static void White() { FG(231); }
 static void Purple() { FG(213); }
+static int  winKey() { return (224 << 5) ^ key(); }
+
+// VT key mapping, after <escape>, '['
+#define NUM_VTK 16
+static int vks[NUM_VTK][7] = {
+        { 0, 49, 53, 126, 999, F5 },
+        { 0, 49, 55, 126, 999, F6 },
+        { 0, 49, 56, 126, 999, F7 },
+        { 0, 49, 59, 53, 72, 999, CHome },
+        { 0, 49, 59, 53, 70, 999, CEnd },
+        { 0, 50, 126, 999, Ins },
+        { 0, 51, 126, 999, Del },
+        { 0, 53, 126, 999, PgUp },
+        { 0, 54, 126, 999, PgDn },
+        { 0, 65, 999, Up },
+        { 0, 66, 999, Dn },
+        { 0, 67, 999, Rt },
+        { 0, 68, 999, Lt },
+        { 0, 70, 999, End },
+        { 0, 72, 999, Home },
+        { 0, 90, 999, STab },
+    };
 
 static int vtKey() {
-    int y = key();
-    if (y != '[') { return 27; }
-    y = key();
-    if (btwi(y, 'A', 'T')) {
-        switch (y) {
-            case 'A': return Up;
-            case 'B': return Dn;
-            case 'C': return Rt;
-            case 'D': return Lt;
-            case 'F': return End;
-            case 'H': return Home;
-            case 'S': return PgUp;
-            case 'T': return PgDn;
-            default: return 27;
+    if (key() != '[') { return 27; }
+    int ndx = 0, k, m;
+    for (int i=0; i<NUM_VTK; i++) { vks[i][0] = 1; }
+    while (++ndx < 5) {
+        m = 0;
+        k = key();
+        for (int i=0; i<NUM_VTK; i++) {
+            if ((vks[i][0] == ndx) && (vks[i][ndx] == k)) {
+                if (vks[i][ndx+1] == 999) { return vks[i][ndx+2]; }
+                vks[i][0] = ndx+1;
+                m++;
+            }
         }
+        if (m == 0) { return 27; }
     }
-    if (btwi(y, '2', '8')) {
-        int z = key();
-        if (z!='~') { return 27; }
-        switch (y) {
-        case '2': return Ins;
-        case '3': return Del;
-        case '5': return PgUp;
-        case '6': return PgDn;
-        case '7': return Home;
-        case '8': return End;
-        default: return 27;
-        }
-    }
-    return 27;
 }
 
 static int edKey() {
@@ -352,30 +360,32 @@ static void doCTL(int c) {
         return;
     }
     switch (c) {
-        case   1:   doInsertReplace(c);     // COMPLE
-        RCASE  2:   doInsertReplace(c);     // DEFINE
-        RCASE  3:   doInsertReplace(c);     // INTERP
-        RCASE  4:   doInsertReplace(c);     // COMMENT
-        RCASE  5:   execLine(line);         // Execute current line
-        RCASE  9:   mvLeft();               // <tab>
-        RCASE 10:   mvDown();               // <ctrl-j>
-        RCASE 11:   mvUp();                 // <ctrl-k>
-        RCASE 12:   mvRight();              // <ctrl-l>
-        RCASE 17:   mv(0, -8);              // <ctrl-q>
-        RCASE 24:   edDelX('.');            // <ctrl-x>
-        RCASE 20:   edSvBlk(0);             // <ctrl-s>
-        RCASE 27:   normalMode();           // <escape>
-        RCASE Up:   mvUp();                 // Up
-        RCASE Lt:   mvLeft();               // Left
-        RCASE Rt:   mvRight();              // Right
-        RCASE Dn:   mvDown();               // Down
-        RCASE Home: mv(0, -NUM_COLS);       // Home
-        RCASE End:  gotoEOL();              // End
-        RCASE PgUp: gotoBlock(block-1);     // PgUp
-        RCASE PgDn: gotoBlock(block+1);     // PgDn
-        RCASE Del:  edDelX('.');            // Delete
-        RCASE Ins:  toggleInsert();         // Insert
+        case   1:    doInsertReplace(c);         // COMPLE
+        RCASE  2:    doInsertReplace(c);         // DEFINE
+        RCASE  3:    doInsertReplace(c);         // INTERP
+        RCASE  4:    doInsertReplace(c);         // COMMENT
+        RCASE  5:    execLine(line);             // Execute current line
+        RCASE  9:    mv(0, 8);                   // <tab>
+        RCASE 10:    mvDown();                   // <ctrl-j>
+        RCASE 11:    mvUp();                     // <ctrl-k>
+        RCASE 12:    mvRight();                  // <ctrl-l>
+        RCASE 17:    mv(0, -8);                  // <ctrl-q>
+        RCASE 24:    edDelX('.');                // <ctrl-x>
+        RCASE 20:    edSvBlk(0);                 // <ctrl-s>
+        RCASE 27:    normalMode();               // <escape>
+        RCASE Up:    mvUp();                     // Up
+        RCASE Lt:    mvLeft();                   // Left
+        RCASE Rt:    mvRight();                  // Right
+        RCASE Dn:    mvDown();                   // Down
+        RCASE Home:  mv(0, -NUM_COLS);           // Home
+        RCASE End:   gotoEOL();                  // End
+        RCASE PgUp:  gotoBlock(block-1);         // PgUp
+        RCASE PgDn:  gotoBlock(block+1);         // PgDn
+        RCASE Del:   edDelX('.');                // Delete
+        RCASE Ins:   toggleInsert();             // Insert
         RCASE CHome: mv(-NUM_LINES, -NUM_COLS);  // <ctrl>-Home
+        RCASE CEnd:  mv(NUM_LINES, -NUM_COLS);   // <ctrl>-End
+        RCASE STab:  mv(0, -8);                  // <shift-tab>
     }
 }
 
