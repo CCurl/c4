@@ -16,22 +16,25 @@ There are 4 modes in the editor:
 
 ### These control keys are active in all modes:
 
-| Key       | Action |
-| :--       | :-- |
-| [ctrl]+a  | Insert/replace tag: COMPILE |
-| [ctrl]+b  | Insert/replace tag: DEFINE |
-| [ctrl]+c  | Insert/replace tag: INTERP |
-| [ctrl]+d  | Insert/replace tag: COMMENT |
-| [ctrl]+e  | Send the current line to the outer interpreter |
-| [ctrl]+h  | Left 1 char (and delete it if in INSERT mode) |
-| [ctrl]+i  | Right 8 chars (also [tab]) |
-| [ctrl]+j  | Down 1 line |
-| [ctrl]+k  | Up 1 line |
-| [ctrl]+l  | Right 1 char |
-| [ctrl]+q  | Left 8 chars |
-| [ctrl]+s  | Save the block to disk |
-| [ctrl]+x  | Delete the char under the cursor |
-| [esc-esc] | Goto NORMAL mode |
+| Key         | Action |
+| :--         | :-- |
+| [ctrl]+a    | Insert/replace tag: COMPILE |
+| [ctrl]+b    | Insert/replace tag: DEFINE |
+| [ctrl]+c    | Insert/replace tag: INTERP |
+| [ctrl]+d    | Insert/replace tag: COMMENT |
+| [ctrl]+e    | Send the current line to the outer interpreter |
+| [ctrl]+h    | Left 1 char (and delete it if in INSERT mode) |
+| [ctrl]+i    | Right 8 chars (also [tab]) |
+| [shift]+tab | Left 8 chars |
+| [ctrl]+j    | Down 1 line |
+| [ctrl]+k    | Up 1 line |
+| [ctrl]+l    | Right 1 char |
+| [ctrl]+q    | Left 8 chars |
+| [ctrl]+s    | Save the block to disk |
+| [ctrl]+Home | Goto the beginning of the first line |
+| [ctrl]+End  | Goto the beginning of the last line |
+| [ctrl]+x    | Delete the char under the cursor |
+| [esc-esc]   | Goto NORMAL mode |
 
 ### NORMAL mode
 
@@ -53,8 +56,8 @@ There are 4 modes in the editor:
 | A    | Append: goto the end of the line and change to INSERT mode  (same as '$i') |
 | b    | Insert a BLANK/SPACE into the current line |
 | B    | Insert a BLANK/SPACE to the end of the block |
-| c    | Delete the current char and change to INSERT mode (same as 'xi') |
-| C    | Delete to the end of the line and change to INSERT mode (same as 'd$i') |
+| c    | Change: Delete the current char and change to INSERT mode (same as 'xi') |
+| C    | Change: Delete to the end of the line and change to INSERT mode (same as 'd$i') |
 | d.   | Delete the char under the cursor (same as 'x') |
 | d$   | Delete to the end of the line |
 | dd   | Copy the current line into the YANK buffer and delete the line |
@@ -64,8 +67,8 @@ There are 4 modes in the editor:
 | G    | Goto the bottom-left of the screen |
 | h    | Left 1 char |
 | H    | Toggle between current block and help block (block+1) |
-| i    | Insert: change to INSERT mode |
-| I    | Insert: goto the beginning of the line and change to INSERT mode (same as '_i') |
+| i    | Change to INSERT mode |
+| I    | Goto the beginning of the line and change to INSERT mode (same as '_i') |
 | j    | Down 1 line |
 | J    | Join the current and next lines together |
 | k    | Up 1 line |
@@ -89,7 +92,7 @@ There are 4 modes in the editor:
 ### INSERT mode
 
 In INSERT mode, all printable characters are inserted into the line.
-- [Enter] inserts a new line.
+- [Enter] inserts a new line at the cursor.
 - [Backspace] moves left and deletes that character.
 
 ### REPLACE mode

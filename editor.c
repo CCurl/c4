@@ -354,12 +354,9 @@ static void gotoBlock(int blk) {
 }
 
 static void doCTL(int c) {
+    if (c == EOL_CHAR) { doInsertReplace(c); return; }
     if (((c == 8) || (c == 127)) && (0 < off)) {      // <backspace>
         mvLeft(); if (edMode == INSERT) { deleteChar(0); }
-        return;
-    }
-    if (c == EOL_CHAR) {      // <CR>
-        doInsertReplace(c);
         return;
     }
     switch (c) {
