@@ -57,6 +57,7 @@ void REP() {
     char tib[128];
 	if (inputFp == 0) {
 		ttyMode(0);
+        if (fetchWC(SA) == COMMENT) { changeState(INTERP); }
 		ok();
 	}
 	if (fileGets(tib, sizeof(tib), inputFp)) {

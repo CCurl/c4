@@ -27,7 +27,7 @@ void editBlock(cell blk) { zType("-no edit-"); }
 enum { NORMAL=1, INSERT, REPLACE, QUIT };
 enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     End=7247, Ins=7250, Del=7251, CHome=7287, CEnd=7285,
-    STab=12333, F5=0xF05, F6=0xF06, F7=0xF07
+    STab=12333, F1=0xF01, F5=0xF05, F6=0xF06, F7=0xF07
 };
 
 static cell line, off, edMode, isDirty, isShow, block;
@@ -54,6 +54,7 @@ static void Yellow() { FG(226); }
 static void White() { FG(231); }
 static void Purple() { FG(213); }
 static int  winKey() { return (224 << 5) ^ key(); }
+static int  winFKey() { return 0xF00 + key() - 58; }
 
 // VT key mapping, after <escape>, '['
 #define NUM_VTK 16
@@ -92,10 +93,12 @@ static int vtKey() {
         }
         if (m == 0) { return 27; }
     }
+    return 27;
 }
 
 static int edKey() {
     int x = key();
+    if (x ==   0) { return winFKey(); }  // Windows: Function key
     if (x ==  27) { return vtKey(); }    // Possible VT control sequence
     if (x == 224) { return winKey(); }   // Windows: start char
     return x;
@@ -386,6 +389,7 @@ static void doCTL(int c) {
         RCASE CHome: mv(-NUM_LINES, -NUM_COLS);  // <ctrl>-Home
         RCASE CEnd:  mv(NUM_LINES, -NUM_COLS);   // <ctrl>-End
         RCASE STab:  mv(0, -8);                  // <shift-tab>
+        RCASE F1: toCmd(); zType("-See Editor.md-"); // F1
     }
 }
 
@@ -399,12 +403,12 @@ static int processEditorChar(int c) {
         BCASE '#': CLS(); isShow=1;
         BCASE '$': gotoEOL();
         BCASE '_': mv(0,-NUM_COLS);
-        BCASE '1': replaceChar(1,1,0); // COMPILE
-        BCASE '2': replaceChar(2,1,0); // DEFINE
-        BCASE '3': replaceChar(3,1,0); // INTERP
-        BCASE '4': replaceChar(4,1,0); // COMMENT
-        BCASE '+': gotoBlock(block+1); // Next block
-        BCASE '-': gotoBlock(block-1); // Prev block
+        BCASE '1': replaceChar(1,1,0);  // COMPILE
+        BCASE '2': replaceChar(2,1,0);  // DEFINE
+        BCASE '3': replaceChar(3,1,0);  // INTERP
+        BCASE '4': replaceChar(4,1,0);  // COMMENT
+        BCASE '+': gotoBlock(block+1);  // Next block
+        BCASE '-': gotoBlock(block-1);  // Prev block
         BCASE ':': edCommand();
         BCASE 'a': mvRight(); insertMode();
         BCASE 'A': gotoEOL(); insertMode();
