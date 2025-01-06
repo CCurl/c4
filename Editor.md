@@ -73,7 +73,7 @@ There are 4 modes in the editor:
 | J    | Join the current and next lines together |
 | k    | Up 1 line |
 | l    | Right 1 char |
-| n    | Insert a 'new-line' (#10/$0A) into the block |
+| M    | Goto the line in the middle of the block (line #16) |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |
 | p    | Paste the YANK buffer into a new line BELOW the current line |

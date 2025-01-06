@@ -425,7 +425,7 @@ static int processEditorChar(int c) {
         BCASE 'J': joinLines();
         BCASE 'k': mvUp();
         BCASE 'l': mvRight();
-        BCASE 'n': replaceChar(10,1,0);
+        BCASE 'M': line = (NUM_LINES/2)-1; off = 0;
         BCASE 'o': mvNextLine(); insertLine(line, -1); insertMode();
         BCASE 'O': insertLine(line, -1); insertMode();
         BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
