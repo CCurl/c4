@@ -73,13 +73,14 @@ There are 4 modes in the editor:
 | J    | Join the current and next lines together |
 | k    | Up 1 line |
 | l    | Right 1 char |
-| M    | Goto the line in the middle of the block (line #16) |
+| M    | Up 4 lines |
+| m    | Down 4 lines |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |
 | p    | Paste the YANK buffer into a new line BELOW the current line |
 | P    | Paste the YANK buffer into a new line ABOVE the current line |
-| q    | Right 8 chars |
-| Q    | Left 8 chars |
+| q    | Right 4 chars |
+| Q    | Left 4 chars |
 | r    | Replace the char under the cursor with the next key pressed (if printable) |
 | R    | Change to REPLACE mode |
 | w    | Move right to the beginning of the next word |

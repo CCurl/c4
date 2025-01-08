@@ -425,13 +425,14 @@ static int processEditorChar(int c) {
         BCASE 'J': joinLines();
         BCASE 'k': mvUp();
         BCASE 'l': mvRight();
-        BCASE 'M': line = (NUM_LINES/2)-1; off = 0;
+        BCASE 'M': mv(-4,0);
+        BCASE 'm': mv(4,0);
         BCASE 'o': mvNextLine(); insertLine(line, -1); insertMode();
         BCASE 'O': insertLine(line, -1); insertMode();
         BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
         BCASE 'P': insertLine(line, -1); putLine(line);
-        BCASE 'q': mv(0,8);
-        BCASE 'Q': mv(0,-8);
+        BCASE 'q': mv(0,4);
+        BCASE 'Q': mv(0,-4);
         BCASE 'r': replace1();
         BCASE 'R': replaceMode();
         BCASE 'w': moveWord(1);
