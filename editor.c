@@ -8,7 +8,7 @@ void editBlock(cell blk) { zType("-no edit-"); }
 #else
 
 #define NUM_LINES     32
-#define NUM_COLS      100
+#define NUM_COLS      96
 #define BLOCK_SZ      (NUM_LINES*NUM_COLS)
 #define MAX_LINE      (NUM_LINES-1)
 #define MAX_COL       (NUM_COLS-1)

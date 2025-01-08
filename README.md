@@ -26,10 +26,12 @@ If a WORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
 If the top 3 bits are set, it is a 13-bit unsigned literal, 0-$1FFF. <br/>
 If it is between **BYE**, and $E000, it is the code address of a word to execute. <br/>
 
-## c4's built-in editor
+## c4's built-in block editor
 c4 has a built-in editor. See **Editor.md** for details. <br/>
 The editor can be excluded from c4 by undefining **EDITOR** in c4.h. <br/>
 It is built-in so that the editor is available when running c4 from any folder. <br/>
+In c4, the size if a block is 3072 bytes (3x1024). <br/>
+The editor is 32 lines, 96 columns, and has a VI like feel. <br/>
 
 ## Building c4
 ### Windows
