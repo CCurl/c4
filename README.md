@@ -54,7 +54,7 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 - `vhere` is the absolute address of the first free byte the **VARS** area.
 - Use `->memory` to turn an offset into an address into the memory area.
 - **NOTE**: CODE slots 0-25 (`0 wc@` .. `25 wc@`) are reserved for c4 system values.
-- **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by c4.
+- **NOTE**: CODE slots 26-BYE (`26 wc@` .. `<bye> wc@`) are unused by c4.
 - **NOTE**: These are free for the application to use as desired.
 - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the **CODE** area.
 
