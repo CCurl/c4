@@ -19,7 +19,7 @@
 #define FSTK_SZ         15  // File stack
 #define NAME_LEN        25  // 25+1+1+1+cell = 32 or 36
 #define _SYS_LOAD_
-#define  EDITOR
+#define EDITOR
 
 #include <stdio.h>
 #include <stdlib.h>

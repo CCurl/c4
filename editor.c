@@ -30,7 +30,7 @@ enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     STab=12333, F1=0xF01, F5=0xF05, F6=0xF06, F7=0xF07
 };
 
-static cell line, off, edMode, isDirty, isShow, block;
+static int line, off, edMode, isDirty, isShow, block;
 static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
@@ -47,7 +47,7 @@ static void normalMode()  { edMode=NORMAL;  }
 static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
-static void setBlock(wc_t blk) { block=MAX(MIN(blk,999),0); storeWC(BLKA, (wc_t)block); }
+static void setBlock(int blk) { block=MAX(MIN(blk,999),0); storeWC(BLKA, (wc_t)block); }
 static void Green() { FG(40); }
 static void Red() { FG(203); }
 static void Yellow() { FG(226); }
@@ -475,7 +475,7 @@ static void showEditor() {
 }
 
 void editBlock(cell blk) {
-    setBlock(blk);
+    setBlock((int)blk);
     line = off = 0;
     CLS();
     edRdBlk();
