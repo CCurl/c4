@@ -136,7 +136,7 @@ cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void store16(cell a, cell v) { *(uint16_t*)(a) = (uint16_t)v; }
 cell fetch16(cell a) { return *(uint16_t*)(a); }
 void storeWC(wc_t a, wc_t v) { code[a] = v; }
-cell fetchWC(wc_t a) { return code[a]; }
+wc_t fetchWC(wc_t a) { return code[a]; }
 void store32(cell a, cell v) { *(uint32_t*)(a) = (uint32_t)v; }
 cell fetch32(cell a) { return *(uint32_t*)(a); }
 void storeCell(cell a, cell v) { *(cell*)(a) = v; }
@@ -203,7 +203,7 @@ DE_T *addWord(const char *w) {
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (isTempWord(w)) { return &tmpWords[w[1]-'0']; }
-	int len = strLen(w), cw = last;
+	cell len = strLen(w), cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
@@ -213,10 +213,10 @@ DE_T *findWord(const char *w) {
 }
 
 int findXT(int xt) {
-	int cw = last;
+	cell cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
-		if (dp->xt == xt) { return cw; }
+		if (dp->xt == xt) { return (int)cw; }
 		cw += sizeof(DE_T);
 	}
 	return 0;

@@ -57,7 +57,7 @@ typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 extern void push(cell x);
 extern cell pop();
 extern void storeWC(wc_t a, wc_t v);
-extern cell fetchWC(wc_t a);
+extern wc_t fetchWC(wc_t a);
 extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
