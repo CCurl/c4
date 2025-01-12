@@ -11,7 +11,7 @@
   #define IS_LINUX   1
 #endif
 
-#define MEM_SZ      4*1024*1024
+#define MEM_SZ     16*1024*1024
 #define CODE_SLOTS  0xE000
 #define STK_SZ          63  // Both data and return stacks
 #define LSTK_SZ         60  // 20 nested loops

@@ -6,120 +6,113 @@ void sys_load() {
 }
 #else
 void sys_load() {
-    outer("( Comments are free/built-in )");
-    outer(": \\ 0 >in @ c! ; immediate");
-    outer(": ->memory memory + ;");
-    outer(": here  (here)  wc@ ;");
-    outer(": last  (last)  @ ;");
-    outer(": base@ base  wc@ ;");
-    outer(": base! base  wc! ;");
-    outer(": block@ (block) wc@ ;");
-    outer(": block! (block) wc! ;");
-    outer(": vhere (vhere) @ ;");
-    outer(": allot vhere + (vhere) ! ;");
-    outer(": 0sp  0 (dsp)  wc! ;");
-    outer(": 0rsp 0 (rsp)  wc! ;");
-    outer(": , here  dup 1+ (here) wc! wc! ;");
-    outer(": v, vhere dup cell + (vhere) ! ! ;");
-    outer(": vc, vhere dup 1+ (vhere) ! c! ;");
-
-    outer(": const  addword lit, (exit) , ;");
-    outer(": var    vhere const allot ;");
-    outer(": create vhere addword vhere lit, ;");
-    outer(": does> (jmp) , r> , ;");
-
-    outer(": begin here ; immediate");
-    outer(": again (jmp)   , , ; immediate");
-    outer(": while (jmpnz) , , ; immediate");
-    outer(": until (jmpz)  , , ; immediate");
-    outer(": -while (njmpnz) , , ; immediate");
-    outer(": -until (njmpz)  , , ; immediate");
-    outer(": -if (njmpz) , here 0 , ; immediate");
-    outer(": if  (jmpz)  , here 0 , ; immediate");
-    outer(": if0 (jmpnz) , here 0 , ; immediate");
-    outer(": else (jmp) , here swap 0 , here swap wc! ; immediate");
-    outer(": then here swap wc! ; immediate");
-
-    outer(": hex     $10 base! ;");
-    outer(": binary  %10 base! ;");
-    outer(": decimal #10 base! ;");
-    outer(": ?dup -if dup then ;");
-    outer(": nip swap drop ;        : tuck swap over ;");
-    outer(": 2dup over over ;       : 2drop drop drop ;");
-    outer(": rot >r swap r> swap ;  : -rot swap >r swap r> ;");
-    outer(": 0< 0 < ;            : 0> 0 > ;");
-    outer(": <= > 0= ;           : >= < 0= ;      : <> = 0= ;");
-    outer(": 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ;");
-    outer(": cells cell * ;      : chars ;        : cell+ cell + ;");
-    outer(": min ( a b--c ) 2dup > if swap then drop ;");
-    outer(": max ( a b--c ) 2dup < if swap then drop ;");
-    outer(": btwi ( n l h--f ) >r over >  swap r> >  or 0= ;");
-    outer(": negate com 1+ ;");
-    outer(": abs  dup 0< if negate then ;");
-    outer(": -abs dup 0> if negate then ;");
-    outer(": mod /mod drop ;");
-    outer(": +! tuck  @ +  swap  ! ;");
-    outer(": execute ( a-- ) >r ;");
-
-    outer(": @a  a@  c@ ;    : !a  a@  c! ;");
-    outer(": @a+ a@+ c@ ;    : !a+ a@+ c! ;");
-    outer(": @a- a@- c@ ;    : !a- a@- c! ;");
-    outer(": a+  a@+ drop ;  : a-  a@- drop ;");
-    outer(": atdrop adrop tdrop ;");
-    outer(": @t  t@  c@ ;    : !t  t@  c! ;");
-    outer(": @t+ t@+ c@ ;    : !t+ t@+ c! ;");
-    outer(": @t- t@- c@ ;    : !t- t@- c! ;");
-    outer(": t+  t@+ drop ;  : t-  t@- drop ;");
-
-    outer("100 var #buf");
-    outer(": <#   ( n1--n2 )  #buf 99 + >t 0 t@ c! dup 0 < >a abs ;");
-    outer(": #c   ( c-- )     t- t@ c! ;");
-    outer(": #.   ( -- )      '.' #c ;");
-    outer(": #n   ( n-- )     dup 9 > if 7 + then '0' + #c ;");
-    outer(": #    ( n1--n2 )  base@ /mod swap #n ;");
-    outer(": #s   ( n-- )     begin # -while ;");
-    outer(": #>   ( --str )   drop a> if '-' #c then t> ;");
-    outer(": (.) <# #s #> ztype ;");
-    outer(": . (.) 32 emit ;");
-
-    outer(": bl 32 ; : space 32 emit ;");
-    outer(": cr 13 emit 10 emit ;");
-    outer(": tab 9 emit ;");
-    outer(": .version version <# # # #. # # #. #s #> ztype ;");
-    outer(": ?  @ . ;");
-    outer(": ed block@ edit ;");
-
-    outer(": .s '(' emit space (dsp) wc@ 1- ?dup");
-    outer("    if for i 1+ cells dstk + @ . next then ')' emit ;");
-
-    outer(": [[ vhere >t here >t 1 state wc! ;");
-    outer(": ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate");
-
-    outer("mem-sz 1- ->memory const dict-end");
-    outer(": ->xt     w@ ; inline");
-    outer(": ->flags  wc-sz + c@ ;");
-    outer(": ->len    wc-sz + 1+ c@ ;");
-    outer(": ->name   wc-sz + 2+ ;");
-
-    outer(": words last ->memory >a 0 >t 0 >r");
-    outer("    begin");
-    outer("      a@ ->name ztype r@ 1+ r!");
-    outer("      a@ ->len dup 7 > t@ + t! 14 > t@ + t!");
-    outer("      t@+ 9 > if cr 0 t! else tab then");
-    outer("      a@ de-sz + a! a@ dict-end <");
-    outer("    while tdrop adrop r> .\"  (%d words)\" ;");
-    outer(": words-n ( n-- )  0 >a last ->memory swap for");
-    outer("          dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz +");
-    outer("      next drop adrop ;");
-
-    outer("cell var t0 cell var t1");
-    outer(": marker here 20 wc!  last t0 !  vhere t1 ! ;");
-    outer(": forget 20 wc@ (here) wc! t0 @ (last) ! t1 @ (vhere) ! ;");
-    outer(": fgl last dup de-sz + (last) ! ->memory ->xt (here) wc! ;");
-    outer(": fopen-rt ( fn--fh )  z\" rt\" fopen ;");
-    outer(": fopen-rb ( fn--fh )  z\" rb\" fopen ;");
-    outer(": fopen-wb ( fn--fh )  z\" wb\" fopen ;");
-    outer(": thru ( f t-- ) begin dup load 1- over over > until drop drop ;");
-    outer("marker");
+    outer(" \
+( Comments are free/built-in ) ; \
+\
+: \\ 0 >in @ c! ; immediate \
+: ->memory memory + ; \
+: here  (here)  wc@ ; \
+: last  (last)  @ ; \
+: base@ base  wc@ ; \
+: base! base  wc! ; \
+: block@ (block) wc@ ; \
+: block! (block) wc! ; \
+: vhere (vhere) @ ; \
+: allot vhere + (vhere) ! ; \
+: 0sp  0 (dsp)  wc! ; \
+: 0rsp 0 (rsp)  wc! ; \
+: , here  dup 1+ (here) wc! wc! ; \
+: v, vhere dup cell + (vhere) ! ! ; \
+: vc, vhere dup 1+ (vhere) ! c! ; \
+: const  addword lit, (exit) , ; \
+: var    vhere const allot ; \
+: create vhere addword vhere lit, ; \
+: does> (jmp) , r> , ; \
+: begin here ; immediate \
+: again (jmp)   , , ; immediate \
+: while (jmpnz) , , ; immediate \
+: until (jmpz)  , , ; immediate \
+: -while (njmpnz) , , ; immediate \
+: -until (njmpz)  , , ; immediate \
+: -if (njmpz) , here 0 , ; immediate \
+: if  (jmpz)  , here 0 , ; immediate \
+: if0 (jmpnz) , here 0 , ; immediate \
+: else (jmp) , here swap 0 , here swap wc! ; immediate \
+: then here swap wc! ; immediate \
+: hex     $10 base! ; \
+: binary  %10 base! ; \
+: decimal #10 base! ; \
+: ?dup -if dup then ; \
+: nip swap drop ;        : tuck swap over ; \
+: 2dup over over ;       : 2drop drop drop ; \
+: rot >r swap r> swap ;  : -rot swap >r swap r> ; \
+: 0< 0 < ;            : 0> 0 > ; \
+: <= > 0= ;           : >= < 0= ;      : <> = 0= ; \
+: 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ; \
+: cells cell * ;      : chars ;        : cell+ cell + ; \
+: min ( a b--c ) 2dup > if swap then drop ; \
+: max ( a b--c ) 2dup < if swap then drop ; \
+: btwi ( n l h--f ) >r over >  swap r> >  or 0= ; \
+: negate com 1+ ; \
+: abs  dup 0< if negate then ; \
+: -abs dup 0> if negate then ; \
+: mod /mod drop ; \
+: +! tuck  @ +  swap  ! ; \
+: execute ( a-- ) >r ; \
+: @a  a@  c@ ;    : !a  a@  c! ; \
+: @a+ a@+ c@ ;    : !a+ a@+ c! ; \
+: @a- a@- c@ ;    : !a- a@- c! ; \
+: a+  a@+ drop ;  : a-  a@- drop ; \
+: atdrop adrop tdrop ; \
+: @t  t@  c@ ;    : !t  t@  c! ; \
+: @t+ t@+ c@ ;    : !t+ t@+ c! ; \
+: @t- t@- c@ ;    : !t- t@- c! ; \
+: t+  t@+ drop ;  : t-  t@- drop ; \
+100 var #buf \
+: <#   ( n1--n2 )  #buf 99 + >t 0 t@ c! dup 0 < >a abs ; \
+: #c   ( c-- )     t- t@ c! ; \
+: #.   ( -- )      '.' #c ; \
+: #n   ( n-- )     dup 9 > if 7 + then '0' + #c ; \
+: #    ( n1--n2 )  base@ /mod swap #n ; \
+: #s   ( n-- )     begin # -while ; \
+: #>   ( --str )   drop a> if '-' #c then t> ; \
+: (.) <# #s #> ztype ; \
+: . (.) 32 emit ; \
+: bl 32 ; : space 32 emit ; \
+: cr 13 emit 10 emit ; \
+: tab 9 emit ; \
+: .version version <# # # #. # # #. #s #> ztype ; \
+: ?  @ . ; \
+: ed block@ edit ; \
+: .s '(' emit space (dsp) wc@ 1- ?dup \
+    if for i 1+ cells dstk + @ . next then ')' emit ; \
+: [[ vhere >t here >t 1 state wc! ; \
+: ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate \
+mem-sz 1- ->memory const dict-end \
+: ->xt     w@ ; inline \
+: ->flags  wc-sz + c@ ; \
+: ->len    wc-sz + 1+ c@ ; \
+: ->name   wc-sz + 2+ ; \
+: words last ->memory >a 0 >t 0 >r \
+    begin \
+        a@ ->name ztype r@ 1+ r! \
+        a@ ->len dup 7 > t@ + t! 14 > t@ + t! \
+        t@+ 9 > if cr 0 t! else tab then \
+        a@ de-sz + a! a@ dict-end < \
+    while tdrop adrop r> .\"  (%d words)\" ; \
+: words-n ( n-- )  0 >a last ->memory swap for \
+            dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz + \
+        next drop adrop ; \
+cell var t0 cell var t1 \
+: marker here 20 wc!  last t0 !  vhere t1 ! ; \
+: forget 20 wc@ (here) wc! t0 @ (last) ! t1 @ (vhere) ! ; \
+: fgl last dup de-sz + (last) ! ->memory ->xt (here) wc! ; \
+: fopen-rt ( fn--fh )  z\" rt\" fopen ; \
+: fopen-rb ( fn--fh )  z\" rb\" fopen ; \
+: fopen-wb ( fn--fh )  z\" wb\" fopen ; \
+: thru ( f t-- ) begin dup load 1- over over > until drop drop ; \
+marker \
+\
+");
 }
 #endif // _SYS_LOAD_
