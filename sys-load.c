@@ -83,7 +83,7 @@ void sys_load() {
 : tab 9 emit ; \
 : .version version <# # # #. # # #. #s #> ztype ; \
 : ?  @ . ; \
-: ed block@ edit ; \
+: ed block@ edit ; : ed! block! ; inline \
 : .s '(' emit space (dsp) wc@ 1- ?dup \
     if for i 1+ cells dstk + @ . next then ')' emit ; \
 : [[ vhere >t here >t 1 state wc! ; \
