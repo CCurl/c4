@@ -1,7 +1,7 @@
 ( Block 4: case / case! / end-cases / switch  )
 
 ( NOTE: you can't use z" or ." when using 'case!' )
-( Also, any case for #0 has to be the 1st case in the table )
+( Any case for #0 has to be the 1st case in the table )
 
 find switch loaded?
 
@@ -15,7 +15,7 @@
   again;
 
 ( Example usage ... )
-find switch loaded?( this keeps the example from being loaded )
+find switch loaded?( keep the example from being loaded )
 
 case-a." (case a)" ;
 case-b." (case b)" ;
