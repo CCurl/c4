@@ -19,8 +19,8 @@
 cyan  117 fg ;    grey  250 fg ;
 
 colors(f t--)over - 1+
-     for dup i + dup fg ." (color-%d)" i 10 modif0crthennext
-     drop white ;
+   for dup i + dup fg ." (color-%d)" i 10 modif0crthen
+    next drop white ;
 
 
 
