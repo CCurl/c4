@@ -6,7 +6,7 @@
 cr 0 test-if 1 test-if    see test-if cr
  cr 0 if-else 1 if-else    see if-else cr
  ..dup . ;
-[[ cr 5 for i . ." [[ " 4 for i . next ." ]] " next ]]
+[[ cr 5 for i . ." -- " 4 for i . next ." -- " next ]]
  [[ cr 10 begin .. 1- dup      while drop ]]
  [[ cr  0 begin .. 1+ dup 10 = until drop ]]
 elapsedtimer swap - ."  (%d usec)" ;   mil1000 dup * * ;
@@ -27,6 +27,6 @@
  xxx @ const yyy
  yyy ." -yyy created, (%d)-" cr
  see yyy cr
- [[ xxx @ yyy = ." const/var: "if." PASS" exitthen ." FAIL!" ]]
+t0xxx @ yyy = ." const/var: "if." PASS" exitthen." FAIL!" ; t0
 
 
