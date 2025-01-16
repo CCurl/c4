@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20250108
+#define VERSION   20250115
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -45,7 +45,7 @@
 #endif
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
-enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, BA, SA, BLKA };
+enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, BSPA, HA, BA, SA, BLKA };
 
 typedef CELL_T cell;
 typedef WC_T wc_t;

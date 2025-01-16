@@ -2,9 +2,9 @@
 
 ## ColorForth's influence on c4
 c4 supports control characters in the whitespace that change the state.<br/>
+c4 has 'A', 'B' and 'T' stacks, inspired by ColorForth's 'a' register.<br/>
 c4 has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
 c4 also supports the standard state-change words.<br/>
-c4 has 'A' and 'T' stacks, inspired by ColorForth's 'a' register.<br/>
 
 | Ascii | Word  | State | Description|
 |:--    |:--    |:--    |:-- |
@@ -73,6 +73,7 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 | (lsp)   | (--N) | N: CODE slot for the loop stack pointer |
 | (tsp)   | (--N) | N: CODE slot for the T stack pointer |
 | (asp)   | (--N) | N: CODE slot for the A stack pointer |
+| (bsp)   | (--N) | N: CODE slot for the B stack pointer |
 | (here)  | (--N) | N: CODE slot for the HERE variable |
 | (vhere) | (--A) | A: address of the VHERE variable |
 | (last)  | (--A) | A: address of the LAST variable |
@@ -101,10 +102,11 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %x     | (N--) | Print TOS in base 16. |
 | %[x]   | (--)  | EMIT [x]. |
 
-## The A stack
-c4 includes an A stack. <br/>
-This is somewhat similar to MachineForth's operations for 'a', but in c4, it is a stack.<br/>
-The size of the A stack is 'tstk-sz' (see c4.h, TSTK_SZ).<br/>
+## The A, B and T stacks
+c4 includes A, B and T stacks. <br/>
+These are similar to ColorForth's operations for 'a', but in c4, they are stacks.<br/>
+The size of the stacks is 'tstk-sz' (see c4.h, TSTK_SZ).<br/>
+Note that there are also additional words for the return stack. <br/>
 
 | WORD  | STACK | DESCRIPTION |
 |:--    |:--    |:-- |
@@ -115,20 +117,6 @@ The size of the A stack is 'tstk-sz' (see c4.h, TSTK_SZ).<br/>
 | a@-   | (--N) | N: copy of A-TOS, then decrement A-TOS. |
 | a>    | (--N) | Pop N from the A stack. |
 | adrop | (--)  | Drop A-TOS |
-
-## The T Stack
-c4 includes a T stack, with same ops as the A stack. <br/>
-Note that there are also additional words for the return stack. <br/>
-
-| WORD  | STACK | DESCRIPTION |
-|:--    |:--    |:-- |
-| >t    | (N--) | Push N onto the T stack. |
-| t!    | (N--) | Set T-TOS to N. |
-| t@    | (--N) | N: copy of T-TOS. |
-| t@+   | (--N) | N: copy of T-TOS, then increment T-TOS. |
-| t@-   | (--N) | N: copy of T-TOS, then decrement T-TOS. |
-| t>    | (--N) | Pop N from the T stack. |
-| tdrop | (--)  | Drop T-TOS |
 
 ## Inline words
 In c4, an "INLINE" word is similar to a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance, but uses extra space.
@@ -202,6 +190,13 @@ The primitives:
 | a@-       | (--N)        | N: copy of A-TOS, then decrement A-TOS |
 | a>        | (--N)        | Pop N from the A stack |
 | adrop     | (--)         | Drop A-TOS |
+| >b        | (N--)        | Push N onto the B stack |
+| b!        | (N--)        | Set B-TOS to N |
+| b@        | (--N)        | N: copy of B-TOS |
+| b@+       | (--N)        | N: copy of B-TOS, then increment B-TOS |
+| b@-       | (--N)        | N: copy of B-TOS, then decrement B-TOS |
+| b>        | (--N)        | Pop N from the B stack |
+| bdrop     | (--)         | Drop B-TOS |
 | emit      | (C--)        | Output char C |
 | ;         | (--)         | Compile EXIT, set STATE=INTERPRET |
 | lit,      | (N--)        | Compile a push of number N |

@@ -7,6 +7,7 @@
 #define lsp           code[LSPA]
 #define tsp           code[TSPA]
 #define asp           code[ASPA]
+#define bsp           code[BSPA]
 #define here          code[HA]
 #define base          code[BA]
 #define state         code[SA]
@@ -19,7 +20,7 @@
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell dstk[STK_SZ+1], rstk[STK_SZ+1], lstk[LSTK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere, last;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ + 1], bstk[TSTK_SZ + 1], vhere, last;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
@@ -79,6 +80,13 @@ DE_T tmpWords[10];
 	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
+	X(TOB,     ">b",        0, t=pop(); if (bsp < TSTK_SZ) { astk[++bsp] = t; } ) \
+	X(BSET,    "b!",        0, astk[bsp]=pop(); ) \
+	X(BGET,    "b@",        0, push(astk[bsp]); ) \
+	X(BGETI,   "b@+",       0, push(astk[bsp]++); ) \
+	X(BGETD,   "b@-",       0, push(astk[bsp]--); ) \
+	X(BFROM,   "b>",        0, push((0 < bsp) ? astk[bsp--] : 0); ) \
+	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
@@ -444,11 +452,13 @@ void baseSys() {
 	defNum("(lsp)",       LSPA);
 	defNum("(tsp)",       TSPA);
 	defNum("(asp)",       ASPA);
+	defNum("(bsp)",       BSPA);
 	defNum("(block)",     BLKA);
 	defNum("dstk",        (cell)&dstk[0]);
 	defNum("rstk",        (cell)&rstk[0]);
 	defNum("tstk",        (cell)&tstk[0]);
 	defNum("astk",        (cell)&astk[0]);
+	defNum("bstk",        (cell)&bstk[0]);
 	defNum("memory",      (cell)&memory[0]);
 	defNum("vars",        vhere);
 	defNum(">in",         (cell)&toIn);

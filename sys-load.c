@@ -59,15 +59,19 @@ void sys_load() {
 : mod /mod drop ; \
 : +! tuck  @ +  swap  ! ; \
 : execute ( a-- ) >r ; \
+: atdrop adrop tdrop ; \
+: a+  a@+ drop ;  : a-  a@- drop ; \
 : @a  a@  c@ ;    : !a  a@  c! ; \
 : @a+ a@+ c@ ;    : !a+ a@+ c! ; \
 : @a- a@- c@ ;    : !a- a@- c! ; \
-: a+  a@+ drop ;  : a-  a@- drop ; \
-: atdrop adrop tdrop ; \
+: b+  b@+ drop ;  : b-  b@- drop ; \
+: @b  b@  c@ ;    : !b  b@  c! ; \
+: @b+ b@+ c@ ;    : !b+ b@+ c! ; \
+: @b- b@- c@ ;    : !b- b@- c! ; \
+: t+  t@+ drop ;  : t-  t@- drop ; \
 : @t  t@  c@ ;    : !t  t@  c! ; \
 : @t+ t@+ c@ ;    : !t+ t@+ c! ; \
 : @t- t@- c@ ;    : !t- t@- c! ; \
-: t+  t@+ drop ;  : t-  t@- drop ; \
 100 var #buf \
 : <#   ( n1--n2 )  #buf 99 + >t 0 t@ c! dup 0 < >a abs ; \
 : #c   ( c-- )     t- t@ c! ; \
