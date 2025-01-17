@@ -10,7 +10,7 @@
 block-sz num-blocks * var blocks
 num-blocks var fl(clean/dirty flags)
 
-blk-norm(n1--n2)0 max num-blocks 1- min ;
+blk-norm(n1--n2)0 maxnum-blocks 1- lit,min ;
 blk-dirty!(n--)blk-norm 1 swap fl + c! ;
 blk-clean!(n--)blk-norm 0 swap fl + c! ;
 blk-dirty?(n--)blk-norm fl + c@ ;
