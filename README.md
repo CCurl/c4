@@ -116,7 +116,7 @@ Note that there are also additional words for the return stack. <br/>
 | a@+   | (--N) | N: copy of A-TOS, then increment A-TOS. |
 | a@-   | (--N) | N: copy of A-TOS, then decrement A-TOS. |
 | a>    | (--N) | Pop N from the A stack. |
-| adrop | (--)  | Drop A-TOS |
+| adrop | (--)  | Drop A-TOS. |
 
 ## Inline words
 In c4, an "INLINE" word is similar to a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance, but uses extra space.
