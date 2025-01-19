@@ -2,9 +2,9 @@
 
 ## ColorForth's influence on c4
 c4 supports control characters in the whitespace that change the state.<br/>
+c4 has 'A', 'B' and 'T' stacks, inspired by ColorForth's 'a' register.<br/>
 c4 has 4 states: INTERPRET, COMPILE, DEFINE, AND COMMENT,<br/>
 c4 also supports the standard state-change words.<br/>
-c4 has 'A' and 'T' stacks, inspired by ColorForth's 'a' register.<br/>
 
 | Ascii | Word  | State | Description|
 |:--    |:--    |:--    |:-- |
@@ -20,18 +20,27 @@ c4 has 'A' and 'T' stacks, inspired by ColorForth's 'a' register.<br/>
 
 ## Tachyon's influence on c4
 In c4, a program is a sequence of WORD-CODEs. <br/>
-A WORD-CODE is a 32-bit unsigned number (a DWORD). <br/>
+A WORD-CODE is a 16-bit unsigned number (a DWORD). <br/>
 Primitives are assigned numbers sequentially from 0 to **BYE**. <br/>
 If a WORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
-If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
-If it is between **BYE**, and $E0000000, it is the code address of a word to execute. <br/>
+If the top 3 bits are set, it is a 13-bit unsigned literal, 0-$1FFF. <br/>
+If it is between **BYE**, and $E000, it is the code address of a word to execute. <br/>
+
+## c4's built-in block editor
+c4 has a built-in editor. See **Editor.md** for details. <br/>
+The editor can be excluded from c4 by undefining **EDITOR** in c4.h. <br/>
+It is built-in so that the editor is available when running c4 from any folder. <br/>
+In c4, the size if a block is 3072 bytes (3x1024). <br/>
+The editor is 32 lines, 96 columns, and has a VI like feel. <br/>
 
 ## Building c4
 ### Windows
 - There is a Visual Studio solution file, c4.sln (either 32- or 64-bit)
-### Linux
-- 32-bit: There is a makefile; use 'ARCH=32 make'
-- 64-bit: There is a makefile; use 'make'
+### Linux and other similar systems
+- There is a makefile.
+- The default architecture is 32-bits. That is faster on my systems.
+- 32-bit: use 'make'
+- 64-bit: use 'ARCH=64 make'
 
 ## c4 memory usage
 c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
@@ -45,7 +54,7 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 - `vhere` is the absolute address of the first free byte the **VARS** area.
 - Use `->memory` to turn an offset into an address into the memory area.
 - **NOTE**: CODE slots 0-25 (`0 wc@` .. `25 wc@`) are reserved for c4 system values.
-- **NOTE**: CODE slots 26-75 (`26 wc@` .. `75 wc@`) are unused by c4.
+- **NOTE**: CODE slots 26-BYE (`26 wc@` .. `<bye> wc@`) are unused by c4.
 - **NOTE**: These are free for the application to use as desired.
 - **NOTE**: Use `wc@` and `wc!` to get and set WORD-CODE values in the **CODE** area.
 
@@ -64,11 +73,13 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 | (lsp)   | (--N) | N: CODE slot for the loop stack pointer |
 | (tsp)   | (--N) | N: CODE slot for the T stack pointer |
 | (asp)   | (--N) | N: CODE slot for the A stack pointer |
+| (bsp)   | (--N) | N: CODE slot for the B stack pointer |
 | (here)  | (--N) | N: CODE slot for the HERE variable |
 | (vhere) | (--A) | A: address of the VHERE variable |
-| (last)  | (--N) | N: CODE slot for the LAST variable |
+| (last)  | (--A) | A: address of the LAST variable |
 | base    | (--N) | N: CODE slot for the BASE variable |
 | state   | (--N) | N: CODE slot for the STATE variable |
+| (block) | (--N) | N: CODE slot for the BLOCK variable |
 
 ## c4 Strings
 Strings in c4 are NULL-terminated with no count byte.<br/>
@@ -85,16 +96,17 @@ For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x
 | %e     | (--)  | EMIT `escape` (#27). |
 | %i     | (N--) | Print TOS in the current base. |
 | %n     | (--)  | Print CR/LF (13/10). |
-| %q     | (--)  | EMIT `"` (#34). |
+| %q     | (--)  | EMIT a `double-quote` (#34). |
 | %s     | (A--) | Print TOS as a string (formatted). |
 | %S     | (A--) | Print TOS as a string (unformatted). |
 | %x     | (N--) | Print TOS in base 16. |
 | %[x]   | (--)  | EMIT [x]. |
 
-## The A stack
-c4 includes an A stack. <br/>
-This is somewhat similar to MachineForth's operations for 'a', but in c4, it is a stack.<br/>
-The size of the A stack is 'tstk-sz' (see c4.h, TSTK_SZ).<br/>
+## The A, B and T stacks
+c4 includes A, B and T stacks. <br/>
+These are similar to ColorForth's operations for 'a', but in c4, they are stacks.<br/>
+The size of the stacks is 'tstk-sz' (see c4.h, TSTK_SZ).<br/>
+Note that there are also additional words for the return stack. <br/>
 
 | WORD  | STACK | DESCRIPTION |
 |:--    |:--    |:-- |
@@ -104,21 +116,7 @@ The size of the A stack is 'tstk-sz' (see c4.h, TSTK_SZ).<br/>
 | a@+   | (--N) | N: copy of A-TOS, then increment A-TOS. |
 | a@-   | (--N) | N: copy of A-TOS, then decrement A-TOS. |
 | a>    | (--N) | Pop N from the A stack. |
-| adrop | (--)  | Drop A-TOS |
-
-## The T Stack
-c4 includes a T stack, with same ops as the A stack. <br/>
-Note that there are also additional words for the return stack. <br/>
-
-| WORD  | STACK | DESCRIPTION |
-|:--    |:--    |:-- |
-| >t    | (N--) | Push N onto the T stack. |
-| t!    | (N--) | Set T-TOS to N. |
-| t@    | (--N) | N: copy of T-TOS. |
-| t@+   | (--N) | N: copy of T-TOS, then increment T-TOS. |
-| t@-   | (--N) | N: copy of T-TOS, then decrement T-TOS. |
-| t>    | (--N) | Pop N from the T stack. |
-| tdrop | (--)  | Drop T-TOS |
+| adrop | (--)  | Drop A-TOS. |
 
 ## Inline words
 In c4, an "INLINE" word is similar to a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance, but uses extra space.
@@ -192,6 +190,13 @@ The primitives:
 | a@-       | (--N)        | N: copy of A-TOS, then decrement A-TOS |
 | a>        | (--N)        | Pop N from the A stack |
 | adrop     | (--)         | Drop A-TOS |
+| >b        | (N--)        | Push N onto the B stack |
+| b!        | (N--)        | Set B-TOS to N |
+| b@        | (--N)        | N: copy of B-TOS |
+| b@+       | (--N)        | N: copy of B-TOS, then increment B-TOS |
+| b@-       | (--N)        | N: copy of B-TOS, then decrement B-TOS |
+| b>        | (--N)        | Pop N from the B stack |
+| bdrop     | (--)         | Drop B-TOS |
 | emit      | (C--)        | Output char C |
 | ;         | (--)         | Compile EXIT, set STATE=INTERPRET |
 | lit,      | (N--)        | Compile a push of number N |

@@ -2,7 +2,7 @@
 ( mx+b (m x b--n) +locs  s3 s2 s1  r1 r2 * r3 +  -locs )
 
 20 cells var ls-stk
-vhere const ls-basemax
+vhere const ls-max
 5 cells allot
 cell var ls-base
 
@@ -12,8 +12,8 @@
 : ls@+ ( index--num )  t0 dup >r @ dup 1+ r> ! ;
 : ls@- ( index--num )  t0 dup >r @ dup 1- r> ! ;
 : ls-reset ls-stk ls-base ! ;
-: +locs ( -- ) ls-base @ [ 5 cells lit, ] + ls-basemax min ls-base ! ;
-: -locs ( -- ) ls-base @ [ 5 cells lit, ] - ls-stk     max ls-base ! ;
+: +locs ls-base @ [ 5 cells lit, ] + ls-max min ls-base ! ;
+: -locs ls-base @ [ 5 cells lit, ] - ls-stk max ls-base ! ;
 
 : s1 0 ls! ;  : r1 0 ls@ ;  : r1+ 0 ls@+ ;  : @r1+ r1+ c@ ;
 : s2 1 ls! ;  : r2 1 ls@ ;  : r2+ 1 ls@+ ;  : !r2+ r2+ c! ;

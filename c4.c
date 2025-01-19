@@ -7,8 +7,8 @@
 #define lsp           code[LSPA]
 #define tsp           code[TSPA]
 #define asp           code[ASPA]
+#define bsp           code[BSPA]
 #define here          code[HA]
-#define last          code[LA]
 #define base          code[BA]
 #define state         code[SA]
 #define TOS           dstk[dsp]
@@ -17,12 +17,10 @@
 #define L1            lstk[lsp-1]
 #define L2            lstk[lsp-2]
 
-enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, HA, LA, BA, SA };
-
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell dstk[STK_SZ+1], rstk[STK_SZ+1], lstk[LSTK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], vhere;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ + 1], bstk[TSTK_SZ + 1], vhere, last;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
@@ -82,6 +80,13 @@ DE_T tmpWords[10];
 	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
+	X(TOB,     ">b",        0, t=pop(); if (bsp < TSTK_SZ) { astk[++bsp] = t; } ) \
+	X(BSET,    "b!",        0, astk[bsp]=pop(); ) \
+	X(BGET,    "b@",        0, push(astk[bsp]); ) \
+	X(BGETI,   "b@+",       0, push(astk[bsp]++); ) \
+	X(BGETD,   "b@-",       0, push(astk[bsp]--); ) \
+	X(BFROM,   "b>",        0, push((0 < bsp) ? astk[bsp--] : 0); ) \
+	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
 	X(QKEY,    "?key",      0, push(qKey()); ) \
@@ -114,7 +119,8 @@ DE_T tmpWords[10];
 	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
 	X(INCL,    "include",   0, t=nextWord(); if (t) fileLoad(wd); ) \
 	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
-	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); )
+	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); ) \
+	X(EDITBLK, "edit",      0, editBlock(pop()); )
 
 #define PRIMS_SYSTEM \
 	X(SYSTEM,  "system", 0, t=pop(); ttyMode(0); system((char*)t); ) \
@@ -137,6 +143,8 @@ void rpush(cell x) { if (rsp < STK_SZ) { rstk[++rsp] = x; } }
 cell rpop() { return (0<rsp) ? rstk[rsp--] : 0; }
 void store16(cell a, cell v) { *(uint16_t*)(a) = (uint16_t)v; }
 cell fetch16(cell a) { return *(uint16_t*)(a); }
+void storeWC(wc_t a, wc_t v) { code[a] = v; }
+wc_t fetchWC(wc_t a) { return code[a]; }
 void store32(cell a, cell v) { *(uint32_t*)(a) = (uint32_t)v; }
 cell fetch32(cell a) { return *(uint32_t*)(a); }
 void storeCell(cell a, cell v) { *(cell*)(a) = v; }
@@ -203,8 +211,7 @@ DE_T *addWord(const char *w) {
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (isTempWord(w)) { return &tmpWords[w[1]-'0']; }
-	int len = strLen(w);
-	int cw = last;
+	cell len = strLen(w), cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
@@ -214,10 +221,10 @@ DE_T *findWord(const char *w) {
 }
 
 int findXT(int xt) {
-	int cw = last;
+	cell cw = last;
 	while (cw < MEM_SZ) {
 		DE_T *dp = (DE_T*)&memory[cw];
-		if (dp->xt == xt) { return cw; }
+		if (dp->xt == xt) { return (int)cw; }
 		cw += sizeof(DE_T);
 	}
 	return 0;
@@ -347,10 +354,9 @@ int isNum(const char *w, int b) {
 }
 
 void executeWord(DE_T *de) {
-	int h = here+100;
-	code[h]   = de->xt;
-	code[h+1] = STOP;
-	inner(h);
+	code[17] = de->xt;
+	code[18] = STOP;
+	inner(17);
 }
 
 void compileWord(DE_T *de) {
@@ -422,49 +428,56 @@ void zTypeF(const char *fmt, ...) {
 	zType(buf);
 }
 
+void defNum(const char *name, cell val) {
+	DE_T *dp = addWord(name);
+	compileNum(val);
+	comma(EXIT);
+	if (btwi(val,0,NUM_MASK)) { dp->fl = _INLINE; }
+}
+
 void baseSys() {
 	for (int i = 0; prims[i].name; i++) {
 		DE_T *w = addWord(prims[i].name);
 		w->xt = prims[i].op;
 		w->fl = prims[i].fl;
 	}
-	char *addrFmt = addressFmt;
-	outerF(addrFmt, "mem-sz",  MEM_SZ);
-	outerF(addrFmt, "code-sz", CODE_SLOTS);
-	outerF(addrFmt, "de-sz",   sizeof(DE_T));
-	outerF(addrFmt, "dstk-sz", STK_SZ+1);
-	outerF(addrFmt, "tstk-sz", TSTK_SZ+1);
-	outerF(addrFmt, "wc-sz",   WC_SZ);
-	outerF(addrFmt, "(dsp)",   DSPA);
-	outerF(addrFmt, "(rsp)",   RSPA);
-	outerF(addrFmt, "(lsp)",   LSPA);
-	outerF(addrFmt, "(tsp)",   TSPA);
-	outerF(addrFmt, "(asp)",   ASPA);
-
-	outerF(addrFmt, "dstk",    &dstk[0]);
-	outerF(addrFmt, "rstk",    &rstk[0]);
-	outerF(addrFmt, "tstk",    &tstk[0]);
-	outerF(addrFmt, "astk",    &astk[0]);
-	outerF(addrFmt, "memory",  &memory[0]);
-	outerF(addrFmt, "vars",    vhere);
-	outerF(addrFmt, ">in",     &toIn);
-	outerF(addrFmt, "wd",      &wd[0]);
-	outerF(addrFmt, "(vhere)", &vhere);
-	outerF(addrFmt, "(output-fp)", &outputFp);
-
-	outerF(addrFmt, "version",  VERSION);
-	outerF(addrFmt, "(lit)",    LIT);
-	outerF(addrFmt, "(jmp)",    JMP);
-	outerF(addrFmt, "(jmpz)",   JMPZ);
-	outerF(addrFmt, "(njmpz)",  NJMPZ);
-	outerF(addrFmt, "(jmpnz)",  JMPNZ);
-	outerF(addrFmt, "(njmpnz)", NJMPNZ);
-	outerF(addrFmt, "(exit)",   EXIT);
-	outerF(addrFmt, "(here)",   HA);
-	outerF(addrFmt, "(last)",   LA);
-	outerF(addrFmt, "base",     BA);
-	outerF(addrFmt, "state",    SA);
-	outerF(addrFmt, "cell",     CELL_SZ);  makeInline();
+	defNum("mem-sz",      MEM_SZ);
+	defNum("code-sz",     CODE_SLOTS);
+	defNum("de-sz",       sizeof(DE_T));
+	defNum("dstk-sz",     STK_SZ+1);
+	defNum("tstk-sz",     TSTK_SZ+1);
+	defNum("wc-sz",       WC_SZ);
+	defNum("(dsp)",       DSPA);
+	defNum("(rsp)",       RSPA);
+	defNum("(lsp)",       LSPA);
+	defNum("(tsp)",       TSPA);
+	defNum("(asp)",       ASPA);
+	defNum("(bsp)",       BSPA);
+	defNum("(block)",     BLKA);
+	defNum("dstk",        (cell)&dstk[0]);
+	defNum("rstk",        (cell)&rstk[0]);
+	defNum("tstk",        (cell)&tstk[0]);
+	defNum("astk",        (cell)&astk[0]);
+	defNum("bstk",        (cell)&bstk[0]);
+	defNum("memory",      (cell)&memory[0]);
+	defNum("vars",        vhere);
+	defNum(">in",         (cell)&toIn);
+	defNum("wd",          (cell)&wd[0]);
+	defNum("(vhere)",     (cell)&vhere);
+	defNum("(output-fp)", (cell)&outputFp);
+	defNum("(last)",      (cell)&last);
+	defNum("version",     VERSION);
+	defNum("(lit)",       LIT);
+	defNum("(jmp)",       JMP);
+	defNum("(jmpz)",      JMPZ);
+	defNum("(njmpz)",     NJMPZ);
+	defNum("(jmpnz)",     JMPNZ);
+	defNum("(njmpnz)",    NJMPNZ);
+	defNum("(exit)",      EXIT);
+	defNum("(here)",      HA);
+	defNum("base",        BA);
+	defNum("state",       SA);
+	defNum("cell",        CELL_SZ);
 	sys_load();
 }
 

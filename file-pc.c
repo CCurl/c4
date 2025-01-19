@@ -2,12 +2,12 @@
 
 // Support for files
 cell inputFp, outputFp, fileStk[FSTK_SZ + 1];
+static char fn[32];
 int fileSp;
 
 void filePush(cell fh) { if (fileSp < FSTK_SZ) { fileStk[++fileSp] = fh; } }
 cell filePop() { return (0 < fileSp) ? fileStk[fileSp--] : 0; }
-static char *blockFn(char *fn, int blk) { sprintf(fn, "block-%03d.fth", blk); return fn; }
-static char fn[32];
+char *blockFn(int blk) { sprintf(fn, "block-%03d.fth", blk); return fn; }
 
 void fileInit() { fileSp = 0; inputFp = 0; }
 cell fileOpen(const char *name, const char *mode) { return (cell)fopen(name, mode); }
@@ -15,11 +15,11 @@ void fileClose(cell fh) { fclose((FILE*)fh); }
 void fileDelete(const char *name) { remove(name); }
 cell fileRead(char *buf, int sz, cell fh) { return fread(buf, 1, sz, (FILE*)fh); }
 cell fileWrite(char *buf, int sz, cell fh) { return fwrite(buf, 1, sz, (FILE*)fh); }
-void blockLoad(int blk) { fileLoad(blockFn(fn, blk)); }
+void blockLoad(int blk) { fileLoad(blockFn(blk)); }
 
 void blockLoadNext(int blk) {
     if (inputFp) { fileClose(inputFp); inputFp = 0; }
-    fileLoad(blockFn(fn, blk));
+    fileLoad(blockFn(blk));
     if (inputFp == 0) { inputFp = filePop(); }
 }
 

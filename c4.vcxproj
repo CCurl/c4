@@ -162,12 +162,14 @@
     <None Include="block-026.fth" />
     <None Include="block-200.fth" />
     <None Include="block-999.fth" />
+    <None Include="Editor.md" />
     <None Include="LICENSE" />
     <None Include="makefile" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c4.c" />
+    <ClCompile Include="editor.c" />
     <ClCompile Include="sys-load.c" />
     <ClCompile Include="system.c" />
   </ItemGroup>

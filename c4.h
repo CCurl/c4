@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20241123
+#define VERSION   20250115
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -11,13 +11,15 @@
   #define IS_LINUX   1
 #endif
 
-#define MEM_SZ           4*1024*1024
-#define CODE_SLOTS      48*1024
+#define MEM_SZ     16*1024*1024
+#define CODE_SLOTS  0xE000
 #define STK_SZ          63  // Both data and return stacks
 #define LSTK_SZ         60  // 20 nested loops
 #define TSTK_SZ         63  // A and T stacks
 #define FSTK_SZ         15  // File stack
 #define NAME_LEN        25  // 25+1+1+1+cell = 32 or 36
+#define _SYS_LOAD_
+#define EDITOR
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,41 +31,40 @@
 #define _IMMED              1
 #define _INLINE             2
 
+#define WC_T          uint16_t
+#define WC_SZ         2
+#define NUM_BITS      0xE000
+#define NUM_MASK      0x1FFF
+
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T        int64_t
     #define CELL_SZ       8
-    #define addressFmt    ": %s $%llx ;"
-    #define WC_T          uint32_t
-    #define WC_SZ         4
-    #define NUM_BITS      0xE0000000
-    #define NUM_MASK      0x1FFFFFFF
 #else
     #define CELL_T        int32_t
     #define CELL_SZ       4
-    #define addressFmt    ": %s $%lx ; inline"
-    #define WC_T          uint32_t
-    #define WC_SZ         4
-    #define NUM_BITS      0xE0000000
-    #define NUM_MASK      0x1FFFFFFF
 #endif
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
+enum { DSPA=0, RSPA, LSPA, TSPA, ASPA, BSPA, HA, BA, SA, BLKA };
 
 typedef CELL_T cell;
 typedef WC_T wc_t;
-typedef unsigned char byte;
+typedef uint8_t byte;
 typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN+1]; } DE_T;
 typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
 
 // These are defined by c4.c
 extern void push(cell x);
 extern cell pop();
+extern void storeWC(wc_t a, wc_t v);
+extern wc_t fetchWC(wc_t a);
 extern void strCpy(char *d, const char *s);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
 extern int  strLen(const char *s);
 extern int  lower(const char c);
 extern void zTypeF(const char *fmt, ...);
+extern int  changeState(int x);
 extern void inner(wc_t start);
 extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
@@ -88,8 +89,10 @@ extern cell fileRead(char *buf, int sz, cell fh);
 extern cell fileWrite(char *buf, int sz, cell fh);
 extern int  fileGets(char *buf, int sz, cell fh);
 extern void fileLoad(const char *name);
+extern char *blockFn(int blk);
 extern void blockLoad(int blk);
 extern void blockLoadNext(int blk);
 extern void sys_load();
+extern void editBlock(cell blk);
 
 #endif //  __C4_H__
