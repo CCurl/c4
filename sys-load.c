@@ -48,8 +48,11 @@ void sys_load() {
 : rot >r swap r> swap ;  : -rot swap >r swap r> ; \
 : 0< 0 < ;            : 0> 0 > ; \
 : <= > 0= ;           : >= < 0= ;      : <> = 0= ; \
-: 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ; \
-: cells cell * ;      : chars ;        : cell+ cell + ; \
+: 2+ 1+ 1+ ; inline \
+: 2* dup + ; inline \
+: 2/ 2 / ;   inline \
+: cells cell * ; inline \
+: cell+ cell + ; inline \
 : min ( a b--c ) 2dup > if swap then drop ; \
 : max ( a b--c ) 2dup < if swap then drop ; \
 : btwi ( n l h--f ) >r over >  swap r> >  or 0= ; \
