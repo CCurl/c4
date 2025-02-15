@@ -8,9 +8,9 @@ void sys_load() {
 void sys_load() {
     outer(" \
 ( Comments are free/built-in ) ; \
-\
 : \\ 0 >in @ c! ; immediate \
 : ->memory memory + ; \
+: ->code dup + ->memory ; \
 : here  (here)  wc@ ; \
 : last  (last)  @ ; \
 : base@ base  wc@ ; \
@@ -25,7 +25,9 @@ void sys_load() {
 : v, vhere dup cell + (vhere) ! ! ; \
 : vc, vhere dup 1+ (vhere) ! c! ; \
 : const  addword lit, (exit) , ; \
-: var    vhere const allot ; \
+: var vhere const allot ; \
+: val -1 const ; \
+: (val) last ->memory w@ 1+ ->code const ; \
 : create vhere addword vhere lit, ; \
 : does> (jmp) , r> , ; \
 : begin here ; immediate \

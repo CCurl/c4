@@ -18,15 +18,14 @@
 rshift(n1 count--n2)for 2/ next ;
 align(a1--a2)4 over 3 and - 3 and + ;
 
-->code(n--)2* ->memory ;
-val   (--) -1 const ;
-(val) (--) last ->memory w@ 1+ ->code const ;
 
-find dump loaded?(keep examples from being loaded)
-Example usage for 'val' and (val):
-see val     see (val)
-val x@      (val) (x)   x!(n--)(x) ! ;
-#12345 x!   see x@       see (x)
-$54321 x!   see x@
+
+
+
+
+
+
+
+
 
 
