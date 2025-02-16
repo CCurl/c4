@@ -108,7 +108,7 @@ DE_T tmpWords[10];
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
-	X(ALLOT,   "allot",     0, doAllot(pop()); )
+	X(ALIGN,   "align",     0, vhere = doAlign(vhere); )
 
 #define PRIMS_FILE \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
@@ -231,6 +231,11 @@ int findXT(int xt) {
 	return 0;
 }
 
+cell doAlign(cell a) {
+    while (a & 0x03) { ++a; }
+	return a;
+}
+
 void doSee() {
 	DE_T *dp = findWord(0), *lastWord = (DE_T*)&memory[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
@@ -257,11 +262,6 @@ void doSee() {
 				zType(x ? ((DE_T*)&memory[x])->nm : "??");
 		}
 	}
-}
-
-void doAllot(cell sz) {
-	while (sz & 0x03) { ++sz; }
-	vhere += sz;
 }
 
 void iToA(cell n, cell b) {
@@ -299,18 +299,17 @@ void compileNum(cell num) {
 }
 
 void quote() {
-	push(vhere);
-	char *vh=(char*)vhere;
+	char *vh=(char*)doAlign(vhere);
+	push((cell)vh);
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
 		*(vh++) = *(toIn++);
 	}
 	*(vh++) = 0; // NULL terminator
-	while ((cell)vh & 0x03) { ++vh; }
 	if (state == COMPILE) {
 		compileNum(pop());
-		vhere = (cell)vh;
+		vhere = doAlign((cell)vh);
 	}
 }
 

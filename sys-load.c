@@ -21,10 +21,11 @@ void sys_load() {
 : 0sp  0 (dsp)  wc! ; \
 : 0rsp 0 (rsp)  wc! ; \
 : , here  dup 1+ (here) wc! wc! ; \
-: v, vhere dup cell + (vhere) ! ! ; \
+: allot align vhere + (vhere) ! ; \
+: v, align vhere dup cell + (vhere) ! ! ; \
 : vc, vhere dup 1+ (vhere) ! c! ; \
 : const  addword lit, (exit) , ; \
-: var    vhere const allot ; \
+: var    align vhere const allot ; \
 : create vhere addword vhere lit, ; \
 : does> (jmp) , r> , ; \
 : begin here ; immediate \
