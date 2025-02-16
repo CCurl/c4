@@ -1,4 +1,4 @@
-( Block 6 - Some utility words )
+(Block 6 - Some utility words)
 
 find dump loaded?
 
@@ -17,6 +17,7 @@
 lshift(n1 count--n2)for 2* next ;
 rshift(n1 count--n2)for 2/ next ;
 align(a1--a2)4 over 3 and - 3 and + ;
+
 
 
 
