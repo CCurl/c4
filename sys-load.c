@@ -18,7 +18,6 @@ void sys_load() {
 : block@ (block) wc@ ; \
 : block! (block) wc! ; \
 : vhere (vhere) @ ; \
-: allot vhere + (vhere) ! ; \
 : 0sp  0 (dsp)  wc! ; \
 : 0rsp 0 (rsp)  wc! ; \
 : , here  dup 1+ (here) wc! wc! ; \
