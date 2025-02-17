@@ -107,7 +107,8 @@ DE_T tmpWords[10];
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
-	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
+	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } ) \
+	X(ALIGN,   "align",     0, vhere = doAlign(vhere); )
 
 #define PRIMS_FILE \
 	X(LOADED,  "loaded?",   0, t=pop(); pop(); if (t) { fileClose(inputFp); inputFp=filePop(); } ) \
@@ -230,6 +231,11 @@ int findXT(int xt) {
 	return 0;
 }
 
+cell doAlign(cell a) {
+    while (a & 0x03) { ++a; }
+	return a;
+}
+
 void doSee() {
 	DE_T *dp = findWord(0), *lastWord = (DE_T*)&memory[last];
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
@@ -293,17 +299,17 @@ void compileNum(cell num) {
 }
 
 void quote() {
-	char *vh=(char*)vhere;
+	char *vh=(char*)doAlign(vhere);
+	push((cell)vh);
 	if (*toIn) { ++toIn; }
 	while (*toIn) {
 		if (*toIn == '"') { ++toIn; break; }
 		*(vh++) = *(toIn++);
 	}
 	*(vh++) = 0; // NULL terminator
-	push(vhere);
 	if (state == COMPILE) {
 		compileNum(pop());
-		vhere = (cell)vh;
+		vhere = doAlign((cell)vh);
 	}
 }
 
@@ -488,6 +494,7 @@ void c4Init() {
 	base = 10;
 	state = INTERP;
 	vhere = (cell)&memory[CODE_SLOTS*WC_SZ];
+	vhere = doAlign(vhere);
 	fileInit();
 	baseSys();
 }
