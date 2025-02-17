@@ -8,9 +8,9 @@ void sys_load() {
 void sys_load() {
     outer(" \
 ( Comments are free/built-in ) ; \
-\
 : \\ 0 >in @ c! ; immediate \
-: ->memory memory + ; \
+: ->memory ( n--a ) memory + ; \
+: ->code ( n--a ) dup + ->memory ; \
 : here  (here)  wc@ ; \
 : last  (last)  @ ; \
 : base@ base  wc@ ; \
@@ -24,9 +24,11 @@ void sys_load() {
 : allot align vhere + (vhere) ! ; \
 : v, align vhere dup cell + (vhere) ! ! ; \
 : vc, vhere dup 1+ (vhere) ! c! ; \
-: const  addword lit, (exit) , ; \
+: const ( n-- ) addword lit, (exit) , ; \
 : var    align vhere const allot ; \
-: create vhere addword vhere lit, ; \
+: val   -1 const ; \
+: (val) last ->memory w@ 1+ ->code const ; \
+: create align vhere addword vhere lit, ; \
 : does> (jmp) , r> , ; \
 : begin here ; immediate \
 : again (jmp)   , , ; immediate \
@@ -85,7 +87,7 @@ void sys_load() {
 : bl 32 ; : space 32 emit ; \
 : cr 13 emit 10 emit ; \
 : tab 9 emit ; \
-: .version version <# # # #. # # #. #s #> ztype ; \
+: .version version <# # # #. # # #. #s #> ztype .\"  (Solaris)\" ; \
 : ?  @ . ; \
 : ed block@ edit ; : ed! block! ; inline \
 : .s '(' emit space (dsp) wc@ 1- ?dup \

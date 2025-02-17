@@ -494,7 +494,7 @@ void c4Init() {
 	base = 10;
 	state = INTERP;
 	vhere = (cell)&memory[CODE_SLOTS*WC_SZ];
-	while (vhere & 0x03) { ++vhere; }
+	vhere = doAlign(vhere);
 	fileInit();
 	baseSys();
 }
