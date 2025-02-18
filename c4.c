@@ -133,9 +133,9 @@ enum _PRIM  {
 };
 
 #undef X
-#define X(op, name, imm, code) { op, name, imm },
+#define X(op, name, imm, code) { name, op, imm, 0 },
 
-PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM {0, 0, 0}};
+PRIM_T prims[] = { PRIMS_BASE PRIMS_FILE PRIMS_SYSTEM {0, 0, 0, 0}};
 
 void push(cell x) { if (dsp < STK_SZ) { dstk[++dsp] = x; } }
 cell pop() { return (0<dsp) ? dstk[dsp--] : 0; }
