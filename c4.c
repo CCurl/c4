@@ -188,11 +188,8 @@ int isTempWord(const char *w) {
 }
 
 DE_T *addWord(const char *w) {
-	if (!w) {
-		nextWord();
-		if (NAME_LEN < strLen(wd)) { wd[NAME_LEN]=0; }
-		w = wd;
-	}
+	if (!w) { nextWord(); w = wd; }
+	if (NAME_LEN < strLen(wd)) { zTypeF("\n-len:%s-\n", wd); wd[NAME_LEN]=0; }
 	if (isTempWord(w)) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
