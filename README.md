@@ -53,6 +53,7 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 - `last` is an also offset into the memory area.
 - `vhere` is the absolute address of the first free byte the **VARS** area.
 - Use `->memory` to turn an offset into an address into the memory area.
+- Use `->code` to turn an offset into an address of a WORD-CODE.
 - **NOTE**: CODE slots 0-25 (`0 wc@` .. `25 wc@`) are reserved for c4 system values.
 - **NOTE**: CODE slots 26-BYE (`26 wc@` .. `<bye> wc@`) are unused by c4.
 - **NOTE**: These are free for the application to use as desired.
@@ -123,18 +124,27 @@ In c4, an "INLINE" word is similar to a macro. When compiling a word that is INL
 
 **Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a byte in an address for example), then it should not be marked as INLINE.**
 
+## Temporary words
+c4 provides 10 temporary words, 't0' thru 't9'.
+- Defining a temporary word does not add an entry to the dictionary.
+- Temporary words are intended to be helpful in factoring code.
+- Their names are case-sensitive (t0-t9, not T0-T9).
+- They are 'normal' words (not INLINE or IMMEDIATE).
+- A temporary word can be redefined as often as desired.
+- When redefined, code references to the previous definition are unchanged.
+
 ## c4 WORD-CODE primitives
 The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
-| (lit)     | (--WC)       | WC: WORD-CODE for LIT primitive |
-| (jmp)     | (--WC)       | WC: WORD-CODE for JMP primitive |
-| (jmpz)    | (--WC)       | WC: WORD-CODE for JMPZ primitive |
-| (jmpnz)   | (--WC)       | WC: WORD-CODE for JMPNZ primitive |
-| (njmpz)   | (--WC)       | WC: WORD-CODE for NJMPZ primitive |
-| (njmpnz)  | (--WC)       | WC: WORD-CODE for NJMPNZ primitive |
-| (exit)    | (--WC)       | WC: WORD-CODE for EXIT primitive |
+| (lit)     | (--WC)       | WC: WORD-CODE for the LIT primitive |
+| (jmp)     | (--WC)       | WC: WORD-CODE for the JMP primitive |
+| (jmpz)    | (--WC)       | WC: WORD-CODE for the JMPZ primitive |
+| (jmpnz)   | (--WC)       | WC: WORD-CODE for the JMPNZ primitive |
+| (njmpz)   | (--WC)       | WC: WORD-CODE for the NJMPZ primitive |
+| (njmpnz)  | (--WC)       | WC: WORD-CODE for the NJMPNZ primitive |
+| (exit)    | (--WC)       | WC: WORD-CODE for the EXIT primitive |
 | exit      | (--)         | EXIT word |
 | dup       | (N--N N)     | Duplicate TOS (Top-Of-Stack) |
 | swap      | (X Y--Y X)   | Swap TOS and NOS (Next-On-Stack) |

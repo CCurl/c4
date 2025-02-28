@@ -8,9 +8,9 @@ void sys_load() {
 void sys_load() {
     outer(" \
 ( Comments are free/built-in ) ; \
-\
 : \\ 0 >in @ c! ; immediate \
 : ->memory memory + ; \
+: ->code dup + ->memory ; \
 : here  (here)  wc@ ; \
 : last  (last)  @ ; \
 : base@ base  wc@ ; \
@@ -25,7 +25,9 @@ void sys_load() {
 : v, vhere dup cell + (vhere) ! ! ; \
 : vc, vhere dup 1+ (vhere) ! c! ; \
 : const  addword lit, (exit) , ; \
-: var    vhere const allot ; \
+: var vhere const allot ; \
+: val -1 const ; \
+: (val) last ->memory w@ 1+ ->code const ; \
 : create vhere addword vhere lit, ; \
 : does> (jmp) , r> , ; \
 : begin here ; immediate \
@@ -48,8 +50,11 @@ void sys_load() {
 : rot >r swap r> swap ;  : -rot swap >r swap r> ; \
 : 0< 0 < ;            : 0> 0 > ; \
 : <= > 0= ;           : >= < 0= ;      : <> = 0= ; \
-: 2+ 1+ 1+ ;          : 2* dup + ;     : 2/ 2 / ; \
-: cells cell * ;      : chars ;        : cell+ cell + ; \
+: 2+ 1+ 1+ ; inline \
+: 2* dup + ; inline \
+: 2/ 2 / ;   inline \
+: cells cell * ; inline \
+: cell+ cell + ; inline \
 : min ( a b--c ) 2dup > if swap then drop ; \
 : max ( a b--c ) 2dup < if swap then drop ; \
 : btwi ( n l h--f ) >r over >  swap r> >  or 0= ; \

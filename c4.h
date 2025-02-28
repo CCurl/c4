@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20250115
+#define VERSION   20250222
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -17,7 +17,7 @@
 #define LSTK_SZ         60  // 20 nested loops
 #define TSTK_SZ         63  // A and T stacks
 #define FSTK_SZ         15  // File stack
-#define NAME_LEN        25  // 25+1+1+1+cell = 32 or 36
+#define NAME_LEN        19  // DE-SZ = 2+1+1+LEN+1
 #define _SYS_LOAD_
 #define EDITOR
 
@@ -51,7 +51,7 @@ typedef CELL_T cell;
 typedef WC_T wc_t;
 typedef uint8_t byte;
 typedef struct { wc_t xt; byte fl, ln; char nm[NAME_LEN+1]; } DE_T;
-typedef struct { wc_t op; const char *name; byte fl; } PRIM_T;
+typedef struct { const char *name; wc_t op; byte fl; byte pad; } PRIM_T;
 
 // These are defined by c4.c
 extern void push(cell x);
