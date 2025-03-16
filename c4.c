@@ -485,6 +485,7 @@ void c4Init() {
 	base = 10;
 	state = INTERP;
 	vhere = (cell)&memory[CODE_SLOTS*WC_SZ];
+	for (int i=6; i<=9; i++) { tmpWords[i].fl = _INLINE; }
 	fileInit();
 	baseSys();
 }

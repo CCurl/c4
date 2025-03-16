@@ -4,27 +4,27 @@
 
 3 load(strings)
 
-block-sz 2048 ;inline
-num-blocks500 ;inline
+block-sz  3072 ;inline
+num-blocks 500 ;inline
 
 block-sz num-blocks * var blocks
 num-blocks var fl(clean/dirty flags)
 
-blk-norm(n1--n2)0 maxnum-blocks 1- lit,min ;
-blk-dirty!(n--)blk-norm 1 swap fl + c! ;
-blk-clean!(n--)blk-norm 0 swap fl + c! ;
-blk-dirty?(n--)blk-norm fl + c@ ;
-blk-buf(n--buf)blk-norm block-sz * blocks + ;
+blk-norm(n--blk)0 maxnum-blocks 1- lit,min ;
+blk-flg! (blk flg--)swap blk-norm fl + c! ;
+blk-dirty!(blk--)1 blk-flg! ;
+blk-clean!(blk--)0 blk-flg! ;
+blk-dirty?(blk--flg)blk-norm fl + c@ ;
+blk-buf(blk--buf)blk-norm block-sz * blocks + ;
 
 32 var fn(file-name)
-blk-fn(n--fn)>r fn z" block-" s-cpy r>
+blk-fn(blk--fn)>r fn z" block-" s-cpy r>
     <# # # #s #> s-cat z" .fth" s-cat ;
-
-blk-clear(n--)dup blk-clean! blk-buf block-sz 0 fill ;
+
+blk-clear(blk--)dup blk-clean! blk-buf block-sz 0 fill ;
 blk-clear-all(--)num-blocks for i blk-clear next ;
 
 51 load-next
-
 
 
 
