@@ -65,18 +65,18 @@ void sys_load() {
 : +! tuck  @ +  swap  ! ; \
 : execute ( a-- ) >r ; \
 : atdrop adrop tdrop ; \
-: a+  a@+ drop ;  : a-  a@- drop ; \
-: @a  a@  c@ ;    : !a  a@  c! ; \
-: @a+ a@+ c@ ;    : !a+ a@+ c! ; \
-: @a- a@- c@ ;    : !a- a@- c! ; \
-: b+  b@+ drop ;  : b-  b@- drop ; \
-: @b  b@  c@ ;    : !b  b@  c! ; \
-: @b+ b@+ c@ ;    : !b+ b@+ c! ; \
-: @b- b@- c@ ;    : !b- b@- c! ; \
-: t+  t@+ drop ;  : t-  t@- drop ; \
-: @t  t@  c@ ;    : !t  t@  c! ; \
-: @t+ t@+ c@ ;    : !t+ t@+ c! ; \
-: @t- t@- c@ ;    : !t- t@- c! ; \
+: a+  a@+ drop ;  inline  : a-  a@- drop ; inline \
+: @a  a@  c@ ;    inline  : !a  a@  c! ;   inline \
+: @a+ a@+ c@ ;    inline  : !a+ a@+ c! ;   inline \
+: @a- a@- c@ ;    inline  : !a- a@- c! ;   inline \
+: b+  b@+ drop ;  inline  : b-  b@- drop ; inline \
+: @b  b@  c@ ;    inline  : !b  b@  c! ;   inline \
+: @b+ b@+ c@ ;    inline  : !b+ b@+ c! ;   inline \
+: @b- b@- c@ ;    inline  : !b- b@- c! ;   inline \
+: t+  t@+ drop ;  inline  : t-  t@- drop ; inline \
+: @t  t@  c@ ;    inline  : !t  t@  c! ;   inline \
+: @t+ t@+ c@ ;    inline  : !t+ t@+ c! ;   inline \
+: @t- t@- c@ ;    inline  : !t- t@- c! ;   inline \
 100 var #buf \
 : <#   ( n1--n2 )  #buf 99 + >t 0 t@ c! dup 0 < >a abs ; \
 : #c   ( c-- )     t- t@ c! ; \
