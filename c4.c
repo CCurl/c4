@@ -20,7 +20,7 @@
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell dstk[STK_SZ+1], rstk[STK_SZ+1], lstk[LSTK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ + 1], bstk[TSTK_SZ + 1], vhere, last;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], bstk[TSTK_SZ+1], vhere, last;
 char wd[32], *toIn;
 DE_T tmpWords[10];
 
@@ -80,12 +80,12 @@ DE_T tmpWords[10];
 	X(AGETD,   "a@-",       0, push(astk[asp]--); ) \
 	X(AFROM,   "a>",        0, push((0 < asp) ? astk[asp--] : 0); ) \
 	X(ADROP,   "adrop",     0, if (0 < asp) { asp--; } ) \
-	X(TOB,     ">b",        0, t=pop(); if (bsp < TSTK_SZ) { astk[++bsp] = t; } ) \
-	X(BSET,    "b!",        0, astk[bsp]=pop(); ) \
-	X(BGET,    "b@",        0, push(astk[bsp]); ) \
-	X(BGETI,   "b@+",       0, push(astk[bsp]++); ) \
-	X(BGETD,   "b@-",       0, push(astk[bsp]--); ) \
-	X(BFROM,   "b>",        0, push((0 < bsp) ? astk[bsp--] : 0); ) \
+	X(TOB,     ">b",        0, t=pop(); if (bsp < TSTK_SZ) { bstk[++bsp] = t; } ) \
+	X(BSET,    "b!",        0, bstk[bsp]=pop(); ) \
+	X(BGET,    "b@",        0, push(bstk[bsp]); ) \
+	X(BGETI,   "b@+",       0, push(bstk[bsp]++); ) \
+	X(BGETD,   "b@-",       0, push(bstk[bsp]--); ) \
+	X(BFROM,   "b>",        0, push((0 < bsp) ? bstk[bsp--] : 0); ) \
 	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
