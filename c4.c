@@ -237,7 +237,7 @@ void doSee() {
 	while (i < stop) {
 		long op = code[i++];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
-		if (op & NUM_BITS) { op &= NUM_MASK; zTypeF("num #%ld ($%lx)", op, op); continue; }
+		if (op & NUM_BITS) { op &= NUM_MASK; zTypeF("num #%ld ($%lX)", op, op); continue; }
 		x = code[i];
 		switch (op) {
 			case  STOP: zType("stop"); i++;

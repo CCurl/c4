@@ -6,9 +6,9 @@
 cr 0 test-if 1 test-if    see test-if cr
  cr 0 if-else 1 if-else    see if-else cr
  ..dup . ;
-[[ cr 5 for i . ." -- " 4 for i . next ." -- " next ]]
- [[ cr 10 begin .. 1- dup      while drop ]]
- [[ cr  0 begin .. 1+ dup 10 = until drop ]]
+[[cr 5 for i . ." -- " 4 for i . next ." -- " next]]
+[[cr 10 begin .. 1- dup      while drop]]
+[[cr  0 begin .. 1+ dup 10 = until drop]]
 elapsedtimer swap - ."  (%d usec)" ;   mil1000 dup * * ;
 t01 drop ;                             t11 drop t0 ;
 fib1- dup 2 < if drop 1 exit then dup fib swap 1- fib + ;
@@ -19,14 +19,14 @@
 bm5cr dup ." bm5: fib (%d) ... " timer swap fib . elapsed ;
 bmk1000 mil bm1 ;
 go 250 mil dup dup bmk bm2 bm3 bm4  38 bm5 cr ;
-go cr
- cell var xxx
- see xxx cr cr
- 12345 xxx !
- xxx @ ." -xxx created, (%d)-%n"
- xxx @ const yyy
+go
+ val xxx (val) (xxx) 1234 (xxx) !
+see xxx cr cr
+ xxx ." -xxx created, (%d)-%n"
+ xxx const yyy
  yyy ." -yyy created, (%d)-" cr
  see yyy cr
-t0xxx @ yyy = ." const/var: "if." PASS" exitthen." FAIL!" ; t0
+[[xxx yyy = ." val/const: "if." PASS" exitthen." FAIL!"]]
+
 
 
