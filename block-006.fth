@@ -1,4 +1,4 @@
-(Block 6 - Some utility words)
+( Block 6 - Some utility words )
 
 find dump loaded?
 

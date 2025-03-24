@@ -1,9 +1,9 @@
-(Block 51 - More Blocks)
+( Block 51 - More Blocks )
 
 find blk-init loaded?
 
 blk-read(blk--)blk-norm >t t@ blk-fn fopen-rb
-   ?dupif0t> blk-clear exitthenfn ." %n-r/%S-"
+   ?dupif0t> blk-clear exitthen( fn ." %n-r/%S-" )
    >a t> blk-buf block-sz a@ fread drop a> fclose ;
 blk-read-all(--)num-blocks for i blk-read next ;
 
