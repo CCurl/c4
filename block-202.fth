@@ -1,12 +1,5 @@
 ( Conway's Game Of Life )
 
- ( An XOR shift random number generator )
-val seed   (val) (seed)
-new-seedtimer (seed) ! ; new-seed
-x17%00010000000000000000 ; x13%0001000000000000 ; x5 %00100000 ;
-rand(--n)seed dup x13 * xor dup x17 / xor dup x5 * xor dup (seed) ! ;
-rand-mod(max--n)rand abs swap mod ;
-
 rows(--n)75 ;  cols(--n)150 ;
 grid-sz rows cols *     const grid-sz
 grid    grid-sz         var   grid
@@ -25,8 +18,15 @@
 work->grid(--)work b! grid a!  grid-sz for  live? !a+  0 !b+ next ;
 one-gen(--)grid->work work->grid disp ;
 gens(gens--)for one-gen  ?keyifkey drop unloop exitthennext ;
-init(--)grid a!  grid-sz for  100 rand-mod 70 > 10 * 32 + !a+  next ;32+10=42/'*'
+init(--)grid a!  grid-sz for  100 rand-mod 70 > 10 * 32 + !a+  next ;32+10=42 ('*')
 life(gens--)cur-off dupif0drop 500thencls init gens cur-on ;
 lifes(n--)for 1000 life.s key dropnext ;
+
+
+
+
+
+
+
 
 

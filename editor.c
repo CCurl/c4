@@ -30,7 +30,7 @@ enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     STab=12333, F1=0xF01, F5=0xF05, F6=0xF06, F7=0xF07
 };
 
-static int line, off, edMode, isDirty, isShow, block;
+static int line, off, edMode, isDirty, isShow, block, lastBlock;
 static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
@@ -326,6 +326,12 @@ static int edReadLine(char *buf, int sz) {
     return len;
 }
 
+static void gotoBlock(int blk) {
+    lastBlock = block;
+    edSvBlk(0); setBlock(blk);
+    edRdBlk(); line = off = 0;
+}
+
 static void edCommand() {
     char buf[32];
     toCmd(); emit(':'); ClearEOL();
@@ -335,9 +341,9 @@ static void edCommand() {
         wc_t curBlock = fetchWC(BLKA);
         ttyMode(0); changeState(INTERP); outer(&buf[1]);
         wc_t nowBlock = fetchWC(BLKA);
-        if (curBlock != nowBlock) { block=nowBlock; strCpy(buf, "rl"); }
+        if (curBlock != nowBlock) { gotoBlock(nowBlock); }
     }
-    if (strEqI(buf,"rl")) { edRdBlk(); }
+    else if (strEqI(buf,"rl")) { edRdBlk(); }
     else if (strEqI(buf,"w")) { edSvBlk(0); }
     else if (strEqI(buf,"w!")) { edSvBlk(1); }
     else if (strEqI(buf,"wq")) { edSvBlk(0); edMode=QUIT; }
@@ -346,11 +352,6 @@ static void edCommand() {
         if (isDirty) { zType("(use 'q!' to quit without saving)"); }
         else { edMode=QUIT; }
     }
-}
-
-static void gotoBlock(int blk) {
-        edSvBlk(0); setBlock(blk);
-        edRdBlk(); line = off = 0;
 }
 
 static void doCTL(int c) {
@@ -435,6 +436,7 @@ static int processEditorChar(int c) {
         BCASE 'Q': mv(0,-4);
         BCASE 'r': replace1();
         BCASE 'R': replaceMode();
+        BCASE 'S': gotoBlock(lastBlock);
         BCASE 'w': moveWord(1);
         BCASE 'W': moveWord(0);
         BCASE 'x': edDelX(c);
@@ -476,6 +478,7 @@ static void showEditor() {
 
 void editBlock(cell blk) {
     setBlock((int)blk);
+    if (lastBlock == 0) { lastBlock = blk; }
     line = off = 0;
     CLS();
     edRdBlk();
