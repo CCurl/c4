@@ -5,7 +5,7 @@
 if-elseifz" yes" else z" no"thenztype '.' emit ;
 cr 0 test-if 1 test-if    see test-if cr
  cr 0 if-else 1 if-else    see if-else cr
- ..dup . ;
+..dup . ;
 [[cr 5 for i . ." -- " 4 for i . next ." -- " next]]
 [[cr 10 begin .. 1- dup      while drop]]
 [[cr  0 begin .. 1+ dup 10 = until drop]]
