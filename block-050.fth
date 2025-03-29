@@ -4,8 +4,9 @@
 
 3 load(strings)
 
+341 blocks of 3k is close to 1 meg
 block-sz  3072 ;inline
-num-blocks 500 ;inline
+num-blocks 341 ;inline
 
 block-sz num-blocks * var blocks
 num-blocks var fl(clean/dirty flags)
@@ -25,7 +26,6 @@
 blk-clear-all(--)num-blocks for i blk-clear next ;
 
 51 load-next
-
 
 
 
