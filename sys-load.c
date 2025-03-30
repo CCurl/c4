@@ -116,9 +116,11 @@ cell var t0 cell var t1 \
 : marker here 20 wc!  last t0 !  vhere t1 ! ; \
 : forget 20 wc@ (here) wc! t0 @ (last) ! t1 @ (vhere) ! ; \
 : fgl last dup de-sz + (last) ! ->memory ->xt (here) wc! ; \
-: fopen-rt ( fn--fh )  z\" rt\" fopen ; \
-: fopen-rb ( fn--fh )  z\" rb\" fopen ; \
-: fopen-wb ( fn--fh )  z\" wb\" fopen ; \
+: fopen-rt ( fn--fh|0 )  z\" rt\" fopen ; \
+: fopen-rb ( fn--fh|0 )  z\" rb\" fopen ; \
+: fopen-wb ( fn--fh|0 )  z\" wb\" fopen ; \
+: ->file ( fn-- ) fopen-wb (output-fp) ! ; \
+: ->stdout ( -- ) (output-fp) @ ?dup if fclose 0 (output-fp) ! then ; \
 : thru ( f t-- ) begin dup load 1- over over > until drop drop ; \
 marker \
 \

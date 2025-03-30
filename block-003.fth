@@ -15,13 +15,13 @@
 s-cat  (dst src--dst)over s-end swap s-cpy drop ;
 s-catc (dst ch--dst) over s-end w! ;
 s-catn (dst n--dst)  <# #s #> s-cat ;
+s-scpy (src dst--dst)swap s-cpy ;
 s-scat (src dst--dst)swap s-cat ;
 s-scatc(ch dst--dst) swap s-catc ;
 s-scatn(n dst--dst)  swap s-catn ;
 s-rtrim(str--str)    >r r@ s-end 1- >t
   begint@ r@ <  @t 32 >  oriftdrop r> exitthen
    0 !t-again;
-
 
 
 
