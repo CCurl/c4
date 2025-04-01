@@ -8,11 +8,11 @@
 del-ch( -- )y@ x@ <ifx- 0 !x bs space bsthen;
 app-ch( ch-- )!x+ 0 !x emit ;
 clr-bufy@ x! 0 !x ;
-t50 >a x>t y>t ;  t6t>y t>x adrop ;
+t50 >a x>t y>t ;  t4t>y t>x adrop ;
 accept( str-- )t5 y! clr-buf
  beginkey a!
-   a@ 13 = ift6 exitthen
-   a@ 27 =  a@ 3 =    or ifclr-buf t6 exitthen
+   a@ 13 = ift4 exitthen
+   a@ 27 =  a@ 3 =    or ifclr-buf t4 exitthen
    a@ 8 =   a@ 127 =  or ifdel-chthen
    a@ printable?ifa@ app-chthen
 again;

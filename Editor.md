@@ -83,6 +83,7 @@ There are 4 modes in the editor:
 | Q    | Left 4 chars |
 | r    | Replace the char under the cursor with the next key pressed (if printable) |
 | R    | Change to REPLACE mode |
+| S    | Switch to last edited block |
 | w    | Move right to the beginning of the next word |
 | W    | Move left to the beginning of the previous word |
 | x    | Delete the char under the cursor to the end of the line |

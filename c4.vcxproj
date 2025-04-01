@@ -151,8 +151,6 @@
     <None Include="block-006.fth" />
     <None Include="block-007.fth" />
     <None Include="block-010.fth" />
-    <None Include="block-014.fth" />
-    <None Include="block-015.fth" />
     <None Include="block-020.fth" />
     <None Include="block-021.fth" />
     <None Include="block-022.fth" />

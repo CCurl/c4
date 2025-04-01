@@ -65,18 +65,18 @@ void sys_load() {
 : +! tuck  @ +  swap  ! ; \
 : execute ( a-- ) >r ; \
 : atdrop adrop tdrop ; \
-: a+  a@+ drop ;  : a-  a@- drop ; \
-: @a  a@  c@ ;    : !a  a@  c! ; \
-: @a+ a@+ c@ ;    : !a+ a@+ c! ; \
-: @a- a@- c@ ;    : !a- a@- c! ; \
-: b+  b@+ drop ;  : b-  b@- drop ; \
-: @b  b@  c@ ;    : !b  b@  c! ; \
-: @b+ b@+ c@ ;    : !b+ b@+ c! ; \
-: @b- b@- c@ ;    : !b- b@- c! ; \
-: t+  t@+ drop ;  : t-  t@- drop ; \
-: @t  t@  c@ ;    : !t  t@  c! ; \
-: @t+ t@+ c@ ;    : !t+ t@+ c! ; \
-: @t- t@- c@ ;    : !t- t@- c! ; \
+: a+  a@+ drop ;  inline  : a-  a@- drop ; inline \
+: @a  a@  c@ ;    inline  : !a  a@  c! ;   inline \
+: @a+ a@+ c@ ;    inline  : !a+ a@+ c! ;   inline \
+: @a- a@- c@ ;    inline  : !a- a@- c! ;   inline \
+: b+  b@+ drop ;  inline  : b-  b@- drop ; inline \
+: @b  b@  c@ ;    inline  : !b  b@  c! ;   inline \
+: @b+ b@+ c@ ;    inline  : !b+ b@+ c! ;   inline \
+: @b- b@- c@ ;    inline  : !b- b@- c! ;   inline \
+: t+  t@+ drop ;  inline  : t-  t@- drop ; inline \
+: @t  t@  c@ ;    inline  : !t  t@  c! ;   inline \
+: @t+ t@+ c@ ;    inline  : !t+ t@+ c! ;   inline \
+: @t- t@- c@ ;    inline  : !t- t@- c! ;   inline \
 100 var #buf \
 : <#   ( n1--n2 )  #buf 99 + >t 0 t@ c! dup 0 < >a abs ; \
 : #c   ( c-- )     t- t@ c! ; \
@@ -116,9 +116,11 @@ cell var t0 cell var t1 \
 : marker here 20 wc!  last t0 !  vhere t1 ! ; \
 : forget 20 wc@ (here) wc! t0 @ (last) ! t1 @ (vhere) ! ; \
 : fgl last dup de-sz + (last) ! ->memory ->xt (here) wc! ; \
-: fopen-rt ( fn--fh )  z\" rt\" fopen ; \
-: fopen-rb ( fn--fh )  z\" rb\" fopen ; \
-: fopen-wb ( fn--fh )  z\" wb\" fopen ; \
+: fopen-rt ( fn--fh|0 )  z\" rt\" fopen ; \
+: fopen-rb ( fn--fh|0 )  z\" rb\" fopen ; \
+: fopen-wb ( fn--fh|0 )  z\" wb\" fopen ; \
+: ->file ( fn-- ) fopen-wb (output-fp) ! ; \
+: ->stdout ( -- ) (output-fp) @ ?dup if fclose 0 (output-fp) ! then ; \
 : thru ( f t-- ) begin dup load 1- over over > until drop drop ; \
 marker \
 \

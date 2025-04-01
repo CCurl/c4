@@ -129,9 +129,9 @@ c4 provides 10 temporary words, 't0' thru 't9'.
 - Defining a temporary word does not add an entry to the dictionary.
 - Temporary words are intended to be helpful in factoring code.
 - Their names are case-sensitive (t0-t9, not T0-T9).
-- They are 'normal' words (not INLINE or IMMEDIATE).
 - A temporary word can be redefined as often as desired.
 - When redefined, code references to the previous definition are unchanged.
+- t0 thru t5 are 'normal', t6 thru t9 are 'inline'.
 
 ## c4 WORD-CODE primitives
 The primitives:
