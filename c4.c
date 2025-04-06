@@ -93,7 +93,7 @@ DE_T tmpWords[10];
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
 	X(NEXTWD,  "next-wd",   0, push((cell)wd); push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_IMMED; } ) \
+	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)last; dp->fl=_IMMED; } ) \
 	X(INLINE,  "inline",    0, makeInline(); ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
@@ -152,7 +152,7 @@ cell fetchCell(cell a) { return *(cell*)(a); }
 void comma(cell x) { code[here++] = (wc_t)x; }
 void commaCell(cell n) { storeCell((cell)&code[here], n); here += (CELL_SZ / WC_SZ); }
 int changeState(int x) { state = x; return x; }
-void makeInline() { DE_T *dp = (DE_T*)&memory[last]; dp->fl=_INLINE; }
+void makeInline() { DE_T *dp = (DE_T*)last; dp->fl=_INLINE; }
 void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
@@ -196,7 +196,7 @@ DE_T *addWord(const char *w) {
 	}
 	last -= sizeof(DE_T);
 	int ln = strLen(w);
-	DE_T *dp = (DE_T*)&memory[last];
+	DE_T *dp = (DE_T*)last;
 	dp->xt = here;
 	dp->fl = 0;
 	dp->ln = ln;
@@ -210,7 +210,7 @@ DE_T *findWord(const char *w) {
 	if (isTempWord(w)) { return &tmpWords[w[1]-'0']; }
 	cell len = strLen(w), cw = last;
 	while (cw < MEM_SZ) {
-		DE_T *dp = (DE_T*)&memory[cw];
+		DE_T *dp = (DE_T*)cw;
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
 		cw += sizeof(DE_T);
 	}
@@ -220,7 +220,7 @@ DE_T *findWord(const char *w) {
 int findXT(int xt) {
 	cell cw = last;
 	while (cw < MEM_SZ) {
-		DE_T *dp = (DE_T*)&memory[cw];
+		DE_T *dp = (DE_T*)cw;
 		if (dp->xt == xt) { return (int)cw; }
 		cw += sizeof(DE_T);
 	}
@@ -228,7 +228,7 @@ int findXT(int xt) {
 }
 
 void doSee() {
-	DE_T *dp = findWord(0), *lastWord = (DE_T*)&memory[last];
+	DE_T *dp = findWord(0), *lastWord = (DE_T*)last;
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
 	cell x = (cell)dp-(cell)memory;
@@ -481,7 +481,7 @@ void baseSys() {
 void c4Init() {
 	code = (wc_t*)&memory[0];
 	here = BYE+1;
-	last = MEM_SZ;
+	last = (cell)&memory[MEM_SZ];
 	base = 10;
 	state = INTERP;
 	vhere = (cell)&memory[CODE_SLOTS*WC_SZ];
