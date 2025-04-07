@@ -50,8 +50,8 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 - The **Dictionary** starts at the end and grows downward.
 - The size of the CODE area is 'code-sz' (see c4.h, CODE_SLOTS).
 - `here` is an offset into the **CODE** area, the next slot to be allocated.
-- `last` is an also offset into the memory area.
-- `vhere` is the absolute address of the first free byte the **VARS** area.
+- `last` is the address of the most recently created word.
+- `vhere` is the address of the first free byte the **VARS** area.
 - Use `->memory` to turn an offset into an address into the memory area.
 - Use `->code` to turn an offset into an address of a WORD-CODE.
 - **NOTE**: CODE slots 0-25 (`0 wc@` .. `25 wc@`) are reserved for c4 system values.
@@ -87,7 +87,7 @@ Strings in c4 are NULL-terminated with no count byte.<br/>
 
 ## Format specifiers in `ftype` and `."`
 Similar to the printf() function in C, c4 supports formatted output using '%'. <br/>
-For example `: ascii dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x%n" ;`.
+For example `: ascii ( n-- ) dup dup dup ." char %c, decimal #%d, binary: %%%b, hex: $%x%n" ;`.
 
 | Format | Stack | Description |
 |:--     |:--    |:-- |

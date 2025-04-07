@@ -27,7 +27,7 @@ void sys_load() {
 : const  addword lit, (exit) , ; \
 : var vhere const allot ; \
 : val -1 const ; \
-: (val) last ->memory w@ 1+ ->code const ; \
+: (val) last  w@ 1+ ->code const ; \
 : create vhere addword vhere lit, ; \
 : does> (jmp) , r> , ; \
 : begin here ; immediate \
@@ -97,25 +97,25 @@ void sys_load() {
     if for i 1+ cells dstk + @ . next then ')' emit ; \
 : [[ vhere >t here >t 1 state wc! ; \
 : ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate \
-mem-sz 1- ->memory const dict-end \
+mem-sz ->memory const mem-end \
 : ->xt     w@ ; inline \
 : ->flags  wc-sz + c@ ; \
 : ->len    wc-sz + 1+ c@ ; \
 : ->name   wc-sz + 2+ ; \
-: words last ->memory >a 0 >t 0 >r \
+: words last >a 0 >t 0 >r \
     begin \
         a@ ->name ztype r@ 1+ r! \
         a@ ->len dup 7 > t@ + t! 14 > t@ + t! \
         t@+ 9 > if cr 0 t! else tab then \
-        a@ de-sz + a! a@ dict-end < \
+        a@ de-sz + a! a@ mem-end < \
     while tdrop adrop r> .\"  (%d words)\" ; \
-: words-n ( n-- )  0 >a last ->memory swap for \
+: words-n ( n-- )  0 >a last swap for \
             dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz + \
         next drop adrop ; \
 cell var t0 cell var t1 \
 : marker here 20 wc!  last t0 !  vhere t1 ! ; \
 : forget 20 wc@ (here) wc! t0 @ (last) ! t1 @ (vhere) ! ; \
-: fgl last dup de-sz + (last) ! ->memory ->xt (here) wc! ; \
+: fgl last dup de-sz + (last) ! ->xt (here) wc! ; \
 : fopen-rt ( fn--fh|0 )  z\" rt\" fopen ; \
 : fopen-rb ( fn--fh|0 )  z\" rb\" fopen ; \
 : fopen-wb ( fn--fh|0 )  z\" wb\" fopen ; \
