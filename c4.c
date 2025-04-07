@@ -20,9 +20,9 @@
 byte memory[MEM_SZ+1];
 wc_t *code = (wc_t*)&memory[0];
 cell dstk[STK_SZ+1], rstk[STK_SZ+1], lstk[LSTK_SZ+1];
-cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], bstk[TSTK_SZ+1], vhere, last;
+cell tstk[TSTK_SZ+1], astk[TSTK_SZ+1], bstk[TSTK_SZ+1], vhere;
 char wd[32], *toIn;
-DE_T tmpWords[10];
+DE_T tmpWords[10], *last;
 
 #define PRIMS_BASE \
 	X(EXIT,    "exit",      0, if (0<rsp) { pc = (wc_t)rpop(); } else { return; } ) \
@@ -93,7 +93,7 @@ DE_T tmpWords[10];
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
 	X(NEXTWD,  "next-wd",   0, push((cell)wd); push(nextWord()); ) \
-	X(IMMED,   "immediate", 0, { DE_T *dp = (DE_T*)last; dp->fl=_IMMED; } ) \
+	X(IMMED,   "immediate", 0, { last->fl=_IMMED; } ) \
 	X(INLINE,  "inline",    0, makeInline(); ) \
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
@@ -152,7 +152,7 @@ cell fetchCell(cell a) { return *(cell*)(a); }
 void comma(cell x) { code[here++] = (wc_t)x; }
 void commaCell(cell n) { storeCell((cell)&code[here], n); here += (CELL_SZ / WC_SZ); }
 int changeState(int x) { state = x; return x; }
-void makeInline() { DE_T *dp = (DE_T*)last; dp->fl=_INLINE; }
+void makeInline() { last->fl=_INLINE; }
 void ok() { if (state==0) { state=INTERP; } zType((state==INTERP) ? " ok\r\n" : "... "); }
 int lower(const char c) { return btwi(c, 'A', 'Z') ? c + 32 : c; }
 int strLen(const char *s) { int l = 0; while (s[l]) { l++; } return l; }
@@ -194,41 +194,39 @@ DE_T *addWord(const char *w) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
 	}
-	last -= sizeof(DE_T);
+	--last;
 	int ln = strLen(w);
-	DE_T *dp = (DE_T*)last;
-	dp->xt = here;
-	dp->fl = 0;
-	dp->ln = ln;
-	strCpy(dp->nm, w);
-	// zTypeF("\n-add:%d,[%s],(%d)-\n", last, dp->nm, dp->xt);
-	return dp;
+	last->xt = here;
+	last->fl = 0;
+	last->ln = ln;
+	strCpy(last->nm, w);
+	// zTypeF("\n-add:%d,[%s],(%d)-\n", last, last->nm, last->xt);
+	return last;
 }
 
 DE_T *findWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (isTempWord(w)) { return &tmpWords[w[1]-'0']; }
-	cell len = strLen(w), cw = last;
-	while (cw < MEM_SZ) {
-		DE_T *dp = (DE_T*)cw;
+	cell len = strLen(w);
+	DE_T *dp = last;
+	while ((byte*)dp < &memory[MEM_SZ]) {
 		if ((len == dp->ln) && strEqI(dp->nm, w)) { return dp; }
-		cw += sizeof(DE_T);
+		++dp;
 	}
 	return (DE_T*)0;
 }
 
-int findXT(int xt) {
-	cell cw = last;
-	while (cw < MEM_SZ) {
-		DE_T *dp = (DE_T*)cw;
-		if (dp->xt == xt) { return (int)cw; }
-		cw += sizeof(DE_T);
+cell findXT(int xt) {
+	DE_T *dp = last;
+	while ((byte*)dp < &memory[MEM_SZ]) {
+		if (dp->xt == xt) { return (cell)dp; }
+		++dp;
 	}
 	return 0;
 }
 
 void doSee() {
-	DE_T *dp = findWord(0), *lastWord = (DE_T*)last;
+	DE_T *dp = findWord(0), *lastWord = last;
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
 	cell x = (cell)dp-(cell)memory;
@@ -250,7 +248,7 @@ void doSee() {
 			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++; break;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
-				zType(x ? ((DE_T*)&memory[x])->nm : "??");
+				zType(x ? ((DE_T*)x)->nm : "??");
 		}
 	}
 }
@@ -481,7 +479,7 @@ void baseSys() {
 void c4Init() {
 	code = (wc_t*)&memory[0];
 	here = BYE+1;
-	last = (cell)&memory[MEM_SZ];
+	last = (DE_T*)&memory[MEM_SZ];
 	base = 10;
 	state = INTERP;
 	vhere = (cell)&memory[CODE_SLOTS*WC_SZ];

@@ -97,7 +97,7 @@ void sys_load() {
     if for i 1+ cells dstk + @ . next then ')' emit ; \
 : [[ vhere >t here >t 1 state wc! ; \
 : ]] (exit) , 0 state wc! t@ (here) wc! t> >r t> (vhere) ! ; immediate \
-mem-sz 1- ->memory const dict-end \
+mem-sz ->memory const mem-end \
 : ->xt     w@ ; inline \
 : ->flags  wc-sz + c@ ; \
 : ->len    wc-sz + 1+ c@ ; \
@@ -107,7 +107,7 @@ mem-sz 1- ->memory const dict-end \
         a@ ->name ztype r@ 1+ r! \
         a@ ->len dup 7 > t@ + t! 14 > t@ + t! \
         t@+ 9 > if cr 0 t! else tab then \
-        a@ de-sz + a! a@ dict-end < \
+        a@ de-sz + a! a@ mem-end < \
     while tdrop adrop r> .\"  (%d words)\" ; \
 : words-n ( n-- )  0 >a last swap for \
             dup ->name ztype tab a@+ 9 > if cr 0 a! then de-sz + \
