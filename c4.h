@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20250406
+#define VERSION   20250407
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -15,7 +15,7 @@
 #define CODE_SLOTS  0xE000
 #define STK_SZ          63  // Both data and return stacks
 #define LSTK_SZ         60  // 20 nested loops
-#define TSTK_SZ         63  // A and T stacks
+#define TSTK_SZ         63  // A,B and T stacks
 #define FSTK_SZ         15  // File stack
 #define NAME_LEN        19  // DE-SZ = 2+1+1+LEN+1
 #define _SYS_LOAD_
@@ -70,6 +70,15 @@ extern void outer(const char *src);
 extern void outerF(const char *fmt, ...);
 extern void c4Init();
 extern void ok();
+
+// These are in the editor
+extern void FG(int fg);
+extern void Blue();
+extern void Green();
+extern void Purple();
+extern void Red();
+extern void White();
+extern void Yellow();
 
 // c4.c needs these to be defined
 extern cell inputFp, outputFp;

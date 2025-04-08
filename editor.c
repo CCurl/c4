@@ -22,16 +22,24 @@ void editBlock(cell blk) { zType("-no edit-"); }
 #ifndef MAX
   #define MIN(a,b) ((a)<(b))?(a):(b)
   #define MAX(a,b) ((a)>(b))?(a):(b)
-#endif
-
-enum { NORMAL=1, INSERT, REPLACE, QUIT };
-enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
+  #endif
+  
+  enum { NORMAL=1, INSERT, REPLACE, QUIT };
+  enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
     End=7247, Ins=7250, Del=7251, CHome=7287, CEnd=7285,
     STab=12333, F1=0xF01, F5=0xF05, F6=0xF06, F7=0xF07
 };
 
 static int line, off, edMode, isDirty, isShow, block, lastBlock;
 static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
+
+void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
+void Blue() { FG(38); }
+void Green() { FG(40); }
+void Purple() { FG(213); }
+void Red() { FG(203); }
+void White() { FG(231); }
+void Yellow() { FG(226); }
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
@@ -40,7 +48,6 @@ static void CursorBlock() { zType("\x1B[2 q"); }
 static void CursorOn() { zType("\x1B[?25h"); }
 static void CursorOff() { zType("\x1B[?25l"); }
 static void showCursor() { GotoXY(off+2, line+2); CursorOn(); CursorBlock(); }
-static void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
 static void toFooter() { GotoXY(1, NUM_LINES+3); }
 static void toCmd() { GotoXY(1, NUM_LINES+4); }
 static void normalMode()  { edMode=NORMAL;  }
@@ -48,11 +55,6 @@ static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
 static void setBlock(int blk) { block=MAX(MIN(blk,999),0); storeWC(BLKA, (wc_t)block); }
-static void Green() { FG(40); }
-static void Red() { FG(203); }
-static void Yellow() { FG(226); }
-static void White() { FG(231); }
-static void Purple() { FG(213); }
 static int  winKey() { return (224 << 5) ^ key(); }
 static int  winFKey() { return 0xF00 + key() - 58; }
 
