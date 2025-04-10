@@ -463,19 +463,19 @@ static void showFooter() {
 
 static void showEditor() {
     if (!isShow) { return; }
-    Green(); GotoXY(1,1); showState(-1);
-    for (int i=-2; i<NUM_COLS; i++) { emit('-'); } zType("\r\n");
+    isShow = 0; Green(); GotoXY(1,1); showState(-1);
+    for (int i=0; i<=(NUM_COLS/2); i++) { zType("--"); } zType("\r\n");
     for (int r=0; r<NUM_LINES; r++) {
         zType("|"); showState(0);
+        char *cp = &EDCH(r,0);
         for (int c=0; c<NUM_COLS; c++) {
-            char ch = EDCH(r,c);
+            char ch = *(cp++);
             if (btwi(ch,1,4)) { showState(ch); }
             emit(MAX(ch,32));
         }
         Green(); zType("|\r\n"); 
     }
-    for (int i=-2; i<NUM_COLS; i++) { emit('-'); }
-    isShow = 0;
+    for (int i=0; i<=(NUM_COLS/2); i++) { zType("--"); }
 }
 
 void editBlock(cell blk) {
