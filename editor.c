@@ -479,8 +479,10 @@ static void showEditor() {
 }
 
 void editBlock(cell blk) {
-    setBlock((int)blk);
+    int tmp = fetchWC(BLKA);
+    if (tmp && (tmp != blk)) { lastBlock = tmp; }
     if (lastBlock == 0) { lastBlock = blk; }
+    setBlock((int)blk);
     line = off = 0;
     CLS();
     edRdBlk();
