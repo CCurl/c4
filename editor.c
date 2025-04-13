@@ -48,6 +48,7 @@ static void CursorBlock() { zType("\x1B[2 q"); }
 static void CursorOn() { zType("\x1B[?25h"); }
 static void CursorOff() { zType("\x1B[?25l"); }
 static void showCursor() { GotoXY(off+2, line+2); CursorOn(); CursorBlock(); }
+static void topBottom() { for (int i=0; i<=(NUM_COLS/2); i++) { zType("--"); } }
 static void toFooter() { GotoXY(1, NUM_LINES+3); }
 static void toCmd() { GotoXY(1, NUM_LINES+4); }
 static void normalMode()  { edMode=NORMAL;  }
@@ -463,19 +464,18 @@ static void showFooter() {
 
 static void showEditor() {
     if (!isShow) { return; }
-    isShow = 0; Green(); GotoXY(1,1); showState(-1);
-    for (int i=0; i<=(NUM_COLS/2); i++) { zType("--"); } zType("\r\n");
+    showState(-1); GotoXY(1,1); Green(); topBottom();
     for (int r=0; r<NUM_LINES; r++) {
-        zType("|"); showState(0);
+        zType("\r\n|"); showState(0);
         char *cp = &EDCH(r,0);
         for (int c=0; c<NUM_COLS; c++) {
             char ch = *(cp++);
             if (btwi(ch,1,4)) { showState(ch); }
             emit(MAX(ch,32));
         }
-        Green(); zType("|\r\n"); 
+        Green(); zType("|"); 
     }
-    for (int i=0; i<=(NUM_COLS/2); i++) { zType("--"); }
+    zType("\r\n"); topBottom(); isShow = 0;
 }
 
 void editBlock(cell blk) {
