@@ -1,7 +1,14 @@
 // editor.cpp - A simple block editor
 
 #include "c4.h"
-#include <string.h>
+
+void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
+void Blue() { FG(38); }
+void Green() { FG(40); }
+void Purple() { FG(213); }
+void Red() { FG(203); }
+void White() { FG(231); }
+void Yellow() { FG(226); }
 
 #ifndef EDITOR
 void editBlock(cell blk) { zType("-no edit-"); }
@@ -32,14 +39,6 @@ enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
 
 static int line, off, edMode, isDirty, isShow, block, lastBlock;
 static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
-
-void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
-void Blue() { FG(38); }
-void Green() { FG(40); }
-void Purple() { FG(213); }
-void Red() { FG(203); }
-void White() { FG(231); }
-void Yellow() { FG(226); }
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
