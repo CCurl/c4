@@ -101,6 +101,12 @@ For example `: ascii ( n-- ) dup dup dup ." char %c, decimal #%d, binary: %%%b, 
 | %s     | (A--) | Print TOS as a string (formatted). |
 | %S     | (A--) | Print TOS as a string (unformatted). |
 | %x     | (N--) | Print TOS in base 16. |
+| %B     | (--)  | Change foreground to Blue |
+| %G     | (--)  | Change foreground to Green |
+| %P     | (--)  | Change foreground to Purple |
+| %R     | (--)  | Change foreground to Reg |
+| %W     | (--)  | Change foreground to White |
+| %Y     | (--)  | Change foreground to Yellow |
 | %[x]   | (--)  | EMIT [x]. |
 
 ## The A, B and T stacks
