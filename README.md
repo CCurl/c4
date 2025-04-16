@@ -144,6 +144,11 @@ The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
+| :         | (--)         | Change STATE to DEFINE (RED) |
+| [         | (--)         | Change STATE to INTERPRET (YELLOW) |
+| ]         | (--)         | Change STATE to COMPILE (GREEN) |
+| (         | (--)         | Remember STATE. Change STATE to COMMENT (WHITE) |
+| )         | (--)         | Change STATE to previous state |
 | (lit)     | (--WC)       | WC: WORD-CODE for the LIT primitive |
 | (jmp)     | (--WC)       | WC: WORD-CODE for the JMP primitive |
 | (jmpz)    | (--WC)       | WC: WORD-CODE for the JMPZ primitive |
@@ -181,9 +186,9 @@ The primitives:
 | or        | (X Y--N)     | N: X OR  Y |
 | xor       | (X Y--N)     | N: X XOR Y |
 | com       | (X--Y)       | Y: X with all bits flipped (complement) |
-| for       | (N--)        | Begin FOR loop with bounds 0 and N-1. |
-| i         | (--I)        | N: Current FOR loop index. |
-| next      | (--)         | Increment I. If I >= N, exit, else start loop again. |
+| for       | (CNT--)      | Begin FOR loop with bounds 0 and CNT-1. |
+| i         | (--I)        | I: Current FOR loop index. |
+| next      | (--)         | Increment I. If I >= CNT, exit, else start loop again. |
 | unloop    | (--)         | Unwind the loop stack. **DOES NOT EXIT THE LOOP**. |
 | >r        | (N--)        | Push N onto the return stack |
 | r!        | (N--)        | Set R-TOS to N |
@@ -251,5 +256,6 @@ The primitives:
 | bye       | (--)         | PC ONLY: Exit c4 |
 
 ## c4 default words
-Default words are defined in function `sys_load()` in file sys-load.c.<br/>
+If _SYS_LOAD_ is not defined in file c4.h, load block-000.fth.
+Else, load the words in function `sys_load()` in file sys-load.c.<br/>
 For details, or to add or change the default words, modify that function.
