@@ -128,7 +128,7 @@ Note that there are also additional words for the return stack. <br/>
 ## Inline words
 In c4, an "INLINE" word is similar to a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance, but uses extra space.
 
-**Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a byte in an address for example), then it should not be marked as INLINE.**
+**Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a word in an address for example), then it should not be marked as INLINE.**
 
 ## Temporary words
 c4 provides 10 temporary words, 't0' thru 't9'.
@@ -144,11 +144,12 @@ The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
-| :         | (--)         | Change STATE to DEFINE (RED) |
-| [         | (--)         | Change STATE to INTERPRET (YELLOW) |
-| ]         | (--)         | Change STATE to COMPILE (GREEN) |
-| (         | (--)         | Remember STATE. Change STATE to COMMENT (WHITE) |
-| )         | (--)         | Change STATE to previous state |
+| :         | (--)  ST=2   | Set STATE to DEFINE (RED) |
+| ;         | (--)  ST=3   | Compile EXIT and set STATE to INTERPRET (YELLOW) |
+| [         | (--)  ST=3   | Set STATE to INTERPRET (YELLOW) |
+| ]         | (--)  ST=1   | Set STATE to COMPILE (GREEN) |
+| (         | (--)  ST=4   | Remember STATE. Set STATE to COMMENT (WHITE) |
+| )         | (--)  ST=?   | Set STATE to previous state |
 | (lit)     | (--WC)       | WC: WORD-CODE for the LIT primitive |
 | (jmp)     | (--WC)       | WC: WORD-CODE for the JMP primitive |
 | (jmpz)    | (--WC)       | WC: WORD-CODE for the JMPZ primitive |
@@ -219,7 +220,6 @@ The primitives:
 | b>        | (--N)        | Pop N from the B stack |
 | bdrop     | (--)         | Drop B-TOS |
 | emit      | (C--)        | Output char C |
-| ;         | (--)         | Compile EXIT, set STATE=INTERPRET |
 | lit,      | (N--)        | Compile a push of number N |
 | next-wd   | (--A L)      | L: length of the next word (A) from the input stream |
 |           |              | - If L=0, then A is an empty string (end of input) |
