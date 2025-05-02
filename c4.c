@@ -229,11 +229,11 @@ void doSee() {
 	DE_T *dp = findWord(0), *lastWord = last;
 	if (!dp) { zTypeF("-nf:%s-", wd); return; }
 	if (dp->xt <= BYE) { zTypeF("%s is a primitive (#%ld/$%lX).\r\n", wd, dp->xt, dp->xt); return; }
-	cell x = (cell)dp-(cell)memory;
-	int i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
+	cell x = (cell)dp;
+	wc_t i = dp->xt, stop = (lastWord < dp) ? (dp-1)->xt : here;
 	zTypeF("\r\n%04lX: %s (%04lX to %04lX)", (long)x, dp->nm, (long)dp->xt, (long)stop-1);
 	while (i < stop) {
-		long op = code[i++];
+		wc_t op = code[i++];
 		zTypeF("\r\n%04X: %04X\t", i-1, op);
 		if (op & NUM_BITS) { op &= NUM_MASK; zTypeF("num #%ld ($%lX)", op, op); continue; }
 		x = code[i];
@@ -245,7 +245,7 @@ void doSee() {
 			BCASE JMP:    zTypeF("jmp $%04lX", (long)x);             i++;
 			BCASE JMPZ:   zTypeF("jmpz $%04lX (IF)", (long)x);       i++;
 			BCASE NJMPZ:  zTypeF("njmpz $%04lX (-IF)", (long)x);     i++;
-			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++; break;
+			BCASE JMPNZ:  zTypeF("jmpnz $%04lX (WHILE)", (long)x);   i++;
 			BCASE NJMPNZ: zTypeF("njmpnz $%04lX (-WHILE)", (long)x); i++; break;
 			default: x = findXT(op); 
 				zType(x ? ((DE_T*)x)->nm : "??");
@@ -266,7 +266,14 @@ void fType(const char *s) {
 		if (c=='%') {
 			c = *(s++);
 			switch (c) {
-				case  'b': iToA(pop(),2);
+				case  'B': Blue();
+				BCASE 'G': Green();
+				BCASE 'P': Purple();
+				BCASE 'R': Red();
+				BCASE 'S': zType((char*)pop());
+				BCASE 'W': White();
+				BCASE 'Y': Yellow();
+				BCASE 'b': iToA(pop(),2);
 				BCASE 'c': emit((char)pop());
 				BCASE 'd': iToA(pop(),10);
 				BCASE 'e': emit(27);
@@ -274,7 +281,6 @@ void fType(const char *s) {
 				BCASE 'n': emit(13); emit(10);
 				BCASE 'q': emit('"');
 				BCASE 's': fType((char*)pop());
-				BCASE 'S': zType((char*)pop());
 				BCASE 'x': iToA(pop(),16); break;
 				default: emit(c); break;
 			}

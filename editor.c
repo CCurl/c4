@@ -1,7 +1,14 @@
 // editor.cpp - A simple block editor
 
 #include "c4.h"
-#include <string.h>
+
+void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
+void Blue() { FG(38); }
+void Green() { FG(40); }
+void Purple() { FG(213); }
+void Red() { FG(203); }
+void White() { FG(231); }
+void Yellow() { FG(226); }
 
 #ifndef EDITOR
 void editBlock(cell blk) { zType("-no edit-"); }
@@ -40,7 +47,7 @@ static void CursorBlock() { zType("\x1B[2 q"); }
 static void CursorOn() { zType("\x1B[?25h"); }
 static void CursorOff() { zType("\x1B[?25l"); }
 static void showCursor() { GotoXY(off+2, line+2); CursorOn(); CursorBlock(); }
-static void FG(int fg) { zTypeF("\x1B[38;5;%dm", fg); }
+static void topBottom() { for (int i=0; i<=(NUM_COLS/2); i++) { zType("--"); } }
 static void toFooter() { GotoXY(1, NUM_LINES+3); }
 static void toCmd() { GotoXY(1, NUM_LINES+4); }
 static void normalMode()  { edMode=NORMAL;  }
@@ -48,11 +55,6 @@ static void insertMode()  { edMode=INSERT;  }
 static void replaceMode() { edMode=REPLACE; }
 static void toggleInsert() { (edMode==INSERT) ? normalMode() : insertMode(); }
 static void setBlock(int blk) { block=MAX(MIN(blk,999),0); storeWC(BLKA, (wc_t)block); }
-static void Green() { FG(40); }
-static void Red() { FG(203); }
-static void Yellow() { FG(226); }
-static void White() { FG(231); }
-static void Purple() { FG(213); }
 static int  winKey() { return (224 << 5) ^ key(); }
 static int  winFKey() { return 0xF00 + key() - 58; }
 
@@ -461,24 +463,25 @@ static void showFooter() {
 
 static void showEditor() {
     if (!isShow) { return; }
-    Green(); GotoXY(1,1); showState(-1);
-    for (int i=-2; i<NUM_COLS; i++) { emit('-'); } zType("\r\n");
+    showState(-1); GotoXY(1,1); Green(); topBottom();
     for (int r=0; r<NUM_LINES; r++) {
-        zType("|"); showState(0);
+        zType("\r\n|"); showState(0);
+        char *cp = &EDCH(r,0);
         for (int c=0; c<NUM_COLS; c++) {
-            char ch = EDCH(r,c);
+            char ch = *(cp++);
             if (btwi(ch,1,4)) { showState(ch); }
             emit(MAX(ch,32));
         }
-        Green(); zType("|\r\n"); 
+        Green(); zType("|"); 
     }
-    for (int i=-2; i<NUM_COLS; i++) { emit('-'); }
-    isShow = 0;
+    zType("\r\n"); topBottom(); isShow = 0;
 }
 
 void editBlock(cell blk) {
-    setBlock((int)blk);
+    int tmp = fetchWC(BLKA);
+    if (tmp && (tmp != blk)) { lastBlock = tmp; }
     if (lastBlock == 0) { lastBlock = blk; }
+    setBlock((int)blk);
     line = off = 0;
     CLS();
     edRdBlk();

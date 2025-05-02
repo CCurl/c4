@@ -60,25 +60,24 @@ void sys_load() {
 : btwi ( n l h--f ) >r over >  swap r> >  or 0= ; \
 : negate com 1+ ; \
 : abs  dup 0< if negate then ; \
-: -abs dup 0> if negate then ; \
 : mod /mod drop ; \
 : +! tuck  @ +  swap  ! ; \
 : execute ( a-- ) >r ; \
 : atdrop adrop tdrop ; \
-: a+  a@+ drop ;  inline  : a-  a@- drop ; inline \
-: @a  a@  c@ ;    inline  : !a  a@  c! ;   inline \
-: @a+ a@+ c@ ;    inline  : !a+ a@+ c! ;   inline \
-: @a- a@- c@ ;    inline  : !a- a@- c! ;   inline \
-: b+  b@+ drop ;  inline  : b-  b@- drop ; inline \
-: @b  b@  c@ ;    inline  : !b  b@  c! ;   inline \
-: @b+ b@+ c@ ;    inline  : !b+ b@+ c! ;   inline \
-: @b- b@- c@ ;    inline  : !b- b@- c! ;   inline \
-: t+  t@+ drop ;  inline  : t-  t@- drop ; inline \
-: @t  t@  c@ ;    inline  : !t  t@  c! ;   inline \
-: @t+ t@+ c@ ;    inline  : !t+ t@+ c! ;   inline \
-: @t- t@- c@ ;    inline  : !t- t@- c! ;   inline \
-100 var #buf \
-: <#   ( n1--n2 )  #buf 99 + >t 0 t@ c! dup 0 < >a abs ; \
+: a+  a@+ drop ;  inline   : a-  a@- drop ; inline \
+: @a  a@  c@ ;    inline   : !a  a@  c! ;   inline \
+: @a+ a@+ c@ ;    inline   : !a+ a@+ c! ;   inline \
+: @a- a@- c@ ;    inline   : !a- a@- c! ;   inline \
+: b+  b@+ drop ;  inline   : b-  b@- drop ; inline \
+: @b  b@  c@ ;    inline   : !b  b@  c! ;   inline \
+: @b+ b@+ c@ ;    inline   : !b+ b@+ c! ;   inline \
+: @b- b@- c@ ;    inline   : !b- b@- c! ;   inline \
+: t+  t@+ drop ;  inline   : t-  t@- drop ; inline \
+: @t  t@  c@ ;    inline   : !t  t@  c! ;   inline \
+: @t+ t@+ c@ ;    inline   : !t+ t@+ c! ;   inline \
+: @t- t@- c@ ;    inline   : !t- t@- c! ;   inline \
+100 var pad \
+: <#   ( n1--n2 )  pad 99 + >t 0 t@ c! dup 0< >a abs ; \
 : #c   ( c-- )     t- t@ c! ; \
 : #.   ( -- )      '.' #c ; \
 : #n   ( n-- )     dup 9 > if 7 + then '0' + #c ; \
@@ -87,12 +86,12 @@ void sys_load() {
 : #>   ( --str )   drop a> if '-' #c then t> ; \
 : (.) <# #s #> ztype ; \
 : . (.) 32 emit ; \
-: bl 32 ; : space 32 emit ; \
+: bl 32 ; inline   : space 32 emit ; \
 : cr 13 emit 10 emit ; \
 : tab 9 emit ; \
 : .version version <# # # #. # # #. #s #> ztype ; \
 : ?  @ . ; \
-: ed block@ edit ; : ed! block! ; inline \
+: ed block@ edit ;  : ed! block! ; inline \
 : .s '(' emit space (dsp) wc@ 1- ?dup \
     if for i 1+ cells dstk + @ . next then ')' emit ; \
 : [[ vhere >t here >t 1 state wc! ; \

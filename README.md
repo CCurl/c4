@@ -101,6 +101,12 @@ For example `: ascii ( n-- ) dup dup dup ." char %c, decimal #%d, binary: %%%b, 
 | %s     | (A--) | Print TOS as a string (formatted). |
 | %S     | (A--) | Print TOS as a string (unformatted). |
 | %x     | (N--) | Print TOS in base 16. |
+| %B     | (--)  | Change foreground to Blue |
+| %G     | (--)  | Change foreground to Green |
+| %P     | (--)  | Change foreground to Purple |
+| %R     | (--)  | Change foreground to Reg |
+| %W     | (--)  | Change foreground to White |
+| %Y     | (--)  | Change foreground to Yellow |
 | %[x]   | (--)  | EMIT [x]. |
 
 ## The A, B and T stacks
@@ -122,7 +128,7 @@ Note that there are also additional words for the return stack. <br/>
 ## Inline words
 In c4, an "INLINE" word is similar to a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance, but uses extra space.
 
-**Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a byte in an address for example), then it should not be marked as INLINE.**
+**Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a word in an address for example), then it should not be marked as INLINE.**
 
 ## Temporary words
 c4 provides 10 temporary words, 't0' thru 't9'.
@@ -138,6 +144,12 @@ The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
 |:--        |:--           |:-- |
+| :         | (--)  ST=2   | Set STATE to DEFINE (RED) |
+| ;         | (--)  ST=3   | Compile EXIT and set STATE to INTERPRET (YELLOW) |
+| [         | (--)  ST=3   | Set STATE to INTERPRET (YELLOW) |
+| ]         | (--)  ST=1   | Set STATE to COMPILE (GREEN) |
+| (         | (--)  ST=4   | Remember STATE. Set STATE to COMMENT (WHITE) |
+| )         | (--)  ST=?   | Set STATE to previous state |
 | (lit)     | (--WC)       | WC: WORD-CODE for the LIT primitive |
 | (jmp)     | (--WC)       | WC: WORD-CODE for the JMP primitive |
 | (jmpz)    | (--WC)       | WC: WORD-CODE for the JMPZ primitive |
@@ -175,9 +187,9 @@ The primitives:
 | or        | (X Y--N)     | N: X OR  Y |
 | xor       | (X Y--N)     | N: X XOR Y |
 | com       | (X--Y)       | Y: X with all bits flipped (complement) |
-| for       | (N--)        | Begin FOR loop with bounds 0 and N-1. |
-| i         | (--I)        | N: Current FOR loop index. |
-| next      | (--)         | Increment I. If I >= N, exit, else start loop again. |
+| for       | (CNT--)      | Begin FOR loop with bounds 0 and CNT-1. |
+| i         | (--I)        | I: Current FOR loop index. |
+| next      | (--)         | Increment I. If I >= CNT, exit, else start loop again. |
 | unloop    | (--)         | Unwind the loop stack. **DOES NOT EXIT THE LOOP**. |
 | >r        | (N--)        | Push N onto the return stack |
 | r!        | (N--)        | Set R-TOS to N |
@@ -208,7 +220,6 @@ The primitives:
 | b>        | (--N)        | Pop N from the B stack |
 | bdrop     | (--)         | Drop B-TOS |
 | emit      | (C--)        | Output char C |
-| ;         | (--)         | Compile EXIT, set STATE=INTERPRET |
 | lit,      | (N--)        | Compile a push of number N |
 | next-wd   | (--A L)      | L: length of the next word (A) from the input stream |
 |           |              | - If L=0, then A is an empty string (end of input) |
@@ -245,5 +256,6 @@ The primitives:
 | bye       | (--)         | PC ONLY: Exit c4 |
 
 ## c4 default words
-Default words are defined in function `sys_load()` in file sys-load.c.<br/>
+If _SYS_LOAD_ is not defined in file c4.h, load block-000.fth.
+Else, load the words in function `sys_load()` in file sys-load.c.<br/>
 For details, or to add or change the default words, modify that function.
