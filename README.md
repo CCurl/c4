@@ -232,6 +232,7 @@ The primitives:
 | ztype     | (S--)        | Print string at S (unformatted) |
 | ftype     | (S--)        | Print string at S (formatted) |
 | s-cpy     | (D S--D)     | Copy string S to D |
+| s-find    | (B L S--N)   | Find string L in B starting at char S. N = -1 if not found |
 | s-eq      | (D S--F)     | F: 1 if string S is equal to D (case sensitive) |
 | s-eqi     | (D S--F)     | F: 1 if string S is equal to D (NOT case sensitive) |
 | s-len     | (S--N)       | N: Length of string S |
