@@ -51,6 +51,7 @@ There are 4 modes in the editor:
 | :    | Change to COMMAND mode |
 | +    | Save the current block and goto the next block |
 | -    | Save the current block and goto the previous block |
+| /    | Fill the find-buffer |
 | #    | Redraw the screen |
 | a    | Append: move right 1 char and change to INSERT mode (same as 'li') |
 | A    | Append: goto the end of the line and change to INSERT mode  (same as '$i') |

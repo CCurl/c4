@@ -105,6 +105,7 @@ DE_T tmpWords[10], *last;
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
+	X(SFIND,   "s-find",    0, t=pop(); n=pop(); TOS = strFind((char*)TOS, (char*)n, t); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
@@ -170,6 +171,22 @@ int strEq(const char *s, const char *d) {
 void strCpy(char *d, const char *s) {
 	while (*s) { *(d++) = *(s++); }
 	*(d) = 0;
+}
+
+int startsWith(const char *buf, const char *lookFor) {
+    while (*lookFor) {
+        if (*(lookFor++) != *(buf++)) { return 0; }
+    }
+    return 1;
+}
+
+int strFind(const char *buf, const char *lookFor, int start) {
+    if (strLen(buf) <= start) { return -1; }
+    while (buf[start]) {
+        if (startsWith(&buf[start], lookFor)) { return start; }
+        ++start;
+    }
+    return -1;
 }
 
 int nextWord() {

@@ -9,6 +9,7 @@ void Purple() { FG(213); }
 void Red() { FG(203); }
 void White() { FG(231); }
 void Yellow() { FG(226); }
+void BG(int c) { zTypeF("\x1B[48;5;%dm", c); }
 
 #ifndef EDITOR
 void editBlock(cell blk) { zType("-no edit-"); }
@@ -356,6 +357,15 @@ static void edCommand() {
     }
 }
 
+char findBuf[32];
+static void cmdFind() {
+    toCmd(); emit('/'); ClearEOL();
+    edReadLine(findBuf, sizeof(findBuf));
+    toCmd(); ClearEOL();
+    if (strEq(findBuf, "/")) { findBuf[0] = 0; }
+    isShow = 1;
+}
+
 static void doCTL(int c) {
     if (c == EOL_CHAR) { doInsertReplace(c); return; }
     if (((c == 8) || (c == 127)) && (0 < off)) {      // <backspace>
@@ -409,6 +419,7 @@ static int processEditorChar(int c) {
         BCASE '4': replaceChar(4,1,0);  // COMMENT
         BCASE '+': gotoBlock(block+1);  // Next block
         BCASE '-': gotoBlock(block-1);  // Prev block
+        BCASE '/': cmdFind();
         BCASE ':': edCommand();
         BCASE 'a': mvRight(); insertMode();
         BCASE 'A': gotoEOL(); insertMode();
@@ -449,6 +460,24 @@ static int processEditorChar(int c) {
     return 1;
 }
 
+static void showFind() {
+    if (findBuf[0] == 0) { return; }
+    BG(250); FG(0);
+    for (int r=0; r<NUM_LINES; r++) {
+        char *cp = &EDCH(r,0);
+        char c = cp[MAX_COL];
+        cp[MAX_COL] = 0;
+        int f = strFind(cp, findBuf, 0);
+        while (0 <= f) {
+            GotoXY(f+2, r+2);
+            zType(findBuf);
+            f = strFind(cp, findBuf, f+1);
+        }
+        cp[MAX_COL] = c;
+    }
+    BG(0); White();
+}
+
 static void showFooter() {
     const char *x[3] = { "-normal-","-insert-","-replace-" };
     char ch = EDCH(line,off);
@@ -463,6 +492,7 @@ static void showFooter() {
 
 static void showEditor() {
     if (!isShow) { return; }
+    isShow = 0;
     showState(-1); GotoXY(1,1); Green(); topBottom();
     for (int r=0; r<NUM_LINES; r++) {
         zType("\r\n|"); showState(0);
@@ -474,7 +504,8 @@ static void showEditor() {
         }
         Green(); zType("|"); 
     }
-    zType("\r\n"); topBottom(); isShow = 0;
+    zType("\r\n"); topBottom();
+    showFind();
 }
 
 void editBlock(cell blk) {

@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20250413
+#define VERSION   20250703
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -59,6 +59,7 @@ extern cell pop();
 extern void storeWC(wc_t a, wc_t v);
 extern wc_t fetchWC(wc_t a);
 extern void strCpy(char *d, const char *s);
+extern int  strFind(const char *buf, const char *lookFor, int start);
 extern int  strEq(const char *d, const char *s);
 extern int  strEqI(const char *d, const char *s);
 extern int  strLen(const char *s);
