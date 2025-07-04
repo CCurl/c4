@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20250703
+#define VERSION   20250704
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS

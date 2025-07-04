@@ -39,7 +39,7 @@ enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
 };
 
 static int line, off, edMode, isDirty, isShow, block, lastBlock;
-static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
+static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1], findBuf[32];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
@@ -357,13 +357,30 @@ static void edCommand() {
     }
 }
 
-char findBuf[32];
+static void doFind(int next) {
+    if (findBuf[0] == 0) { return; }
+    int ln = line, o = next ? off+1 : 0;
+    do {
+        char *cp = &EDCH(ln,0), ch = cp[MAX_COL];
+        cp[MAX_COL] = 0;
+        o = strFind(cp, findBuf, o);
+        cp[MAX_COL] = ch;
+        if ((0 <= o) && ((ln != line) || (o != off))) {
+            line = ln; off = o; return;
+        }
+        o = 0;
+        ln += next ? 1 : -1;
+        if (ln < 0) { ln = MAX_LINE; }
+        if (MAX_LINE < ln) { ln = 0; }
+    } while (ln != line);
+}
+
 static void cmdFind() {
     toCmd(); emit('/'); ClearEOL();
     edReadLine(findBuf, sizeof(findBuf));
     toCmd(); ClearEOL();
-    if (strEq(findBuf, "/")) { findBuf[0] = 0; }
     isShow = 1;
+    doFind(1);
 }
 
 static void doCTL(int c) {
@@ -441,6 +458,8 @@ static int processEditorChar(int c) {
         BCASE 'l': mvRight();
         BCASE 'M': mv(-4,0);
         BCASE 'm': mv(4,0);
+        BCASE 'N': doFind(0);
+        BCASE 'n': doFind(1);
         BCASE 'o': mvNextLine(); insertLine(line, -1); insertMode();
         BCASE 'O': insertLine(line, -1); insertMode();
         BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
@@ -462,7 +481,7 @@ static int processEditorChar(int c) {
 
 static void showFind() {
     if (findBuf[0] == 0) { return; }
-    BG(250); FG(0);
+    FG(255); BG(19);
     for (int r=0; r<NUM_LINES; r++) {
         char *cp = &EDCH(r,0);
         char c = cp[MAX_COL];
@@ -475,7 +494,7 @@ static void showFind() {
         }
         cp[MAX_COL] = c;
     }
-    BG(0); White();
+    BG(0);
 }
 
 static void showFooter() {

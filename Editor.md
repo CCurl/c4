@@ -51,7 +51,7 @@ There are 4 modes in the editor:
 | :    | Change to COMMAND mode |
 | +    | Save the current block and goto the next block |
 | -    | Save the current block and goto the previous block |
-| /    | Fill the find-buffer |
+| /    | Specify search string, jump to next occurance |
 | #    | Redraw the screen |
 | a    | Append: move right 1 char and change to INSERT mode (same as 'li') |
 | A    | Append: goto the end of the line and change to INSERT mode  (same as '$i') |
@@ -76,6 +76,8 @@ There are 4 modes in the editor:
 | l    | Right 1 char |
 | M    | Up 4 lines |
 | m    | Down 4 lines |
+| N    | Jump to previous occurance of search string |
+| n    | Jump to next occurance of search string |
 | o    | Insert an empty line BELOW the current line and change to INSERT mode |
 | O    | Insert an empty line ABOVE the current line and change to INSERT mode |
 | p    | Paste the YANK buffer into a new line BELOW the current line |
