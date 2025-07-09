@@ -47,7 +47,7 @@ DE_T tmpWords[10], *last;
 	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
 	X(INCR,    "1+",        0, ++TOS; ) \
 	X(DECR,    "1-",        0, --TOS; ) \
-	X(PLSTO,   "+!",        0, t=TOS; n = NOS; storeCell(t, n+fetchCell(t)); ) \
+	X(PLSTO,   "+!",        0, t=pop(); n=pop(); storeCell(t, n+fetchCell(t)); ) \
 	X(LT,      "<",         0, t=pop(); TOS = (TOS < t); ) \
 	X(EQ,      "=",         0, t=pop(); TOS = (TOS == t); ) \
 	X(GT,      ">",         0, t=pop(); TOS = (TOS > t); ) \

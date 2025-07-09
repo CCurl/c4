@@ -3,7 +3,7 @@
 Usage: to encode:  z" bmp-file" ->bmp  z" txt-file" ->txt   encode
        to decode:  z" bmp-file" ->bmp  z" txt-file" ->file  decode  ->stdout
 
-64 var txt-fn  cell var txt-sz max-txt  20 1024 * ; max-txt var txt
+64 var txt-fn  cell var txt-sz max-txt  40 1024 * ; max-txt var txt
 64 var bmp-fn  cell var bmp-sz max-bmp1024 1024 * ; max-bmp var bmp
 
 NOTES: t is txt addr, a is the txt byte, b is the next bitmap byte

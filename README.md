@@ -179,6 +179,7 @@ The primitives:
 | /mod      | (X Y--M Q)   | M: X modulo Y, Q: quotient of X / Y |
 | 1+        | (X--Y)       | Increment TOS |
 | 1-        | (X--Y)       | Decrement TOS |
+| +!        | (N A--)      | Add N to the CELL at A |
 | <         | (X Y--F)     | F: 1 if (X < Y), else 0 |
 | =         | (X Y--F)     | F: 1 if (X = Y), else 0 |
 | >         | (X Y--F)     | F: 1 if (X > Y), else 0 |
