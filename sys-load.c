@@ -23,9 +23,9 @@ void sys_load() {
 : 0rsp 0 (rsp)  wc! ; \
 : , here  dup 1+ (here) wc! wc! ; \
 : v, vhere ! cell allot ; \
-: vc, vhere c!  allot ; \
-: const  addword lit, (exit) , ; \
-: var vhere const allot ; \
+: vc, vhere c! 1 allot ; \
+: const ( n-- )  addword lit, (exit) , ; \
+: var ( n-- ) vhere const allot ; \
 : val -1 const ; \
 : (val) last  w@ 1+ ->code const ; \
 : create vhere addword vhere lit, ; \
