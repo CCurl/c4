@@ -7,7 +7,7 @@ void sys_load() {
 #else
 void sys_load() {
     outer(" \
-( Comments are free/built-in ) ; \
+( Comments are free/built-in ) \
 : \\ 0 >in @ c! ; immediate \
 : ->memory memory + ; \
 : ->code dup + ->memory ; \
@@ -18,12 +18,12 @@ void sys_load() {
 : block@ (block) wc@ ; \
 : block! (block) wc! ; \
 : vhere (vhere) @ ; \
-: allot vhere + (vhere) ! ; \
+: allot (vhere) +! ; \
 : 0sp  0 (dsp)  wc! ; \
 : 0rsp 0 (rsp)  wc! ; \
 : , here  dup 1+ (here) wc! wc! ; \
-: v, vhere dup cell + (vhere) ! ! ; \
-: vc, vhere dup 1+ (vhere) ! c! ; \
+: v, vhere ! cell allot ; \
+: vc, vhere c!  allot ; \
 : const  addword lit, (exit) , ; \
 : var vhere const allot ; \
 : val -1 const ; \
@@ -61,7 +61,6 @@ void sys_load() {
 : negate com 1+ ; \
 : abs  dup 0< if negate then ; \
 : mod /mod drop ; \
-: +! tuck  @ +  swap  ! ; \
 : execute ( a-- ) >r ; \
 : atdrop adrop tdrop ; \
 : a+  a@+ drop ;  inline   : a-  a@- drop ; inline \
@@ -122,7 +121,6 @@ cell var t0 cell var t1 \
 : ->stdout ( -- ) (output-fp) @ ?dup if fclose 0 (output-fp) ! then ; \
 : thru ( f t-- ) begin dup load 1- over over > until drop drop ; \
 marker \
-\
 ");
 }
 #endif // _SYS_LOAD_
