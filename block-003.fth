@@ -4,10 +4,10 @@
 
 p1vhere $100 + ;   p2p1 $100 + ;
 
-fill  (dst cnt ch--)>t swap >a for t@ !a+ nextatdrop ;
+fill  (dst cnt ch--)>t swap >a for t@ c!a+ nextatdrop ;
 move  (src dst n--) >r >t >a r> for a@ @ t@ ! a@ cell+ a! t@ cell+ t! nextatdrop ;
-cmove (src dst n--) >r >t >a r> for @a+ !t+ nextatdrop ;
-cmove>(src dst n--) >r  r@ + 1- >t  r@ + 1- >a r>  for @a- !t- nextatdrop ;
+cmove (src dst n--) >r >t >a r> for c@a+ c!t+ nextatdrop ;
+cmove>(src dst n--) >r  r@ + 1- >t  r@ + 1- >a r>  for c@a- c!t- nextatdrop ;
 
 s-trunc(dst--dst)    0 over c! ;
 s-end  (str-end)     dup s-len + ;
@@ -19,8 +19,8 @@
 s-scatc(ch dst--dst) swap s-catc ;
 s-scatn(n dst--dst)  swap s-catn ;
 s-rtrim(str--str)    >r r@ s-end 1- >t
-  begint@ r@ <  @t 32 >  oriftdrop r> exitthen
-   0 !t-again;
+  begint@ r@ <  c@t 32 >  oriftdrop r> exitthen
+   0 c!t-again;
 
 
 

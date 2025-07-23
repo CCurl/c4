@@ -63,18 +63,18 @@ void sys_load() {
 : mod /mod drop ; \
 : execute ( a-- ) >r ; \
 : atdrop adrop tdrop ; \
-: a+  a@+ drop ;  inline   : a-  a@- drop ; inline \
-: @a  a@  c@ ;    inline   : !a  a@  c! ;   inline \
-: @a+ a@+ c@ ;    inline   : !a+ a@+ c! ;   inline \
-: @a- a@- c@ ;    inline   : !a- a@- c! ;   inline \
-: b+  b@+ drop ;  inline   : b-  b@- drop ; inline \
-: @b  b@  c@ ;    inline   : !b  b@  c! ;   inline \
-: @b+ b@+ c@ ;    inline   : !b+ b@+ c! ;   inline \
-: @b- b@- c@ ;    inline   : !b- b@- c! ;   inline \
-: t+  t@+ drop ;  inline   : t-  t@- drop ; inline \
-: @t  t@  c@ ;    inline   : !t  t@  c! ;   inline \
-: @t+ t@+ c@ ;    inline   : !t+ t@+ c! ;   inline \
-: @t- t@- c@ ;    inline   : !t- t@- c! ;   inline \
+: a+   a@+ drop ; inline   : a-   a@- drop ; inline \
+: c@a  a@  c@ ;   inline   : c!a  a@  c! ;   inline \
+: c@a+ a@+ c@ ;   inline   : c!a+ a@+ c! ;   inline \
+: c@a- a@- c@ ;   inline   : c!a- a@- c! ;   inline \
+: b+   b@+ drop ; inline   : b-   b@- drop ; inline \
+: c@b  b@  c@ ;   inline   : c!b  b@  c! ;   inline \
+: c@b+ b@+ c@ ;   inline   : c!b+ b@+ c! ;   inline \
+: c@b- b@- c@ ;   inline   : c!b- b@- c! ;   inline \
+: t+   t@+ drop ; inline   : t-   t@- drop ; inline \
+: c@t  t@  c@ ;   inline   : c!t  t@  c! ;   inline \
+: c@t+ t@+ c@ ;   inline   : c!t+ t@+ c! ;   inline \
+: c@t- t@- c@ ;   inline   : c!t- t@- c! ;   inline \
 100 var pad \
 : <#   ( n1--n2 )  pad 99 + >t 0 t@ c! dup 0< >a abs ; \
 : #c   ( c-- )     t- t@ c! ; \

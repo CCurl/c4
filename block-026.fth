@@ -12,7 +12,7 @@
    col 1+ row 1+ ."  (%d,%d) " .mode rc>pos c@ ."  (%d)"
    cmd-buf ."   (cmd: %S)" clr-eol ;
 ed-emit(ch--)dup 5 <ifdup ed-col@ fgthen32 max emit ;
-ed-type(a--)white >a cols 1- for @a+ ed-emit next adrop ;
+ed-type(a--)white >a cols 1- for c@a+ ed-emit next adrop ;
 show (--)cur-off 1 1 ->rc t1 rows for t2 i 0 >pos ed-type t2 cr next t1 shown ;
 ?show(--)show?ifshowthenfooter ;
 ed-init(--)0 dup >row/col normal-mode! clean cur-block ;

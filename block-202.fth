@@ -9,16 +9,16 @@
 states  10              var   states     states z"   ?*      " s-cpy drop
 nb(addr--addr+1)dup c@ 1+ over c! 1+ ;
 neighbors(addr--)cols - 1- nb nb nb cols + 3 - nb 1+ nb cols + 3 - nb nb nb drop ;
-?alive(--)@a '*' =ifa@ grid - work + neighborsthen;
-live?(--c)@b states + c@ dup '?' =ifdrop @athen;
-prep(a--a1 c)100 + >t t@ @t 0 !t tdrop ;
+?alive(--)c@a '*' =ifa@ grid - work + neighborsthen;
+live?(--c)c@b states + c@ dup '?' =ifdrop c@athen;
+prep(a--a1 c)100 + >t t@ c@t 0 c!t tdrop ;
 .row(r--)cols * grid + 10 + dup prep >t >t ztype t> t> swap c! ;
 disp(--)1 1 ->cr  35 for  i 10 + .row cr  next ;
 grid->work(--)start a!begin ?alive  a@+ end < while;
-work->grid(--)work b! grid a!  grid-sz for  live? !a+  0 !b+ next ;
+work->grid(--)work b! grid a!  grid-sz for  live? c!a+  0 c!b+ next ;
 one-gen(--)grid->work work->grid disp ;
 gens(gens--)for one-gen  ?keyifkey drop unloop exitthennext ;
-init(--)grid a!  grid-sz for  100 rand-mod 70 > 10 * 32 + !a+  next ;32+10=42 ('*')
+init(--)grid a!  grid-sz for  100 rand-mod 70 > 10 * 32 + c!a+  next ;32+10=42 ('*')
 life(gens--)cur-off dupif0drop 500thencls init gens cur-on ;
 lifes(n--)for 1000 life.s key dropnext ;
 
