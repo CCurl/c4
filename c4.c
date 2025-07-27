@@ -205,15 +205,6 @@ int isTempWord(const char *w) {
 	return ((w[0]=='t') && btwi(w[1],'0','9') && (w[2]==0)) ? 1 : 0;
 }
 
-DE_T *findFree() {
-	DE_T *dp = last;
-	while ((byte*)dp < &memory[MEM_SZ]) {
-		if (dp->fl == 128) { return dp; }
-		++dp;
-	}
-	return NULL;
-}
-
 DE_T *addWord(const char *w) {
 	if (!w) { nextWord(); w = wd; }
 	if (NAME_LEN < strLen(wd)) { zTypeF("\n-len:%s-\n", wd); wd[NAME_LEN]=0; }
@@ -221,15 +212,14 @@ DE_T *addWord(const char *w) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
 	}
-	DE_T *dp = findFree();
-	if (dp == NULL) { dp = --last; }
 	int ln = strLen(w);
-	dp->xt = here;
-	dp->fl = 0;
-	dp->ln = ln;
-	strCpy(dp->nm, w);
+	--last;
+	last->xt = here;
+	last->fl = 0;
+	last->ln = ln;
+	strCpy(last->nm, w);
 	// zTypeF("\n-add:%d,[%s],(%d)-\n", last, last->nm, last->xt);
-	return dp;
+	return last;
 }
 
 DE_T *findWord(const char *w) {
