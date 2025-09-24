@@ -22,7 +22,7 @@
 .bsl?(c--)dup '"' =if.\then;
 .ch  (c-- ).qt? .bsl? emit ;
 wk   (c--)>t t@ 31 >ift> .ch exitthencc tdrop ;
-lp   (--)@a-ifwk a+ lp exitthendrop ;
+lp   (--)c@a-ifwk a+ lp exitthendrop ;
 ini  (blk--)blk-buf a! ;
 doit (blk--)ini lp ;
 go(--)num-blocks for i doit next ;

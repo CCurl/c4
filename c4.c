@@ -47,6 +47,7 @@ DE_T tmpWords[10], *last;
 	X(SLMOD,   "/mod",      0, t=TOS; n = NOS; TOS = n/t; NOS = n%t; ) \
 	X(INCR,    "1+",        0, ++TOS; ) \
 	X(DECR,    "1-",        0, --TOS; ) \
+	X(PLSTO,   "+!",        0, t=pop(); n=pop(); storeCell(t, n+fetchCell(t)); ) \
 	X(LT,      "<",         0, t=pop(); TOS = (TOS < t); ) \
 	X(EQ,      "=",         0, t=pop(); TOS = (TOS == t); ) \
 	X(GT,      ">",         0, t=pop(); TOS = (TOS > t); ) \
@@ -105,6 +106,7 @@ DE_T tmpWords[10], *last;
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
+	X(SFIND,   "s-find",    0, t=pop(); n=pop(); TOS = strFind((char*)TOS, (char*)n, t); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
@@ -172,6 +174,22 @@ void strCpy(char *d, const char *s) {
 	*(d) = 0;
 }
 
+int startsWith(const char *buf, const char *lookFor) {
+    while (*lookFor) {
+        if (*(lookFor++) != *(buf++)) { return 0; }
+    }
+    return 1;
+}
+
+int strFind(const char *buf, const char *lookFor, int start) {
+    if (strLen(buf) <= start) { return -1; }
+    while (buf[start]) {
+        if (startsWith(&buf[start], lookFor)) { return start; }
+        ++start;
+    }
+    return -1;
+}
+
 int nextWord() {
 	int len = 0, ch;
 	while (btwi(*toIn, 1, 32)) {
@@ -194,8 +212,8 @@ DE_T *addWord(const char *w) {
 		tmpWords[w[1]-'0'].xt = here;
 		return &tmpWords[w[1]-'0'];
 	}
-	--last;
 	int ln = strLen(w);
+	--last;
 	last->xt = here;
 	last->fl = 0;
 	last->ln = ln;

@@ -9,6 +9,7 @@ void Purple() { FG(213); }
 void Red() { FG(203); }
 void White() { FG(231); }
 void Yellow() { FG(226); }
+void BG(int c) { zTypeF("\x1B[48;5;%dm", c); }
 
 #ifndef EDITOR
 void editBlock(cell blk) { zType("-no edit-"); }
@@ -38,7 +39,7 @@ enum { Up=7240, Dn=7248, Rt=7245, Lt=7243, Home=7239, PgUp=7241, PgDn=7249,
 };
 
 static int line, off, edMode, isDirty, isShow, block, lastBlock;
-static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1];
+static char edBuf[BLOCK_SZ], yanked[NUM_COLS+1], findBuf[32];
 
 static void GotoXY(int x, int y) { zTypeF("\x1B[%d;%dH", y, x); }
 static void CLS() { zType("\x1B[2J"); GotoXY(1, 1); }
@@ -356,6 +357,32 @@ static void edCommand() {
     }
 }
 
+static void doFind(int next) {
+    if (findBuf[0] == 0) { return; }
+    int ln = line, o = next ? off+1 : 0;
+    do {
+        char *cp = &EDCH(ln,0), ch = cp[MAX_COL];
+        cp[MAX_COL] = 0;
+        o = strFind(cp, findBuf, o);
+        cp[MAX_COL] = ch;
+        if ((0 <= o) && ((ln != line) || (o != off))) {
+            line = ln; off = o; return;
+        }
+        o = 0;
+        ln += next ? 1 : -1;
+        if (ln < 0) { ln = MAX_LINE; }
+        if (MAX_LINE < ln) { ln = 0; }
+    } while (ln != line);
+}
+
+static void cmdFind() {
+    toCmd(); emit('/'); ClearEOL();
+    edReadLine(findBuf, sizeof(findBuf));
+    toCmd(); ClearEOL();
+    isShow = 1;
+    doFind(1);
+}
+
 static void doCTL(int c) {
     if (c == EOL_CHAR) { doInsertReplace(c); return; }
     if (((c == 8) || (c == 127)) && (0 < off)) {      // <backspace>
@@ -409,6 +436,7 @@ static int processEditorChar(int c) {
         BCASE '4': replaceChar(4,1,0);  // COMMENT
         BCASE '+': gotoBlock(block+1);  // Next block
         BCASE '-': gotoBlock(block-1);  // Prev block
+        BCASE '/': cmdFind();
         BCASE ':': edCommand();
         BCASE 'a': mvRight(); insertMode();
         BCASE 'A': gotoEOL(); insertMode();
@@ -421,21 +449,22 @@ static int processEditorChar(int c) {
         BCASE 'g': mv(-NUM_LINES,-NUM_COLS);
         BCASE 'G': mv(NUM_LINES,-NUM_COLS);
         BCASE 'h': mvLeft();
-        BCASE 'H': gotoBlock((block & 0x01) ? block+1 : block-1);
         BCASE 'i': insertMode();
         BCASE 'I': mv(0, -NUM_COLS); insertMode();
         BCASE 'j': mvDown();
         BCASE 'J': joinLines();
         BCASE 'k': mvUp();
         BCASE 'l': mvRight();
-        BCASE 'M': mv(-4,0);
         BCASE 'm': mv(4,0);
+        BCASE 'M': mv(-4,0);
+        BCASE 'n': doFind(1);
+        BCASE 'N': doFind(0);
         BCASE 'o': mvNextLine(); insertLine(line, -1); insertMode();
         BCASE 'O': insertLine(line, -1); insertMode();
-        BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
         BCASE 'P': insertLine(line, -1); putLine(line);
-        BCASE 'q': mv(0,4);
+        BCASE 'p': mvNextLine(); insertLine(line, -1); putLine(line);
         BCASE 'Q': mv(0,-4);
+        BCASE 'q': mv(0,4);
         BCASE 'r': replace1();
         BCASE 'R': replaceMode();
         BCASE 'S': gotoBlock(lastBlock);
@@ -447,6 +476,24 @@ static int processEditorChar(int c) {
         BCASE 'Z': edDelX(c);
     }
     return 1;
+}
+
+static void showFind() {
+    if (findBuf[0] == 0) { return; }
+    FG(255); BG(19);
+    for (int r=0; r<NUM_LINES; r++) {
+        char *cp = &EDCH(r,0);
+        char c = cp[MAX_COL];
+        cp[MAX_COL] = 0;
+        int f = strFind(cp, findBuf, 0);
+        while (0 <= f) {
+            GotoXY(f+2, r+2);
+            zType(findBuf);
+            f = strFind(cp, findBuf, f+1);
+        }
+        cp[MAX_COL] = c;
+    }
+    BG(0);
 }
 
 static void showFooter() {
@@ -463,6 +510,7 @@ static void showFooter() {
 
 static void showEditor() {
     if (!isShow) { return; }
+    isShow = 0;
     showState(-1); GotoXY(1,1); Green(); topBottom();
     for (int r=0; r<NUM_LINES; r++) {
         zType("\r\n|"); showState(0);
@@ -474,7 +522,8 @@ static void showEditor() {
         }
         Green(); zType("|"); 
     }
-    zType("\r\n"); topBottom(); isShow = 0;
+    zType("\r\n"); topBottom();
+    showFind();
 }
 
 void editBlock(cell blk) {

@@ -7,7 +7,7 @@ void sys_load() {
 #else
 void sys_load() {
     outer(" \
-( Comments are free/built-in ) ; \
+( Comments are free/built-in ) \
 : \\ 0 >in @ c! ; immediate \
 : ->memory memory + ; \
 : ->code dup + ->memory ; \
@@ -18,14 +18,14 @@ void sys_load() {
 : block@ (block) wc@ ; \
 : block! (block) wc! ; \
 : vhere (vhere) @ ; \
-: allot vhere + (vhere) ! ; \
+: allot (vhere) +! ; \
 : 0sp  0 (dsp)  wc! ; \
 : 0rsp 0 (rsp)  wc! ; \
 : , here  dup 1+ (here) wc! wc! ; \
-: v, vhere dup cell + (vhere) ! ! ; \
-: vc, vhere dup 1+ (vhere) ! c! ; \
-: const  addword lit, (exit) , ; \
-: var vhere const allot ; \
+: v, vhere ! cell allot ; \
+: vc, vhere c! 1 allot ; \
+: const ( n-- )  addword lit, (exit) , ; \
+: var ( n-- ) vhere const allot ; \
 : val -1 const ; \
 : (val) last  w@ 1+ ->code const ; \
 : create vhere addword vhere lit, ; \
@@ -61,21 +61,20 @@ void sys_load() {
 : negate com 1+ ; \
 : abs  dup 0< if negate then ; \
 : mod /mod drop ; \
-: +! tuck  @ +  swap  ! ; \
 : execute ( a-- ) >r ; \
 : atdrop adrop tdrop ; \
-: a+  a@+ drop ;  inline   : a-  a@- drop ; inline \
-: @a  a@  c@ ;    inline   : !a  a@  c! ;   inline \
-: @a+ a@+ c@ ;    inline   : !a+ a@+ c! ;   inline \
-: @a- a@- c@ ;    inline   : !a- a@- c! ;   inline \
-: b+  b@+ drop ;  inline   : b-  b@- drop ; inline \
-: @b  b@  c@ ;    inline   : !b  b@  c! ;   inline \
-: @b+ b@+ c@ ;    inline   : !b+ b@+ c! ;   inline \
-: @b- b@- c@ ;    inline   : !b- b@- c! ;   inline \
-: t+  t@+ drop ;  inline   : t-  t@- drop ; inline \
-: @t  t@  c@ ;    inline   : !t  t@  c! ;   inline \
-: @t+ t@+ c@ ;    inline   : !t+ t@+ c! ;   inline \
-: @t- t@- c@ ;    inline   : !t- t@- c! ;   inline \
+: a+   a@+ drop ; inline   : a-   a@- drop ; inline \
+: c@a  a@  c@ ;   inline   : c!a  a@  c! ;   inline \
+: c@a+ a@+ c@ ;   inline   : c!a+ a@+ c! ;   inline \
+: c@a- a@- c@ ;   inline   : c!a- a@- c! ;   inline \
+: b+   b@+ drop ; inline   : b-   b@- drop ; inline \
+: c@b  b@  c@ ;   inline   : c!b  b@  c! ;   inline \
+: c@b+ b@+ c@ ;   inline   : c!b+ b@+ c! ;   inline \
+: c@b- b@- c@ ;   inline   : c!b- b@- c! ;   inline \
+: t+   t@+ drop ; inline   : t-   t@- drop ; inline \
+: c@t  t@  c@ ;   inline   : c!t  t@  c! ;   inline \
+: c@t+ t@+ c@ ;   inline   : c!t+ t@+ c! ;   inline \
+: c@t- t@- c@ ;   inline   : c!t- t@- c! ;   inline \
 100 var pad \
 : <#   ( n1--n2 )  pad 99 + >t 0 t@ c! dup 0< >a abs ; \
 : #c   ( c-- )     t- t@ c! ; \
@@ -122,7 +121,6 @@ cell var t0 cell var t1 \
 : ->stdout ( -- ) (output-fp) @ ?dup if fclose 0 (output-fp) ! then ; \
 : thru ( f t-- ) begin dup load 1- over over > until drop drop ; \
 marker \
-\
 ");
 }
 #endif // _SYS_LOAD_

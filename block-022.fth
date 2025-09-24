@@ -4,10 +4,10 @@
 replace-one ( -- )  cur-off red '?' emit key white replace-char ;
 insert-char ( ch-- )printable?if0exitthen
   >a rc>pos >r  row max-col >pos >t
- begint@ 1- c@  !t-  t@ r@ >while
+ begint@ 1- c@  c!t-  t@ r@ >while
   a> r> c! tdrop mv-rt dirty ;
 delete-char( -- )rc>pos >t  row max-col >pos >r
- begint@ 1+ c@  !t+  t@ r@ <while
+ begint@ 1+ c@  c!t+  t@ r@ <while
   32 r> 1- c! dirty tdrop ;
 delete-prevmv-lt delete-char ;
 eol-offset( row--offset )>t max-col >a

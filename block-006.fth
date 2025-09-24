@@ -11,7 +11,7 @@
 a-emit(ch--)dup 32 < over 126 > orifdrop '.'thenemit ;
 a-dump(addr--)$10 for dup c@ a-emit 1+ next drop ;
 dump(addr num--)swap >a 0 >t
-  for t@+if0a@ cr .hex8 ':' emit spacethen@a+ .hex space
+  for t@+if0a@ cr .hex8 ':' emit spacethenc@a+ .hex space
       t@ $10 =if3 spaces 0 t! a@ $10 - a-dumpthen
   next atdrop ;
 lshift(n count--n')for 2* next ;
