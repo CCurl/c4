@@ -45,7 +45,7 @@ The editor is 32 lines, 96 columns, and has a VI like feel. <br/>
 ## c4 memory usage
 c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 - It is divided into 3 areas as follows **[CODE][VARS][Dictionary]**.
-- The **CODE** area is an aray of OPCODEs starting at the beginning of the memory.
+- The **CODE** area is an array of OPCODEs starting at the beginning of the memory.
 - The **VARS** area is defined to begin at address **&memory[CODE_SLOTS*WC_SZ]**.
 - The **Dictionary** starts at the end and grows downward.
 - The size of the CODE area is 'code-sz' (see c4.h, CODE_SLOTS).
