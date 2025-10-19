@@ -1,5 +1,7 @@
 # The c4 editor
 
+<img width="796" height="625" alt="image" src="editor.png" />
+
 The c4 editor is somewhat similar to a stripped-down version of VI. <br/>
 Enable the editor using `#define EDITOR` (in c4.h) <br/>
 The current block being edited is in 'block@'. <br/>
