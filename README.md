@@ -19,10 +19,10 @@ c4 also supports the standard state-change words.<br/>
 **NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET.<br/>
 
 ## Tachyon's influence on c4
-In c4, a program is a sequence of DWORD-CODEs. <br/>
-A DWORD-CODE is a 32-bit unsigned number (a DWORD). <br/>
+In c4, a program is a sequence of OPCODEs. <br/>
+An OPCODE is a 32-bit unsigned number (a DWORD). <br/>
 Primitives are assigned numbers sequentially from 0 to **BYE**. <br/>
-If a DWORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
+If an OPCODE is less than or equal to **BYE**, it is a primitive. <br/>
 If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
 If it is between **BYE**, and $E0000000, it is the code address of a word to execute. <br/>
 
@@ -45,7 +45,7 @@ The editor is 32 lines, 96 columns, and has a VI like feel. <br/>
 ## c4 memory usage
 c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 - It is divided into 3 areas as follows **[CODE][VARS][Dictionary]**.
-- The **CODE** area is an aray of DWORD-CODEs starting at the beginning of the memory.
+- The **CODE** area is an aray of OPCODEs starting at the beginning of the memory.
 - The **VARS** area is defined to begin at address **&memory[CODE_SLOTS*WC_SZ]**.
 - The **Dictionary** starts at the end and grows downward.
 - The size of the CODE area is 'code-sz' (see c4.h, CODE_SLOTS).
@@ -53,21 +53,21 @@ c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
 - `last` is the address of the most recently created word.
 - `vhere` is the address of the first free byte the **VARS** area.
 - Use `->memory` to turn an offset into an address into the memory area.
-- Use `->code` to turn an offset into an address of a DWORD-CODE.
+- Use `->code` to turn an offset into an address of an OPCODE.
 - **NOTE**: CODE slots 0-25 (`0 wc@` .. `25 wc@`) are reserved for c4 system values.
 - **NOTE**: CODE slots 26-BYE (`26 wc@` .. `<bye> wc@`) are unused by c4.
 - **NOTE**: These are free for the application to use as desired.
-- **NOTE**: Use `wc@` and `wc!` to get and set DWORD-CODE values in the **CODE** area.
+- **NOTE**: Use `wc@` and `wc!` to get and set OPCODE values in the **CODE** area.
 
 | WORD    | STACK | DESCRIPTION |
 |:--      |:--    |:-- |
 | memory  | (--A) | A: starting address of the c4 memory |
 | vars    | (--A) | A: starting address of the VARS area |
 | mem-sz  | (--N) | N: size in BYTEs of the c4 memory |
-| code-sz | (--N) | N: size in DWORD-CODEs of the c4 CODE area |
+| code-sz | (--N) | N: size in CODE entries of the c4 CODE area |
 | dstk-sz | (--N) | N: size in CELLs of the DATA and RETURN stacks |
 | tstk-sz | (--N) | N: size in CELLs of the A and T stacks |
-| wc-sz   | (--N) | N: size in BYTEs of a DWORD-CODE |
+| wc-sz   | (--N) | N: size in BYTEs of an OPCODE |
 | de-sz   | (--N) | N: size in BYTEs of a dictionary entry |
 | (dsp)   | (--N) | N: CODE slot for the data stack pointer |
 | (rsp)   | (--N) | N: CODE slot for the return stack pointer |
@@ -139,7 +139,7 @@ c4 provides 10 temporary words, 't0' thru 't9'.
 - When redefined, code references to the previous definition are unchanged.
 - t0 thru t5 are 'normal', t6 thru t9 are 'inline'.
 
-## c4 DWORD-CODE primitives
+## c4 OPCODE primitives
 The primitives:
 
 | WORD      | STACK        | DESCRIPTION |
@@ -150,13 +150,13 @@ The primitives:
 | ]         | (--)  ST=1   | Set STATE to COMPILE (GREEN) |
 | (         | (--)  ST=4   | Remember STATE. Set STATE to COMMENT (WHITE) |
 | )         | (--)  ST=?   | Set STATE to previous state |
-| (lit)     | (--WC)       | WC: DWORD-CODE for the LIT primitive |
-| (jmp)     | (--WC)       | WC: DWORD-CODE for the JMP primitive |
-| (jmpz)    | (--WC)       | WC: DWORD-CODE for the JMPZ primitive |
-| (jmpnz)   | (--WC)       | WC: DWORD-CODE for the JMPNZ primitive |
-| (njmpz)   | (--WC)       | WC: DWORD-CODE for the NJMPZ primitive |
-| (njmpnz)  | (--WC)       | WC: DWORD-CODE for the NJMPNZ primitive |
-| (exit)    | (--WC)       | WC: DWORD-CODE for the EXIT primitive |
+| (lit)     | (--WC)       | WC: OPCODE for the LIT primitive |
+| (jmp)     | (--WC)       | WC: OPCODE for the JMP primitive |
+| (jmpz)    | (--WC)       | WC: OPCODE for the JMPZ primitive |
+| (jmpnz)   | (--WC)       | WC: OPCODE for the JMPNZ primitive |
+| (njmpz)   | (--WC)       | WC: OPCODE for the NJMPZ primitive |
+| (njmpnz)  | (--WC)       | WC: OPCODE for the NJMPNZ primitive |
+| (exit)    | (--WC)       | WC: OPCODE for the EXIT primitive |
 | exit      | (--)         | EXIT word |
 | dup       | (N--N N)     | Duplicate TOS (Top-Of-Stack) |
 | swap      | (X Y--Y X)   | Swap TOS and NOS (Next-On-Stack) |
@@ -166,12 +166,12 @@ The primitives:
 | c@        | (A--C)       | C: the CHAR at absolute address A |
 | w@        | (A--W)       | W: the 16-bit WORD at absolute address A |
 | d@        | (A--D)       | D: the 32-bit DWORD at absolute address A |
-| wc@       | (N--WC)      | WC: the DWORD-CODE in CODE slot N |
+| wc@       | (N--WC)      | WC: the CODE entry in CODE slot N |
 | !         | (N A--)      | Store CELL N to absolute address A |
 | c!        | (C A--)      | Store CHAR C to absolute address A |
 | w!        | (W A--)      | Store 16-bit WORD W to absolute address A |
 | d!        | (D A--)      | Store 32-bit DWORD D to absolute address A |
-| wc!       | (WC N--)     | Store DWORD-CODE WC to CODE slot N |
+| wc!       | (WC N--)     | Store WC to CODE slot N |
 | +         | (X Y--N)     | N: X + Y |
 | -         | (X Y--N)     | N: X - Y |
 | *         | (X Y--N)     | N: X * Y |
