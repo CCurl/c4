@@ -20,7 +20,7 @@ c4 also supports the standard state-change words.<br/>
 
 ## Tachyon's influence on c4
 In c4, a program is a sequence of WORD-CODEs. <br/>
-A WORD-CODE is a 16-bit unsigned number (a DWORD). <br/>
+A WORD-CODE is a 16-bit unsigned number (a WORD). <br/>
 Primitives are assigned numbers sequentially from 0 to **BYE**. <br/>
 If a WORD-CODE is less than or equal to **BYE**, it is a primitive. <br/>
 If the top 3 bits are set, it is a 13-bit unsigned literal, 0-$1FFF. <br/>
