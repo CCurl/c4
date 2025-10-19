@@ -17,7 +17,7 @@
 #define LSTK_SZ         60  // 3 cells per entry
 #define TSTK_SZ         63  // A, B and T stacks
 #define FSTK_SZ         15  // File stack
-#define NAME_LEN        23  // DE-SZ = 2+1+1+LEN+1
+#define NAME_LEN        17  // DE-SZ = WC_SZ+1+1+LEN+1
 #define _SYS_LOAD_
 #define EDITOR
 
