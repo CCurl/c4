@@ -10,7 +10,7 @@ void sys_load() {
 ( Comments are free/built-in ) \
 : \\ 0 >in @ c! ; immediate \
 : ->memory memory + ; \
-: ->code dup + ->memory ; \
+: ->code wc-sz * ->memory ; \
 : here  (here)  wc@ ; \
 : last  (last)  @ ; \
 : base@ base  wc@ ; \
@@ -27,7 +27,7 @@ void sys_load() {
 : const ( n-- )  addword lit, (exit) , ; \
 : var ( n-- ) vhere const allot ; \
 : val -1 const ; \
-: (val) last  w@ 1+ ->code const ; \
+: (val) last  @ 1+ ->code const ; \
 : create vhere addword vhere lit, ; \
 : does> (jmp) , r> , ; \
 : begin here ; immediate \

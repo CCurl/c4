@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20250725
+#define VERSION   20251018
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -12,12 +12,12 @@
 #endif
 
 #define MEM_SZ          16*1024*1024
-#define CODE_SLOTS    0xE000
+#define CODE_SLOTS    0x10000
 #define STK_SZ          63  // Both data and return stacks
 #define LSTK_SZ         60  // 3 cells per entry
 #define TSTK_SZ         63  // A, B and T stacks
 #define FSTK_SZ         15  // File stack
-#define NAME_LEN        19  // DE-SZ = 2+1+1+LEN+1
+#define NAME_LEN        23  // DE-SZ = 2+1+1+LEN+1
 #define _SYS_LOAD_
 #define EDITOR
 
@@ -31,10 +31,10 @@
 #define _IMMED           1
 #define _INLINE          2
 
-#define WC_T          uint16_t
-#define WC_SZ            2
-#define NUM_BITS       0xE000
-#define NUM_MASK       0x1FFF
+#define WC_T          uint32_t
+#define WC_SZ            4
+#define NUM_BITS       0xE0000000
+#define NUM_MASK       0x1FFFFFFF
 
 #if INTPTR_MAX > INT32_MAX
     #define CELL_T        int64_t
