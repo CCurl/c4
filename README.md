@@ -20,11 +20,11 @@ c4 also supports the standard state-change words.<br/>
 
 ## Tachyon's influence on c4
 In c4, a program is a sequence of OPCODEs. <br/>
-An OPCODE is a 32-bit unsigned number (a DWORD). <br/>
+An OPCODE is an unsigned CELL, 32 or 64 bits. <br/>
 Primitives are assigned numbers sequentially from 0 to **BYE**. <br/>
-If an OPCODE is less than or equal to **BYE**, it is a primitive. <br/>
-If the top 3 bits are set, it is a 29-bit unsigned literal, 0-$1FFFFFFF. <br/>
-If it is between **BYE**, and $E0000000, it is the code address of a word to execute. <br/>
+If the OPCODE is less than or equal to **BYE**, it is a primitive. <br/>
+Else if the top 3 bits are set, it is an unsigned literal. <br/>
+Else, it is the offset in the CODE area (XT) of a word to execute. <br/>
 
 ## c4's built-in block editor
 c4 has a built-in editor. See [Editor.md](Editor.md) for details. <br/>
@@ -35,10 +35,10 @@ The editor is 32 lines, 96 columns, and has a VI like feel. <br/>
 
 ## Building c4
 ### Windows
-- There is a Visual Studio solution file, c4.sln (either 32- or 64-bit)
+- There is a Visual Studio solution file, **c4.sln** (either 32- or 64-bit)
 ### Linux and other similar systems
 - There is a makefile.
-- The default architecture is 32-bits. That is faster on my systems.
+- The default architecture is 32-bits. That is a little faster on my systems.
 - 32-bit: use 'make'
 - 64-bit: use 'ARCH=64 make'
 
