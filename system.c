@@ -1,7 +1,8 @@
 #include "c4.h"
 
 #ifdef IS_WINDOWS
-  #include <conio.h>
+#include <windows.h>
+#include <conio.h>
   int qKey() { return _kbhit(); }
   int key() { return _getch(); }
   void ttyMode(int isRaw) {}

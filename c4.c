@@ -107,7 +107,7 @@ DE_T tmpWords[10], *last;
 	X(SEQ,     "s-eq",      0, t=pop(); TOS = strEq((char*)TOS, (char*)t); ) \
 	X(SEQI,    "s-eqi",     0, t=pop(); TOS = strEqI((char*)TOS, (char*)t); ) \
 	X(SLEN,    "s-len",     0, TOS = strLen((char*)TOS); ) \
-	X(SFIND,   "s-find",    0, t=pop(); n=pop(); TOS = strFind((char*)TOS, (char*)n, t); ) \
+	X(SFIND,   "s-find",    0, t=pop(); n=pop(); TOS = strFind((char*)TOS, (char*)n, (int)t); ) \
 	X(ZQUOTE,  "z\"",       1, quote(); ) \
 	X(DOTQT,   ".\"",       1, quote(); (state==COMPILE) ? comma(FTYPE) : fType((char*)pop()); ) \
 	X(FIND,    "find",      0, { DE_T *dp=findWord(0); push(dp?dp->xt:0); push((cell)dp); } )
@@ -117,12 +117,12 @@ DE_T tmpWords[10], *last;
 	X(FLOPEN,  "fopen",     0, t=pop(); n=pop(); push(fileOpen((char*)n, (char*)t)); ) \
 	X(FLCLOSE, "fclose",    0, t=pop(); fileClose(t); ) \
 	X(FLDEL,   "fdelete",   0, t=pop(); fileDelete((char*)t); ) \
-	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, (int)n, t); ) \
-	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, (int)n, t); ) \
-	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, (int)n, t); ) \
+	X(FLREAD,  "fread",     0, t=pop(); n=pop(); TOS = fileRead((char*)TOS, n, t); ) \
+	X(FLWRITE, "fwrite",    0, t=pop(); n=pop(); TOS = fileWrite((char*)TOS, n, t); ) \
+	X(FLGETS,  "fgets",     0, t=pop(); n=pop(); TOS = fileGets((char*)TOS, n, t); ) \
 	X(INCL,    "include",   0, t=nextWord(); if (t) fileLoad(wd); ) \
-	X(LOAD,    "load",      0, t=pop(); blockLoad((int)t); ) \
-	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext((int)t); ) \
+	X(LOAD,    "load",      0, t=pop(); blockLoad(t); ) \
+	X(NXTBLK,  "load-next", 0, t=pop(); blockLoadNext(t); ) \
 	X(EDITBLK, "edit",      0, editBlock(pop()); )
 
 #define PRIMS_SYSTEM \
@@ -235,7 +235,7 @@ DE_T *findWord(const char *w) {
 	return (DE_T*)0;
 }
 
-cell findXT(int xt) {
+cell findXT(cell xt) {
 	DE_T *dp = last;
 	while ((byte*)dp < &memory[MEM_SZ]) {
 		if (dp->xt == xt) { return (cell)dp; }
@@ -407,7 +407,7 @@ void outer(const char *ln) {
 		// zTypeF("-word:(%s,%d)-",wd,state);
 		if (isStateChange(wd)) { continue; }
 		if (state == DEFINE) { addWord(wd); state = COMPILE; continue; }
-		if (isNum(wd, base)) {
+		if (isNum(wd, (int)base)) {
 			if (state == COMPILE) { compileNum(pop()); }
 			continue;
 		}

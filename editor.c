@@ -162,7 +162,7 @@ static void edRdBlk() {
     cell fh = fileOpen(blockFn(block), "rb");
     if (fh) {
         char x[BLOCK_SZ+1];
-        int r=0, c=0, n=fileRead(x, BLOCK_SZ, fh);
+        int r=0, c=0, n=(int)fileRead(x, BLOCK_SZ, fh);
         zTypeF("%d chars", n);
         fileClose(fh);
         for (int i=0; i<n; i++) {
@@ -329,9 +329,9 @@ static int edReadLine(char *buf, int sz) {
     return len;
 }
 
-static void gotoBlock(int blk) {
+static void gotoBlock(cell blk) {
     lastBlock = block;
-    edSvBlk(0); setBlock(blk);
+    edSvBlk(0); setBlock((int)blk);
     edRdBlk(); line = off = 0;
 }
 
@@ -527,9 +527,9 @@ static void showEditor() {
 }
 
 void editBlock(cell blk) {
-    int tmp = fetchWC(BLKA);
+    int tmp = (int)fetchWC(BLKA);
     if (tmp && (tmp != blk)) { lastBlock = tmp; }
-    if (lastBlock == 0) { lastBlock = blk; }
+    if (lastBlock == 0) { lastBlock = (int)blk; }
     setBlock((int)blk);
     line = off = 0;
     CLS();
