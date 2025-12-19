@@ -2,7 +2,7 @@
 
 #define __C4_H__
 
-#define VERSION   20251211
+#define VERSION   20251219
 
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
@@ -38,7 +38,7 @@
   #define WC_SZ         8
   #define NUM_BITS      0xE000000000000000
   #define NUM_MASK      0x1FFFFFFFFFFFFFFF
-  #define NAME_LEN      21  // DE-SZ = WC_SZ+1+1+LEN+1
+  #define NAME_LEN      21  // DE-SZ = 8+1+1+LEN+1 = 32
 #else
   #define CELL_T        int32_t
   #define CELL_SZ       4
@@ -46,7 +46,7 @@
   #define WC_SZ         4
   #define NUM_BITS      0xE0000000
   #define NUM_MASK      0x1FFFFFFF
-  #define NAME_LEN      17  // DE-SZ = WC_SZ+1+1+LEN+1
+  #define NAME_LEN      17  // DE-SZ = 4+1+1+LEN+1 = 24
 #endif
 
 enum { COMPILE=1, DEFINE=2, INTERP=3, COMMENT=4 };
@@ -94,6 +94,7 @@ extern void ttyMode(int isRaw);
 extern int  key();
 extern int  qKey();
 extern cell timer();
+extern void ms(cell sleepForMS);
 extern void fileInit();
 extern void filePush(cell fh);
 extern cell filePop();

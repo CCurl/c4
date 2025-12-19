@@ -90,7 +90,7 @@ DE_T tmpWords[10], *last;
 	X(BDROP,   "bdrop",     0, if (0 < bsp) { bsp--; } ) \
 	X(EMIT,    "emit",      0, emit((char)pop()); ) \
 	X(KEY,     "key",       0, push(key()); ) \
-	X(QKEY,    "?key",      0, push(qKey()); ) \
+	X(QKEY,    "key?",      0, push(qKey()); ) \
 	X(SEMI,    ";",         1, comma(EXIT); state=INTERP; ) \
 	X(LITC,    "lit,",      0, t=pop(); compileNum(t); ) \
 	X(NEXTWD,  "next-wd",   0, push((cell)wd); push(nextWord()); ) \
@@ -99,6 +99,7 @@ DE_T tmpWords[10], *last;
 	X(OUTER,   "outer",     0, outer((char*)pop()); ) \
 	X(ADDWORD, "addword",   0, addWord(0); ) \
 	X(CLK,     "timer",     0, push(timer()); ) \
+	X(MS,      "ms",        0, ms(pop()); ) \
 	X(SEE,     "see",       0, doSee(); ) \
 	X(ZTYPE,   "ztype",     0, zType((char*)pop()); ) \
 	X(FTYPE,   "ftype",     0, fType((char*)pop()); ) \
@@ -387,16 +388,13 @@ void compileWord(DE_T *de) {
 }
 
 int isStateChange(const char *wd) {
-	static int prevState = INTERP;
-	if (prevState == COMMENT) { prevState = INTERP; }
-	if (strEq(wd, ")")) { return changeState(prevState); }
-	if (state==COMMENT) { return 0; }
+	if (state==COMMENT) { return 1; }
 	if (strEq(wd,":")) { return changeState(DEFINE); }
 	if (strEq(wd,"[")) { return changeState(INTERP); }
 	if (strEq(wd,"]")) { return changeState(COMPILE); }
 	if (strEq(wd,"(")) {
-		if (state!=COMMENT) { prevState=state; }
-		return changeState(COMMENT);
+		while (wd[0] && !strEq(wd,")")) { nextWord(); }
+		return 1;
 	}
 	return 0;
 }
@@ -408,7 +406,6 @@ void outer(const char *ln) {
 	while (nextWord()) {
 		// zTypeF("-word:(%s,%d)-",wd,state);
 		if (isStateChange(wd)) { continue; }
-		if (state == COMMENT) { continue; }
 		if (state == DEFINE) { addWord(wd); state = COMPILE; continue; }
 		if (isNum(wd, base)) {
 			if (state == COMPILE) { compileNum(pop()); }

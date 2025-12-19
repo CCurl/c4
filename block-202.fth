@@ -16,12 +16,12 @@
 disp(--)1 1 ->cr  35 for  i 10 + .row cr  next ;
 grid->work(--)start a!begin ?alive  a@+ end < while;
 work->grid(--)work b! grid a!  grid-sz for  live? c!a+  0 c!b+ next ;
-one-gen(--)grid->work work->grid disp ;
-gens(gens--)for one-gen  ?keyifkey drop unloop exitthennext ;
+slow-down(--)10 ms ;
+one-gen(--)grid->work work->grid disp slow-down ;
+gens(gens--)for one-gen  key?ifkey drop unloop exitthennext ;
 init(--)grid a!  grid-sz for  100 rand-mod 70 > 10 * 32 + c!a+  next ;32+10=42 ('*')
 life(gens--)cur-off dupif0drop 500thencls init gens cur-on ;
 lifes(n--)for 1000 life.s key dropnext ;
-
 
 
 

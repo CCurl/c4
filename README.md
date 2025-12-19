@@ -12,11 +12,10 @@ c4 also supports the standard state-change words.<br/>
 |  $02  |  :    |   2   | Define |
 |  $03  |  [    |   3   | Interpret/execute/immediate |
 |  $04  |       |   4   | Comment |
-|       |  (    |   4   | Comment, save current state |
-|       |  )    |       | End comment, restores saved state |
 
 **NOTE**: In the DEFINE state, c4 changes the state to COMPILE after adding the next word.<br/>
 **NOTE**: Unlike ColorForth, ';' compiles EXIT and then changes the state to INTERPRET.<br/>
+**NOTE**: The `(` word simply skips to the next `)` word, no nesting.<br/>
 
 ## Tachyon's influence on c4
 In c4, a program is a sequence of OPCODEs. <br/>
@@ -221,6 +220,8 @@ The primitives:
 | b>        | (--N)        | Pop N from the B stack |
 | bdrop     | (--)         | Drop B-TOS |
 | emit      | (C--)        | Output char C |
+| key       | (--C)        | Read char C from stdin, block if needed |
+| key?      | (--F)        | F: 1 if key was pressed, else 0 |
 | lit,      | (N--)        | Compile a push of number N |
 | next-wd   | (--A L)      | L: length of the next word (A) from the input stream |
 |           |              | - If L=0, then A is an empty string (end of input) |
@@ -229,6 +230,7 @@ The primitives:
 | outer     | (S--)        | Send string S to the c4 outer interpreter |
 | addword   | (--)         | Add the next word to the dictionary |
 | timer     | (--N)        | N: Current time |
+| ms        | (MS--)       | MS: Number of milliseconds to sleep |
 | see X     | (--)         | Output the definition of word X |
 | ztype     | (S--)        | Print string at S (unformatted) |
 | ftype     | (S--)        | Print string at S (formatted) |

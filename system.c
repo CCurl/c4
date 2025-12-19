@@ -5,6 +5,7 @@
   int qKey() { return _kbhit(); }
   int key() { return _getch(); }
   void ttyMode(int isRaw) {}
+  void ms(cell sleepForMS) { Sleep((DWORD)sleepForMS); }
 #endif
 
 #ifdef IS_LINUX
@@ -45,6 +46,14 @@
       ttyMode(1);
       int x = fgetc(stdin);
       return x;
+  }
+  void ms(cell sleepForMS) {
+      while (sleepForMS > 1000) {
+          usleep(500000);
+          usleep(500000);
+          sleepForMS -= 1000;
+      }
+      if (sleepForMS > 0) { usleep(sleepForMS * 1000); }
   }
 #endif // IS_LINUX
 
