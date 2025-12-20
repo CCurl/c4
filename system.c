@@ -48,7 +48,9 @@
       int x = fgetc(stdin);
       return x;
   }
-  void ms(cell sleepForMS) { usleep(sleepForMS * 1000); }
+  void ms(cell sleepForMS) {
+	  if (sleepForMS > 0) { usleep(sleepForMS * 1000); }
+  }
 #endif // IS_LINUX
 
 cell timer() { return (cell)clock(); }
