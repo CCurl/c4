@@ -37,17 +37,17 @@ The editor is 32 lines, 96 columns, and has a VI like feel. <br/>
 - There is a Visual Studio solution file, **c4.sln** (either 32- or 64-bit)
 ### Linux and other similar systems
 - There is a makefile.
-- The default architecture is 32-bits. That is a little faster on my systems.
-- 32-bit: use 'make'
-- 64-bit: use 'ARCH=64 make'
+- The default architecture is 64-bits. That is a little faster on my systems.
+- 64-bit: use 'make'
+- 32-bit: use 'ARCH=32 make'
 
 ## c4 memory usage
-c4 provides a single memory area with size 'mem-sz' (see c4.h, MEM_SZ).
+c4 provides a single memory area with size 'mem-sz' (see c4.h, **MEM_SZ**).
 - It is divided into 3 areas as follows **[CODE][VARS][Dictionary]**.
 - The **CODE** area is an array of OPCODEs starting at the beginning of the memory.
 - The **VARS** area is defined to begin at address **&memory[CODE_SLOTS*WC_SZ]**.
 - The **Dictionary** starts at the end and grows downward.
-- The size of the CODE area is 'code-sz' (see c4.h, CODE_SLOTS).
+- The size of the CODE area is 'code-sz' (see c4.h, **CODE_SLOTS**).
 - `here` is an offset into the **CODE** area, the next slot to be allocated.
 - `last` is the address of the most recently created word.
 - `vhere` is the address of the first free byte the **VARS** area.
@@ -111,7 +111,7 @@ For example `: ascii ( n-- ) dup dup dup ." char %c, decimal #%d, binary: %%%b, 
 ## The A, B and T stacks
 c4 includes A, B and T stacks. <br/>
 These are similar to ColorForth's operations for 'a', but in c4, they are stacks.<br/>
-The size of the stacks is 'tstk-sz' (see c4.h, TSTK_SZ).<br/>
+The size of the stacks is 'tstk-sz' (see c4.h, **TSTK_SZ**).<br/>
 Note that there are also additional words for the return stack. <br/>
 
 | WORD  | STACK | DESCRIPTION |
@@ -126,8 +126,7 @@ Note that there are also additional words for the return stack. <br/>
 
 ## Inline words
 In c4, an "INLINE" word is similar to a macro. When compiling a word that is INLINE, c4 copies the contents of the word (up to, but not including the first EXIT) to the target, as opposed to compiling a CALL to the word. This improves performance, but uses extra space.
-
-**Note that if a word might have an embedded 7 (EXIT) in its implementation (eg - a word in an address for example), then it should not be marked as INLINE.**
+**Note that if a word might have an embedded 7 (the opcode value for EXIT) in its implementation, then it should not be marked as INLINE.**
 
 ## Temporary words
 c4 provides 10 temporary words, 't0' thru 't9'.
@@ -147,8 +146,7 @@ The primitives:
 | ;         | (--)  ST=3   | Compile EXIT and set STATE to INTERPRET (YELLOW) |
 | [         | (--)  ST=3   | Set STATE to INTERPRET (YELLOW) |
 | ]         | (--)  ST=1   | Set STATE to COMPILE (GREEN) |
-| (         | (--)  ST=4   | Remember STATE. Set STATE to COMMENT (WHITE) |
-| )         | (--)  ST=?   | Set STATE to previous state |
+| (         | (--)         | Skip to next word ')' |
 | (lit)     | (--WC)       | WC: OPCODE for the LIT primitive |
 | (jmp)     | (--WC)       | WC: OPCODE for the JMP primitive |
 | (jmpz)    | (--WC)       | WC: OPCODE for the JMPZ primitive |
@@ -260,6 +258,6 @@ The primitives:
 | bye       | (--)         | PC ONLY: Exit c4 |
 
 ## c4 default words
-If _SYS_LOAD_ is not defined in file c4.h, load block-000.fth.
-Else, load the words in function `sys_load()` in file sys-load.c.<br/>
+If **SYS_LOAD** is defined in file c4.h, call function **sys_load()**.<br/>
+Else, load file block 0 (file **block-000.fth**).<br/>
 For details, or to add or change the default words, modify that function.

@@ -11,8 +11,9 @@
   #define IS_LINUX   1
 #endif
 
-#define MEM_SZ          16*1024*1024
-#define CODE_SLOTS      0x10000
+#define MB(x)         (x*1024*1024)
+#define MEM_SZ        MB(16)
+#define CODE_SLOTS    0x10000
 #define STK_SZ          63  // Both data and return stacks
 #define LSTK_SZ         60  // 3 cells per entry
 #define TSTK_SZ         63  // A, B and T stacks

@@ -1,4 +1,4 @@
-ARCH ?= 32
+ARCH ?= 64
 CFLAGS = -O3 -m$(ARCH)
 srcfiles := $(shell find . -name "*.c")
 incfiles := $(shell find . -name "*.h")
