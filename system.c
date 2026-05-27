@@ -86,6 +86,13 @@ void loadArgument(const char *arg) {
 
 int main(int argc, char *argv[]) {
 	c4Init();
+    outerF(": argc %d ;", argc);
+    for (int i = 0; i < argc; i++) {
+        outerF(": arg%d $%lx ;", i, argv[i]);
+    }
+    outerF(WINLIN);
+    outerF("marker");
+
     if (argc > 1) { loadArgument(argv[1]); }
     else { loadArgument("block-999.fth"); }
     while (1) { REP(); };
