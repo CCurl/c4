@@ -7,8 +7,10 @@
 #ifdef _MSC_VER
   #define _CRT_SECURE_NO_WARNINGS
   #define IS_WINDOWS 1
+  #define WINLIN ": LINUX 0 ; : WINDOWS 1 ;"
 #else
   #define IS_LINUX   1
+  #define WINLIN ": WINDOWS 0 ; : LINUX 1 ;"
 #endif
 
 #define MB(x)         (x*1024*1024)
