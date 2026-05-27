@@ -90,6 +90,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < argc; i++) {
         outerF(": arg%d $%lx ;", i, argv[i]);
     }
+    outerF(WINLIN);
     outerF("marker");
 
     if (argc > 1) { loadArgument(argv[1]); }
